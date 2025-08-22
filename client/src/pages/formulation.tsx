@@ -31,6 +31,14 @@ export default function FormulationPage() {
     );
   }
 
+  // Check if already favorited on load
+  React.useEffect(() => {
+    if (formulationId) {
+      const favorites = JSON.parse(localStorage.getItem('favoriteFormulations') || '[]');
+      setIsFavorited(favorites.includes(formulationId));
+    }
+  }, [formulationId]);
+
   if (!formulation) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -157,14 +165,6 @@ Generated on: ${new Date().toLocaleDateString()}
       });
     }
   };
-
-  // Check if already favorited on load
-  React.useEffect(() => {
-    if (formulationId) {
-      const favorites = JSON.parse(localStorage.getItem('favoriteFormulations') || '[]');
-      setIsFavorited(favorites.includes(formulationId));
-    }
-  }, [formulationId]);
 
   return (
     <div className="bg-white py-8">
