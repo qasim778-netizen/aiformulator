@@ -42,7 +42,7 @@ export default function Home() {
                 Professional Chemical Formulations
               </h1>
               <p className="text-xl md:text-2xl mb-8 max-w-2xl">
-                Ready-to-use formulations for small business manufacturers across 10+ product categories
+                Ready-to-use formulations for small business manufacturers across 50+ product categories with 1000+ formulations
               </p>
               <Button 
                 className="bg-accent text-white px-8 py-3 text-lg font-medium hover:bg-orange-600"
