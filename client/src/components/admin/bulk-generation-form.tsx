@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Sparkles, Loader2, Zap, Package } from "lucide-react";
+import { Sparkles, Loader2, Package, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -14,10 +14,9 @@ interface BulkGenerationFormProps {
 }
 
 export default function BulkGenerationForm({ onSuccess }: BulkGenerationFormProps) {
-  const [categoryDescription, setCategoryDescription] = useState("");
-  const [formulationCount, setFormulationCount] = useState("5");
+  const [categoryDescriptions, setCategoryDescriptions] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [progress, setProgress] = useState({ step: "", categoryId: "", generatedCount: 0 });
+  const [progress, setProgress] = useState({ current: 0, total: 0, currentCategory: "" });
   const { toast } = useToast();
 
   const createCategory = useMutation({
@@ -25,65 +24,77 @@ export default function BulkGenerationForm({ onSuccess }: BulkGenerationFormProp
       apiRequest("POST", "/api/ai/generate-category", { description }),
   });
 
-  const generateBulkFormulations = useMutation({
-    mutationFn: ({ categoryId, count }: { categoryId: string; count: number }) => 
-      apiRequest("POST", "/api/ai/generate-bulk-formulations", { categoryId, count }),
-  });
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!categoryDescription.trim()) {
+    if (!categoryDescriptions.trim()) {
       toast({ 
-        title: "Category description required", 
-        description: "Please describe the type of products you want to create",
+        title: "Category descriptions required", 
+        description: "Please describe the types of categories you want to create",
         variant: "destructive" 
       });
       return;
     }
 
-    const count = parseInt(formulationCount);
-    if (!count || count < 1 || count > 50) {
+    // Split descriptions by line and filter out empty lines
+    const descriptions = categoryDescriptions
+      .split('\n')
+      .map(desc => desc.trim())
+      .filter(desc => desc.length > 0);
+
+    if (descriptions.length === 0) {
       toast({ 
-        title: "Invalid formulation count", 
-        description: "Please enter a number between 1 and 50",
+        title: "No valid descriptions found", 
+        description: "Please enter at least one category description",
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    if (descriptions.length > 10) {
+      toast({ 
+        title: "Too many categories", 
+        description: "Please limit to 10 categories at once",
         variant: "destructive" 
       });
       return;
     }
 
     setIsGenerating(true);
-    setProgress({ step: "Creating category...", categoryId: "", generatedCount: 0 });
+    setProgress({ current: 0, total: descriptions.length, currentCategory: "" });
 
+    const createdCategories = [];
+    
     try {
-      // Step 1: Create category
-      const category = await createCategory.mutateAsync(categoryDescription) as any;
-      setProgress({ 
-        step: "Generating formulations...", 
-        categoryId: category.id, 
-        generatedCount: 0 
-      });
-
-      // Step 2: Generate formulations
-      const result = await generateBulkFormulations.mutateAsync({
-        categoryId: category.id,
-        count: count
-      }) as any;
+      for (let i = 0; i < descriptions.length; i++) {
+        const description = descriptions[i];
+        setProgress({ current: i + 1, total: descriptions.length, currentCategory: description });
+        
+        try {
+          const category = await createCategory.mutateAsync(description) as any;
+          createdCategories.push(category);
+          
+          // Small delay between requests
+          if (i < descriptions.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        } catch (error) {
+          console.error(`Failed to create category: ${description}`, error);
+        }
+      }
 
       // Update cache
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
 
       toast({ 
-        title: "Bulk generation completed!", 
-        description: `Created category "${category.name}" with ${result.count} formulations`
+        title: "Bulk category generation completed!", 
+        description: `Successfully created ${createdCategories.length} out of ${descriptions.length} categories`
       });
 
       // Reset form
-      setCategoryDescription("");
-      setFormulationCount("5");
-      setProgress({ step: "", categoryId: "", generatedCount: 0 });
+      setCategoryDescriptions("");
+      setProgress({ current: 0, total: 0, currentCategory: "" });
       onSuccess();
 
     } catch (error: any) {
@@ -98,94 +109,76 @@ export default function BulkGenerationForm({ onSuccess }: BulkGenerationFormProp
   };
 
   return (
-    <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+    <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-purple-700">
-          <Zap className="h-5 w-5" />
-          Bulk Category & Formulations Generator
+        <CardTitle className="flex items-center gap-2 text-blue-700">
+          <Package className="h-5 w-5" />
+          Bulk Category Generator
         </CardTitle>
         <p className="text-sm text-gray-600">
-          Create a complete product category with multiple formulations in one operation. 
-          AI will generate both the category details and all specified formulations automatically.
+          Create multiple new categories at once. AI will generate unique categories that don't already exist.
+          Each category gets its own professional details, icon, and image.
         </p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="categoryDescription" className="block text-sm font-medium mb-2">
-              Product Category Description
+            <label htmlFor="categoryDescriptions" className="block text-sm font-medium mb-2">
+              Category Descriptions (One per line)
             </label>
             <Textarea
-              id="categoryDescription"
-              data-testid="textarea-bulk-category-description"
-              placeholder="Example: Professional automotive detailing products including polishes, waxes, cleaners, and protective coatings for car care businesses"
-              value={categoryDescription}
-              onChange={(e) => setCategoryDescription(e.target.value)}
-              rows={4}
+              id="categoryDescriptions"
+              data-testid="textarea-bulk-categories"
+              placeholder={`Example (one per line):
+Professional hair care products for salons
+Industrial cleaning solvents for manufacturing
+Natural skincare for sensitive skin
+Automotive paint protection systems
+Pet grooming and hygiene products`}
+              value={categoryDescriptions}
+              onChange={(e) => setCategoryDescriptions(e.target.value)}
+              rows={8}
               className="w-full"
               disabled={isGenerating}
             />
             <p className="text-xs text-gray-500 mt-1">
-              Describe the type of chemical products you want to manufacture
-            </p>
-          </div>
-
-          <div>
-            <label htmlFor="formulationCount" className="block text-sm font-medium mb-2">
-              Number of Formulations to Generate
-            </label>
-            <Input
-              id="formulationCount"
-              data-testid="input-formulation-count"
-              type="number"
-              min="1"
-              max="50"
-              value={formulationCount}
-              onChange={(e) => setFormulationCount(e.target.value)}
-              className="w-32"
-              disabled={isGenerating}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Choose between 1-50 formulations (recommended: 5-10 for variety)
+              Enter up to 10 category descriptions, one per line. AI will avoid creating duplicates.
             </p>
           </div>
 
           {/* Progress Display */}
           {isGenerating && (
-            <div className="p-4 bg-purple-100 rounded-lg border border-purple-200">
+            <div className="p-4 bg-blue-100 rounded-lg border border-blue-200">
               <div className="flex items-center gap-2 mb-2">
-                <Loader2 className="h-4 w-4 animate-spin text-purple-600" />
-                <span className="text-sm font-medium text-purple-800">
-                  {progress.step}
+                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                <span className="text-sm font-medium text-blue-800">
+                  Creating category {progress.current} of {progress.total}
                 </span>
               </div>
-              {progress.categoryId && (
-                <div className="text-xs text-purple-600">
-                  Category created! Generating {formulationCount} formulations...
+              {progress.currentCategory && (
+                <div className="text-xs text-blue-600 mt-1">
+                  Current: {progress.currentCategory.substring(0, 60)}...
                 </div>
               )}
             </div>
           )}
 
           {/* Generation Preview */}
-          {!isGenerating && categoryDescription && formulationCount && (
-            <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-              <h4 className="text-sm font-medium text-blue-800 mb-2 flex items-center gap-2">
-                <Package className="h-4 w-4" />
+          {!isGenerating && categoryDescriptions.trim() && (
+            <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+              <h4 className="text-sm font-medium text-green-800 mb-2 flex items-center gap-2">
+                <Plus className="h-4 w-4" />
                 Generation Preview
               </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                    1 Category
+                  <Badge variant="outline" className="bg-green-100 text-green-800">
+                    {categoryDescriptions.split('\n').filter(line => line.trim()).length} Categories
                   </Badge>
-                  <span className="text-blue-700">Auto-generated with AI</span>
+                  <span className="text-green-700">AI-generated with unique details</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="bg-purple-100 text-purple-800">
-                    {formulationCount} Formulations
-                  </Badge>
-                  <span className="text-purple-700">Complete with ingredients & instructions</span>
+                <div className="text-green-600 text-xs">
+                  Each category will get professional description, icon, and image
                 </div>
               </div>
             </div>
@@ -194,19 +187,19 @@ export default function BulkGenerationForm({ onSuccess }: BulkGenerationFormProp
           <div className="flex gap-3">
             <Button
               type="submit"
-              disabled={isGenerating || !categoryDescription.trim() || !formulationCount}
-              className="bg-purple-600 text-white hover:bg-purple-700 flex-1"
-              data-testid="button-bulk-generate"
+              disabled={isGenerating || !categoryDescriptions.trim()}
+              className="bg-blue-600 text-white hover:bg-blue-700 flex-1"
+              data-testid="button-bulk-generate-categories"
             >
               {isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Generating...
+                  Creating Categories...
                 </>
               ) : (
                 <>
-                  <Zap className="h-4 w-4 mr-2" />
-                  Generate Category + {formulationCount} Formulations
+                  <Package className="h-4 w-4 mr-2" />
+                  Generate {categoryDescriptions.split('\n').filter(line => line.trim()).length} Categories
                 </>
               )}
             </Button>

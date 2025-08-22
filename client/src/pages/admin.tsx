@@ -562,19 +562,19 @@ export default function AdminPage() {
           <div>
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-xl font-inter font-semibold text-gray-900">Bulk Generation</h2>
-                <p className="text-sm text-gray-600 mt-1">Create complete categories with multiple formulations automatically</p>
+                <h2 className="text-xl font-inter font-semibold text-gray-900">Bulk Category Generation</h2>
+                <p className="text-sm text-gray-600 mt-1">Create multiple new categories at once that don't already exist</p>
               </div>
               <Dialog open={bulkGenerationDialogOpen} onOpenChange={setBulkGenerationDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button className="bg-purple-600 text-white hover:bg-purple-700">
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Start Bulk Generation
+                  <Button className="bg-blue-600 text-white hover:bg-blue-700">
+                    <Package className="h-4 w-4 mr-2" />
+                    Generate Categories
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-3xl">
                   <DialogHeader>
-                    <DialogTitle>Bulk Category & Formulations Generator</DialogTitle>
+                    <DialogTitle>Bulk Category Generator</DialogTitle>
                   </DialogHeader>
                   <BulkGenerationForm onSuccess={() => setBulkGenerationDialogOpen(false)} />
                 </DialogContent>
@@ -583,39 +583,39 @@ export default function AdminPage() {
 
             <div className="grid gap-6">
               {/* Quick Actions */}
-              <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+              <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-lg font-inter font-semibold text-purple-900 mb-2">
-                        Automated Category & Formulation Creation
+                      <h3 className="text-lg font-inter font-semibold text-blue-900 mb-2">
+                        Automated Category Creation
                       </h3>
-                      <p className="text-purple-700 mb-4">
-                        Generate complete product categories with professional formulations in seconds. 
-                        Perfect for expanding your chemical product database efficiently.
+                      <p className="text-blue-700 mb-4">
+                        Generate multiple unique categories at once. AI will automatically avoid creating duplicates 
+                        and provide professional details for each category.
                       </p>
-                      <div className="flex gap-4 text-sm text-purple-600">
+                      <div className="flex gap-4 text-sm text-blue-600">
                         <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                          <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
                           AI-powered category creation
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                          Professional formulations with INCI names
+                          <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                          Avoids duplicate categories
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                          Complete technical specifications
+                          <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                          Professional descriptions & images
                         </div>
                       </div>
                     </div>
                     <Button 
                       onClick={() => setBulkGenerationDialogOpen(true)}
-                      className="bg-purple-600 text-white hover:bg-purple-700"
+                      className="bg-blue-600 text-white hover:bg-blue-700"
                       data-testid="button-bulk-generation-card"
                     >
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Start Generation
+                      <Package className="h-4 w-4 mr-2" />
+                      Generate Categories
                     </Button>
                   </div>
                 </CardContent>
