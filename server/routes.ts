@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema } from "@shared/schema";
-import { generateCategory, generateFormulation, generateBulkFormulations } from "./ai";
+import { generateCategory, generateFormulation, generateBulkFormulations, generateProductTypes } from "./ai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Categories API
@@ -200,61 +200,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Category not found" });
       }
 
-      // Auto care product types for variety
-      const autoCareTypes = [
-        "Tire shine spray for glossy finish",
-        "All-purpose interior cleaner for fabric and plastic surfaces",
-        "Engine degreaser for heavy-duty cleaning",
-        "Car wash shampoo with pH balanced formula",
-        "Glass cleaner for streak-free visibility",
-        "Leather conditioner and protectant",
-        "Chrome polish for metal surfaces",
-        "Upholstery stain remover for fabric seats",
-        "Dashboard protectant with UV protection",
-        "Wheel cleaner for brake dust removal",
-        "Paint protection wax with carnauba",
-        "Vinyl and rubber restorer",
-        "Carpet cleaner for automotive use",
-        "Windshield washer fluid concentrate",
-        "Tar and bug remover",
-        "Headlight restoration compound",
-        "Trim restorer for black plastic",
-        "Waterless car wash for quick cleaning",
-        "Clay bar lubricant for paint decontamination",
-        "Convertible top cleaner and protectant",
-        "Aluminum wheel polish",
-        "Fabric guard spray for seats",
-        "Engine bay foam cleaner",
-        "Plastic trim coating for protection",
-        "Quick detailer spray for touch-ups",
-        "Ceramic coating prep solution",
-        "Paint sealant for long-term protection",
-        "Odor eliminator for car interiors",
-        "Rust converter and primer",
-        "Brake cleaner for disc maintenance",
-        "Power steering fluid additive",
-        "Radiator flush and cleaner",
-        "Fuel system cleaner additive",
-        "Battery terminal protector",
-        "Air freshener gel for lasting scent",
-        "Microfiber wash mitt conditioner",
-        "Polish for painted surfaces",
-        "Sealant for rubber gaskets",
-        "Penetrating oil for stuck parts",
-        "Carpet and fabric refresher spray",
-        "Heavy-duty degreaser for undercarriage",
-        "Tire sidewall cleaner and blackener",
-        "Interior detailing spray",
-        "Paint correction compound",
-        "Glass rain repellent coating",
-        "Plastic restoration gel",
-        "Engine oil additive for performance",
-        "Wiper blade treatment fluid",
-        "Seat belt and harness cleaner",
-        "Professional grade cutting compound"
-      ];
-
-      const formulations = await generateBulkFormulations(category.name, count, autoCareTypes);
+      // Generate product types based on the category
+      const productTypes = await generateProductTypes(category.name, category.description, count);
+      const formulations = await generateBulkFormulations(category.name, count, productTypes);
       
       // Create all formulations in the database
       const createdFormulations = [];

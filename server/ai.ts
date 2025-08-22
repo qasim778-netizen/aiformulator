@@ -44,6 +44,38 @@ export async function generateCategory(description: string): Promise<InsertCateg
   }
 }
 
+export async function generateProductTypes(categoryName: string, categoryDescription: string, count: number): Promise<string[]> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are a chemical industry expert. Generate a list of diverse product types for the given category. Return JSON array of specific product descriptions that would be suitable for small business manufacturers. Each product should be unique and practical for commercial production. Return JSON in this exact format:
+          {
+            "products": ["Product description 1", "Product description 2", ...]
+          }`
+        },
+        {
+          role: "user",
+          content: `Generate ${count} diverse product types for the category "${categoryName}": ${categoryDescription}. Each product should be specific with intended use and key characteristics.`
+        }
+      ],
+      response_format: { type: "json_object" }
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '{"products": []}');
+    return result.products || [];
+  } catch (error) {
+    console.error("Failed to generate product types:", error);
+    // Fallback to generic types based on category name
+    const fallbackTypes = Array.from({ length: count }, (_, i) => 
+      `Professional ${categoryName.toLowerCase()} formulation ${i + 1}`
+    );
+    return fallbackTypes;
+  }
+}
+
 export async function generateBulkFormulations(categoryName: string, count: number, productTypes: string[]): Promise<Omit<InsertFormulation, 'categoryId'>[]> {
   const formulations: Omit<InsertFormulation, 'categoryId'>[] = [];
   
