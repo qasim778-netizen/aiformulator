@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema } from "@shared/schema";
+import { generateCategory, generateFormulation } from "./ai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Categories API
@@ -142,6 +143,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
+  // AI Generation endpoints
+  app.post("/api/ai/generate-category", async (req, res) => {
+    try {
+      const { description } = req.body;
+      if (!description) {
+        return res.status(400).json({ message: "Description is required" });
+      }
+
+      const categoryData = await generateCategory(description);
+      const category = await storage.createCategory(categoryData);
+      
+      res.status(201).json(category);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Failed to generate category" });
+    }
+  });
+
+  app.post("/api/ai/generate-formulation", async (req, res) => {
+    try {
+      const { categoryId, productDescription } = req.body;
+      if (!categoryId || !productDescription) {
+        return res.status(400).json({ message: "Category ID and product description are required" });
+      }
+
+      const category = await storage.getCategory(categoryId);
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+
+      const formulationData = await generateFormulation(category.name, productDescription);
+      const formulation = await storage.createFormulation({
+        ...formulationData,
+        categoryId
+      });
+      
+      res.status(201).json(formulation);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Failed to generate formulation" });
     }
   });
 

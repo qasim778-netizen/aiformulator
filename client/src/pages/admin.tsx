@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import CategoryForm from "@/components/admin/category-form";
 import FormulationForm from "@/components/admin/formulation-form";
+import AiCategoryForm from "@/components/admin/ai-category-form";
+import AiFormulationForm from "@/components/admin/ai-formulation-form";
 import type { Category, Formulation } from "@shared/schema";
 
 export default function AdminPage() {
@@ -30,7 +33,12 @@ export default function AdminPage() {
     queryKey: ["/api/formulations"],
   });
 
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<{
+    totalCategories: number;
+    totalFormulations: number;
+    activeFormulations: number;
+    draftFormulations: number;
+  }>({
     queryKey: ["/api/stats"],
   });
 
@@ -262,25 +270,42 @@ export default function AdminPage() {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-inter font-semibold text-gray-900">Manage Categories</h2>
-              <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="bg-primary text-white hover:bg-blue-700">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add New Category
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>
-                      {editingCategory ? "Edit Category" : "Add New Category"}
-                    </DialogTitle>
-                  </DialogHeader>
-                  <CategoryForm
-                    category={editingCategory}
-                    onSuccess={handleCategoryDialogClose}
-                  />
-                </DialogContent>
-              </Dialog>
+              <div className="flex gap-3">
+                <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="border-primary text-primary hover:bg-blue-50">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Manually
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>
+                        {editingCategory ? "Edit Category" : "Add New Category"}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <Tabs defaultValue="manual" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="manual">Manual Entry</TabsTrigger>
+                        <TabsTrigger value="ai">AI Generation</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="manual" className="mt-4">
+                        <CategoryForm
+                          category={editingCategory}
+                          onSuccess={handleCategoryDialogClose}
+                        />
+                      </TabsContent>
+                      <TabsContent value="ai" className="mt-4">
+                        <AiCategoryForm onSuccess={handleCategoryDialogClose} />
+                      </TabsContent>
+                    </Tabs>
+                  </DialogContent>
+                </Dialog>
+                <Button className="bg-accent text-white hover:bg-orange-600" onClick={() => setCategoryDialogOpen(true)}>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate with AI
+                </Button>
+              </div>
             </div>
 
             <Card className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -385,9 +410,9 @@ export default function AdminPage() {
                 </Select>
                 <Dialog open={formulationDialogOpen} onOpenChange={setFormulationDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button className="bg-primary text-white hover:bg-blue-700">
+                    <Button variant="outline" className="border-primary text-primary hover:bg-blue-50">
                       <Plus className="h-4 w-4 mr-2" />
-                      Add New Formulation
+                      Add Manually
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -396,13 +421,31 @@ export default function AdminPage() {
                         {editingFormulation ? "Edit Formulation" : "Add New Formulation"}
                       </DialogTitle>
                     </DialogHeader>
-                    <FormulationForm
-                      formulation={editingFormulation}
-                      categories={categories}
-                      onSuccess={handleFormulationDialogClose}
-                    />
+                    <Tabs defaultValue="manual" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="manual">Manual Entry</TabsTrigger>
+                        <TabsTrigger value="ai">AI Generation</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="manual" className="mt-4">
+                        <FormulationForm
+                          formulation={editingFormulation}
+                          categories={categories}
+                          onSuccess={handleFormulationDialogClose}
+                        />
+                      </TabsContent>
+                      <TabsContent value="ai" className="mt-4">
+                        <AiFormulationForm 
+                          categories={categories}
+                          onSuccess={handleFormulationDialogClose}
+                        />
+                      </TabsContent>
+                    </Tabs>
                   </DialogContent>
                 </Dialog>
+                <Button className="bg-accent text-white hover:bg-orange-600" onClick={() => setFormulationDialogOpen(true)}>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate with AI
+                </Button>
               </div>
             </div>
 
