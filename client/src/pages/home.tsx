@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import CategoryCard from "@/components/category-card";
 import { FlaskConical, Factory, Rocket } from "lucide-react";
 import type { Category } from "@shared/schema";
-import chemicalBannerImage from "@assets/483526757_122151147650449958_5670030473145342152_n_1755891598926.jpg";
+import chemicalBannerImage from "@assets/321_1755892239736.png";
 
 export default function Home() {
   const { data: categories = [], isLoading } = useQuery<Category[]>({
@@ -36,22 +36,13 @@ export default function Home() {
             backgroundImage: `url(${chemicalBannerImage})`
           }}
         >
-          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
-            <div className="text-white">
-              <h1 className="text-4xl md:text-6xl font-inter font-bold mb-4">
-                Professional Chemical Formulations
-              </h1>
-              <p className="text-xl md:text-2xl mb-8 max-w-2xl">
-                Ready-to-use formulations for small business manufacturers across 50+ product categories with 1000+ formulations
-              </p>
-              <Button 
-                className="bg-accent text-white px-8 py-3 text-lg font-medium hover:bg-orange-600"
-                onClick={() => document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Explore Categories
-              </Button>
-            </div>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center">
+            <Button 
+              className="bg-accent text-white px-8 py-3 text-lg font-medium hover:bg-orange-600 mt-16"
+              onClick={() => document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              Explore Categories
+            </Button>
           </div>
         </div>
       </section>
