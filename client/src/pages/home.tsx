@@ -10,7 +10,7 @@ export default function Home() {
     queryKey: ["/api/categories"],
   });
 
-  const { data: allFormulations = [] } = useQuery({
+  const { data: allFormulations = [] } = useQuery<any[]>({
     queryKey: ["/api/formulations"],
   });
 

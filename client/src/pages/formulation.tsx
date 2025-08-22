@@ -1,14 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
-import { ArrowLeft, Download, Printer, Bookmark } from "lucide-react";
+import { ArrowLeft, Download, Printer, Bookmark, BookmarkCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import React, { useState } from "react";
 import type { Formulation, Category } from "@shared/schema";
 
 export default function FormulationPage() {
   const params = useParams();
   const formulationId = params.id;
+  const { toast } = useToast();
+  const [isFavorited, setIsFavorited] = useState(false);
 
   const { data: formulation, isLoading: formulationLoading } = useQuery<Formulation>({
     queryKey: ["/api/formulations", formulationId],
@@ -42,6 +46,101 @@ export default function FormulationPage() {
 
   const ingredients = JSON.parse(formulation.ingredients);
   const instructions = JSON.parse(formulation.instructions);
+
+  // PDF Generation function
+  const generatePDF = () => {
+    const content = `
+CHEMICAL FORMULATION REPORT
+==========================
+
+Product Name: ${formulation.name}
+Category: ${category?.name || 'Unknown'}
+pH Level: ${formulation.phLevel}
+Batch Size: ${formulation.batchSize}
+Shelf Life: ${formulation.shelfLife}
+Processing Time: ${formulation.processingTime}
+Temperature: ${formulation.temperature}
+Equipment: ${formulation.equipment}
+Storage: ${formulation.storageConditions}
+${formulation.viscosity ? `Viscosity: ${formulation.viscosity}` : ''}
+${formulation.certification ? `Certification: ${formulation.certification}` : ''}
+
+DESCRIPTION:
+${formulation.description}
+
+INGREDIENTS:
+${ingredients.map((ing: any, index: number) => 
+  `${index + 1}. ${ing.name} (${ing.inci}) - ${ing.percentage} - ${ing.function}`
+).join('\n')}
+
+MANUFACTURING INSTRUCTIONS:
+${instructions.map((phase: any, index: number) => 
+  `${index + 1}. ${phase.phase}:\n${phase.steps.map((step: string, stepIndex: number) => 
+    `   ${stepIndex + 1}. ${step}`
+  ).join('\n')}`
+).join('\n\n')}
+
+USAGE INSTRUCTIONS:
+${formulation.usageInstructions}
+
+Generated on: ${new Date().toLocaleDateString()}
+`;
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${formulation.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_formulation.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    toast({
+      title: "PDF Downloaded",
+      description: `Formulation report for ${formulation.name} has been downloaded.`
+    });
+  };
+
+  // Print function
+  const handlePrint = () => {
+    window.print();
+    toast({
+      title: "Print Dialog Opened",
+      description: "Use your browser's print dialog to print this formulation."
+    });
+  };
+
+  // Favorites function
+  const toggleFavorite = () => {
+    const favorites = JSON.parse(localStorage.getItem('favoriteFormulations') || '[]');
+    
+    if (isFavorited) {
+      // Remove from favorites
+      const updatedFavorites = favorites.filter((id: string) => id !== formulationId);
+      localStorage.setItem('favoriteFormulations', JSON.stringify(updatedFavorites));
+      setIsFavorited(false);
+      toast({
+        title: "Removed from Favorites",
+        description: `${formulation.name} has been removed from your favorites.`
+      });
+    } else {
+      // Add to favorites
+      const updatedFavorites = [...favorites, formulationId];
+      localStorage.setItem('favoriteFormulations', JSON.stringify(updatedFavorites));
+      setIsFavorited(true);
+      toast({
+        title: "Added to Favorites",
+        description: `${formulation.name} has been saved to your favorites.`
+      });
+    }
+  };
+
+  // Check if already favorited on load
+  React.useEffect(() => {
+    const favorites = JSON.parse(localStorage.getItem('favoriteFormulations') || '[]');
+    setIsFavorited(favorites.includes(formulationId));
+  }, [formulationId]);
 
   return (
     <div className="bg-white py-8">
@@ -181,17 +280,38 @@ export default function FormulationPage() {
             </div>
 
             <div className="flex flex-wrap gap-4">
-              <Button className="bg-primary text-white hover:bg-blue-700">
+              <Button 
+                onClick={generatePDF}
+                className="bg-primary text-white hover:bg-blue-700"
+                data-testid="button-download-pdf"
+              >
                 <Download className="h-4 w-4 mr-2" />
                 Download PDF
               </Button>
-              <Button className="bg-accent text-white hover:bg-orange-600">
+              <Button 
+                onClick={handlePrint}
+                className="bg-accent text-white hover:bg-orange-600"
+                data-testid="button-print-formula"
+              >
                 <Printer className="h-4 w-4 mr-2" />
-                Printer Formula
+                Print Formula
               </Button>
-              <Button variant="outline" className="border-primary text-primary hover:bg-blue-50">
-                <Bookmark className="h-4 w-4 mr-2" />
-                Save to Favorites
+              <Button 
+                onClick={toggleFavorite}
+                variant="outline" 
+                className={`border-primary hover:bg-blue-50 ${
+                  isFavorited 
+                    ? 'bg-primary text-white hover:bg-blue-700' 
+                    : 'text-primary'
+                }`}
+                data-testid="button-toggle-favorite"
+              >
+                {isFavorited ? (
+                  <BookmarkCheck className="h-4 w-4 mr-2" />
+                ) : (
+                  <Bookmark className="h-4 w-4 mr-2" />
+                )}
+                {isFavorited ? 'Favorited' : 'Save to Favorites'}
               </Button>
             </div>
           </CardContent>
