@@ -44,6 +44,25 @@ export async function generateCategory(description: string): Promise<InsertCateg
   }
 }
 
+export async function generateBulkFormulations(categoryName: string, count: number, productTypes: string[]): Promise<Omit<InsertFormulation, 'categoryId'>[]> {
+  const formulations: Omit<InsertFormulation, 'categoryId'>[] = [];
+  
+  for (let i = 0; i < count; i++) {
+    const productType = productTypes[i % productTypes.length];
+    try {
+      const formulation = await generateFormulation(categoryName, productType);
+      formulations.push(formulation);
+      // Add small delay to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 100));
+    } catch (error) {
+      console.error(`Failed to generate formulation ${i + 1}:`, error);
+      // Continue with the next formulation
+    }
+  }
+  
+  return formulations;
+}
+
 export async function generateFormulation(categoryName: string, productDescription: string): Promise<Omit<InsertFormulation, 'categoryId'>> {
   try {
     const response = await openai.chat.completions.create({

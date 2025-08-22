@@ -1140,6 +1140,7 @@ export class MemStorage implements IStorage {
     const newCategory: Category = {
       ...category,
       id,
+      isActive: category.isActive ?? true,
       createdAt: new Date(),
     };
     this.categories.set(id, newCategory);
@@ -1179,6 +1180,7 @@ export class MemStorage implements IStorage {
     const newFormulation: Formulation = {
       ...formulation,
       id,
+      isActive: formulation.isActive ?? true,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
