@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import CategoryCard from "@/components/category-card";
 import { FlaskConical, Factory, Rocket } from "lucide-react";
 import type { Category } from "@shared/schema";
+import chemicalBannerImage from "@assets/483526757_122151147650449958_5670030473145342152_n_1755891598926.jpg";
 
 export default function Home() {
   const { data: categories = [], isLoading } = useQuery<Category[]>({
@@ -32,7 +33,7 @@ export default function Home() {
         <div 
           className="h-96 bg-cover bg-center relative" 
           style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=600')"
+            backgroundImage: `url(${chemicalBannerImage})`
           }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>
