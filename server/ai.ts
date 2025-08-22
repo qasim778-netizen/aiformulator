@@ -4,14 +4,18 @@ import type { InsertCategory, InsertFormulation } from "@shared/schema";
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-export async function generateCategory(description: string): Promise<InsertCategory> {
+export async function generateCategory(description: string, existingCategoryNames: string[] = []): Promise<InsertCategory> {
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: `You are a chemical industry expert. Generate a professional product category for small business manufacturers based on the description. Return JSON in this exact format:
+          content: `You are a chemical industry expert. Generate a professional product category for small business manufacturers based on the description. 
+          
+          IMPORTANT: Avoid these existing category names: ${existingCategoryNames.join(', ')}
+          
+          Return JSON in this exact format:
           {
             "name": "Category Name",
             "description": "Professional description for manufacturers",

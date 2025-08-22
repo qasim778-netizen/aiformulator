@@ -15,6 +15,7 @@ import FormulationForm from "@/components/admin/formulation-form";
 import AiCategoryForm from "@/components/admin/ai-category-form";
 import AiFormulationForm from "@/components/admin/ai-formulation-form";
 import BulkGenerationForm from "@/components/admin/bulk-generation-form";
+import BulkFormulationGenerator from "@/components/admin/bulk-formulation-generator";
 import type { Category, Formulation } from "@shared/schema";
 
 export default function AdminPage() {
@@ -165,6 +166,16 @@ export default function AdminPage() {
                 onClick={() => setActiveTab("bulk-generation")}
               >
                 Bulk Generation
+              </button>
+              <button
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "bulk-formulations"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+                onClick={() => setActiveTab("bulk-formulations")}
+              >
+                Bulk Formulations
               </button>
             </nav>
           </div>
@@ -701,6 +712,17 @@ export default function AdminPage() {
                 </CardContent>
               </Card>
             </div>
+          </div>
+        )}
+
+        {/* Bulk Formulations Tab */}
+        {activeTab === "bulk-formulations" && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-inter font-semibold text-gray-900">Bulk Formulations Generator</h2>
+              <p className="text-sm text-gray-600 mt-1">Select an existing category and generate multiple formulations automatically</p>
+            </div>
+            <BulkFormulationGenerator categories={categories} />
           </div>
         )}
       </div>

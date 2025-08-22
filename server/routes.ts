@@ -154,7 +154,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Description is required" });
       }
 
-      const categoryData = await generateCategory(description);
+      // Get existing category names to avoid duplicates
+      const existingCategories = await storage.getCategories();
+      const existingNames = existingCategories.map(cat => cat.name);
+
+      const categoryData = await generateCategory(description, existingNames);
       const category = await storage.createCategory(categoryData);
       
       res.status(201).json(category);
