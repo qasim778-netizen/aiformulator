@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import CategoryCard from "@/components/category-card";
 import { FlaskConical, Factory, Rocket } from "lucide-react";
 import type { Category } from "@shared/schema";
-import chemicalBannerImage from "@assets/321_1755892239736.png";
+import chemicalBannerImage from "@assets/ChatGPT Image Aug 22, 2025, 12_56_52 PM_1755892697411.png";
 
 export default function Home() {
   const { data: categories = [], isLoading } = useQuery<Category[]>({
