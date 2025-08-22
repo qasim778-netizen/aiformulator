@@ -49,7 +49,10 @@ export default function FormulationPage() {
 
   // PDF Generation function
   const generatePDF = () => {
-    const content = `
+    try {
+      if (!formulation) return;
+      
+      const content = `
 CHEMICAL FORMULATION REPORT
 ==========================
 
@@ -85,21 +88,29 @@ ${formulation.usageInstructions}
 
 Generated on: ${new Date().toLocaleDateString()}
 `;
-    
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${formulation.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_formulation.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+      
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${formulation.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_formulation.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
 
-    toast({
-      title: "PDF Downloaded",
-      description: `Formulation report for ${formulation.name} has been downloaded.`
-    });
+      toast({
+        title: "File Downloaded",
+        description: `Formulation report for ${formulation.name} has been downloaded.`
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: "Download Failed",
+        description: "There was an error downloading the formulation report. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Print function
@@ -113,33 +124,46 @@ Generated on: ${new Date().toLocaleDateString()}
 
   // Favorites function
   const toggleFavorite = () => {
-    const favorites = JSON.parse(localStorage.getItem('favoriteFormulations') || '[]');
-    
-    if (isFavorited) {
-      // Remove from favorites
-      const updatedFavorites = favorites.filter((id: string) => id !== formulationId);
-      localStorage.setItem('favoriteFormulations', JSON.stringify(updatedFavorites));
-      setIsFavorited(false);
+    try {
+      if (!formulation || !formulationId) return;
+      
+      const favorites = JSON.parse(localStorage.getItem('favoriteFormulations') || '[]');
+      
+      if (isFavorited) {
+        // Remove from favorites
+        const updatedFavorites = favorites.filter((id: string) => id !== formulationId);
+        localStorage.setItem('favoriteFormulations', JSON.stringify(updatedFavorites));
+        setIsFavorited(false);
+        toast({
+          title: "Removed from Favorites",
+          description: `${formulation.name} has been removed from your favorites.`
+        });
+      } else {
+        // Add to favorites
+        const updatedFavorites = [...favorites, formulationId];
+        localStorage.setItem('favoriteFormulations', JSON.stringify(updatedFavorites));
+        setIsFavorited(true);
+        toast({
+          title: "Added to Favorites",
+          description: `${formulation.name} has been saved to your favorites.`
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
       toast({
-        title: "Removed from Favorites",
-        description: `${formulation.name} has been removed from your favorites.`
-      });
-    } else {
-      // Add to favorites
-      const updatedFavorites = [...favorites, formulationId];
-      localStorage.setItem('favoriteFormulations', JSON.stringify(updatedFavorites));
-      setIsFavorited(true);
-      toast({
-        title: "Added to Favorites",
-        description: `${formulation.name} has been saved to your favorites.`
+        title: "Error",
+        description: "There was an error updating your favorites. Please try again.",
+        variant: "destructive"
       });
     }
   };
 
   // Check if already favorited on load
   React.useEffect(() => {
-    const favorites = JSON.parse(localStorage.getItem('favoriteFormulations') || '[]');
-    setIsFavorited(favorites.includes(formulationId));
+    if (formulationId) {
+      const favorites = JSON.parse(localStorage.getItem('favoriteFormulations') || '[]');
+      setIsFavorited(favorites.includes(formulationId));
+    }
   }, [formulationId]);
 
   return (
