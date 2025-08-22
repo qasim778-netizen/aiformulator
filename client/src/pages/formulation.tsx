@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import React, { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Formulation, Category } from "@shared/schema";
 
 export default function FormulationPage() {
@@ -23,42 +23,21 @@ export default function FormulationPage() {
     enabled: !!formulation?.categoryId,
   });
 
-  if (formulationLoading || categoryLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   // Check if already favorited on load
-  React.useEffect(() => {
+  useEffect(() => {
     if (formulationId) {
       const favorites = JSON.parse(localStorage.getItem('favoriteFormulations') || '[]');
       setIsFavorited(favorites.includes(formulationId));
     }
   }, [formulationId]);
 
-  if (!formulation) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Formulation not found</h1>
-          <Link href="/">
-            <Button>Return Home</Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const ingredients = JSON.parse(formulation.ingredients);
-  const instructions = JSON.parse(formulation.instructions);
-
   // PDF Generation function
-  const generatePDF = () => {
+  const generatePDF = useCallback(() => {
+    if (!formulation) return;
+    
     try {
-      if (!formulation) return;
+      const ingredients = JSON.parse(formulation.ingredients);
+      const instructions = JSON.parse(formulation.instructions);
       
       const content = `
 CHEMICAL FORMULATION REPORT
@@ -119,22 +98,22 @@ Generated on: ${new Date().toLocaleDateString()}
         variant: "destructive"
       });
     }
-  };
+  }, [formulation, category, toast]);
 
   // Print function
-  const handlePrint = () => {
+  const handlePrint = useCallback(() => {
     window.print();
     toast({
       title: "Print Dialog Opened",
       description: "Use your browser's print dialog to print this formulation."
     });
-  };
+  }, [toast]);
 
   // Favorites function
-  const toggleFavorite = () => {
+  const toggleFavorite = useCallback(() => {
+    if (!formulation || !formulationId) return;
+    
     try {
-      if (!formulation || !formulationId) return;
-      
       const favorites = JSON.parse(localStorage.getItem('favoriteFormulations') || '[]');
       
       if (isFavorited) {
@@ -164,7 +143,31 @@ Generated on: ${new Date().toLocaleDateString()}
         variant: "destructive"
       });
     }
-  };
+  }, [formulation, formulationId, isFavorited, toast]);
+
+  if (formulationLoading || categoryLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!formulation) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Formulation not found</h1>
+          <Link href="/">
+            <Button>Return Home</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const ingredients = JSON.parse(formulation.ingredients);
+  const instructions = JSON.parse(formulation.instructions);
 
   return (
     <div className="bg-white py-8">
