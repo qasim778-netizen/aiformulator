@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Sparkles } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Sparkles, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,7 @@ import CategoryForm from "@/components/admin/category-form";
 import FormulationForm from "@/components/admin/formulation-form";
 import AiCategoryForm from "@/components/admin/ai-category-form";
 import AiFormulationForm from "@/components/admin/ai-formulation-form";
+import BulkGenerationForm from "@/components/admin/bulk-generation-form";
 import type { Category, Formulation } from "@shared/schema";
 
 export default function AdminPage() {
@@ -21,6 +22,7 @@ export default function AdminPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [formulationDialogOpen, setFormulationDialogOpen] = useState(false);
+  const [bulkGenerationDialogOpen, setBulkGenerationDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [editingFormulation, setEditingFormulation] = useState<Formulation | null>(null);
   const { toast } = useToast();
@@ -153,6 +155,16 @@ export default function AdminPage() {
                 onClick={() => setActiveTab("formulations")}
               >
                 Manage Formulations
+              </button>
+              <button
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "bulk-generation"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+                onClick={() => setActiveTab("bulk-generation")}
+              >
+                Bulk Generation
               </button>
             </nav>
           </div>
@@ -531,6 +543,164 @@ export default function AdminPage() {
                 </table>
               </div>
             </Card>
+          </div>
+        )}
+
+        {/* Bulk Generation Tab */}
+        {activeTab === "bulk-generation" && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-xl font-inter font-semibold text-gray-900">Bulk Generation</h2>
+                <p className="text-sm text-gray-600 mt-1">Create complete categories with multiple formulations automatically</p>
+              </div>
+              <Dialog open={bulkGenerationDialogOpen} onOpenChange={setBulkGenerationDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-purple-600 text-white hover:bg-purple-700">
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Start Bulk Generation
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl">
+                  <DialogHeader>
+                    <DialogTitle>Bulk Category & Formulations Generator</DialogTitle>
+                  </DialogHeader>
+                  <BulkGenerationForm onSuccess={() => setBulkGenerationDialogOpen(false)} />
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div className="grid gap-6">
+              {/* Quick Actions */}
+              <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-inter font-semibold text-purple-900 mb-2">
+                        Automated Category & Formulation Creation
+                      </h3>
+                      <p className="text-purple-700 mb-4">
+                        Generate complete product categories with professional formulations in seconds. 
+                        Perfect for expanding your chemical product database efficiently.
+                      </p>
+                      <div className="flex gap-4 text-sm text-purple-600">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                          AI-powered category creation
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                          Professional formulations with INCI names
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                          Complete technical specifications
+                        </div>
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={() => setBulkGenerationDialogOpen(true)}
+                      className="bg-purple-600 text-white hover:bg-purple-700"
+                      data-testid="button-bulk-generation-card"
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Start Generation
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Generation Statistics */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <Package className="text-white h-6 w-6" />
+                      </div>
+                      <div className="ml-4">
+                        <h3 className="text-lg font-inter font-semibold text-gray-900">
+                          {stats?.totalCategories || 0}
+                        </h3>
+                        <p className="text-sm text-gray-600">Total Categories</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                        <FlaskConical className="text-white h-6 w-6" />
+                      </div>
+                      <div className="ml-4">
+                        <h3 className="text-lg font-inter font-semibold text-gray-900">
+                          {stats?.totalFormulations || 0}
+                        </h3>
+                        <p className="text-sm text-gray-600">Total Formulations</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                        <Sparkles className="text-white h-6 w-6" />
+                      </div>
+                      <div className="ml-4">
+                        <h3 className="text-lg font-inter font-semibold text-gray-900">
+                          AI-Powered
+                        </h3>
+                        <p className="text-sm text-gray-600">Generation System</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Recent Categories Preview */}
+              <Card>
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h3 className="text-lg font-inter font-semibold text-gray-900">Recent Categories</h3>
+                  <p className="text-sm text-gray-600">Latest categories in your system</p>
+                </div>
+                <CardContent className="p-6">
+                  {categories.length > 0 ? (
+                    <div className="grid gap-4">
+                      {categories.slice(0, 3).map((category) => {
+                        const formulationCount = formulations.filter(f => f.categoryId === category.id).length;
+                        return (
+                          <div key={category.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div className="flex items-center">
+                              <img
+                                className="h-12 w-12 rounded-lg object-cover"
+                                src={category.image}
+                                alt={category.name}
+                              />
+                              <div className="ml-4">
+                                <h4 className="text-sm font-medium text-gray-900">{category.name}</h4>
+                                <p className="text-xs text-gray-500">{formulationCount} formulations</p>
+                              </div>
+                            </div>
+                            <Badge className="bg-green-100 text-green-800">
+                              Active
+                            </Badge>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500">No categories yet. Start by creating your first category with bulk generation!</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
       </div>
