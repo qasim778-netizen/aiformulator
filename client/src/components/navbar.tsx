@@ -1,14 +1,20 @@
-import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import SearchBar from "@/components/search-bar";
 
 export default function Navbar() {
   const [location] = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
 
   const isActive = (path: string) => location === path;
+
+  // Handle search functionality
+  const handleSearch = (query: string) => {
+    console.log('Search query:', query);
+    // TODO: Connect to backend search functionality
+    // This is where you can integrate with your search backend
+    alert(`Searching for: ${query}`);
+  };
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -55,16 +61,11 @@ export default function Navbar() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Search formulations..."
-                className="w-64 pl-10 pr-4 py-2"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            </div>
+            <SearchBar 
+              onSearch={handleSearch}
+              placeholder="Search formulations or categories…"
+              className="w-64 md:w-80"
+            />
             <Link href="/admin">
               <Button className="bg-primary text-white hover:bg-blue-700">
                 <Settings className="h-4 w-4 mr-2" />
