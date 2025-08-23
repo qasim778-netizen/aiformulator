@@ -54,21 +54,12 @@ export default function Home() {
               <p className="text-xl md:text-2xl mb-8 max-w-2xl">
                 Ready-to-use formulations for small business manufacturers across 50+ product categories with 1000+ formulations
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 items-start">
-                <Button 
-                  className="bg-accent text-white px-8 py-3 text-lg font-medium hover:bg-orange-600"
-                  onClick={() => document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth' })}
-                >
-                  Explore Categories
-                </Button>
-                <div className="w-full sm:w-auto">
-                  <SearchBar 
-                    onSearch={handleSearch}
-                    placeholder="Search formulations or categories…"
-                    className="w-full sm:w-96"
-                  />
-                </div>
-              </div>
+              <Button 
+                className="bg-accent text-white px-8 py-3 text-lg font-medium hover:bg-orange-600"
+                onClick={() => document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                Explore Categories
+              </Button>
             </div>
           </div>
         </div>
@@ -120,11 +111,18 @@ export default function Home() {
       {/* Categories Overview */}
       <section id="categories" className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h2 className="text-3xl font-inter font-bold text-gray-900 mb-4">Product Categories</h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-600 mb-6">
               Choose from our comprehensive range of formulation categories
             </p>
+            <div className="flex justify-center">
+              <SearchBar 
+                onSearch={handleSearch}
+                placeholder="Search formulations or categories…"
+                className="w-full max-w-md"
+              />
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {categories.map((category) => (

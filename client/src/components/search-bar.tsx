@@ -87,7 +87,7 @@ export default function SearchBar({
     setSuggestions(newSuggestions);
     setSelectedIndex(-1);
     setIsOpen(newSuggestions.length > 0 && query.trim().length > 0);
-  }, [query, generateSuggestions]);
+  }, [query, categories, formulations]);
 
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
