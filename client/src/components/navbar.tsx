@@ -11,9 +11,9 @@ export default function Navbar() {
   // Handle search functionality
   const handleSearch = (query: string) => {
     console.log('Search query:', query);
-    // TODO: Connect to backend search functionality
-    // This is where you can integrate with your search backend
-    alert(`Searching for: ${query}`);
+    // For now, navigate to home page and scroll to categories
+    // In the future, you can create a dedicated search results page
+    window.location.href = '/#categories';
   };
 
   return (

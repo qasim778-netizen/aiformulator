@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import type { Category, Formulation } from "@shared/schema";
@@ -28,6 +29,7 @@ export default function SearchBar({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [, setLocation] = useLocation();
   
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -145,10 +147,15 @@ export default function SearchBar({
     setIsOpen(false);
     setSelectedIndex(-1);
     
+    // Navigate to the appropriate page based on suggestion type
+    if (suggestion.type === "category") {
+      setLocation(`/category/${suggestion.id}`);
+    } else if (suggestion.type === "formulation") {
+      setLocation(`/formulation/${suggestion.id}`);
+    }
+    
     if (onSelect) {
       onSelect(suggestion);
-    } else {
-      handleSearch(suggestion.title);
     }
   };
 

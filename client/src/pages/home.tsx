@@ -22,9 +22,9 @@ export default function Home() {
   // Handle search functionality
   const handleSearch = (query: string) => {
     console.log('Search query:', query);
-    // TODO: Connect to backend search functionality
-    // This is where you can integrate with your search backend
-    alert(`Searching for: ${query}`);
+    // For now, just scroll to categories section
+    // In the future, you can filter categories or create a search results page
+    document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   if (isLoading) {
