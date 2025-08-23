@@ -25,6 +25,15 @@ export class MemStorage implements IStorage {
   constructor() {
     this.categories = new Map();
     this.formulations = new Map();
+    // Only seed data if no data exists (first run)
+    this.seedInitialData();
+  }
+
+  private seedInitialData() {
+    // Skip seeding if categories already exist
+    if (this.categories.size > 0) {
+      return;
+    }
     this.seedData();
   }
 
@@ -1206,4 +1215,7 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+import { DatabaseStorage } from "./database-storage";
+
+// Use database storage for persistent data
+export const storage = new DatabaseStorage();
