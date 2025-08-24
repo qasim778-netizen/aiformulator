@@ -624,6 +624,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PDF Generation for existing formulations
+  app.post("/api/formulations/:id/pdf", async (req, res) => {
+    try {
+      const formulationId = req.params.id;
+      const formulation = await storage.getFormulation(formulationId);
+      
+      if (!formulation) {
+        return res.status(404).json({ message: "Formulation not found" });
+      }
+
+      // Generate PDF
+      const pdfBuffer = generateFormulationPDF(formulation);
+      
+      // Set headers for PDF download
+      const filename = `${formulation.name.replace(/\s+/g, '_')}_formulation.pdf`;
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Length', pdfBuffer.length);
+      
+      // Send PDF
+      res.send(pdfBuffer);
+      
+    } catch (error: any) {
+      console.error("Failed to generate formulation PDF:", error);
+      res.status(500).json({ 
+        message: error.message || "Failed to generate PDF" 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

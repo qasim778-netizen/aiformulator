@@ -48,62 +48,31 @@ export default function FormulationPage() {
   }, [formulationId]);
 
   // PDF Generation function
-  const generatePDF = useCallback(() => {
+  const generatePDF = useCallback(async () => {
     if (!formulation) return;
     
     try {
-      const ingredients = JSON.parse(formulation.ingredients);
-      const instructions = JSON.parse(formulation.instructions);
-      
-      const content = `
-CHEMICAL FORMULATION REPORT
-==========================
+      const response = await fetch(`/api/formulations/${formulation.id}/pdf`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
 
-Product Name: ${formulation.name}
-Category: ${category?.name || 'Unknown'}
-pH Level: ${formulation.phLevel}
-Batch Size: ${formulation.batchSize}
-Shelf Life: ${formulation.shelfLife}
-Processing Time: ${formulation.processingTime}
-Temperature: ${formulation.temperature}
-Equipment: ${formulation.equipment}
-Storage: ${formulation.storageConditions}
-${formulation.viscosity ? `Viscosity: ${formulation.viscosity}` : ''}
-${formulation.certification ? `Certification: ${formulation.certification}` : ''}
+      if (!response.ok) {
+        throw new Error("Failed to generate PDF");
+      }
 
-DESCRIPTION:
-${formulation.description}
-
-INGREDIENTS:
-${ingredients.map((ing: any, index: number) => 
-  `${index + 1}. ${ing.name} (${ing.inci}) - ${ing.percentage} - ${ing.function}`
-).join('\n')}
-
-MANUFACTURING INSTRUCTIONS:
-${instructions.map((phase: any, index: number) => 
-  `${index + 1}. ${phase.phase}:\n${phase.steps.map((step: string, stepIndex: number) => 
-    `   ${stepIndex + 1}. ${step}`
-  ).join('\n')}`
-).join('\n\n')}
-
-USAGE INSTRUCTIONS:
-${formulation.usageInstructions}
-
-Generated on: ${new Date().toLocaleDateString()}
-`;
-      
-      const blob = new Blob([content], { type: 'text/plain' });
-      const url = window.URL.createObjectURL(blob);
+      const pdfBlob = await response.blob();
+      const url = window.URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${formulation.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_formulation.txt`;
+      link.download = `${formulation.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_formulation.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
       toast({
-        title: "File Downloaded",
+        title: "PDF Downloaded",
         description: `Formulation report for ${formulation.name} has been downloaded.`
       });
     } catch (error) {
@@ -114,7 +83,7 @@ Generated on: ${new Date().toLocaleDateString()}
         variant: "destructive"
       });
     }
-  }, [formulation, category, toast]);
+  }, [formulation, toast]);
 
   // Print function
   const handlePrint = useCallback(() => {
