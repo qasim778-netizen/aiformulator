@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Droplets, Waves, Beaker, Sparkles } from "lucide-react";
+import { Hand, Droplets, Waves, Circle } from "lucide-react";
 
 interface FormData {
   productName: string;
@@ -21,28 +21,28 @@ const consistencyTypes = [
     id: "cream",
     title: "Cream",
     description: "Thick, spreadable",
-    icon: Droplets,
+    icon: Hand,
     examples: ["Face cream", "Night cream", "Eye cream", "Body lotion"]
   },
   {
     id: "liquid",
     title: "Liquid/Serum",
     description: "Flowing consistency",
-    icon: Waves,
+    icon: Droplets,
     examples: ["Toner", "Serum", "Oil", "Cleanser"]
   },
   {
     id: "gel",
     title: "Gel",
     description: "Semi-solid texture",
-    icon: Beaker,
+    icon: Waves,
     examples: ["Aloe gel", "Hair gel", "Face mask", "Body gel"]
   },
   {
     id: "powder",
     title: "Powder/Foundation",
     description: "Dry, granular",
-    icon: Sparkles,
+    icon: Circle,
     examples: ["Face powder", "Foundation", "Dry shampoo", "Setting powder"]
   }
 ];
@@ -67,48 +67,42 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
     <div className="space-y-8">
       <h3 className="text-2xl font-bold text-gray-900 mb-6">Product Type Selection</h3>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column */}
-        <div className="space-y-6">
-          <div>
-            <Label htmlFor="productCategory" className="text-base font-semibold text-gray-900 mb-3 block">
-              Product Category
-            </Label>
-            <Select 
-              value={formData.productCategory} 
-              onValueChange={(value) => updateFormData({ productCategory: value })}
-            >
-              <SelectTrigger className="w-full h-12" data-testid="select-product-category">
-                <SelectValue placeholder="Select category..." />
-              </SelectTrigger>
-              <SelectContent>
-                {productCategories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="productName" className="text-base font-semibold text-gray-900 mb-3 block">
-              Product Name
-            </Label>
-            <Input
-              id="productName"
-              type="text"
-              placeholder="Enter product name..."
-              value={formData.productName}
-              onChange={(e) => updateFormData({ productName: e.target.value })}
-              className="w-full h-12"
-              data-testid="input-product-name"
-            />
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+          <Label htmlFor="productCategory" className="text-base font-semibold text-gray-900 mb-3 block">
+            Product Category
+          </Label>
+          <Select 
+            value={formData.productCategory} 
+            onValueChange={(value) => updateFormData({ productCategory: value })}
+          >
+            <SelectTrigger className="w-full h-12" data-testid="select-product-category">
+              <SelectValue placeholder="Skincare & Cosmetics" />
+            </SelectTrigger>
+            <SelectContent>
+              {productCategories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* Right Column - Placeholder for future content */}
-        <div></div>
+        <div>
+          <Label htmlFor="productName" className="text-base font-semibold text-gray-900 mb-3 block">
+            Product Name
+          </Label>
+          <Input
+            id="productName"
+            type="text"
+            placeholder="Enter product name..."
+            value={formData.productName}
+            onChange={(e) => updateFormData({ productName: e.target.value })}
+            className="w-full h-12"
+            data-testid="input-product-name"
+          />
+        </div>
       </div>
 
       {/* Consistency Type Selection */}
@@ -116,7 +110,7 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
         <Label className="text-base font-semibold text-gray-900 mb-4 block">
           Consistency Type
         </Label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {consistencyTypes.map((type) => {
             const IconComponent = type.icon;
             const isSelected = formData.consistencyType === type.id;
@@ -125,22 +119,22 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
               <button
                 key={type.id}
                 onClick={() => updateFormData({ consistencyType: type.id })}
-                className={`p-6 rounded-xl border-2 transition-all duration-200 text-left hover:shadow-md ${
+                className={`p-4 rounded-xl border-2 transition-all duration-200 text-center hover:shadow-md ${
                   isSelected 
                     ? 'border-blue-600 bg-blue-50 shadow-md' 
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
                 data-testid={`consistency-${type.id}`}
               >
-                <div className={`p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-3 ${
-                  isSelected ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
+                <div className={`mx-auto mb-3 w-12 h-12 flex items-center justify-center ${
+                  isSelected ? 'text-blue-600' : 'text-gray-600'
                 }`}>
-                  <IconComponent className="h-6 w-6" />
+                  <IconComponent className="h-8 w-8" />
                 </div>
-                <h4 className={`font-semibold mb-1 ${isSelected ? 'text-blue-900' : 'text-gray-900'}`}>
+                <h4 className={`font-semibold mb-1 text-sm ${isSelected ? 'text-blue-900' : 'text-gray-900'}`}>
                   {type.title}
                 </h4>
-                <p className={`text-sm ${isSelected ? 'text-blue-700' : 'text-gray-600'}`}>
+                <p className={`text-xs ${isSelected ? 'text-blue-700' : 'text-gray-600'}`}>
                   {type.description}
                 </p>
               </button>
@@ -151,16 +145,16 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
 
       {/* Examples Section */}
       {selectedConsistency && (
-        <div className="bg-gray-50 rounded-xl p-6">
-          <h4 className="font-semibold text-gray-900 mb-3">
-            Examples for {formData.productCategory || 'selected category'} - {selectedConsistency.title}:
+        <div className="bg-gray-50 rounded-xl p-4">
+          <h4 className="font-semibold text-gray-900 mb-3 text-sm">
+            Examples for {formData.productCategory || 'skincare'} - {selectedConsistency.title.toLowerCase()}:
           </h4>
           <div className="flex flex-wrap gap-2">
             {selectedConsistency.examples.map((example, index) => (
               <Badge 
                 key={index} 
                 variant="secondary" 
-                className="bg-blue-100 text-blue-800 hover:bg-blue-200"
+                className="bg-blue-100 text-blue-800 hover:bg-blue-200 text-xs px-2 py-1"
               >
                 {example}
               </Badge>
