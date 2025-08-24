@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema } from "@shared/schema";
 import { generateCategory, generateFormulation, generateBulkFormulations, generateProductTypes } from "./ai";
 import { optimizeFormulationsForSEO } from "./seo-optimizer";
+import { generateFormulationImages, addImageFieldToFormulations } from "./image-generator";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Categories API
@@ -154,6 +155,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(200).json(result);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to optimize formulations for SEO" });
+    }
+  });
+
+  // Image Generation endpoints
+  app.post("/api/admin/setup-images", async (req, res) => {
+    try {
+      await addImageFieldToFormulations();
+      res.status(200).json({ message: "Image fields added to database successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Failed to setup image fields" });
+    }
+  });
+
+  app.post("/api/admin/generate-images", async (req, res) => {
+    try {
+      const result = await generateFormulationImages();
+      res.status(200).json(result);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Failed to generate formulation images" });
     }
   });
 
