@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema } from "@shared/schema";
 import { generateCategory, generateFormulation, generateBulkFormulations, generateProductTypes } from "./ai";
+import { optimizeFormulationsForSEO } from "./seo-optimizer";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Categories API
@@ -143,6 +144,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
+  // SEO Optimization endpoint
+  app.post("/api/admin/optimize-seo", async (req, res) => {
+    try {
+      const result = await optimizeFormulationsForSEO();
+      res.status(200).json(result);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Failed to optimize formulations for SEO" });
     }
   });
 
