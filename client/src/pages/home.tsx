@@ -24,8 +24,8 @@ export default function Home() {
 
             {/* Navigation Links */}
             <nav className="hidden md:flex items-center space-x-8">
-              <Link href="/" className="text-gray-700 hover:text-primary font-medium">Home</Link>
-              <Link href="/browse" className="text-gray-700 hover:text-primary font-medium">Find Formulation</Link>
+              <Link href="/" className="text-gray-700 hover:text-primary font-medium">Dashboard</Link>
+              <Link href="/browse" className="text-gray-700 hover:text-primary font-medium">Formula Database</Link>
               <span className="text-gray-700 hover:text-primary font-medium cursor-pointer">About</span>
               <span className="text-gray-700 hover:text-primary font-medium cursor-pointer">Contact</span>
             </nav>
@@ -65,11 +65,11 @@ export default function Home() {
             <TabsList className="grid w-full grid-cols-2 mb-8">
               <TabsTrigger value="formulator" className="flex items-center gap-2 text-lg py-3" data-testid="tab-formulator">
                 <Sparkles className="h-5 w-5" />
-                AI Formulator
+                Create Custom Formula
               </TabsTrigger>
               <TabsTrigger value="browse" className="flex items-center gap-2 text-lg py-3" data-testid="tab-browse">
                 <BookOpen className="h-5 w-5" />
-                Browse Library
+                Ready-Made Formulas
               </TabsTrigger>
             </TabsList>
           )}
