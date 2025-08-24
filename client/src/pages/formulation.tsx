@@ -8,6 +8,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useCallback } from "react";
 import type { Formulation, Category } from "@shared/schema";
 import cleaningProductsGuide from "@/assets/generated-images/cleaning-products-guide.png";
+import woodFloorCleaner from "@/assets/generated-images/wood-floor-cleaner.png";
+import glassCleaner from "@/assets/generated-images/glass-cleaner.png";
+import multiSurfaceCleaner from "@/assets/generated-images/multi-surface-cleaner.png";
 
 export default function FormulationPage() {
   const params = useParams();
@@ -249,20 +252,43 @@ Generated on: ${new Date().toLocaleDateString()}
               </div>
             </div>
 
-            {/* Professional Guide Image for Cleaning Products */}
+            {/* Simple Product Images for Cleaning Products */}
             {category?.name === "Cleaning Products" && (
               <div className="mb-8">
-                <h3 className="text-lg font-inter font-semibold mb-4">Professional Manufacturing Guide</h3>
-                <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-lg">
-                  <img 
-                    src={cleaningProductsGuide} 
-                    alt="Professional Cleaning Products manufacturing guide - Complete chemical formulation with ingredients, procedures, and quality control specifications"
-                    className="w-full max-w-md mx-auto rounded-lg shadow-lg"
-                    data-testid="img-formulation-guide"
-                  />
-                  <p className="text-center text-sm text-gray-600 mt-3">
-                    Professional manufacturing guide with complete specifications
-                  </p>
+                <h3 className="text-lg font-inter font-semibold mb-4">Product Formulation</h3>
+                <div className="bg-white p-6 rounded-lg border border-gray-200">
+                  {formulation.name.includes("Wood Floor") && (
+                    <img 
+                      src={woodFloorCleaner} 
+                      alt="Wood Floor Cleaner formulation - Chemical Formula Services"
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-product"
+                    />
+                  )}
+                  {formulation.name.includes("Glass") && (
+                    <img 
+                      src={glassCleaner} 
+                      alt="Glass Cleaner formulation - Chemical Formula Services"
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-product"
+                    />
+                  )}
+                  {(formulation.name.includes("Multi") || formulation.name.includes("Surface")) && (
+                    <img 
+                      src={multiSurfaceCleaner} 
+                      alt="Multi-Surface Cleaner formulation - Chemical Formula Services"
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-product"
+                    />
+                  )}
+                  {!formulation.name.includes("Wood Floor") && !formulation.name.includes("Glass") && !formulation.name.includes("Multi") && !formulation.name.includes("Surface") && (
+                    <img 
+                      src={cleaningProductsGuide} 
+                      alt="Professional Cleaning Products manufacturing guide - Complete chemical formulation with ingredients, procedures, and quality control specifications"
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-guide"
+                    />
+                  )}
                 </div>
               </div>
             )}
