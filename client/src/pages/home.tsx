@@ -12,6 +12,49 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-blue-50 to-white overflow-x-hidden w-full">
+      {/* Header Navigation */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo/Brand */}
+            <div className="flex items-center">
+              <Beaker className="h-8 w-8 text-primary mr-3" />
+              <h1 className="text-xl font-bold text-primary">ChemFormula Pro</h1>
+            </div>
+
+            {/* Navigation Links */}
+            <nav className="hidden md:flex items-center space-x-8">
+              <Link href="/" className="text-gray-700 hover:text-primary font-medium">Home</Link>
+              <Link href="/browse" className="text-gray-700 hover:text-primary font-medium">Find Formulation</Link>
+              <span className="text-gray-700 hover:text-primary font-medium cursor-pointer">About</span>
+              <span className="text-gray-700 hover:text-primary font-medium cursor-pointer">Contact</span>
+            </nav>
+
+            {/* Search and Admin */}
+            <div className="flex items-center space-x-4">
+              <div className="relative hidden sm:block">
+                <input
+                  type="text"
+                  placeholder="Search formulations or categories..."
+                  className="w-64 px-4 py-2 pl-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+                <svg className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <Link href="/admin">
+                <Button 
+                  className="bg-primary hover:bg-primary/90 text-white px-4 py-2"
+                  data-testid="button-admin"
+                >
+                  Admin
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
+
       <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-6 w-full max-w-none">
         {/* Hero Section - Hidden when in wizard */}
         <div className="text-center mb-8"></div>
