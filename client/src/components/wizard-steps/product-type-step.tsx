@@ -67,8 +67,8 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
     <div className="space-y-6">
       <h3 className="text-xl font-bold text-gray-900 mb-4">Product Type Selection</h3>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+        <div className="w-full min-w-0">
           <Label htmlFor="productCategory" className="text-base font-semibold text-gray-900 mb-3 block">
             Product Category
           </Label>
@@ -89,7 +89,7 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
           </Select>
         </div>
 
-        <div>
+        <div className="w-full min-w-0">
           <Label htmlFor="productName" className="text-base font-semibold text-gray-900 mb-3 block">
             Product Name
           </Label>
@@ -110,7 +110,7 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
         <Label className="text-base font-semibold text-gray-900 mb-4 block">
           Consistency Type
         </Label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
           {consistencyTypes.map((type) => {
             const IconComponent = type.icon;
             const isSelected = formData.consistencyType === type.id;

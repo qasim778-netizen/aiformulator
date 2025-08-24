@@ -108,11 +108,19 @@
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html {
+    width: 100%;
+    overflow-x: hidden;
   }
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
     font-family: 'Roboto', sans-serif;
+    width: 100%;
+    overflow-x: hidden;
   }
 
   .font-inter {

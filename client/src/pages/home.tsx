@@ -11,13 +11,13 @@ export default function Home() {
   const [isWizardActive, setIsWizardActive] = useState(false)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-blue-50 to-white overflow-x-hidden">
-      <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-6 max-w-full">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-blue-50 to-white overflow-x-hidden w-full">
+      <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-6 w-full max-w-none">
         {/* Hero Section - Hidden when in wizard */}
         <div className="text-center mb-8"></div>
 
         {/* Main Navigation Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-6xl mx-auto">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-6xl mx-auto">
           {!isWizardActive && (
             <TabsList className="grid w-full grid-cols-2 mb-8">
               <TabsTrigger value="formulator" className="flex items-center gap-2 text-lg py-3" data-testid="tab-formulator">

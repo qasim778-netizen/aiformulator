@@ -139,7 +139,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   if (!showWizard) {
     return (
       <Card className="w-full max-w-4xl mx-auto shadow-lg bg-gradient-to-br from-blue-50 to-white overflow-hidden" data-testid="ai-formulator-landing">
-        <CardContent className="p-4 text-center">
+        <CardContent className="p-4 text-center w-full box-border">
           {/* Header */}
           <div className="flex items-center justify-center mb-4">
             <div className="bg-blue-600 text-white p-3 rounded-xl mr-3">
@@ -239,7 +239,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
 
   return (
     <Card className="w-full max-w-4xl mx-auto shadow-lg overflow-hidden" data-testid="ai-formulator-wizard">
-      <CardContent className="p-4 w-full">
+      <CardContent className="p-4 w-full box-border">
         {/* Header */}
         <div className="text-center mb-4">
           <h2 className="text-xl font-bold text-blue-600 mb-2">Formulation Process</h2>
@@ -251,7 +251,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
         </div>
 
         {/* Progress Stepper */}
-        <div className="flex items-center justify-between mb-4 px-2">
+        <div className="flex items-center justify-between mb-4 px-2 w-full overflow-hidden">
           {steps.map((step, index) => (
             <div key={index} className="flex flex-col items-center flex-1">
               <div className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300 ${
