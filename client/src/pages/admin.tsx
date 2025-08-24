@@ -515,12 +515,13 @@ export default function AdminPage() {
               </div>
               
               {/* Categories Pagination */}
-              {categoriesPaginated?.pagination && categoriesPaginated.pagination.totalPages > 1 && (
+              {categoriesPaginated?.pagination && (
                 <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
                   <div className="text-sm text-gray-600">
                     Showing {((categoriesPaginated.pagination.currentPage - 1) * categoriesPaginated.pagination.itemsPerPage) + 1} to {Math.min(categoriesPaginated.pagination.currentPage * categoriesPaginated.pagination.itemsPerPage, categoriesPaginated.pagination.totalItems)} of {categoriesPaginated.pagination.totalItems} categories
                   </div>
-                  <div className="flex space-x-2">
+                  {categoriesPaginated.pagination.totalPages > 1 && (
+                    <div className="flex space-x-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -550,15 +551,16 @@ export default function AdminPage() {
                       return null;
                     })}
                     
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCategoriesPage(prev => Math.min(prev + 1, categoriesPaginated.pagination.totalPages))}
-                      disabled={categoriesPaginated.pagination.currentPage === categoriesPaginated.pagination.totalPages}
-                    >
-                      Next
-                    </Button>
-                  </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCategoriesPage(prev => Math.min(prev + 1, categoriesPaginated.pagination.totalPages))}
+                        disabled={categoriesPaginated.pagination.currentPage === categoriesPaginated.pagination.totalPages}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </Card>
@@ -715,12 +717,13 @@ export default function AdminPage() {
               </div>
               
               {/* Formulations Pagination */}
-              {formulationsPaginated?.pagination && formulationsPaginated.pagination.totalPages > 1 && (
+              {formulationsPaginated?.pagination && (
                 <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
                   <div className="text-sm text-gray-600">
                     Showing {((formulationsPaginated.pagination.currentPage - 1) * formulationsPaginated.pagination.itemsPerPage) + 1} to {Math.min(formulationsPaginated.pagination.currentPage * formulationsPaginated.pagination.itemsPerPage, formulationsPaginated.pagination.totalItems)} of {formulationsPaginated.pagination.totalItems} formulations
                   </div>
-                  <div className="flex space-x-2">
+                  {formulationsPaginated.pagination.totalPages > 1 && (
+                    <div className="flex space-x-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -750,15 +753,16 @@ export default function AdminPage() {
                       return null;
                     })}
                     
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setFormulationsPage(prev => Math.min(prev + 1, formulationsPaginated.pagination.totalPages))}
-                      disabled={formulationsPaginated.pagination.currentPage === formulationsPaginated.pagination.totalPages}
-                    >
-                      Next
-                    </Button>
-                  </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setFormulationsPage(prev => Math.min(prev + 1, formulationsPaginated.pagination.totalPages))}
+                        disabled={formulationsPaginated.pagination.currentPage === formulationsPaginated.pagination.totalPages}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </Card>
