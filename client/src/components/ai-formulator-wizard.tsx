@@ -145,17 +145,8 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
         <CardContent className="p-4 text-center w-full box-border">
           {/* Header */}
           <div className="flex items-center justify-center mb-4">
-            <div className="bg-blue-600 text-white p-3 rounded-xl mr-3">
+            <div className="bg-blue-600 text-white p-3 rounded-xl">
               <Beaker className="h-6 w-6" />
-            </div>
-            <div className="text-left">
-              <h1 className="text-lg font-bold text-gray-900">ChemFormulaPro</h1>
-              <p className="text-xs text-gray-600">FREE Professional Product Formulation Tool</p>
-            </div>
-            <div className="ml-auto">
-              <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
-                100% FREE
-              </span>
             </div>
           </div>
 
