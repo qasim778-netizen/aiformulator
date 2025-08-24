@@ -75,11 +75,11 @@ export default function Browse() {
               Professional Chemical
               <span className="text-primary block">Formulations</span>
             </h1>
-            <p className="text-lg text-gray-600 mb-6 max-w-3xl mx-auto">
+            <p className="text-lg text-gray-600 mb-4 max-w-3xl mx-auto">
               Access 68+ ready-to-use professional formulations across 10 product categories. 
               Perfect for small business manufacturers looking to create high-quality chemical products.
             </p>
-            <div className="flex justify-center">
+            <div className="flex justify-center mb-0">
               <SearchBar 
                 onSearch={handleSearch}
                 placeholder="Search formulations or categories…"
