@@ -14,7 +14,11 @@ export default function Home() {
     consistencyType: "cream",
     targetViscosity: "medium",
     specialProperties: [],
-    phLevel: ""
+    phLevel: "",
+    shelfLife: "12-months",
+    storageTemperature: "room-temperature",
+    budgetCategory: "mid-range",
+    productionVolume: "small-batch"
   });
 
   const handleStartFormulation = () => {
@@ -36,7 +40,11 @@ export default function Home() {
       consistencyType: "cream",
       targetViscosity: "medium",
       specialProperties: [],
-      phLevel: ""
+      phLevel: "",
+      shelfLife: "12-months",
+      storageTemperature: "room-temperature",
+      budgetCategory: "mid-range",
+      productionVolume: "small-batch"
     });
   };
 
@@ -96,25 +104,29 @@ export default function Home() {
                 </div>
                 
                 {/* Connector */}
-                <div className="w-20 h-1 bg-gray-200 mx-4"></div>
+                <div className={`w-20 h-1 mx-4 ${currentStep >= 3 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
                 
                 {/* Step 3 */}
                 <div className="flex flex-col items-center">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mb-2">
-                    <span className="text-gray-400">📋</span>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
+                    currentStep >= 3 ? 'bg-blue-600' : 'bg-gray-200'
+                  }`}>
+                    <Check className={`w-5 h-5 ${currentStep >= 3 ? 'text-white' : 'text-gray-400'}`} />
                   </div>
-                  <span className="text-sm text-gray-500">Requirements</span>
+                  <span className={`text-sm ${currentStep >= 3 ? 'font-medium text-gray-900' : 'text-gray-500'}`}>Requirements</span>
                 </div>
                 
                 {/* Connector */}
-                <div className="w-20 h-1 bg-gray-200 mx-4"></div>
+                <div className={`w-20 h-1 mx-4 ${currentStep >= 4 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
                 
                 {/* Step 4 */}
                 <div className="flex flex-col items-center">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mb-2">
-                    <span className="text-gray-400">✏️</span>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
+                    currentStep >= 4 ? 'bg-blue-600' : 'bg-gray-200'
+                  }`}>
+                    <Check className={`w-5 h-5 ${currentStep >= 4 ? 'text-white' : 'text-gray-400'}`} />
                   </div>
-                  <span className="text-sm text-gray-500">Generate</span>
+                  <span className={`text-sm ${currentStep >= 4 ? 'font-medium text-gray-900' : 'text-gray-500'}`}>Generate</span>
                 </div>
               </div>
             </div>
@@ -406,6 +418,192 @@ export default function Home() {
                         onChange={(e) => setFormData({...formData, phLevel: e.target.value})}
                         className="w-full"
                       />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-between mt-8">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setCurrentStep(currentStep - 1)}
+                    className="text-gray-600 border-gray-300"
+                  >
+                    Previous Step
+                  </Button>
+                  <Button 
+                    onClick={handleNextStep}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Next Step
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </>
+            )}
+
+            {currentStep === 3 && (
+              <>
+                <h3 className="text-xl font-bold text-gray-900 mb-6">Requirements & Specifications</h3>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Shelf Life & Storage */}
+                  <div className="space-y-6">
+                    {/* Shelf Life */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-4">Shelf Life</label>
+                      <div className="space-y-3">
+                        {[
+                          { value: '6-months', label: '6 Months', desc: 'Short-term natural products' },
+                          { value: '12-months', label: '12 Months', desc: 'Standard cosmetic products' },
+                          { value: '18-months', label: '18 Months', desc: 'Extended shelf life products' },
+                          { value: '24-months', label: '24+ Months', desc: 'Long-term stable formulations' }
+                        ].map((option) => (
+                          <div
+                            key={option.value}
+                            className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
+                              formData.shelfLife === option.value
+                                ? 'border-blue-600 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                            onClick={() => setFormData({...formData, shelfLife: option.value})}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h4 className="font-semibold text-gray-900">{option.label}</h4>
+                                <p className="text-xs text-gray-500">{option.desc}</p>
+                              </div>
+                              <input
+                                type="radio"
+                                checked={formData.shelfLife === option.value}
+                                readOnly
+                                className="w-4 h-4"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Storage Temperature */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-4">Storage Temperature</label>
+                      <div className="space-y-3">
+                        {[
+                          { value: 'room-temperature', label: 'Room Temperature', desc: '15-25°C (59-77°F)' },
+                          { value: 'cool-dry', label: 'Cool & Dry Place', desc: '10-20°C (50-68°F)' },
+                          { value: 'refrigerated', label: 'Refrigerated', desc: '2-8°C (36-46°F)' },
+                          { value: 'freezer', label: 'Freezer Storage', desc: 'Below 0°C (32°F)' }
+                        ].map((option) => (
+                          <div
+                            key={option.value}
+                            className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
+                              formData.storageTemperature === option.value
+                                ? 'border-blue-600 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                            onClick={() => setFormData({...formData, storageTemperature: option.value})}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h4 className="font-semibold text-gray-900">{option.label}</h4>
+                                <p className="text-xs text-gray-500">{option.desc}</p>
+                              </div>
+                              <input
+                                type="radio"
+                                checked={formData.storageTemperature === option.value}
+                                readOnly
+                                className="w-4 h-4"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Budget & Production */}
+                  <div className="space-y-6">
+                    {/* Budget Category */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-4">Budget Category</label>
+                      <div className="space-y-3">
+                        {[
+                          { value: 'budget', label: 'Budget-Friendly', desc: 'Cost-effective formulations', color: 'bg-green-100 text-green-800' },
+                          { value: 'mid-range', label: 'Mid-Range', desc: 'Balanced quality and cost', color: 'bg-blue-100 text-blue-800' },
+                          { value: 'premium', label: 'Premium', desc: 'High-quality ingredients', color: 'bg-purple-100 text-purple-800' },
+                          { value: 'luxury', label: 'Luxury', desc: 'Exclusive premium formulation', color: 'bg-yellow-100 text-yellow-800' }
+                        ].map((option) => (
+                          <div
+                            key={option.value}
+                            className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
+                              formData.budgetCategory === option.value
+                                ? 'border-blue-600 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                            onClick={() => setFormData({...formData, budgetCategory: option.value})}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3">
+                                  <h4 className="font-semibold text-gray-900">{option.label}</h4>
+                                  <Badge className={`${option.color} text-xs`}>
+                                    {option.value === 'budget' ? '$' : 
+                                     option.value === 'mid-range' ? '$$' :
+                                     option.value === 'premium' ? '$$$' : '$$$$'}
+                                  </Badge>
+                                </div>
+                                <p className="text-xs text-gray-500">{option.desc}</p>
+                              </div>
+                              <input
+                                type="radio"
+                                checked={formData.budgetCategory === option.value}
+                                readOnly
+                                className="w-4 h-4"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Production Volume */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-4">Production Volume</label>
+                      <div className="space-y-3">
+                        {[
+                          { value: 'small-batch', label: 'Small Batch', desc: '1-100 units', icon: '🧪' },
+                          { value: 'medium-batch', label: 'Medium Batch', desc: '100-1,000 units', icon: '⚗️' },
+                          { value: 'large-batch', label: 'Large Batch', desc: '1,000-10,000 units', icon: '🏭' },
+                          { value: 'commercial', label: 'Commercial Scale', desc: '10,000+ units', icon: '🏢' }
+                        ].map((option) => (
+                          <div
+                            key={option.value}
+                            className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
+                              formData.productionVolume === option.value
+                                ? 'border-blue-600 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                            onClick={() => setFormData({...formData, productionVolume: option.value})}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <span className="text-2xl">{option.icon}</span>
+                                <div>
+                                  <h4 className="font-semibold text-gray-900">{option.label}</h4>
+                                  <p className="text-xs text-gray-500">{option.desc}</p>
+                                </div>
+                              </div>
+                              <input
+                                type="radio"
+                                checked={formData.productionVolume === option.value}
+                                readOnly
+                                className="w-4 h-4"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
