@@ -22,24 +22,26 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Main Navigation Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-6xl mx-auto">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="formulator" className="flex items-center gap-2 text-lg py-3" data-testid="tab-formulator">
-              <Sparkles className="h-5 w-5" />
-              AI Formulator
-            </TabsTrigger>
-            <TabsTrigger value="browse" className="flex items-center gap-2 text-lg py-3" data-testid="tab-browse">
-              <BookOpen className="h-5 w-5" />
-              Browse Library
-            </TabsTrigger>
-          </TabsList>
+        {/* Direct Content - No Tabs */}
+        <div className="max-w-6xl mx-auto">
+          <AIFormulatorWizard />
+        </div>
+        
+        {/* Hidden Browse Content */}
+        <div className="hidden">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-6xl mx-auto">
+            <TabsList className="grid w-full grid-cols-2 mb-8">
+              <TabsTrigger value="formulator" className="flex items-center gap-2 text-lg py-3" data-testid="tab-formulator">
+                <Sparkles className="h-5 w-5" />
+                AI Formulator
+              </TabsTrigger>
+              <TabsTrigger value="browse" className="flex items-center gap-2 text-lg py-3" data-testid="tab-browse">
+                <BookOpen className="h-5 w-5" />
+                Browse Library
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="formulator" className="mt-8">
-            <AIFormulatorWizard />
-          </TabsContent>
-
-          <TabsContent value="browse" className="mt-8">
+            <TabsContent value="browse" className="mt-8">
             <Card className="max-w-4xl mx-auto shadow-lg">
               <CardContent className="p-12 text-center">
                 <div className="flex items-center justify-center mb-6">
@@ -85,8 +87,9 @@ export default function Home() {
                 </Link>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   )

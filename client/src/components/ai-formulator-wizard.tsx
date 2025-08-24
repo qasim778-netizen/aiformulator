@@ -231,13 +231,10 @@ export default function AIFormulatorWizard() {
 
   return (
     <Card className="w-full max-w-4xl mx-auto shadow-lg" data-testid="ai-formulator-wizard">
-      <CardContent className="p-8">
+      <CardContent className="p-4">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="bg-blue-600 text-white p-3 rounded-xl w-12 h-12 flex items-center justify-center mx-auto mb-4">
-            <Beaker className="h-6 w-6" />
-          </div>
-          <h2 className="text-2xl font-bold text-blue-600 mb-2">Formulation Process</h2>
+        <div className="text-center mb-4">
+          <h2 className="text-xl font-bold text-blue-600 mb-2">Formulation Process</h2>
           <p className="text-blue-600">
             <span className="bg-blue-100 px-2 py-1 rounded-full text-sm font-medium">
               Step {currentStep + 1} of {steps.length}
@@ -246,7 +243,7 @@ export default function AIFormulatorWizard() {
         </div>
 
         {/* Progress Stepper */}
-        <div className="flex items-center justify-between mb-8 px-4">
+        <div className="flex items-center justify-between mb-4 px-2">
           {steps.map((step, index) => (
             <div key={index} className="flex flex-col items-center flex-1">
               <div className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300 ${
@@ -275,7 +272,7 @@ export default function AIFormulatorWizard() {
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-8">
+        <div className="mb-4">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>{Math.round(((currentStep + 1) / steps.length) * 100)}% Complete</span>
           </div>
@@ -283,7 +280,7 @@ export default function AIFormulatorWizard() {
         </div>
 
         {/* Step Content */}
-        <div className="min-h-96">
+        <div className="min-h-80">
           {currentStep === 0 && (
             <ProductTypeStep 
               formData={formData} 
