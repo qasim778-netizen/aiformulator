@@ -159,7 +159,7 @@ export default function Home() {
               </p>
               <h3 className="text-2xl font-inter font-semibold mb-4">What We Offer</h3>
               <ul className="text-gray-600 space-y-2">
-                <li>• 68+ Professional formulations across 10 categories</li>
+                <li>• 68+ Professional chemical formulations</li>
                 <li>• Laboratory-tested and commercially proven recipes</li>
                 <li>• Detailed manufacturing procedures and equipment requirements</li>
                 <li>• Quality control specifications and batch documentation</li>
