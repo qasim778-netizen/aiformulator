@@ -43,11 +43,15 @@ export default function SearchBar({
     queryKey: ["/api/formulations"],
   });
 
-  // Generate suggestions based on query
-  const generateSuggestions = useCallback((searchQuery: string): SearchSuggestion[] => {
-    if (!searchQuery.trim()) return [];
+  // Update suggestions when query changes
+  useEffect(() => {
+    if (!query.trim()) {
+      setSuggestions([]);
+      setIsOpen(false);
+      return;
+    }
 
-    const lowerQuery = searchQuery.toLowerCase();
+    const lowerQuery = query.toLowerCase();
     const allSuggestions: SearchSuggestion[] = [];
 
     // Add category suggestions
@@ -78,18 +82,14 @@ export default function SearchBar({
     });
 
     // Limit to top 8 suggestions and prioritize categories first
-    return allSuggestions
+    const newSuggestions = allSuggestions
       .sort((a, b) => a.type === "category" ? -1 : 1)
       .slice(0, 8);
-  }, [categories, formulations]);
 
-  // Update suggestions when query changes
-  useEffect(() => {
-    const newSuggestions = generateSuggestions(query);
     setSuggestions(newSuggestions);
     setSelectedIndex(-1);
-    setIsOpen(newSuggestions.length > 0 && query.trim().length > 0);
-  }, [query, generateSuggestions]);
+    setIsOpen(newSuggestions.length > 0);
+  }, [query, categories, formulations]);
 
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
