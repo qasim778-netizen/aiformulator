@@ -329,10 +329,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .sort((a, b) => b.count - a.count)
         .slice(0, 10);
 
-      // Recent generations (last 10)
-      const recentGenerations = aiGenerations
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-        .slice(0, 10)
+      // Recent generations with pagination
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const offset = (page - 1) * limit;
+      
+      const sortedGenerations = aiGenerations
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      
+      const recentGenerations = sortedGenerations
+        .slice(offset, offset + limit)
         .map(gen => ({
           id: gen.id,
           productName: gen.productName,
@@ -342,6 +348,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           country: gen.country,
           city: gen.city,
         }));
+      
+      const totalPages = Math.ceil(sortedGenerations.length / limit);
 
       // Generations by hour (24 hour format)
       const hourCounts = Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }));
@@ -366,6 +374,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         recentGenerations,
         generationsByHour: hourCounts,
         avgResponseTime,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: sortedGenerations.length,
+          itemsPerPage: limit
+        }
       };
 
       res.json(analytics);

@@ -22,6 +22,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [analyticsFilter, setAnalyticsFilter] = useState<'browse' | 'generation'>('generation');
+  const [currentPage, setCurrentPage] = useState(1);
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [formulationDialogOpen, setFormulationDialogOpen] = useState(false);
   const [bulkGenerationDialogOpen, setBulkGenerationDialogOpen] = useState(false);
@@ -64,10 +65,16 @@ export default function AdminPage() {
     }>;
     generationsByHour: Array<{ hour: number; count: number }>;
     avgResponseTime: number;
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalItems: number;
+      itemsPerPage: number;
+    };
   }>({
-    queryKey: ["/api/ai-analytics", analyticsFilter],
+    queryKey: ["/api/ai-analytics", analyticsFilter, currentPage],
     queryFn: async () => {
-      const response = await fetch(`/api/ai-analytics?type=${analyticsFilter}`);
+      const response = await fetch(`/api/ai-analytics?type=${analyticsFilter}&page=${currentPage}&limit=50`);
       if (!response.ok) {
         throw new Error('Failed to fetch analytics');
       }
@@ -782,7 +789,10 @@ export default function AdminPage() {
                 <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">Analytics Filter</h3>
                 <div className="flex space-x-4">
                   <Button
-                    onClick={() => setAnalyticsFilter('browse')}
+                    onClick={() => {
+                      setAnalyticsFilter('browse');
+                      setCurrentPage(1);
+                    }}
                     className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                       analyticsFilter === 'browse'
                         ? 'bg-blue-500 text-white shadow-md'
@@ -793,7 +803,10 @@ export default function AdminPage() {
                     Analytics Browse Formulation
                   </Button>
                   <Button
-                    onClick={() => setAnalyticsFilter('generation')}
+                    onClick={() => {
+                      setAnalyticsFilter('generation');
+                      setCurrentPage(1);
+                    }}
                     className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                       analyticsFilter === 'generation'
                         ? 'bg-purple-500 text-white shadow-md'
@@ -1098,6 +1111,55 @@ export default function AdminPage() {
                     </tbody>
                   </table>
                 </div>
+                
+                {/* Pagination */}
+                {aiAnalytics?.pagination && aiAnalytics.pagination.totalPages > 1 && (
+                  <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                    <div className="text-sm text-gray-600">
+                      Showing {((aiAnalytics.pagination.currentPage - 1) * aiAnalytics.pagination.itemsPerPage) + 1} to {Math.min(aiAnalytics.pagination.currentPage * aiAnalytics.pagination.itemsPerPage, aiAnalytics.pagination.totalItems)} of {aiAnalytics.pagination.totalItems} entries
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={aiAnalytics.pagination.currentPage === 1}
+                      >
+                        Previous
+                      </Button>
+                      
+                      {/* Page numbers */}
+                      {Array.from({ length: Math.min(5, aiAnalytics.pagination.totalPages) }, (_, i) => {
+                        const pageNum = Math.max(1, Math.min(
+                          aiAnalytics.pagination.currentPage - 2 + i,
+                          aiAnalytics.pagination.totalPages - 4 + i
+                        ));
+                        if (pageNum <= aiAnalytics.pagination.totalPages) {
+                          return (
+                            <Button
+                              key={pageNum}
+                              variant={pageNum === aiAnalytics.pagination.currentPage ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setCurrentPage(pageNum)}
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        }
+                        return null;
+                      })}
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, aiAnalytics.pagination.totalPages))}
+                        disabled={aiAnalytics.pagination.currentPage === aiAnalytics.pagination.totalPages}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
