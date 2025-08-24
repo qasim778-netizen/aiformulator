@@ -1,6 +1,16 @@
 import { type Category, type InsertCategory, type Formulation, type InsertFormulation } from "@shared/schema";
 import { randomUUID } from "crypto";
 
+export interface IAiGeneration {
+  id: string;
+  productName: string;
+  category: string;
+  sessionId: string;
+  timestamp: string;
+  responseTime?: number;
+  formData: any;
+}
+
 export interface IStorage {
   // Categories
   getCategories(): Promise<Category[]>;
@@ -16,15 +26,21 @@ export interface IStorage {
   createFormulation(formulation: InsertFormulation): Promise<Formulation>;
   updateFormulation(id: string, formulation: Partial<InsertFormulation>): Promise<Formulation | undefined>;
   deleteFormulation(id: string): Promise<boolean>;
+
+  // AI Generations
+  getAiGenerations(): Promise<IAiGeneration[]>;
+  trackAiGeneration(generation: Omit<IAiGeneration, 'id'>): Promise<IAiGeneration>;
 }
 
 export class MemStorage implements IStorage {
   private categories: Map<string, Category>;
   private formulations: Map<string, Formulation>;
+  private aiGenerations: Map<string, IAiGeneration>;
 
   constructor() {
     this.categories = new Map();
     this.formulations = new Map();
+    this.aiGenerations = new Map();
     // Only seed data if no data exists (first run)
     this.seedInitialData();
   }

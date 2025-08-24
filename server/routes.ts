@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import crypto from "crypto";
 import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema } from "@shared/schema";
 import { generateCategory, generateFormulation, generateBulkFormulations, generateProductTypes, generateCustomFormulation } from "./ai";
@@ -149,6 +150,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI Analytics endpoint
+  app.get("/api/ai-analytics", async (req, res) => {
+    try {
+      const aiGenerations = await storage.getAiGenerations();
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const thisWeek = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+      const thisMonth = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+
+      // Calculate statistics
+      const totalAiGenerations = aiGenerations.length;
+      const dailyGenerations = aiGenerations.filter(gen => new Date(gen.timestamp) >= today).length;
+      const weeklyGenerations = aiGenerations.filter(gen => new Date(gen.timestamp) >= thisWeek).length;
+      const monthlyGenerations = aiGenerations.filter(gen => new Date(gen.timestamp) >= thisMonth).length;
+
+      // Popular categories
+      const categoryCount: Record<string, number> = {};
+      aiGenerations.forEach(gen => {
+        categoryCount[gen.category] = (categoryCount[gen.category] || 0) + 1;
+      });
+      const popularCategories = Object.entries(categoryCount)
+        .map(([category, count]) => ({ category, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+
+      // Recent generations (last 10)
+      const recentGenerations = aiGenerations
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, 10)
+        .map(gen => ({
+          id: gen.id,
+          productName: gen.productName,
+          category: gen.category,
+          timestamp: gen.timestamp,
+          sessionId: gen.sessionId,
+        }));
+
+      // Generations by hour (24 hour format)
+      const hourCounts = Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }));
+      aiGenerations.forEach(gen => {
+        const hour = new Date(gen.timestamp).getHours();
+        hourCounts[hour].count++;
+      });
+
+      // Average response time
+      const responseTimes = aiGenerations.map(gen => gen.responseTime || 5);
+      const avgResponseTime = responseTimes.length > 0 
+        ? Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length * 10) / 10
+        : 0;
+
+      const analytics = {
+        totalAiGenerations,
+        dailyGenerations,
+        weeklyGenerations,
+        monthlyGenerations,
+        popularCategories,
+        recentGenerations,
+        generationsByHour: hourCounts,
+        avgResponseTime,
+      };
+
+      res.json(analytics);
+    } catch (error) {
+      console.error("Failed to fetch AI analytics:", error);
+      res.status(500).json({ message: "Failed to fetch AI analytics" });
+    }
+  });
+
   // SEO Optimization endpoint
   app.post("/api/admin/optimize-seo", async (req, res) => {
     try {
@@ -266,6 +335,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Custom AI Formulation with PDF Generation
   app.post("/api/ai/custom-formulation", async (req, res) => {
+    const startTime = Date.now();
     try {
       const {
         productName,
@@ -297,6 +367,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         color,
         fragrance,
         specialRequirements
+      });
+
+      // Track AI generation for analytics
+      const responseTime = (Date.now() - startTime) / 1000; // Convert to seconds
+      const sessionId = req.headers['x-session-id'] as string || crypto.randomUUID();
+      
+      await storage.trackAiGeneration({
+        productName,
+        category: productType,
+        sessionId,
+        timestamp: new Date().toISOString(),
+        responseTime,
+        formData: req.body,
       });
 
       // Generate PDF

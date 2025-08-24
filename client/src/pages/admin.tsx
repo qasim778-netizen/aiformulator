@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Sparkles, Package } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Sparkles, Package, BarChart3, TrendingUp, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +43,25 @@ export default function AdminPage() {
     draftFormulations: number;
   }>({
     queryKey: ["/api/stats"],
+  });
+
+  const { data: aiAnalytics } = useQuery<{
+    totalAiGenerations: number;
+    dailyGenerations: number;
+    weeklyGenerations: number;
+    monthlyGenerations: number;
+    popularCategories: Array<{ category: string; count: number }>;
+    recentGenerations: Array<{
+      id: string;
+      productName: string;
+      category: string;
+      timestamp: string;
+      sessionId: string;
+    }>;
+    generationsByHour: Array<{ hour: number; count: number }>;
+    avgResponseTime: number;
+  }>({
+    queryKey: ["/api/ai-analytics"],
   });
 
   const deleteCategory = useMutation({
@@ -176,6 +195,16 @@ export default function AdminPage() {
                 onClick={() => setActiveTab("bulk-formulations")}
               >
                 Bulk Formulations
+              </button>
+              <button
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "ai-analytics"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+                onClick={() => setActiveTab("ai-analytics")}
+              >
+                AI Analytics
               </button>
             </nav>
           </div>
@@ -723,6 +752,228 @@ export default function AdminPage() {
               <p className="text-sm text-gray-600 mt-1">Select an existing category and generate multiple formulations automatically</p>
             </div>
             <BulkFormulationGenerator categories={categories} />
+          </div>
+        )}
+
+        {/* AI Analytics Tab */}
+        {activeTab === "ai-analytics" && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-xl font-inter font-semibold text-gray-900">AI Analytics & Usage Statistics</h2>
+                <p className="text-sm text-gray-600 mt-1">Monitor AI formulator usage, user activity, and generation trends</p>
+              </div>
+            </div>
+
+            {/* Analytics Overview Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <Card className="bg-white rounded-lg shadow-md">
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                      <BarChart3 className="text-white text-xl h-6 w-6" />
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-inter font-semibold text-gray-900">
+                        {aiAnalytics?.totalAiGenerations || 0}
+                      </h3>
+                      <p className="text-sm text-gray-600">Total AI Generations</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white rounded-lg shadow-md">
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <TrendingUp className="text-white text-xl h-6 w-6" />
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-inter font-semibold text-gray-900">
+                        {aiAnalytics?.dailyGenerations || 0}
+                      </h3>
+                      <p className="text-sm text-gray-600">Today's Generations</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white rounded-lg shadow-md">
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                      <Users className="text-white text-xl h-6 w-6" />
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-inter font-semibold text-gray-900">
+                        {aiAnalytics?.weeklyGenerations || 0}
+                      </h3>
+                      <p className="text-sm text-gray-600">This Week</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white rounded-lg shadow-md">
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+                      <Sparkles className="text-white text-xl h-6 w-6" />
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-inter font-semibold text-gray-900">
+                        {aiAnalytics?.avgResponseTime || 0}s
+                      </h3>
+                      <p className="text-sm text-gray-600">Avg Response Time</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Analytics Charts and Tables */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* Popular Categories */}
+              <Card className="bg-white rounded-lg shadow-md">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h3 className="text-lg font-inter font-semibold text-gray-900">Popular Categories</h3>
+                  <p className="text-sm text-gray-600">Most requested product categories</p>
+                </div>
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    {aiAnalytics?.popularCategories?.map((cat, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mr-3">
+                            <span className="text-white text-xs font-bold">{index + 1}</span>
+                          </div>
+                          <span className="text-sm font-medium text-gray-900">{cat.category}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-20 bg-gray-200 rounded-full h-2 mr-3">
+                            <div 
+                              className="bg-primary h-2 rounded-full" 
+                              style={{ width: `${(cat.count / (aiAnalytics?.popularCategories?.[0]?.count || 1)) * 100}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-sm text-gray-600">{cat.count}</span>
+                        </div>
+                      </div>
+                    )) || (
+                      <div className="text-center text-gray-500 py-8">
+                        <BarChart3 className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                        <p>No data available yet</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Usage by Hour */}
+              <Card className="bg-white rounded-lg shadow-md">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h3 className="text-lg font-inter font-semibold text-gray-900">Usage by Hour</h3>
+                  <p className="text-sm text-gray-600">AI generations throughout the day</p>
+                </div>
+                <CardContent className="p-6">
+                  <div className="space-y-3">
+                    {aiAnalytics?.generationsByHour?.map((hour) => (
+                      <div key={hour.hour} className="flex items-center">
+                        <span className="text-sm text-gray-600 w-16">{hour.hour}:00</span>
+                        <div className="flex-1 bg-gray-200 rounded-full h-2 mr-3">
+                          <div 
+                            className="bg-blue-500 h-2 rounded-full" 
+                            style={{ width: `${(hour.count / Math.max(...(aiAnalytics?.generationsByHour?.map(h => h.count) || [1]))) * 100}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm text-gray-900">{hour.count}</span>
+                      </div>
+                    )) || (
+                      <div className="text-center text-gray-500 py-8">
+                        <TrendingUp className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                        <p>No hourly data available</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Recent AI Generations */}
+            <Card className="bg-white rounded-lg shadow-md">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-inter font-semibold text-gray-900">Recent AI Generations</h3>
+                <p className="text-sm text-gray-600">Latest custom formulations created by users</p>
+              </div>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Product Name
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Category
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Session ID
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Generated At
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {aiAnalytics?.recentGenerations?.map((generation) => (
+                        <tr key={generation.id}>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
+                                <Sparkles className="text-white h-4 w-4" />
+                              </div>
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {generation.productName || 'Untitled Product'}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <Badge className="bg-blue-100 text-blue-800">
+                              {generation.category}
+                            </Badge>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {generation.sessionId.substring(0, 8)}...
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(generation.timestamp).toLocaleString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <Badge className="bg-green-100 text-green-800">
+                              Generated
+                            </Badge>
+                          </td>
+                        </tr>
+                      )) || (
+                        <tr>
+                          <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                            <Sparkles className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                            <p>No AI generations yet</p>
+                            <p className="text-sm">Data will appear here as users create custom formulations</p>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>

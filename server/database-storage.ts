@@ -1,9 +1,12 @@
 import { eq, desc } from "drizzle-orm";
 import { db, categoriesTable, formulationsTable } from "./db";
 import type { Category, InsertCategory, Formulation, InsertFormulation } from "@shared/schema";
-import type { IStorage } from "./storage";
+import type { IStorage, IAiGeneration } from "./storage";
+import crypto from "crypto";
 
 export class DatabaseStorage implements IStorage {
+  // In-memory AI generations tracking (for demo purposes)
+  private aiGenerations: Map<string, IAiGeneration> = new Map();
   // Categories
   async getCategories(): Promise<Category[]> {
     const categories = await db.select().from(categoriesTable).orderBy(categoriesTable.name);
@@ -136,5 +139,20 @@ export class DatabaseStorage implements IStorage {
       createdAt: dbFormulation.createdAt,
       updatedAt: dbFormulation.updatedAt,
     };
+  }
+
+  // AI Generation tracking methods (in-memory for demo)
+  async getAiGenerations(): Promise<IAiGeneration[]> {
+    return Array.from(this.aiGenerations.values());
+  }
+
+  async trackAiGeneration(generation: Omit<IAiGeneration, 'id'>): Promise<IAiGeneration> {
+    const id = crypto.randomUUID();
+    const newGeneration: IAiGeneration = {
+      id,
+      ...generation,
+    };
+    this.aiGenerations.set(id, newGeneration);
+    return newGeneration;
   }
 }
