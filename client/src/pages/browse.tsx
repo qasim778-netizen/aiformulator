@@ -68,14 +68,14 @@ export default function Browse() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-blue-50 to-white py-20">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-blue-50 to-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-inter font-bold text-gray-900 mb-6">
+            <h1 className="text-3xl md:text-4xl font-inter font-bold text-gray-900 mb-4">
               Professional Chemical
               <span className="text-primary block">Formulations</span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            <p className="text-lg text-gray-600 mb-6 max-w-3xl mx-auto">
               Access 68+ ready-to-use professional formulations across 10 product categories. 
               Perfect for small business manufacturers looking to create high-quality chemical products.
             </p>
@@ -92,7 +92,7 @@ export default function Browse() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-white">
+      <section className="py-8 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center p-6">
@@ -133,11 +133,11 @@ export default function Browse() {
       </section>
 
       {/* Categories Overview */}
-      <section id="categories" className="py-16 bg-gray-50">
+      <section id="categories" className="py-8 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-inter font-bold text-gray-900 mb-4">Product Categories</h2>
-            <p className="text-lg text-gray-600 mb-6">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-inter font-bold text-gray-900 mb-3">Product Categories</h2>
+            <p className="text-base text-gray-600 mb-4">
               Choose from our comprehensive range of formulation categories
             </p>
           </div>
