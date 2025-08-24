@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import CategoryCard from "@/components/category-card";
 import SearchBar from "@/components/search-bar";
 import { FlaskConical, Factory, Rocket } from "lucide-react";
+import { Link } from "wouter";
 import type { Category } from "@shared/schema";
 import chemicalBannerImage from "@assets/483526757_122151147650449958_5670030473145342152_n_1755891598926.jpg";
 
@@ -54,12 +55,23 @@ export default function Home() {
               <p className="text-xl md:text-2xl mb-8 max-w-2xl">
                 Ready-to-use formulations for small business manufacturers across 50+ product categories with 1000+ formulations
               </p>
-              <Button 
-                className="bg-accent text-white px-8 py-3 text-lg font-medium hover:bg-orange-600"
-                onClick={() => document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Explore Categories
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button 
+                  className="bg-accent text-white px-8 py-3 text-lg font-medium hover:bg-orange-600"
+                  onClick={() => document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth' })}
+                  data-testid="button-explore-categories"
+                >
+                  Explore Categories
+                </Button>
+                <Link href="/formulations/b1252d0f-4414-446c-9c5b-4676e8dd2ad8">
+                  <Button 
+                    className="bg-primary text-white px-8 py-3 text-lg font-medium hover:bg-blue-700 border-2 border-white"
+                    data-testid="button-view-first-formulation"
+                  >
+                    View First Formulation
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
