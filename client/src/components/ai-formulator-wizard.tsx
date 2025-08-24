@@ -133,8 +133,8 @@ export default function AIFormulatorWizard() {
 
   if (!showWizard) {
     return (
-      <Card className="w-full max-w-4xl mx-auto shadow-lg bg-gradient-to-br from-blue-50 to-white" data-testid="ai-formulator-landing">
-        <CardContent className="p-6 text-center">
+      <Card className="w-full max-w-4xl mx-auto shadow-lg bg-gradient-to-br from-blue-50 to-white overflow-hidden" data-testid="ai-formulator-landing">
+        <CardContent className="p-4 text-center">
           {/* Header */}
           <div className="flex items-center justify-center mb-4">
             <div className="bg-blue-600 text-white p-3 rounded-xl mr-3">
@@ -161,7 +161,7 @@ export default function AIFormulatorWizard() {
           </p>
 
           {/* Feature Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 overflow-hidden">
             <div className="bg-white p-4 rounded-xl shadow-md border border-gray-100">
               <div className="bg-green-100 text-green-600 p-3 rounded-xl w-12 h-12 flex items-center justify-center mx-auto mb-3">
                 <Settings className="h-6 w-6" />

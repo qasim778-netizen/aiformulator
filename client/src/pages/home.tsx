@@ -10,8 +10,8 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState("formulator")
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-blue-50 to-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-blue-50 to-white overflow-x-hidden">
+      <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-6 max-w-full">
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-5xl md:text-7xl font-inter font-bold text-gray-900 mb-6">

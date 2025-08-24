@@ -1,4 +1,4 @@
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import type { InsertFormulation } from '@shared/schema';
 
 interface FormulationPDFData extends Omit<InsertFormulation, 'categoryId'> {
