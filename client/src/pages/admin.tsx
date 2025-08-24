@@ -74,7 +74,7 @@ export default function AdminPage() {
     queryKey: ["/api/formulations-paginated", formulationsPage, selectedCategory],
     queryFn: async () => {
       const categoryParam = selectedCategory !== 'all' ? `&categoryId=${selectedCategory}` : '';
-      const response = await fetch(`/api/formulations?paginated=true&page=${formulationsPage}&limit=50${categoryParam}`);
+      const response = await fetch(`/api/formulations?paginated=true&page=${formulationsPage}&limit=10${categoryParam}`);
       if (!response.ok) {
         throw new Error('Failed to fetch formulations');
       }
