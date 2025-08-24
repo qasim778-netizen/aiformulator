@@ -133,97 +133,115 @@ export default function AIFormulatorWizard() {
 
   if (!showWizard) {
     return (
-      <Card className="w-full max-w-4xl mx-auto shadow-lg bg-gradient-to-br from-blue-50 to-white" data-testid="ai-formulator-landing">
-        <CardContent className="p-12 text-center">
+      <Card className="w-full max-w-6xl mx-auto shadow-lg bg-gradient-to-br from-blue-50 to-white" data-testid="ai-formulator-landing">
+        <CardContent className="p-8">
           {/* Header */}
-          <div className="flex items-center justify-center mb-8">
-            <div className="bg-blue-600 text-white p-4 rounded-2xl mr-4">
-              <Beaker className="h-8 w-8" />
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center">
+              <div className="bg-blue-600 text-white p-3 rounded-xl mr-4">
+                <Beaker className="h-6 w-6" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">AI Formulator Agent</h1>
+                <p className="text-sm text-gray-600">FREE Professional Product Formulation Tool</p>
+              </div>
             </div>
-            <div className="text-left">
-              <h1 className="text-3xl font-bold text-gray-900">AI Formulator Agent</h1>
-              <p className="text-gray-600">FREE Professional Product Formulation Tool</p>
-            </div>
-            <div className="ml-auto">
-              <span className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
-                100% FREE
-              </span>
-            </div>
+            <span className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
+              100% FREE
+            </span>
           </div>
 
-          {/* Main Title */}
-          <h2 className="text-4xl font-bold text-gray-900 mb-6">
-            Create Perfect Formulations
-          </h2>
-          <p className="text-lg text-gray-600 mb-12 max-w-3xl mx-auto">
-            Advanced AI-powered formulation platform with precise specifications, manufacturing 
-            protocols, and comprehensive documentation.
-          </p>
-
-          {/* Feature Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-              <div className="bg-green-100 text-green-600 p-4 rounded-xl w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Settings className="h-8 w-8" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Technical Precision</h3>
-              <p className="text-gray-600 mb-4">
-                Scientific accuracy with precise pH levels, viscosity parameters, and validated specifications
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            {/* Left Column - Main Content */}
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                Create Perfect Formulations
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Advanced AI-powered formulation platform with precise specifications, manufacturing 
+                protocols, and comprehensive documentation.
               </p>
-              <div className="flex items-center justify-center">
-                <span className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full flex items-center">
-                  ✓ Lab-Grade Accuracy
-                </span>
+
+              {/* Feature Highlights - Compact */}
+              <div className="space-y-3 mb-8">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-green-100 text-green-600 p-2 rounded-lg">
+                    <Settings className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-900">Technical Precision</span>
+                    <p className="text-sm text-gray-600">Lab-grade accuracy with precise pH and viscosity control</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="bg-orange-100 text-orange-600 p-2 rounded-lg">
+                    <BarChart className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-900">Cost Optimization</span>
+                    <p className="text-sm text-gray-600">Budget-optimized ingredient selection</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="bg-blue-100 text-blue-600 p-2 rounded-lg">
+                    <FileText className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-900">Professional Reports</span>
+                    <p className="text-sm text-gray-600">Industry-standard documentation and protocols</p>
+                  </div>
+                </div>
               </div>
+
+              {/* Start Button */}
+              <Button
+                onClick={() => setShowWizard(true)}
+                size="lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto"
+                data-testid="button-start-formulation"
+              >
+                <ArrowRight className="h-5 w-5 mr-2" />
+                Start New Formulation
+              </Button>
+
+              {/* Footer Text */}
+              <p className="text-xs text-gray-500 mt-4 flex items-center">
+                <span className="mr-2">🔓</span>
+                100% Free • No Registration Required • Professional Results
+              </p>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-              <div className="bg-orange-100 text-orange-600 p-4 rounded-xl w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <BarChart className="h-8 w-8" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Cost Optimization</h3>
-              <p className="text-gray-600 mb-4">
-                Intelligent ingredient selection to maximize quality while minimizing production costs
-              </p>
-              <div className="flex items-center justify-center">
-                <span className="bg-yellow-100 text-yellow-800 text-sm font-medium px-3 py-1 rounded-full flex items-center">
-                  $ Budget-Optimized
-                </span>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-              <div className="bg-blue-100 text-blue-600 p-4 rounded-xl w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <FileText className="h-8 w-8" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Professional Reports</h3>
-              <p className="text-gray-600 mb-4">
-                Comprehensive documentation with batch records, quality protocols, and specifications
-              </p>
-              <div className="flex items-center justify-center">
-                <span className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full flex items-center">
-                  🏭 Industry Standard
-                </span>
+            {/* Right Column - Visual Elements */}
+            <div className="hidden lg:block">
+              <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                <div className="text-center mb-4">
+                  <div className="bg-blue-600 text-white p-4 rounded-xl w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                    <Beaker className="h-8 w-8" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Ready to Start?</h3>
+                  <p className="text-sm text-gray-600">4-step guided process</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center text-sm">
+                    <div className="bg-blue-100 text-blue-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium mr-3">1</div>
+                    <span className="text-gray-700">Select product type & category</span>
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <div className="bg-blue-100 text-blue-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium mr-3">2</div>
+                    <span className="text-gray-700">Define technical specifications</span>
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <div className="bg-blue-100 text-blue-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium mr-3">3</div>
+                    <span className="text-gray-700">Set budget & requirements</span>
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <div className="bg-blue-100 text-blue-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium mr-3">4</div>
+                    <span className="text-gray-700">Generate & download PDF</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Start Button */}
-          <Button
-            onClick={() => setShowWizard(true)}
-            size="lg"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
-            data-testid="button-start-formulation"
-          >
-            <ArrowRight className="h-6 w-6 mr-3" />
-            Start New Formulation
-          </Button>
-
-          {/* Footer Text */}
-          <p className="text-sm text-gray-500 mt-6 flex items-center justify-center">
-            <span className="mr-2">🔓</span>
-            100% Free • No Registration Required • Professional Results
-          </p>
         </CardContent>
       </Card>
     );
