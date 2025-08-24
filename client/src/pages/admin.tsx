@@ -21,6 +21,7 @@ import type { Category, Formulation } from "@shared/schema";
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [analyticsFilter, setAnalyticsFilter] = useState<'browse' | 'generation'>('generation');
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [formulationDialogOpen, setFormulationDialogOpen] = useState(false);
   const [bulkGenerationDialogOpen, setBulkGenerationDialogOpen] = useState(false);
@@ -51,17 +52,21 @@ export default function AdminPage() {
     weeklyGenerations: number;
     monthlyGenerations: number;
     popularCategories: Array<{ category: string; count: number }>;
+    usageByCountry: Array<{ country: string; count: number }>;
     recentGenerations: Array<{
       id: string;
       productName: string;
       category: string;
       timestamp: string;
       sessionId: string;
+      country?: string;
+      city?: string;
     }>;
     generationsByHour: Array<{ hour: number; count: number }>;
     avgResponseTime: number;
   }>({
-    queryKey: ["/api/ai-analytics"],
+    queryKey: ["/api/ai-analytics", analyticsFilter],
+    queryFn: () => apiRequest(`/api/ai-analytics?type=${analyticsFilter}`),
   });
 
   const deleteCategory = useMutation({
@@ -765,6 +770,43 @@ export default function AdminPage() {
               </div>
             </div>
 
+            {/* Analytics Filter */}
+            <div className="mb-8">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">Analytics Filter</h3>
+                <div className="flex space-x-4">
+                  <Button
+                    onClick={() => setAnalyticsFilter('browse')}
+                    className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                      analyticsFilter === 'browse'
+                        ? 'bg-blue-500 text-white shadow-md'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <Package className="h-4 w-4 mr-2" />
+                    Analytics Browse Formulation
+                  </Button>
+                  <Button
+                    onClick={() => setAnalyticsFilter('generation')}
+                    className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                      analyticsFilter === 'generation'
+                        ? 'bg-purple-500 text-white shadow-md'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    AI Formulation Generation
+                  </Button>
+                </div>
+                <p className="text-sm text-gray-600 mt-3">
+                  {analyticsFilter === 'browse' 
+                    ? 'View analytics for users browsing and viewing existing formulations'
+                    : 'View analytics for users creating custom formulations with AI'
+                  }
+                </p>
+              </div>
+            </div>
+
             {/* Analytics Overview Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <Card className="bg-white rounded-lg shadow-md">
@@ -777,7 +819,9 @@ export default function AdminPage() {
                       <h3 className="text-lg font-inter font-semibold text-gray-900">
                         {aiAnalytics?.totalAiGenerations || 0}
                       </h3>
-                      <p className="text-sm text-gray-600">Total AI Generations</p>
+                      <p className="text-sm text-gray-600">
+                        {analyticsFilter === 'browse' ? 'Total Browse Views' : 'Total AI Generations'}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -793,7 +837,9 @@ export default function AdminPage() {
                       <h3 className="text-lg font-inter font-semibold text-gray-900">
                         {aiAnalytics?.dailyGenerations || 0}
                       </h3>
-                      <p className="text-sm text-gray-600">Today's Generations</p>
+                      <p className="text-sm text-gray-600">
+                        {analyticsFilter === 'browse' ? 'Today\'s Views' : 'Today\'s Generations'}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -809,7 +855,9 @@ export default function AdminPage() {
                       <h3 className="text-lg font-inter font-semibold text-gray-900">
                         {aiAnalytics?.weeklyGenerations || 0}
                       </h3>
-                      <p className="text-sm text-gray-600">This Week</p>
+                      <p className="text-sm text-gray-600">
+                        {analyticsFilter === 'browse' ? 'This Week Views' : 'This Week'}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -823,9 +871,14 @@ export default function AdminPage() {
                     </div>
                     <div className="ml-4">
                       <h3 className="text-lg font-inter font-semibold text-gray-900">
-                        {aiAnalytics?.avgResponseTime || 0}s
+                        {analyticsFilter === 'browse' 
+                          ? `${Math.round(((aiAnalytics?.totalAiGenerations || 0) / Math.max(aiAnalytics?.weeklyGenerations || 1, 1)) * 10) / 10}`
+                          : `${aiAnalytics?.avgResponseTime || 0}s`
+                        }
                       </h3>
-                      <p className="text-sm text-gray-600">Avg Response Time</p>
+                      <p className="text-sm text-gray-600">
+                        {analyticsFilter === 'browse' ? 'Avg Views/User' : 'Avg Response Time'}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -838,7 +891,9 @@ export default function AdminPage() {
               <Card className="bg-white rounded-lg shadow-md">
                 <div className="px-6 py-4 border-b border-gray-200">
                   <h3 className="text-lg font-inter font-semibold text-gray-900">Popular Categories</h3>
-                  <p className="text-sm text-gray-600">Most requested product categories</p>
+                  <p className="text-sm text-gray-600">
+                    {analyticsFilter === 'browse' ? 'Most viewed product categories' : 'Most requested product categories'}
+                  </p>
                 </div>
                 <CardContent className="p-6">
                   <div className="space-y-4">
@@ -874,7 +929,9 @@ export default function AdminPage() {
               <Card className="bg-white rounded-lg shadow-md">
                 <div className="px-6 py-4 border-b border-gray-200">
                   <h3 className="text-lg font-inter font-semibold text-gray-900">Usage by Country</h3>
-                  <p className="text-sm text-gray-600">Geographic distribution of AI generations</p>
+                  <p className="text-sm text-gray-600">
+                    {analyticsFilter === 'browse' ? 'Geographic distribution of formulation views' : 'Geographic distribution of AI generations'}
+                  </p>
                 </div>
                 <CardContent className="p-6">
                   <div className="space-y-4">
@@ -910,7 +967,9 @@ export default function AdminPage() {
               <Card className="bg-white rounded-lg shadow-md">
                 <div className="px-6 py-4 border-b border-gray-200">
                   <h3 className="text-lg font-inter font-semibold text-gray-900">Usage by Hour</h3>
-                  <p className="text-sm text-gray-600">AI generations throughout the day</p>
+                  <p className="text-sm text-gray-600">
+                    {analyticsFilter === 'browse' ? 'Formulation views throughout the day' : 'AI generations throughout the day'}
+                  </p>
                 </div>
                 <CardContent className="p-6">
                   <div className="space-y-3">
@@ -939,8 +998,15 @@ export default function AdminPage() {
             {/* Recent AI Generations */}
             <Card className="bg-white rounded-lg shadow-md">
               <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-inter font-semibold text-gray-900">Recent AI Generations</h3>
-                <p className="text-sm text-gray-600">Latest custom formulations created by users</p>
+                <h3 className="text-lg font-inter font-semibold text-gray-900">
+                  {analyticsFilter === 'browse' ? 'Recent Formulation Views' : 'Recent AI Generations'}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {analyticsFilter === 'browse' 
+                    ? 'Latest formulations viewed by users' 
+                    : 'Latest custom formulations created by users'
+                  }
+                </p>
               </div>
               <CardContent className="p-0">
                 <div className="overflow-x-auto">

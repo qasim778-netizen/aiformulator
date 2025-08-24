@@ -153,7 +153,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI Analytics endpoint
   app.get("/api/ai-analytics", async (req, res) => {
     try {
-      const aiGenerations = await storage.getAiGenerations();
+      const type = req.query.type as string || 'generation';
+      
+      // For now, we only have AI generation data, but prepare for browse analytics
+      let aiGenerations;
+      if (type === 'browse') {
+        // Mock browse analytics data for now
+        aiGenerations = [];
+      } else {
+        aiGenerations = await storage.getAiGenerations();
+      }
+      
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const thisWeek = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
