@@ -66,6 +66,13 @@ export default function AdminPage() {
     avgResponseTime: number;
   }>({
     queryKey: ["/api/ai-analytics", analyticsFilter],
+    queryFn: async () => {
+      const response = await fetch(`/api/ai-analytics?type=${analyticsFilter}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch analytics');
+      }
+      return response.json();
+    },
   });
 
   const deleteCategory = useMutation({
