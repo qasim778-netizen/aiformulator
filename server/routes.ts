@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import crypto from "crypto";
 import { storage } from "./storage";
-import { insertCategorySchema, insertFormulationSchema } from "@shared/schema";
+import { insertCategorySchema, insertFormulationSchema, insertUserNoteSchema } from "@shared/schema";
 import { generateCategory, generateFormulation, generateBulkFormulations, generateProductTypes, generateCustomFormulation } from "./ai";
 import { generateFormulationPDF } from "./pdf-generator";
 import { optimizeFormulationsForSEO } from "./seo-optimizer";
@@ -651,6 +651,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         message: error.message || "Failed to generate PDF" 
       });
+    }
+  });
+
+  // Product Properties API - Dynamic special properties based on product type
+  app.get("/api/product-properties/:productType", async (req, res) => {
+    try {
+      const productType = req.params.productType.toLowerCase().replace(/[^a-z0-9]/g, '_');
+      const properties = await storage.getProductProperties(productType);
+      
+      if (!properties) {
+        // Return empty array if no specific properties found
+        return res.json([]);
+      }
+      
+      res.json(properties);
+    } catch (error: any) {
+      console.error("Failed to fetch product properties:", error);
+      res.status(500).json({ message: "Failed to fetch product properties" });
+    }
+  });
+
+  // User Notes API - Save additional notes for future recommendations
+  app.post("/api/user-notes", async (req, res) => {
+    try {
+      const validatedData = insertUserNoteSchema.parse(req.body);
+      const userNote = await storage.saveUserNote(validatedData);
+      res.status(201).json(userNote);
+    } catch (error: any) {
+      console.error("Failed to save user note:", error);
+      res.status(400).json({ message: error.message || "Invalid user note data" });
+    }
+  });
+
+  // Recommendations API - Get personalized recommendations based on previous user notes
+  app.get("/api/recommendations/:productType", async (req, res) => {
+    try {
+      const productType = req.params.productType.toLowerCase().replace(/[^a-z0-9]/g, '_');
+      const recommendations = await storage.getRecommendations(productType);
+      res.json(recommendations);
+    } catch (error: any) {
+      console.error("Failed to fetch recommendations:", error);
+      res.status(500).json({ message: "Failed to fetch recommendations" });
     }
   });
 

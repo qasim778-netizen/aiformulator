@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
-import { pgTable, text, boolean, timestamp, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, boolean, timestamp, uuid, jsonb, integer } from "drizzle-orm/pg-core";
 
 // Database connection
 const sql = neon(process.env.DATABASE_URL!);
@@ -40,7 +40,31 @@ export const formulationsTable = pgTable("formulations", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Product Properties table
+export const productPropertiesTable = pgTable("product_properties", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  productType: text("product_type").notNull(),
+  properties: jsonb("properties").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// User Notes table
+export const userNotesTable = pgTable("user_notes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  productType: text("product_type").notNull(),
+  additionalNote: text("additional_note").notNull(),
+  specialFeatures: jsonb("special_features"),
+  frequency: integer("frequency").notNull().default(1),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export type DbCategory = typeof categoriesTable.$inferSelect;
 export type DbFormulation = typeof formulationsTable.$inferSelect;
+export type DbProductProperties = typeof productPropertiesTable.$inferSelect;
+export type DbUserNote = typeof userNotesTable.$inferSelect;
 export type InsertDbCategory = typeof categoriesTable.$inferInsert;
 export type InsertDbFormulation = typeof formulationsTable.$inferInsert;
+export type InsertDbProductProperties = typeof productPropertiesTable.$inferInsert;
+export type InsertDbUserNote = typeof userNotesTable.$inferInsert;

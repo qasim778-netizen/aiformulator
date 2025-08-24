@@ -1,4 +1,4 @@
-import { type Category, type InsertCategory, type Formulation, type InsertFormulation } from "@shared/schema";
+import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type ProductProperties, type UserNote, type InsertUserNote } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IAiGeneration {
@@ -32,17 +32,28 @@ export interface IStorage {
   // AI Generations
   getAiGenerations(): Promise<IAiGeneration[]>;
   trackAiGeneration(generation: Omit<IAiGeneration, 'id'>): Promise<IAiGeneration>;
+
+  // Product Properties
+  getProductProperties(productType: string): Promise<string[] | undefined>;
+  
+  // User Notes
+  saveUserNote(userNote: InsertUserNote): Promise<UserNote>;
+  getRecommendations(productType: string): Promise<string[]>;
 }
 
 export class MemStorage implements IStorage {
   private categories: Map<string, Category>;
   private formulations: Map<string, Formulation>;
   private aiGenerations: Map<string, IAiGeneration>;
+  private productProperties: Map<string, string[]>;
+  private userNotes: Map<string, UserNote>;
 
   constructor() {
     this.categories = new Map();
     this.formulations = new Map();
     this.aiGenerations = new Map();
+    this.productProperties = new Map();
+    this.userNotes = new Map();
     // Only seed data if no data exists (first run)
     this.seedInitialData();
   }
@@ -53,6 +64,51 @@ export class MemStorage implements IStorage {
       return;
     }
     this.seedData();
+    this.seedProductProperties();
+  }
+
+  private seedProductProperties() {
+    // Seed product properties for dynamic special properties
+    this.productProperties.set('skincare', [
+      "Anti-aging", "Moisturizing", "Whitening", "Anti-acne", "Antioxidant", 
+      "UV Protection", "Exfoliating", "Firming", "Soothing", "Regenerating"
+    ]);
+    this.productProperties.set('hair_care', [
+      "Anti-dandruff", "Moisturizing", "Strengthening", "Volume-enhancing", "Color-protecting", 
+      "Heat protection", "Curl-defining", "Smoothing", "Growth-stimulating", "Oil-controlling"
+    ]);
+    this.productProperties.set('oral_care', [
+      "Whitening", "Anti-bacterial", "Fluoride-free", "Sensitivity relief", "Fresh breath", 
+      "Plaque control", "Enamel strengthening", "Natural ingredients", "Foam-enhancing", "Cavity prevention"
+    ]);
+    this.productProperties.set('body_care', [
+      "Moisturizing", "Firming", "Cellulite reduction", "Sun protection", "Soothing", 
+      "Exfoliating", "Anti-aging", "Stretch mark prevention", "Antibacterial", "Aromatherapy"
+    ]);
+    this.productProperties.set('cosmetics', [
+      "Long-lasting", "Water-resistant", "Matte finish", "Hydrating", "SPF protection", 
+      "Non-comedogenic", "Buildable coverage", "Anti-aging", "Color-correcting", "Natural finish"
+    ]);
+    this.productProperties.set('cleaning', [
+      "Antibacterial", "Eco-friendly", "Concentrated formula", "Multi-surface", "Streak-free", 
+      "Quick-drying", "Pleasant scent", "Non-toxic", "Grease-cutting", "Stain removal"
+    ]);
+    this.productProperties.set('detergent', [
+      "Stain removal", "Color protection", "Fabric softening", "Concentrated", "Eco-friendly", 
+      "Hypoallergenic", "Fresh scent", "Cold-water effective", "Enzyme-based", "Brightening"
+    ]);
+    this.productProperties.set('disinfectant', [
+      "Broad spectrum", "Quick-acting", "Non-corrosive", "Residue-free", "Pleasant odor", 
+      "Skin-safe", "Food-safe", "Hospital-grade", "Alcohol-free", "Long-lasting protection"
+    ]);
+    this.productProperties.set('specialty', [
+      "Custom viscosity", "Temperature stable", "pH buffered", "Extended shelf life", "Preservative-free", 
+      "Organic certified", "Vegan-friendly", "Cruelty-free", "Biodegradable", "Concentrated formula"
+    ]);
+    this.productProperties.set('other', [
+      "Multi-purpose", "Cost-effective", "Easy application", "Quick-acting", "Environmentally friendly", 
+      "Safe for sensitive skin", "Professional grade", "Ready-to-use", "Stable formulation", "Quality assured"
+    ]);
   }
 
   private seedData() {
@@ -1230,6 +1286,51 @@ export class MemStorage implements IStorage {
 
   async deleteFormulation(id: string): Promise<boolean> {
     return this.formulations.delete(id);
+  }
+
+  // AI Generation methods
+  async getAiGenerations(): Promise<IAiGeneration[]> {
+    return Array.from(this.aiGenerations.values());
+  }
+
+  async trackAiGeneration(generation: Omit<IAiGeneration, 'id'>): Promise<IAiGeneration> {
+    const id = randomUUID();
+    const newGeneration: IAiGeneration = {
+      id,
+      ...generation,
+    };
+    this.aiGenerations.set(id, newGeneration);
+    return newGeneration;
+  }
+
+  // Product Properties methods
+  async getProductProperties(productType: string): Promise<string[] | undefined> {
+    const normalizedType = productType.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    return this.productProperties.get(normalizedType);
+  }
+
+  // User Notes methods
+  async saveUserNote(userNote: InsertUserNote): Promise<UserNote> {
+    const id = randomUUID();
+    const newUserNote: UserNote = {
+      ...userNote,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.userNotes.set(id, newUserNote);
+    return newUserNote;
+  }
+
+  async getRecommendations(productType: string): Promise<string[]> {
+    const notes = Array.from(this.userNotes.values())
+      .filter(note => note.productType === productType)
+      .sort((a, b) => b.frequency - a.frequency)
+      .slice(0, 5);
+    
+    return notes
+      .map(note => note.additionalNote)
+      .filter(note => note && note.trim().length > 0);
   }
 }
 

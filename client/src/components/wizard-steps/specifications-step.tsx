@@ -17,6 +17,8 @@ interface FormData {
 interface Props {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
+  availableProperties?: string[];
+  propertiesLoading?: boolean;
 }
 
 const viscosityOptions = [
@@ -46,18 +48,18 @@ const viscosityOptions = [
   }
 ];
 
-const specialProperties = [
-  { id: "anti-aging", label: "Anti-aging", icon: Sun },
-  { id: "moisturizing", label: "Moisturizing", icon: Droplet },
-  { id: "uv-protection", label: "UV Protection", icon: Shield },
-  { id: "anti-inflammatory", label: "Anti-inflammatory", icon: Leaf },
-  { id: "brightening", label: "Brightening", icon: Sparkles },
-  { id: "firming", label: "Firming", icon: Zap },
-  { id: "hypoallergenic", label: "Hypoallergenic", icon: Baby },
-  { id: "fragrance-free", label: "Fragrance-free", icon: Flower },
-  { id: "paraben-free", label: "Paraben-free", icon: Leaf },
-  { id: "organic-certified", label: "Organic certified", icon: Leaf },
-];
+const getIconForProperty = (property: string) => {
+  const lowerProp = property.toLowerCase();
+  if (lowerProp.includes('aging') || lowerProp.includes('age')) return Sun;
+  if (lowerProp.includes('moisture') || lowerProp.includes('hydrat')) return Droplet;
+  if (lowerProp.includes('protection') || lowerProp.includes('guard')) return Shield;
+  if (lowerProp.includes('anti') || lowerProp.includes('sooth')) return Leaf;
+  if (lowerProp.includes('bright') || lowerProp.includes('whiten')) return Sparkles;
+  if (lowerProp.includes('firm') || lowerProp.includes('strengthen')) return Zap;
+  if (lowerProp.includes('baby') || lowerProp.includes('gentle')) return Baby;
+  if (lowerProp.includes('fragrance') || lowerProp.includes('scent')) return Flower;
+  return Leaf; // Default icon
+};
 
 const storageTemperatures = [
   "Room Temperature (15-25°C)",
@@ -67,7 +69,7 @@ const storageTemperatures = [
   "Below 30°C"
 ];
 
-export default function SpecificationsStep({ formData, updateFormData }: Props) {
+export default function SpecificationsStep({ formData, updateFormData, availableProperties = [], propertiesLoading = false }: Props) {
   const handleSpecialPropertyToggle = (propertyId: string, checked: boolean) => {
     const newProperties = checked 
       ? [...formData.specialProperties, propertyId]
@@ -129,30 +131,42 @@ export default function SpecificationsStep({ formData, updateFormData }: Props) 
             <Label className="text-sm font-semibold text-gray-900 mb-2 block">
               Special Properties (skincare - cream)
             </Label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {specialProperties.map((property) => {
-                const IconComponent = property.icon;
-                return (
-                  <div
-                    key={property.id}
-                    className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-gray-50 transition-colors"
-                  >
-                    <Checkbox
-                      id={property.id}
-                      checked={formData.specialProperties.includes(property.id)}
-                      onCheckedChange={(checked) => handleSpecialPropertyToggle(property.id, !!checked)}
-                      data-testid={`checkbox-${property.id}`}
-                    />
-                    <div className="flex items-center space-x-1 flex-1">
-                      <IconComponent className="h-3 w-3 text-gray-600" />
-                      <Label htmlFor={property.id} className="text-xs font-medium cursor-pointer">
-                        {property.label}
-                      </Label>
+            {propertiesLoading ? (
+              <div className="flex items-center justify-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                <span className="ml-2 text-sm text-gray-600">Loading properties...</span>
+              </div>
+            ) : availableProperties.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {availableProperties.map((property, index) => {
+                  const propertyId = property.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                  const IconComponent = getIconForProperty(property);
+                  return (
+                    <div
+                      key={`${propertyId}-${index}`}
+                      className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-gray-50 transition-colors"
+                    >
+                      <Checkbox
+                        id={propertyId}
+                        checked={formData.specialProperties.includes(property)}
+                        onCheckedChange={(checked) => handleSpecialPropertyToggle(property, !!checked)}
+                        data-testid={`checkbox-${propertyId}`}
+                      />
+                      <div className="flex items-center space-x-1 flex-1">
+                        <IconComponent className="h-3 w-3 text-gray-600" />
+                        <Label htmlFor={propertyId} className="text-xs font-medium cursor-pointer">
+                          {property}
+                        </Label>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-4 text-gray-500 text-sm">
+                Select a product category to see available special properties.
+              </div>
+            )}
           </div>
 
           {/* pH Level */}

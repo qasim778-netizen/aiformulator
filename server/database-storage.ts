@@ -1,6 +1,6 @@
 import { eq, desc } from "drizzle-orm";
-import { db, categoriesTable, formulationsTable } from "./db";
-import type { Category, InsertCategory, Formulation, InsertFormulation } from "@shared/schema";
+import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable } from "./db";
+import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
 import crypto from "crypto";
 
@@ -321,5 +321,66 @@ export class DatabaseStorage implements IStorage {
     };
     this.aiGenerations.set(id, newGeneration);
     return newGeneration;
+  }
+
+  // Product Properties methods
+  async getProductProperties(productType: string): Promise<string[] | undefined> {
+    const result = await db.select()
+      .from(productPropertiesTable)
+      .where(eq(productPropertiesTable.productType, productType));
+    
+    if (result.length === 0) {
+      return undefined;
+    }
+    
+    return result[0].properties as string[];
+  }
+
+  // User Notes methods
+  async saveUserNote(userNote: InsertUserNote): Promise<UserNote> {
+    // Check if similar note exists and update frequency
+    const existing = await db.select()
+      .from(userNotesTable)
+      .where(eq(userNotesTable.productType, userNote.productType));
+    
+    // Look for similar additional notes to increment frequency
+    const similarNote = existing.find(note => 
+      note.additionalNote.toLowerCase().includes(userNote.additionalNote.toLowerCase()) ||
+      userNote.additionalNote.toLowerCase().includes(note.additionalNote.toLowerCase())
+    );
+    
+    if (similarNote) {
+      // Update frequency of existing similar note
+      const [updated] = await db.update(userNotesTable)
+        .set({ 
+          frequency: similarNote.frequency + 1,
+          updatedAt: new Date()
+        })
+        .where(eq(userNotesTable.id, similarNote.id))
+        .returning();
+      return updated;
+    } else {
+      // Create new note
+      const [created] = await db.insert(userNotesTable)
+        .values(userNote)
+        .returning();
+      return created;
+    }
+  }
+
+  async getRecommendations(productType: string): Promise<string[]> {
+    // Get most frequent special features for this product type
+    const userNotes = await db.select()
+      .from(userNotesTable)
+      .where(eq(userNotesTable.productType, productType))
+      .orderBy(desc(userNotesTable.frequency))
+      .limit(5);
+    
+    // Extract common features from notes and return as recommendations
+    const recommendations = userNotes
+      .map(note => note.additionalNote)
+      .filter(note => note && note.trim().length > 0);
+    
+    return recommendations;
   }
 }

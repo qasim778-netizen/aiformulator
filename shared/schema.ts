@@ -1,10 +1,10 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const categories = pgTable("categories", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   description: text("description").notNull(),
   icon: text("icon").notNull(),
@@ -14,8 +14,8 @@ export const categories = pgTable("categories", {
 });
 
 export const formulations = pgTable("formulations", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  categoryId: varchar("category_id").notNull().references(() => categories.id),
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  categoryId: uuid("category_id").notNull().references(() => categories.id),
   name: text("name").notNull(),
   description: text("description").notNull(),
   ingredients: text("ingredients").notNull(), // JSON string of ingredients array
@@ -46,7 +46,44 @@ export const insertFormulationSchema = createInsertSchema(formulations).omit({
   updatedAt: true,
 });
 
+// Product special properties table for dynamic properties based on product type
+export const productProperties = pgTable("product_properties", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  productType: text("product_type").notNull(), // e.g., "skincare", "hair_care", "oral_care"
+  properties: jsonb("properties").notNull(), // Array of available special properties for this product type
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+});
+
+// User notes and recommendations table
+export const userNotes = pgTable("user_notes", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  productType: text("product_type").notNull(),
+  additionalNote: text("additional_note").notNull(),
+  specialFeatures: jsonb("special_features"), // Extracted special features from the note
+  frequency: integer("frequency").notNull().default(1), // How many times this feature was requested
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+});
+
+// Export insert schemas
+export const insertProductPropertiesSchema = createInsertSchema(productProperties).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserNoteSchema = createInsertSchema(userNotes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertFormulation = z.infer<typeof insertFormulationSchema>;
 export type Formulation = typeof formulations.$inferSelect;
+export type InsertProductProperties = z.infer<typeof insertProductPropertiesSchema>;
+export type ProductProperties = typeof productProperties.$inferSelect;
+export type InsertUserNote = z.infer<typeof insertUserNoteSchema>;
+export type UserNote = typeof userNotes.$inferSelect;

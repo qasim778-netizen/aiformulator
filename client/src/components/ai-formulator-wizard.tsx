@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -32,6 +32,11 @@ interface FormData {
   additionalNotes: string;
 }
 
+interface DynamicPropertiesProps {
+  productCategory: string;
+  availableProperties: string[];
+}
+
 const initialFormData: FormData = {
   productName: "",
   productCategory: "",
@@ -55,8 +60,15 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [showWizard, setShowWizard] = useState(false);
+  const [dynamicProperties, setDynamicProperties] = useState<string[]>([]);
   const { startGuidance, isCompleted } = useGuidance();
   const { toast } = useToast();
+
+  // Query for dynamic special properties based on product category
+  const { data: availableProperties, isLoading: propertiesLoading } = useQuery({
+    queryKey: ['/api/product-properties', formData.productCategory],
+    enabled: !!formData.productCategory,
+  });
 
   const steps = [
     { title: "Product Type", icon: "✓" },
@@ -66,8 +78,22 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   ];
 
   const updateFormData = (data: Partial<FormData>) => {
-    setFormData(prev => ({ ...prev, ...data }));
+    const newFormData = { ...formData, ...data };
+    setFormData(newFormData);
+    
+    // Update dynamic properties when product category changes
+    if (data.productCategory && data.productCategory !== formData.productCategory) {
+      // Clear existing special properties when category changes
+      setFormData(prev => ({ ...prev, ...data, specialProperties: [] }));
+    }
   };
+
+  // Update dynamic properties when available properties change
+  useEffect(() => {
+    if (availableProperties && Array.isArray(availableProperties)) {
+      setDynamicProperties(availableProperties);
+    }
+  }, [availableProperties]);
 
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
@@ -88,8 +114,36 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     onWizardStateChange?.(false);
   };
 
+  const saveUserNote = useMutation({
+    mutationFn: async (data: { productType: string; additionalNote: string }) => {
+      const response = await fetch("/api/user-notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save user note");
+      }
+
+      return response.json();
+    },
+  });
+
   const generateFormulation = useMutation({
     mutationFn: async (data: FormData) => {
+      // Save user note for future recommendations if additional notes exist
+      if (data.additionalNotes && data.additionalNotes.trim().length > 0) {
+        try {
+          await saveUserNote.mutateAsync({
+            productType: data.productCategory.toLowerCase().replace(/[^a-z0-9]/g, '_'),
+            additionalNote: data.additionalNotes,
+          });
+        } catch (error) {
+          console.warn("Failed to save user note:", error);
+        }
+      }
+
       const requestData = {
         productName: data.productName,
         productDescription: `${data.productCategory} - ${data.consistencyType} formulation with ${data.specialProperties.join(', ')} properties`,
@@ -303,6 +357,8 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
               <SpecificationsStep 
                 formData={formData} 
                 updateFormData={updateFormData}
+                availableProperties={dynamicProperties}
+                propertiesLoading={propertiesLoading}
               />
             </div>
           )}
