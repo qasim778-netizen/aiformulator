@@ -1,3 +1,5 @@
+import { Link } from "wouter";
+
 export default function Footer() {
   return (
     <footer className="bg-secondary text-white py-12">
@@ -21,6 +23,13 @@ export default function Footer() {
           <div>
             <h4 className="font-medium mb-4">Support</h4>
             <ul className="space-y-2 text-sm text-gray-300">
+              <li>
+                <Link href="/formulations">
+                  <a className="hover:text-white transition-colors duration-200" data-testid="link-footer-find-formulation">
+                    Find Formulation
+                  </a>
+                </Link>
+              </li>
               <li><a href="#" className="hover:text-white transition-colors duration-200">Documentation</a></li>
               <li><a href="#" className="hover:text-white transition-colors duration-200">Technical Support</a></li>
               <li><a href="#" className="hover:text-white transition-colors duration-200">Contact Us</a></li>

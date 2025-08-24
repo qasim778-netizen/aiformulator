@@ -45,6 +45,15 @@ export default function Navbar() {
                 >
                   Categories
                 </a>
+                <Link href="/formulations">
+                  <a className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                    isActive("/formulations") 
+                      ? "text-primary" 
+                      : "text-gray-600 hover:text-primary"
+                  }`} data-testid="link-find-formulation">
+                    Find Formulation
+                  </a>
+                </Link>
                 <a 
                   href="#about" 
                   className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
