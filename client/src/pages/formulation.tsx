@@ -11,6 +11,18 @@ import cleaningProductsGuide from "@/assets/generated-images/cleaning-products-g
 import woodFloorCleaner from "@/assets/generated-images/wood-floor-cleaner.png";
 import glassCleaner from "@/assets/generated-images/glass-cleaner.png";
 import multiSurfaceCleaner from "@/assets/generated-images/multi-surface-cleaner.png";
+import bathroomCleaner from "@/assets/generated-images/bathroom-cleaner.png";
+import degreaser from "@/assets/generated-images/degreaser.png";
+import allPurposeCleaner from "@/assets/generated-images/all-purpose-cleaner.png";
+import refrigeratorCleaner from "@/assets/generated-images/refrigerator-cleaner.png";
+import carpetCleaner from "@/assets/generated-images/carpet-cleaner.png";
+import tileGroutCleaner from "@/assets/generated-images/tile-grout-cleaner.png";
+import applianceCleaner from "@/assets/generated-images/appliance-cleaner.png";
+import floorCleaner from "@/assets/generated-images/floor-cleaner.png";
+import ovenCleaner from "@/assets/generated-images/oven-cleaner.png";
+import woodSurfaceCleaner from "@/assets/generated-images/wood-surface-cleaner.png";
+import ecoFriendlyCleaner from "@/assets/generated-images/eco-friendly-cleaner.png";
+import concentratedCleaner from "@/assets/generated-images/concentrated-cleaner.png";
 
 export default function FormulationPage() {
   const params = useParams();
@@ -252,7 +264,7 @@ Generated on: ${new Date().toLocaleDateString()}
               </div>
             </div>
 
-            {/* Simple Product Images for Cleaning Products */}
+            {/* Product Images for All Cleaning Products */}
             {category?.name === "Cleaning Products" && (
               <div className="mb-8">
                 <h3 className="text-lg font-inter font-semibold mb-4">Product Formulation</h3>
@@ -260,28 +272,135 @@ Generated on: ${new Date().toLocaleDateString()}
                   {formulation.name.includes("Wood Floor") && (
                     <img 
                       src={woodFloorCleaner} 
-                      alt="Wood Floor Cleaner formulation - Chemical Formula Services"
+                      alt="Wood Floor Cleaner Formulation - Chemical Formula Services"
                       className="w-full max-w-sm mx-auto rounded-lg"
                       data-testid="img-formulation-product"
                     />
                   )}
-                  {formulation.name.includes("Glass") && (
+                  {formulation.name.includes("Glass") && !formulation.name.includes("Concentrated") && (
                     <img 
                       src={glassCleaner} 
-                      alt="Glass Cleaner formulation - Chemical Formula Services"
+                      alt="Glass Cleaner Formulation - Chemical Formula Services"
                       className="w-full max-w-sm mx-auto rounded-lg"
                       data-testid="img-formulation-product"
                     />
                   )}
-                  {(formulation.name.includes("Multi") || formulation.name.includes("Surface")) && (
+                  {formulation.name.includes("Bathroom") && !formulation.name.includes("Eco-Friendly") && (
                     <img 
-                      src={multiSurfaceCleaner} 
-                      alt="Multi-Surface Cleaner formulation - Chemical Formula Services"
+                      src={bathroomCleaner} 
+                      alt="Bathroom Cleaner Formulation - Chemical Formula Services"
                       className="w-full max-w-sm mx-auto rounded-lg"
                       data-testid="img-formulation-product"
                     />
                   )}
-                  {!formulation.name.includes("Wood Floor") && !formulation.name.includes("Glass") && !formulation.name.includes("Multi") && !formulation.name.includes("Surface") && (
+                  {formulation.name.includes("Degreaser") && (
+                    <img 
+                      src={degreaser} 
+                      alt="Heavy-Duty Degreaser Formulation - Chemical Formula Services"
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-product"
+                    />
+                  )}
+                  {formulation.name.includes("All-Purpose") && (
+                    <img 
+                      src={allPurposeCleaner} 
+                      alt="All-Purpose Cleaner Formulation - Chemical Formula Services"
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-product"
+                    />
+                  )}
+                  {formulation.name.includes("Refrigerator") && (
+                    <img 
+                      src={refrigeratorCleaner} 
+                      alt="Refrigerator Cleaner Formulation - Chemical Formula Services"
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-product"
+                    />
+                  )}
+                  {(formulation.name.includes("Carpet") || formulation.name.includes("Upholstery")) && (
+                    <img 
+                      src={carpetCleaner} 
+                      alt="Carpet Cleaner Formulation - Chemical Formula Services"
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-product"
+                    />
+                  )}
+                  {(formulation.name.includes("Tile") || formulation.name.includes("Grout")) && (
+                    <img 
+                      src={tileGroutCleaner} 
+                      alt="Tile & Grout Cleaner Formulation - Chemical Formula Services"
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-product"
+                    />
+                  )}
+                  {(formulation.name.includes("Microwave") || formulation.name.includes("Appliance")) && (
+                    <img 
+                      src={applianceCleaner} 
+                      alt="Appliance Cleaner Formulation - Chemical Formula Services"
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-product"
+                    />
+                  )}
+                  {formulation.name.includes("Pet-Safe Floor") && (
+                    <img 
+                      src={floorCleaner} 
+                      alt="Floor Cleaner Formulation - Chemical Formula Services"
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-product"
+                    />
+                  )}
+                  {(formulation.name.includes("Oven") || formulation.name.includes("Grill")) && (
+                    <img 
+                      src={ovenCleaner} 
+                      alt="Oven Cleaner Formulation - Chemical Formula Services"
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-product"
+                    />
+                  )}
+                  {formulation.name.includes("Wood Surface") && (
+                    <img 
+                      src={woodSurfaceCleaner} 
+                      alt="Wood Surface Cleaner Formulation - Chemical Formula Services"
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-product"
+                    />
+                  )}
+                  {(formulation.name.includes("Eco-Friendly") || formulation.name.includes("Biodegradable")) && (
+                    <img 
+                      src={ecoFriendlyCleaner} 
+                      alt="Eco-Friendly Cleaner Formulation - Chemical Formula Services"
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-product"
+                    />
+                  )}
+                  {formulation.name.includes("Concentrated") && (
+                    <img 
+                      src={concentratedCleaner} 
+                      alt="Concentrated Cleaner Formulation - Chemical Formula Services"
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-product"
+                    />
+                  )}
+                  {/* Fallback image for any products that don't match specific categories */}
+                  {!formulation.name.includes("Wood Floor") && 
+                   !formulation.name.includes("Glass") && 
+                   !formulation.name.includes("Bathroom") &&
+                   !formulation.name.includes("Degreaser") &&
+                   !formulation.name.includes("All-Purpose") &&
+                   !formulation.name.includes("Refrigerator") &&
+                   !formulation.name.includes("Carpet") &&
+                   !formulation.name.includes("Upholstery") &&
+                   !formulation.name.includes("Tile") &&
+                   !formulation.name.includes("Grout") &&
+                   !formulation.name.includes("Microwave") &&
+                   !formulation.name.includes("Appliance") &&
+                   !formulation.name.includes("Pet-Safe Floor") &&
+                   !formulation.name.includes("Oven") &&
+                   !formulation.name.includes("Grill") &&
+                   !formulation.name.includes("Wood Surface") &&
+                   !formulation.name.includes("Eco-Friendly") &&
+                   !formulation.name.includes("Biodegradable") &&
+                   !formulation.name.includes("Concentrated") && (
                     <img 
                       src={cleaningProductsGuide} 
                       alt="Professional Cleaning Products manufacturing guide - Complete chemical formulation with ingredients, procedures, and quality control specifications"
