@@ -7,6 +7,143 @@ import crypto from "crypto";
 export class DatabaseStorage implements IStorage {
   // In-memory AI generations tracking (for demo purposes)
   private aiGenerations: Map<string, IAiGeneration> = new Map();
+
+  constructor() {
+    this.seedAiAnalyticsData();
+  }
+
+  private seedAiAnalyticsData() {
+    // Add dummy AI generation data for analytics demonstration
+    const now = new Date();
+    const dummyGenerations: Omit<IAiGeneration, 'id'>[] = [
+      {
+        productName: "Premium Anti-Aging Serum",
+        category: "Skin Care",
+        sessionId: "sess_12345abc",
+        timestamp: new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+        responseTime: 4.2,
+        formData: { productType: "Skin Care", phLevel: "5.5-6.0" }
+      },
+      {
+        productName: "Organic Lip Balm",
+        category: "Beauty Products",
+        sessionId: "sess_67890def",
+        timestamp: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
+        responseTime: 3.8,
+        formData: { productType: "Beauty Products", phLevel: "6.0-7.0" }
+      },
+      {
+        productName: "Whitening Toothpaste",
+        category: "Oral Care",
+        sessionId: "sess_abcdef12",
+        timestamp: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+        responseTime: 5.1,
+        formData: { productType: "Oral Care", phLevel: "7.0-8.0" }
+      },
+      {
+        productName: "Gentle Baby Lotion",
+        category: "Baby Care",
+        sessionId: "sess_789xyz45",
+        timestamp: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+        responseTime: 3.5,
+        formData: { productType: "Baby Care", phLevel: "6.5-7.0" }
+      },
+      {
+        productName: "Men's Beard Oil",
+        category: "Men Care",
+        sessionId: "sess_456mno78",
+        timestamp: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
+        responseTime: 4.7,
+        formData: { productType: "Men Care", phLevel: "5.0-6.0" }
+      },
+      {
+        productName: "Natural Face Cleanser",
+        category: "Organic Care",
+        sessionId: "sess_321ghi90",
+        timestamp: new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
+        responseTime: 6.2,
+        formData: { productType: "Organic Care", phLevel: "5.5-6.5" }
+      },
+      {
+        productName: "Hydrating Foundation",
+        category: "Beauty Products",
+        sessionId: "sess_654jkl21",
+        timestamp: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+        responseTime: 4.9,
+        formData: { productType: "Beauty Products", phLevel: "6.0-7.0" }
+      },
+      {
+        productName: "Moisturizing Hand Cream",
+        category: "Skin Care",
+        sessionId: "sess_987pqr54",
+        timestamp: new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000).toISOString(), // 6 days ago
+        responseTime: 3.2,
+        formData: { productType: "Skin Care", phLevel: "5.0-6.0" }
+      },
+      {
+        productName: "Fresh Breath Mouthwash",
+        category: "Oral Care",
+        sessionId: "sess_147stu85",
+        timestamp: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
+        responseTime: 5.8,
+        formData: { productType: "Oral Care", phLevel: "6.5-7.5" }
+      },
+      {
+        productName: "Nourishing Night Cream",
+        category: "Skin Care",
+        sessionId: "sess_258vwx96",
+        timestamp: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString(), // 8 days ago
+        responseTime: 4.1,
+        formData: { productType: "Skin Care", phLevel: "5.5-6.5" }
+      },
+      {
+        productName: "Color-Safe Shampoo",
+        category: "Beauty Products",
+        sessionId: "sess_369yza07",
+        timestamp: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago
+        responseTime: 4.4,
+        formData: { productType: "Beauty Products", phLevel: "5.0-6.0" }
+      },
+      {
+        productName: "Soothing Baby Shampoo",
+        category: "Baby Care",
+        sessionId: "sess_741bcd18",
+        timestamp: new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString(), // 12 days ago
+        responseTime: 3.9,
+        formData: { productType: "Baby Care", phLevel: "6.0-7.0" }
+      },
+      {
+        productName: "Aftershave Balm",
+        category: "Men Care",
+        sessionId: "sess_852efg29",
+        timestamp: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(), // 15 days ago
+        responseTime: 5.3,
+        formData: { productType: "Men Care", phLevel: "5.5-6.5" }
+      },
+      {
+        productName: "Organic Sunscreen",
+        category: "Organic Care",
+        sessionId: "sess_963hij40",
+        timestamp: new Date(now.getTime() - 18 * 24 * 60 * 60 * 1000).toISOString(), // 18 days ago
+        responseTime: 7.1,
+        formData: { productType: "Organic Care", phLevel: "6.0-7.0" }
+      },
+      {
+        productName: "Exfoliating Scrub",
+        category: "Skin Care",
+        sessionId: "sess_159klm73",
+        timestamp: new Date(now.getTime() - 20 * 24 * 60 * 60 * 1000).toISOString(), // 20 days ago
+        responseTime: 4.6,
+        formData: { productType: "Skin Care", phLevel: "5.0-6.0" }
+      }
+    ];
+
+    // Add all dummy data to the map
+    dummyGenerations.forEach(gen => {
+      const id = crypto.randomUUID();
+      this.aiGenerations.set(id, { id, ...gen });
+    });
+  }
   // Categories
   async getCategories(): Promise<Category[]> {
     const categories = await db.select().from(categoriesTable).orderBy(categoriesTable.name);
