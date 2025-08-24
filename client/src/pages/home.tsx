@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Beaker, BookOpen, Sparkles } from 'lucide-react'
-import AIFormulator from '@/components/ai-formulator'
+import AIFormulatorWizard from '@/components/ai-formulator-wizard'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("formulator")
@@ -37,7 +37,7 @@ export default function Home() {
           </TabsList>
 
           <TabsContent value="formulator" className="mt-8">
-            <AIFormulator />
+            <AIFormulatorWizard />
           </TabsContent>
 
           <TabsContent value="browse" className="mt-8">

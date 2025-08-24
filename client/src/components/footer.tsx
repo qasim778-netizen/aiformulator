@@ -25,9 +25,9 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-gray-300">
               <li>
                 <Link href="/browse">
-                  <a className="hover:text-white transition-colors duration-200" data-testid="link-footer-find-formulation">
+                  <span className="hover:text-white transition-colors duration-200 cursor-pointer" data-testid="link-footer-find-formulation">
                     Find Formulation
-                  </a>
+                  </span>
                 </Link>
               </li>
               <li><a href="#" className="hover:text-white transition-colors duration-200">Documentation</a></li>
