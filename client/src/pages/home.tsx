@@ -13,12 +13,11 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-blue-50 to-white overflow-x-hidden">
       <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-6 max-w-full">
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl md:text-7xl font-inter font-bold text-gray-900 mb-6">
-            ChemFormula
-            <span className="text-primary block">Pro</span>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-6xl font-inter font-bold text-gray-900 mb-4">
+            ChemFormula<span className="text-primary">Pro</span>
           </h1>
-          <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-gray-600 mb-6 max-w-2xl mx-auto">
             Professional Chemical Formulations for Small Business Manufacturers
           </p>
         </div>
