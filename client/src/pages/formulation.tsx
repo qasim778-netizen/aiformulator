@@ -299,10 +299,19 @@ Generated on: ${new Date().toLocaleDateString()}
 
             <div className="mb-8">
               <h3 className="text-lg font-inter font-semibold mb-4">Usage Instructions</h3>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-700">
-                  {formulation.usageInstructions}
-                </p>
+              <div className="bg-blue-50 p-6 rounded-lg">
+                <div 
+                  className="text-sm text-gray-700 leading-relaxed"
+                  dangerouslySetInnerHTML={{
+                    __html: formulation.usageInstructions
+                      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+                      .replace(/^\d+\.\s+\*\*(.*?)\*\*:/gm, '<h4 class="text-base font-semibold text-gray-900 mt-6 mb-3 border-b border-blue-200 pb-2">$1:</h4>')
+                      .replace(/^   - (.*)$/gm, '<div class="ml-6 mb-2 text-gray-700">• $1</div>')
+                      .replace(/^- (.*)$/gm, '<div class="ml-4 mb-2 text-gray-700">• $1</div>')
+                      .replace(/\n\n+/g, '<div class="mb-4"></div>')
+                      .replace(/\n/g, '<br>')
+                  }}
+                />
               </div>
             </div>
 
