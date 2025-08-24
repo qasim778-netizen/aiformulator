@@ -118,7 +118,7 @@ export default function AdminPage() {
   }>({
     queryKey: ["/api/ai-analytics", analyticsFilter, currentPage],
     queryFn: async () => {
-      const response = await fetch(`/api/ai-analytics?type=${analyticsFilter}&page=${currentPage}&limit=50`);
+      const response = await fetch(`/api/ai-analytics?type=${analyticsFilter}&page=${currentPage}&limit=10`);
       if (!response.ok) {
         throw new Error('Failed to fetch analytics');
       }
