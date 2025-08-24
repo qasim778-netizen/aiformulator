@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import CategoryCard from "@/components/category-card";
 import SearchBar from "@/components/search-bar";
 import { FlaskConical, Factory, Rocket } from "lucide-react";
+import { Link } from "wouter";
 import type { Category } from "@shared/schema";
 import chemicalBannerImage from "@assets/483526757_122151147650449958_5670030473145342152_n_1755891598926.jpg";
 
@@ -52,14 +53,16 @@ export default function Home() {
                 Professional Chemical Formulations
               </h1>
               <p className="text-xl md:text-2xl mb-8 max-w-2xl">
-                Ready-to-use formulations for small business manufacturers across 50+ product categories with 1000+ formulations
+                Browse and discover ready-to-use chemical formulations for small business manufacturers across 10 categories with 68+ professional formulations
               </p>
-              <Button 
-                className="bg-accent text-white px-8 py-3 text-lg font-medium hover:bg-orange-600"
-                onClick={() => document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Explore Categories
-              </Button>
+              <Link href="/formulations">
+                <Button 
+                  className="bg-accent text-white px-8 py-3 text-lg font-medium hover:bg-orange-600"
+                  data-testid="button-find-formulations"
+                >
+                  Find Formulations
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
