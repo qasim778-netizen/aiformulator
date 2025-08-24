@@ -66,7 +66,6 @@ export default function AdminPage() {
     avgResponseTime: number;
   }>({
     queryKey: ["/api/ai-analytics", analyticsFilter],
-    queryFn: () => apiRequest(`/api/ai-analytics?type=${analyticsFilter}`),
   });
 
   const deleteCategory = useMutation({
