@@ -45,7 +45,11 @@ const initialFormData: FormData = {
   additionalNotes: "",
 };
 
-export default function AIFormulatorWizard() {
+interface AIFormulatorWizardProps {
+  onWizardStateChange?: (isActive: boolean) => void;
+}
+
+export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulatorWizardProps = {}) {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [showWizard, setShowWizard] = useState(false);
@@ -78,6 +82,7 @@ export default function AIFormulatorWizard() {
     setCurrentStep(0);
     setFormData(initialFormData);
     setShowWizard(false);
+    onWizardStateChange?.(false);
   };
 
   const generateFormulation = useMutation({
@@ -210,7 +215,10 @@ export default function AIFormulatorWizard() {
 
           {/* Start Button */}
           <Button
-            onClick={() => setShowWizard(true)}
+            onClick={() => {
+              setShowWizard(true);
+              onWizardStateChange?.(true);
+            }}
             size="lg"
             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
             data-testid="button-start-formulation"

@@ -8,6 +8,7 @@ import AIFormulatorWizard from '@/components/ai-formulator-wizard'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("formulator")
+  const [isWizardActive, setIsWizardActive] = useState(false)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-blue-50 to-white overflow-x-hidden">
@@ -17,19 +18,21 @@ export default function Home() {
 
         {/* Main Navigation Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-6xl mx-auto">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="formulator" className="flex items-center gap-2 text-lg py-3" data-testid="tab-formulator">
-              <Sparkles className="h-5 w-5" />
-              AI Formulator
-            </TabsTrigger>
-            <TabsTrigger value="browse" className="flex items-center gap-2 text-lg py-3" data-testid="tab-browse">
-              <BookOpen className="h-5 w-5" />
-              Browse Library
-            </TabsTrigger>
-          </TabsList>
+          {!isWizardActive && (
+            <TabsList className="grid w-full grid-cols-2 mb-8">
+              <TabsTrigger value="formulator" className="flex items-center gap-2 text-lg py-3" data-testid="tab-formulator">
+                <Sparkles className="h-5 w-5" />
+                AI Formulator
+              </TabsTrigger>
+              <TabsTrigger value="browse" className="flex items-center gap-2 text-lg py-3" data-testid="tab-browse">
+                <BookOpen className="h-5 w-5" />
+                Browse Library
+              </TabsTrigger>
+            </TabsList>
+          )}
 
-          <TabsContent value="formulator" className="mt-8">
-            <AIFormulatorWizard />
+          <TabsContent value="formulator" className={isWizardActive ? "mt-0" : "mt-8"}>
+            <AIFormulatorWizard onWizardStateChange={setIsWizardActive} />
           </TabsContent>
 
           <TabsContent value="browse" className="mt-8">
