@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ArrowRight, ArrowLeft, Settings, BarChart, FileText, Beaker } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { HelpButton } from "@/components/ui/help-button";
+import { useGuidance } from "@/hooks/use-guidance";
 import ProductTypeStep from "./wizard-steps/product-type-step";
 import SpecificationsStep from "./wizard-steps/specifications-step";
 import RequirementsStep from "./wizard-steps/requirements-step";
@@ -53,6 +55,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [showWizard, setShowWizard] = useState(false);
+  const { startGuidance, isCompleted } = useGuidance();
   const { toast } = useToast();
 
   const steps = [
@@ -218,6 +221,13 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
             onClick={() => {
               setShowWizard(true);
               onWizardStateChange?.(true);
+              
+              // Start guidance for first-time users
+              if (!isCompleted("ai-formulator")) {
+                setTimeout(() => {
+                  startGuidance("ai-formulator");
+                }, 500);
+              }
             }}
             size="lg"
             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
@@ -290,29 +300,37 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
         {/* Step Content */}
         <div className="min-h-80 w-full overflow-hidden">
           {currentStep === 0 && (
-            <ProductTypeStep 
-              formData={formData} 
-              updateFormData={updateFormData}
-            />
+            <div data-testid="wizard-step-1">
+              <ProductTypeStep 
+                formData={formData} 
+                updateFormData={updateFormData}
+              />
+            </div>
           )}
           {currentStep === 1 && (
-            <SpecificationsStep 
-              formData={formData} 
-              updateFormData={updateFormData}
-            />
+            <div data-testid="wizard-step-2">
+              <SpecificationsStep 
+                formData={formData} 
+                updateFormData={updateFormData}
+              />
+            </div>
           )}
           {currentStep === 2 && (
-            <RequirementsStep 
-              formData={formData} 
-              updateFormData={updateFormData}
-            />
+            <div data-testid="wizard-step-3">
+              <RequirementsStep 
+                formData={formData} 
+                updateFormData={updateFormData}
+              />
+            </div>
           )}
           {currentStep === 3 && (
-            <GenerateStep 
-              formData={formData} 
-              generateFormulation={generateFormulation}
-              onBack={prevStep}
-            />
+            <div data-testid="wizard-step-4">
+              <GenerateStep 
+                formData={formData} 
+                generateFormulation={generateFormulation}
+                onBack={prevStep}
+              />
+            </div>
           )}
         </div>
 

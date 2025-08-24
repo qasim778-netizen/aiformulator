@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import CategoryCard from '../components/category-card'
 import SearchBar from '../components/search-bar'
 import { useLocation } from 'wouter'
+import { HelpButton } from '@/components/ui/help-button'
+import { useGuidance } from '@/hooks/use-guidance'
 import type { Category } from "@shared/schema"
 
 interface Formulation {
@@ -26,6 +28,17 @@ interface Formulation {
 export default function Browse() {
   const [, setLocation] = useLocation()
   const [searchQuery, setSearchQuery] = useState('')
+  const { startGuidance, isCompleted } = useGuidance()
+  
+  // Auto-start guidance for first-time users
+  useEffect(() => {
+    if (!isCompleted("formulation-browse")) {
+      const timer = setTimeout(() => {
+        startGuidance("formulation-browse");
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [startGuidance, isCompleted])
 
   const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
@@ -71,6 +84,7 @@ export default function Browse() {
                 onSearch={handleSearch}
                 placeholder="Search formulations or categories…"
                 className="w-full max-w-md"
+                data-testid="search-formulations"
               />
             </div>
           </div>

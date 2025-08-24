@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Sparkles, Package, BarChart3, TrendingUp, Users, Globe } from "lucide-react";
@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { HelpButton } from "@/components/ui/help-button";
+import { useGuidance } from "@/hooks/use-guidance";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import CategoryForm from "@/components/admin/category-form";
 import FormulationForm from "@/components/admin/formulation-form";
@@ -31,6 +33,17 @@ export default function AdminPage() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [editingFormulation, setEditingFormulation] = useState<Formulation | null>(null);
   const { toast } = useToast();
+  const { startGuidance, isCompleted } = useGuidance();
+
+  // Auto-start guidance for first-time users
+  useEffect(() => {
+    if (!isCompleted("admin-overview")) {
+      const timer = setTimeout(() => {
+        startGuidance("admin-overview");
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [startGuidance, isCompleted]);
 
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
@@ -183,6 +196,7 @@ export default function AdminPage() {
               <h1 className="text-2xl font-inter font-bold text-gray-900">Admin Dashboard</h1>
             </div>
             <div className="flex items-center space-x-4">
+              <HelpButton flowId="admin-overview" />
               <span className="text-sm text-gray-600">Welcome, Administrator</span>
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                 <User className="text-white text-sm h-4 w-4" />
@@ -204,6 +218,7 @@ export default function AdminPage() {
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
                 onClick={() => setActiveTab("overview")}
+                data-testid="admin-overview-tab"
               >
                 Overview
               </button>
@@ -214,6 +229,7 @@ export default function AdminPage() {
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
                 onClick={() => setActiveTab("categories")}
+                data-testid="admin-categories-tab"
               >
                 Manage Categories
               </button>
@@ -224,6 +240,7 @@ export default function AdminPage() {
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
                 onClick={() => setActiveTab("formulations")}
+                data-testid="admin-formulations-tab"
               >
                 Manage Formulations
               </button>
@@ -254,6 +271,7 @@ export default function AdminPage() {
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
                 onClick={() => setActiveTab("ai-analytics")}
+                data-testid="admin-analytics-tab"
               >
                 AI Analytics
               </button>
