@@ -111,6 +111,34 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Categories Overview */}
+      <section id="categories" className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-inter font-bold text-gray-900 mb-4">Product Categories</h2>
+            <p className="text-lg text-gray-600 mb-6">
+              Choose from our comprehensive range of formulation categories
+            </p>
+            <div className="flex justify-center">
+              <SearchBar 
+                onSearch={handleSearch}
+                placeholder="Search formulations or categories…"
+                className="w-full max-w-md"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {categories.map((category) => (
+              <CategoryCard
+                key={category.id}
+                category={category}
+                formulationCount={getFormulationCount(category.id)}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* About Section */}
       <section id="about" className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

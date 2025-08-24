@@ -39,6 +39,12 @@ export default function Navbar() {
                     Home
                   </a>
                 </Link>
+                <a 
+                  href="#categories" 
+                  className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                >
+                  Categories
+                </a>
                 <Link href="/formulations">
                   <a className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                     isActive("/formulations") 
