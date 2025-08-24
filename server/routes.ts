@@ -4,7 +4,7 @@ import crypto from "crypto";
 import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema } from "@shared/schema";
 import { generateCategory, generateFormulation, generateBulkFormulations, generateProductTypes, generateCustomFormulation } from "./ai";
-import { generateFormulationPDF } from "./pdf-generator";
+import { generateFormulationTXT } from "./txt-generator";
 import { optimizeFormulationsForSEO } from "./seo-optimizer";
 import { generateFormulationImages, addImageFieldToFormulations } from "./image-generator";
 
@@ -604,17 +604,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         city,
       });
 
-      // Generate PDF
-      const pdfBuffer = generateFormulationPDF(formulation);
+      // Generate TXT
+      const txtBuffer = generateFormulationTXT(formulation);
       
-      // Set headers for PDF download
-      const filename = `${productName.replace(/\s+/g, '_')}_formulation.pdf`;
-      res.setHeader('Content-Type', 'application/pdf');
+      // Set headers for TXT download
+      const filename = `${productName.replace(/\s+/g, '_')}_formulation.txt`;
+      res.setHeader('Content-Type', 'text/plain');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-      res.setHeader('Content-Length', pdfBuffer.length);
+      res.setHeader('Content-Length', txtBuffer.length);
       
-      // Send PDF
-      res.send(pdfBuffer);
+      // Send TXT
+      res.send(txtBuffer);
       
     } catch (error: any) {
       console.error("Failed to generate custom formulation:", error);

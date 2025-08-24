@@ -48,7 +48,7 @@ export default function FormulationPage() {
   }, [formulationId]);
 
   // PDF Generation function
-  const generatePDF = useCallback(() => {
+  const generateTXT = useCallback(() => {
     if (!formulation) return;
     
     try {
@@ -107,7 +107,7 @@ Generated on: ${new Date().toLocaleDateString()}
         description: `Formulation report for ${formulation.name} has been downloaded.`
       });
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      console.error('Error generating TXT:', error);
       toast({
         title: "Download Failed",
         description: "There was an error downloading the formulation report. Please try again.",
@@ -511,12 +511,12 @@ Generated on: ${new Date().toLocaleDateString()}
 
             <div className="flex flex-wrap gap-4">
               <Button 
-                onClick={generatePDF}
+                onClick={generateTXT}
                 className="bg-primary text-white hover:bg-blue-700"
-                data-testid="button-download-pdf"
+                data-testid="button-download-txt"
               >
                 <Download className="h-4 w-4 mr-2" />
-                Download PDF
+                Download TXT
               </Button>
               <Button 
                 onClick={handlePrint}
