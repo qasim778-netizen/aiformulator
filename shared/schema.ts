@@ -35,6 +35,27 @@ export const formulations = pgTable("formulations", {
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
 });
 
+export const aiFormulations = pgTable("ai_formulations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  productCategory: text("product_category").notNull(),
+  consistency: text("consistency").notNull(),
+  targetViscosity: text("target_viscosity").notNull(),
+  specialProperties: text("special_properties").notNull(), // JSON array
+  phLevel: text("ph_level").notNull(),
+  shelfLife: text("shelf_life").notNull(),
+  storageTemperature: text("storage_temperature").notNull(),
+  budgetCategory: text("budget_category").notNull(),
+  productionVolume: text("production_volume").notNull(),
+  regulatoryRequirements: text("regulatory_requirements"),
+  additionalNotes: text("additional_notes"),
+  generatedFormulation: text("generated_formulation").notNull(), // JSON of complete formulation
+  costAnalysis: text("cost_analysis"), // JSON of cost breakdown
+  status: text("status").notNull().default("generated"), // generated, approved, rejected
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+});
+
 export const insertCategorySchema = createInsertSchema(categories).omit({
   id: true,
   createdAt: true,
@@ -46,7 +67,15 @@ export const insertFormulationSchema = createInsertSchema(formulations).omit({
   updatedAt: true,
 });
 
+export const insertAiFormulationSchema = createInsertSchema(aiFormulations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertFormulation = z.infer<typeof insertFormulationSchema>;
 export type Formulation = typeof formulations.$inferSelect;
+export type InsertAiFormulation = z.infer<typeof insertAiFormulationSchema>;
+export type AiFormulation = typeof aiFormulations.$inferSelect;

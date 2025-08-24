@@ -9,6 +9,7 @@ import Browse from "@/pages/browse";
 import Category from "@/pages/category";
 import Formulation from "@/pages/formulation";
 import Admin from "@/pages/admin";
+import AiAdmin from "@/pages/ai-admin";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/category/:id" component={Category} />
       <Route path="/formulation/:id" component={Formulation} />
       <Route path="/admin" component={Admin} />
+      <Route path="/ai-admin" component={AiAdmin} />
       <Route component={NotFound} />
     </Switch>
   );
