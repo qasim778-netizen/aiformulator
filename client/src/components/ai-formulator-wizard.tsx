@@ -111,11 +111,11 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
         throw new Error(error.message || "Failed to generate formulation");
       }
 
-      const txtBlob = await response.blob();
-      const url = window.URL.createObjectURL(txtBlob);
+      const pdfBlob = await response.blob();
+      const url = window.URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${data.productName.replace(/\s+/g, '_')}_formulation.txt`;
+      link.download = `${data.productName.replace(/\s+/g, '_')}_formulation.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -126,7 +126,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     onSuccess: () => {
       toast({
         title: "Formulation Generated Successfully!",
-        description: "Your TXT file has been downloaded",
+        description: "Your PDF has been downloaded",
       });
       resetWizard();
     },
