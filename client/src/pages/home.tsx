@@ -11,7 +11,10 @@ export default function Home() {
   const [formData, setFormData] = useState({
     productCategory: "skincare-cosmetics",
     productName: "",
-    consistencyType: "cream"
+    consistencyType: "cream",
+    targetViscosity: "medium",
+    specialProperties: [],
+    phLevel: ""
   });
 
   const handleStartFormulation = () => {
@@ -30,7 +33,10 @@ export default function Home() {
     setFormData({
       productCategory: "skincare-cosmetics",
       productName: "",
-      consistencyType: "cream"
+      consistencyType: "cream",
+      targetViscosity: "medium",
+      specialProperties: [],
+      phLevel: ""
     });
   };
 
@@ -60,7 +66,7 @@ export default function Home() {
                 <Settings className="w-6 h-6 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-blue-600 mb-2">Formulation Process</h2>
-              <p className="text-blue-600 text-sm">⭕ Step 1 of 4</p>
+              <p className="text-blue-600 text-sm">⭕ Step {currentStep} of 4</p>
             </div>
 
             {/* Progress Steps */}
@@ -68,21 +74,25 @@ export default function Home() {
               <div className="flex items-center">
                 {/* Step 1 */}
                 <div className="flex flex-col items-center">
-                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center mb-2">
-                    <Check className="w-5 h-5 text-white" />
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
+                    currentStep >= 1 ? 'bg-blue-600' : 'bg-gray-200'
+                  }`}>
+                    <Check className={`w-5 h-5 ${currentStep >= 1 ? 'text-white' : 'text-gray-400'}`} />
                   </div>
-                  <span className="text-sm font-medium text-gray-900">Product Type</span>
+                  <span className={`text-sm ${currentStep >= 1 ? 'font-medium text-gray-900' : 'text-gray-500'}`}>Product Type</span>
                 </div>
                 
                 {/* Connector */}
-                <div className="w-20 h-1 bg-blue-600 mx-4"></div>
+                <div className={`w-20 h-1 mx-4 ${currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
                 
                 {/* Step 2 */}
                 <div className="flex flex-col items-center">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mb-2">
-                    <Settings className="w-5 h-5 text-gray-400" />
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
+                    currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-200'
+                  }`}>
+                    <Check className={`w-5 h-5 ${currentStep >= 2 ? 'text-white' : 'text-gray-400'}`} />
                   </div>
-                  <span className="text-sm text-gray-500">Specifications</span>
+                  <span className={`text-sm ${currentStep >= 2 ? 'font-medium text-gray-900' : 'text-gray-500'}`}>Specifications</span>
                 </div>
                 
                 {/* Connector */}
@@ -112,15 +122,17 @@ export default function Home() {
             {/* Progress Bar */}
             <div className="mb-8">
               <div className="bg-gray-200 rounded-full h-2">
-                <div className="bg-blue-600 h-2 rounded-full" style={{ width: '25%' }}></div>
+                <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${currentStep * 25}%` }}></div>
               </div>
-              <p className="text-center text-sm text-blue-600 font-medium mt-2">25% Complete</p>
+              <p className="text-center text-sm text-blue-600 font-medium mt-2">{currentStep * 25}% Complete</p>
             </div>
           </div>
 
           {/* Form Section */}
           <div className="bg-white rounded-lg border border-gray-200 p-8">
-            <h3 className="text-xl font-bold text-gray-900 mb-6">Product Type Selection</h3>
+            {currentStep === 1 && (
+              <>
+                <h3 className="text-xl font-bold text-gray-900 mb-6">Product Type Selection</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               {/* Product Category */}
@@ -226,23 +238,197 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex justify-between">
-              <Button 
-                variant="outline" 
-                onClick={handleBackToHome}
-                className="text-gray-600 border-gray-300"
-              >
-                Back to Home
-              </Button>
-              <Button 
-                onClick={handleNextStep}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Next Step
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+                {/* Actions */}
+                <div className="flex justify-between">
+                  <Button 
+                    variant="outline" 
+                    onClick={handleBackToHome}
+                    className="text-gray-600 border-gray-300"
+                  >
+                    Back to Home
+                  </Button>
+                  <Button 
+                    onClick={handleNextStep}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Next Step
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </>
+            )}
+
+            {currentStep === 2 && (
+              <>
+                <h3 className="text-xl font-bold text-gray-900 mb-6">Technical Specifications</h3>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Target Viscosity */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-4">Target Viscosity</label>
+                    <div className="space-y-3">
+                      {/* Low Viscosity */}
+                      <div 
+                        className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
+                          formData.targetViscosity === 'low' 
+                            ? 'border-blue-600 bg-blue-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onClick={() => setFormData({...formData, targetViscosity: 'low'})}
+                      >
+                        <div className="flex items-center">
+                          <div className="w-3 h-3 bg-blue-400 rounded-full mr-3"></div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900">Low Viscosity</h4>
+                            <p className="text-xs text-gray-500">Water-like consistency</p>
+                            <p className="text-xs text-gray-500">Examples: Serums, toners, mists</p>
+                          </div>
+                          <input 
+                            type="radio" 
+                            checked={formData.targetViscosity === 'low'} 
+                            readOnly
+                            className="ml-auto"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Medium Viscosity */}
+                      <div 
+                        className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
+                          formData.targetViscosity === 'medium' 
+                            ? 'border-blue-600 bg-blue-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onClick={() => setFormData({...formData, targetViscosity: 'medium'})}
+                      >
+                        <div className="flex items-center">
+                          <div className="w-3 h-3 bg-blue-600 rounded-full mr-3"></div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900">Medium Viscosity</h4>
+                            <p className="text-xs text-gray-500">Honey-like consistency</p>
+                            <p className="text-xs text-gray-500">Examples: Lotions, gels, light creams</p>
+                          </div>
+                          <input 
+                            type="radio" 
+                            checked={formData.targetViscosity === 'medium'} 
+                            readOnly
+                            className="ml-auto"
+                          />
+                        </div>
+                      </div>
+
+                      {/* High Viscosity */}
+                      <div 
+                        className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
+                          formData.targetViscosity === 'high' 
+                            ? 'border-blue-600 bg-blue-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onClick={() => setFormData({...formData, targetViscosity: 'high'})}
+                      >
+                        <div className="flex items-center">
+                          <div className="w-3 h-3 bg-gray-800 rounded-full mr-3"></div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900">High Viscosity</h4>
+                            <p className="text-xs text-gray-500">Thick paste consistency</p>
+                            <p className="text-xs text-gray-500">Examples: Heavy creams, balms, ointments</p>
+                          </div>
+                          <input 
+                            type="radio" 
+                            checked={formData.targetViscosity === 'high'} 
+                            readOnly
+                            className="ml-auto"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Custom Specification */}
+                      <div 
+                        className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
+                          formData.targetViscosity === 'custom' 
+                            ? 'border-blue-600 bg-blue-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onClick={() => setFormData({...formData, targetViscosity: 'custom'})}
+                      >
+                        <div className="flex items-center">
+                          <div className="w-3 h-3 bg-purple-600 rounded-full mr-3"></div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900">Custom Specification</h4>
+                            <p className="text-xs text-gray-500">Define your own viscosity</p>
+                            <p className="text-xs text-gray-500">Examples: Specialized formulations</p>
+                          </div>
+                          <input 
+                            type="radio" 
+                            checked={formData.targetViscosity === 'custom'} 
+                            readOnly
+                            className="ml-auto"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Special Properties */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-4">
+                      Special Properties (skincare - cream)
+                    </label>
+                    <div className="space-y-3">
+                      {[
+                        'Anti-aging', 'Moisturizing', 'UV Protection', 'Anti-inflammatory',
+                        'Brightening', 'Firming', 'Hypoallergenic', 'Fragrance-free',
+                        'Paraben-free', 'Organic certified'
+                      ].map((property) => (
+                        <label key={property} className="flex items-center space-x-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.specialProperties.includes(property)}
+                            onChange={(e) => {
+                              const newProperties = e.target.checked
+                                ? [...formData.specialProperties, property]
+                                : formData.specialProperties.filter((p) => p !== property);
+                              setFormData({...formData, specialProperties: newProperties});
+                            }}
+                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-900">{property}</span>
+                        </label>
+                      ))}
+                    </div>
+
+                    {/* pH Level */}
+                    <div className="mt-6">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">pH Level</label>
+                      <Input 
+                        placeholder="e.g., 5.5-6.5"
+                        value={formData.phLevel}
+                        onChange={(e) => setFormData({...formData, phLevel: e.target.value})}
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-between mt-8">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setCurrentStep(currentStep - 1)}
+                    className="text-gray-600 border-gray-300"
+                  >
+                    Previous Step
+                  </Button>
+                  <Button 
+                    onClick={handleNextStep}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Next Step
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
