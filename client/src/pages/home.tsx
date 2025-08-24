@@ -14,8 +14,8 @@ export default function Home() {
     consistencyType: "cream",
     targetViscosity: "medium",
     specialProperties: [] as string[],
-    phLevel: "",
-    shelfLife: "12-months",
+    phLevel: "7.0",
+    shelfLifeMonths: "12",
     storageTemperature: "room-temperature",
     budgetCategory: "mid-range",
     productionVolume: "small-batch"
@@ -40,8 +40,8 @@ export default function Home() {
       consistencyType: "cream",
       targetViscosity: "medium",
       specialProperties: [] as string[],
-      phLevel: "",
-      shelfLife: "12-months",
+      phLevel: "7.0",
+      shelfLifeMonths: "12",
       storageTemperature: "room-temperature",
       budgetCategory: "mid-range",
       productionVolume: "small-batch"
@@ -412,13 +412,58 @@ export default function Home() {
                     {/* pH Level */}
                     <div className="mt-6">
                       <label className="block text-sm font-medium text-gray-700 mb-2">pH Level</label>
-                      <Input 
-                        placeholder="e.g., 5.5-6.5"
-                        value={formData.phLevel}
-                        onChange={(e) => setFormData({...formData, phLevel: e.target.value})}
-                        className="w-full"
-                      />
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <input
+                            type="range"
+                            min="1"
+                            max="14"
+                            step="0.1"
+                            value={formData.phLevel}
+                            onChange={(e) => setFormData({...formData, phLevel: e.target.value})}
+                            className="w-full h-2 bg-gradient-to-r from-red-500 via-green-500 to-blue-500 rounded-lg appearance-none cursor-pointer slider"
+                          />
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>1 (Acidic)</span>
+                          <span>7 (Neutral)</span>
+                          <span>14 (Basic)</span>
+                        </div>
+                        <p className="text-sm text-gray-600">Current pH: {formData.phLevel}</p>
+                      </div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Additional Specifications */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                  {/* Shelf Life */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Shelf Life (months)</label>
+                    <Input
+                      type="number"
+                      value={formData.shelfLifeMonths}
+                      onChange={(e) => setFormData({...formData, shelfLifeMonths: e.target.value})}
+                      className="w-full"
+                      min="1"
+                      max="60"
+                    />
+                  </div>
+
+                  {/* Storage Temperature */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Storage Temperature</label>
+                    <Select value={formData.storageTemperature} onValueChange={(value) => setFormData({...formData, storageTemperature: value})}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select storage temperature" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="room-temperature">Room Temperature (15-25°C)</SelectItem>
+                        <SelectItem value="cool-dry">Cool & Dry Place (10-20°C)</SelectItem>
+                        <SelectItem value="refrigerated">Refrigerated (2-8°C)</SelectItem>
+                        <SelectItem value="freezer">Freezer Storage (Below 0°C)</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
@@ -462,11 +507,11 @@ export default function Home() {
                           <div
                             key={option.value}
                             className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
-                              formData.shelfLife === option.value
+                              formData.shelfLifeMonths === option.value
                                 ? 'border-blue-600 bg-blue-50'
                                 : 'border-gray-200 hover:border-gray-300'
                             }`}
-                            onClick={() => setFormData({...formData, shelfLife: option.value})}
+                            onClick={() => setFormData({...formData, shelfLifeMonths: option.value})}
                           >
                             <div className="flex items-center justify-between">
                               <div>
@@ -475,7 +520,7 @@ export default function Home() {
                               </div>
                               <input
                                 type="radio"
-                                checked={formData.shelfLife === option.value}
+                                checked={formData.shelfLifeMonths === option.value}
                                 readOnly
                                 className="w-4 h-4"
                               />
