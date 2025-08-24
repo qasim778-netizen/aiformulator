@@ -23,6 +23,8 @@ export default function AdminPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [analyticsFilter, setAnalyticsFilter] = useState<'browse' | 'generation'>('generation');
   const [currentPage, setCurrentPage] = useState(1);
+  const [categoriesPage, setCategoriesPage] = useState(1);
+  const [formulationsPage, setFormulationsPage] = useState(1);
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [formulationDialogOpen, setFormulationDialogOpen] = useState(false);
   const [bulkGenerationDialogOpen, setBulkGenerationDialogOpen] = useState(false);
@@ -33,9 +35,38 @@ export default function AdminPage() {
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
   });
+  
+  const { data: categoriesPaginated } = useQuery<{
+    data: Category[];
+    pagination: { currentPage: number; totalPages: number; totalItems: number; itemsPerPage: number };
+  }>({
+    queryKey: ["/api/categories-paginated", categoriesPage],
+    queryFn: async () => {
+      const response = await fetch(`/api/categories?paginated=true&page=${categoriesPage}&limit=10`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories');
+      }
+      return response.json();
+    },
+  });
 
   const { data: formulations = [] } = useQuery<Formulation[]>({
     queryKey: ["/api/formulations"],
+  });
+  
+  const { data: formulationsPaginated } = useQuery<{
+    data: Formulation[];
+    pagination: { currentPage: number; totalPages: number; totalItems: number; itemsPerPage: number };
+  }>({
+    queryKey: ["/api/formulations-paginated", formulationsPage, selectedCategory],
+    queryFn: async () => {
+      const categoryParam = selectedCategory !== 'all' ? `&categoryId=${selectedCategory}` : '';
+      const response = await fetch(`/api/formulations?paginated=true&page=${formulationsPage}&limit=50${categoryParam}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch formulations');
+      }
+      return response.json();
+    },
   });
 
   const { data: stats } = useQuery<{
@@ -86,6 +117,7 @@ export default function AdminPage() {
     mutationFn: (id: string) => apiRequest("DELETE", `/api/categories/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/categories-paginated"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       toast({ title: "Category deleted successfully" });
     },
@@ -98,6 +130,7 @@ export default function AdminPage() {
     mutationFn: (id: string) => apiRequest("DELETE", `/api/formulations/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/formulations-paginated"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       toast({ title: "Formulation deleted successfully" });
     },
@@ -401,7 +434,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {categories.map((category) => {
+                    {categoriesPaginated?.data?.map((category) => {
                       const formulationCount = formulations.filter(f => f.categoryId === category.id).length;
                       return (
                         <tr key={category.id}>
@@ -451,10 +484,65 @@ export default function AdminPage() {
                           </td>
                         </tr>
                       );
-                    })}
+                    }) || (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                          <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                          <p>No categories found</p>
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
+              
+              {/* Categories Pagination */}
+              {categoriesPaginated?.pagination && categoriesPaginated.pagination.totalPages > 1 && (
+                <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                  <div className="text-sm text-gray-600">
+                    Showing {((categoriesPaginated.pagination.currentPage - 1) * categoriesPaginated.pagination.itemsPerPage) + 1} to {Math.min(categoriesPaginated.pagination.currentPage * categoriesPaginated.pagination.itemsPerPage, categoriesPaginated.pagination.totalItems)} of {categoriesPaginated.pagination.totalItems} categories
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCategoriesPage(prev => Math.max(prev - 1, 1))}
+                      disabled={categoriesPaginated.pagination.currentPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    
+                    {Array.from({ length: Math.min(5, categoriesPaginated.pagination.totalPages) }, (_, i) => {
+                      const pageNum = Math.max(1, Math.min(
+                        categoriesPaginated.pagination.currentPage - 2 + i,
+                        categoriesPaginated.pagination.totalPages - 4 + i
+                      ));
+                      if (pageNum <= categoriesPaginated.pagination.totalPages) {
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={pageNum === categoriesPaginated.pagination.currentPage ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCategoriesPage(pageNum)}
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      }
+                      return null;
+                    })}
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCategoriesPage(prev => Math.min(prev + 1, categoriesPaginated.pagination.totalPages))}
+                      disabled={categoriesPaginated.pagination.currentPage === categoriesPaginated.pagination.totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
             </Card>
           </div>
         )}
@@ -545,7 +633,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredFormulations.map((formulation) => {
+                    {formulationsPaginated?.data?.map((formulation) => {
                       const ingredients = JSON.parse(formulation.ingredients);
                       return (
                         <tr key={formulation.id}>
@@ -596,10 +684,65 @@ export default function AdminPage() {
                           </td>
                         </tr>
                       );
-                    })}
+                    }) || (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                          <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                          <p>No formulations found</p>
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
+              
+              {/* Formulations Pagination */}
+              {formulationsPaginated?.pagination && formulationsPaginated.pagination.totalPages > 1 && (
+                <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                  <div className="text-sm text-gray-600">
+                    Showing {((formulationsPaginated.pagination.currentPage - 1) * formulationsPaginated.pagination.itemsPerPage) + 1} to {Math.min(formulationsPaginated.pagination.currentPage * formulationsPaginated.pagination.itemsPerPage, formulationsPaginated.pagination.totalItems)} of {formulationsPaginated.pagination.totalItems} formulations
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setFormulationsPage(prev => Math.max(prev - 1, 1))}
+                      disabled={formulationsPaginated.pagination.currentPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    
+                    {Array.from({ length: Math.min(5, formulationsPaginated.pagination.totalPages) }, (_, i) => {
+                      const pageNum = Math.max(1, Math.min(
+                        formulationsPaginated.pagination.currentPage - 2 + i,
+                        formulationsPaginated.pagination.totalPages - 4 + i
+                      ));
+                      if (pageNum <= formulationsPaginated.pagination.totalPages) {
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={pageNum === formulationsPaginated.pagination.currentPage ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setFormulationsPage(pageNum)}
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      }
+                      return null;
+                    })}
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setFormulationsPage(prev => Math.min(prev + 1, formulationsPaginated.pagination.totalPages))}
+                      disabled={formulationsPaginated.pagination.currentPage === formulationsPaginated.pagination.totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
             </Card>
           </div>
         )}

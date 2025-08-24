@@ -12,8 +12,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Categories API
   app.get("/api/categories", async (req, res) => {
     try {
-      const categories = await storage.getCategories();
-      res.json(categories);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 1000; // Default large limit for non-paginated requests
+      const offset = (page - 1) * limit;
+      
+      const allCategories = await storage.getCategories();
+      const totalItems = allCategories.length;
+      const totalPages = Math.ceil(totalItems / limit);
+      
+      const categories = allCategories.slice(offset, offset + limit);
+      
+      if (req.query.paginated === 'true') {
+        res.json({
+          data: categories,
+          pagination: {
+            currentPage: page,
+            totalPages,
+            totalItems,
+            itemsPerPage: limit
+          }
+        });
+      } else {
+        res.json(categories);
+      }
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch categories" });
     }
@@ -70,15 +91,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/formulations", async (req, res) => {
     try {
       const { categoryId } = req.query;
-      let formulations;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 1000; // Default large limit for non-paginated requests
+      const offset = (page - 1) * limit;
+      
+      let allFormulations;
       
       if (categoryId) {
-        formulations = await storage.getFormulationsByCategory(categoryId as string);
+        allFormulations = await storage.getFormulationsByCategory(categoryId as string);
       } else {
-        formulations = await storage.getFormulations();
+        allFormulations = await storage.getFormulations();
       }
       
-      res.json(formulations);
+      const totalItems = allFormulations.length;
+      const totalPages = Math.ceil(totalItems / limit);
+      const formulations = allFormulations.slice(offset, offset + limit);
+      
+      if (req.query.paginated === 'true') {
+        res.json({
+          data: formulations,
+          pagination: {
+            currentPage: page,
+            totalPages,
+            totalItems,
+            itemsPerPage: limit
+          }
+        });
+      } else {
+        res.json(formulations);
+      }
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch formulations" });
     }
