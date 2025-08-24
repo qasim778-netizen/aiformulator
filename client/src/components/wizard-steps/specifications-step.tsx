@@ -119,33 +119,6 @@ export default function SpecificationsStep({ formData, updateFormData }: Props) 
             </RadioGroup>
           </div>
 
-          {/* pH Level */}
-          <div>
-            <Label className="text-sm font-semibold text-gray-900 mb-2 block">
-              pH Level
-            </Label>
-            <div className="px-3 py-2 bg-gray-50 rounded-lg">
-              <div className="flex justify-between text-xs font-medium text-gray-700 mb-1">
-                <span>1 (Acidic)</span>
-                <span className="text-blue-600">Current pH: {formData.phLevel}</span>
-                <span>14 (Basic)</span>
-              </div>
-              <Slider
-                value={[formData.phLevel]}
-                onValueChange={([value]) => updateFormData({ phLevel: value })}
-                min={1}
-                max={14}
-                step={0.1}
-                className="w-full"
-                data-testid="slider-ph-level"
-              />
-              <div className="text-center mt-1">
-                <span className="text-xs font-medium text-gray-900">
-                  {getPhLevelLabel(formData.phLevel)}
-                </span>
-              </div>
-            </div>
-          </div>
 
           {/* Shelf Life & Storage Temperature - Horizontal */}
           <div className="grid grid-cols-2 gap-3">
@@ -188,7 +161,7 @@ export default function SpecificationsStep({ formData, updateFormData }: Props) 
         </div>
 
         {/* Right Column */}
-        <div>
+        <div className="space-y-4">
           {/* Special Properties */}
           <div>
             <Label className="text-sm font-semibold text-gray-900 mb-2 block">
@@ -217,6 +190,34 @@ export default function SpecificationsStep({ formData, updateFormData }: Props) 
                   </div>
                 );
               })}
+            </div>
+          </div>
+
+          {/* pH Level */}
+          <div>
+            <Label className="text-sm font-semibold text-gray-900 mb-2 block">
+              pH Level
+            </Label>
+            <div className="px-3 py-2 bg-gray-50 rounded-lg">
+              <div className="flex justify-between text-xs font-medium text-gray-700 mb-1">
+                <span>1 (Acidic)</span>
+                <span className="text-blue-600">Current pH: {formData.phLevel}</span>
+                <span>14 (Basic)</span>
+              </div>
+              <Slider
+                value={[formData.phLevel]}
+                onValueChange={([value]) => updateFormData({ phLevel: value })}
+                min={1}
+                max={14}
+                step={0.1}
+                className="w-full"
+                data-testid="slider-ph-level"
+              />
+              <div className="text-center mt-1">
+                <span className="text-xs font-medium text-gray-900">
+                  {getPhLevelLabel(formData.phLevel)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
