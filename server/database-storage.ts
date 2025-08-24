@@ -22,7 +22,9 @@ export class DatabaseStorage implements IStorage {
         sessionId: "sess_12345abc",
         timestamp: new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
         responseTime: 4.2,
-        formData: { productType: "Skin Care", phLevel: "5.5-6.0" }
+        formData: { productType: "Skin Care", phLevel: "5.5-6.0" },
+        country: "United States",
+        city: "New York"
       },
       {
         productName: "Organic Lip Balm",
@@ -30,7 +32,9 @@ export class DatabaseStorage implements IStorage {
         sessionId: "sess_67890def",
         timestamp: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
         responseTime: 3.8,
-        formData: { productType: "Beauty Products", phLevel: "6.0-7.0" }
+        formData: { productType: "Beauty Products", phLevel: "6.0-7.0" },
+        country: "Canada",
+        city: "Toronto"
       },
       {
         productName: "Whitening Toothpaste",
@@ -38,7 +42,9 @@ export class DatabaseStorage implements IStorage {
         sessionId: "sess_abcdef12",
         timestamp: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
         responseTime: 5.1,
-        formData: { productType: "Oral Care", phLevel: "7.0-8.0" }
+        formData: { productType: "Oral Care", phLevel: "7.0-8.0" },
+        country: "United Kingdom",
+        city: "London"
       },
       {
         productName: "Gentle Baby Lotion",
@@ -46,7 +52,9 @@ export class DatabaseStorage implements IStorage {
         sessionId: "sess_789xyz45",
         timestamp: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
         responseTime: 3.5,
-        formData: { productType: "Baby Care", phLevel: "6.5-7.0" }
+        formData: { productType: "Baby Care", phLevel: "6.5-7.0" },
+        country: "Germany",
+        city: "Berlin"
       },
       {
         productName: "Men's Beard Oil",
@@ -54,7 +62,9 @@ export class DatabaseStorage implements IStorage {
         sessionId: "sess_456mno78",
         timestamp: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
         responseTime: 4.7,
-        formData: { productType: "Men Care", phLevel: "5.0-6.0" }
+        formData: { productType: "Men Care", phLevel: "5.0-6.0" },
+        country: "France",
+        city: "Paris"
       },
       {
         productName: "Natural Face Cleanser",
@@ -62,7 +72,9 @@ export class DatabaseStorage implements IStorage {
         sessionId: "sess_321ghi90",
         timestamp: new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
         responseTime: 6.2,
-        formData: { productType: "Organic Care", phLevel: "5.5-6.5" }
+        formData: { productType: "Organic Care", phLevel: "5.5-6.5" },
+        country: "Australia",
+        city: "Sydney"
       },
       {
         productName: "Hydrating Foundation",
@@ -70,7 +82,9 @@ export class DatabaseStorage implements IStorage {
         sessionId: "sess_654jkl21",
         timestamp: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
         responseTime: 4.9,
-        formData: { productType: "Beauty Products", phLevel: "6.0-7.0" }
+        formData: { productType: "Beauty Products", phLevel: "6.0-7.0" },
+        country: "Japan",
+        city: "Tokyo"
       },
       {
         productName: "Moisturizing Hand Cream",
@@ -78,7 +92,9 @@ export class DatabaseStorage implements IStorage {
         sessionId: "sess_987pqr54",
         timestamp: new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000).toISOString(), // 6 days ago
         responseTime: 3.2,
-        formData: { productType: "Skin Care", phLevel: "5.0-6.0" }
+        formData: { productType: "Skin Care", phLevel: "5.0-6.0" },
+        country: "United States",
+        city: "Los Angeles"
       },
       {
         productName: "Fresh Breath Mouthwash",
@@ -86,7 +102,9 @@ export class DatabaseStorage implements IStorage {
         sessionId: "sess_147stu85",
         timestamp: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
         responseTime: 5.8,
-        formData: { productType: "Oral Care", phLevel: "6.5-7.5" }
+        formData: { productType: "Oral Care", phLevel: "6.5-7.5" },
+        country: "Brazil",
+        city: "São Paulo"
       },
       {
         productName: "Nourishing Night Cream",
@@ -94,7 +112,9 @@ export class DatabaseStorage implements IStorage {
         sessionId: "sess_258vwx96",
         timestamp: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString(), // 8 days ago
         responseTime: 4.1,
-        formData: { productType: "Skin Care", phLevel: "5.5-6.5" }
+        formData: { productType: "Skin Care", phLevel: "5.5-6.5" },
+        country: "India",
+        city: "Mumbai"
       },
       {
         productName: "Color-Safe Shampoo",
@@ -102,7 +122,9 @@ export class DatabaseStorage implements IStorage {
         sessionId: "sess_369yza07",
         timestamp: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago
         responseTime: 4.4,
-        formData: { productType: "Beauty Products", phLevel: "5.0-6.0" }
+        formData: { productType: "Beauty Products", phLevel: "5.0-6.0" },
+        country: "South Korea",
+        city: "Seoul"
       },
       {
         productName: "Soothing Baby Shampoo",
@@ -110,7 +132,9 @@ export class DatabaseStorage implements IStorage {
         sessionId: "sess_741bcd18",
         timestamp: new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString(), // 12 days ago
         responseTime: 3.9,
-        formData: { productType: "Baby Care", phLevel: "6.0-7.0" }
+        formData: { productType: "Baby Care", phLevel: "6.0-7.0" },
+        country: "Netherlands",
+        city: "Amsterdam"
       },
       {
         productName: "Aftershave Balm",
@@ -118,7 +142,9 @@ export class DatabaseStorage implements IStorage {
         sessionId: "sess_852efg29",
         timestamp: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(), // 15 days ago
         responseTime: 5.3,
-        formData: { productType: "Men Care", phLevel: "5.5-6.5" }
+        formData: { productType: "Men Care", phLevel: "5.5-6.5" },
+        country: "Italy",
+        city: "Milan"
       },
       {
         productName: "Organic Sunscreen",
@@ -126,7 +152,9 @@ export class DatabaseStorage implements IStorage {
         sessionId: "sess_963hij40",
         timestamp: new Date(now.getTime() - 18 * 24 * 60 * 60 * 1000).toISOString(), // 18 days ago
         responseTime: 7.1,
-        formData: { productType: "Organic Care", phLevel: "6.0-7.0" }
+        formData: { productType: "Organic Care", phLevel: "6.0-7.0" },
+        country: "Spain",
+        city: "Barcelona"
       },
       {
         productName: "Exfoliating Scrub",
@@ -134,7 +162,9 @@ export class DatabaseStorage implements IStorage {
         sessionId: "sess_159klm73",
         timestamp: new Date(now.getTime() - 20 * 24 * 60 * 60 * 1000).toISOString(), // 20 days ago
         responseTime: 4.6,
-        formData: { productType: "Skin Care", phLevel: "5.0-6.0" }
+        formData: { productType: "Skin Care", phLevel: "5.0-6.0" },
+        country: "United States",
+        city: "Chicago"
       }
     ];
 

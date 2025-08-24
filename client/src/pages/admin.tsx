@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Sparkles, Package, BarChart3, TrendingUp, Users } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Sparkles, Package, BarChart3, TrendingUp, Users, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -833,7 +833,7 @@ export default function AdminPage() {
             </div>
 
             {/* Analytics Charts and Tables */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
               {/* Popular Categories */}
               <Card className="bg-white rounded-lg shadow-md">
                 <div className="px-6 py-4 border-b border-gray-200">
@@ -864,6 +864,42 @@ export default function AdminPage() {
                       <div className="text-center text-gray-500 py-8">
                         <BarChart3 className="h-12 w-12 mx-auto mb-3 opacity-50" />
                         <p>No data available yet</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Usage by Country */}
+              <Card className="bg-white rounded-lg shadow-md">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h3 className="text-lg font-inter font-semibold text-gray-900">Usage by Country</h3>
+                  <p className="text-sm text-gray-600">Geographic distribution of AI generations</p>
+                </div>
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    {aiAnalytics?.usageByCountry?.map((country, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center mr-3">
+                            <span className="text-white text-xs font-bold">{index + 1}</span>
+                          </div>
+                          <span className="text-sm font-medium text-gray-900">{country.country}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-20 bg-gray-200 rounded-full h-2 mr-3">
+                            <div 
+                              className="bg-emerald-500 h-2 rounded-full" 
+                              style={{ width: `${(country.count / (aiAnalytics?.usageByCountry?.[0]?.count || 1)) * 100}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-sm text-gray-600">{country.count}</span>
+                        </div>
+                      </div>
+                    )) || (
+                      <div className="text-center text-gray-500 py-8">
+                        <Globe className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                        <p>No geographic data available</p>
                       </div>
                     )}
                   </div>
@@ -918,6 +954,9 @@ export default function AdminPage() {
                           Category
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Location
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Session ID
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -948,6 +987,21 @@ export default function AdminPage() {
                               {generation.category}
                             </Badge>
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <Globe className="h-4 w-4 text-gray-400 mr-2" />
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {generation.country || 'Unknown'}
+                                </div>
+                                {generation.city && (
+                                  <div className="text-xs text-gray-500">
+                                    {generation.city}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {generation.sessionId.substring(0, 8)}...
                           </td>
@@ -962,7 +1016,7 @@ export default function AdminPage() {
                         </tr>
                       )) || (
                         <tr>
-                          <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                          <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                             <Sparkles className="h-12 w-12 mx-auto mb-3 opacity-50" />
                             <p>No AI generations yet</p>
                             <p className="text-sm">Data will appear here as users create custom formulations</p>

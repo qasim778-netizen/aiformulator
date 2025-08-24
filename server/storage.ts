@@ -9,6 +9,8 @@ export interface IAiGeneration {
   timestamp: string;
   responseTime?: number;
   formData: any;
+  country?: string;
+  city?: string;
 }
 
 export interface IStorage {

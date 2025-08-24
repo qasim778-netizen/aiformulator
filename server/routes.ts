@@ -175,6 +175,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .sort((a, b) => b.count - a.count)
         .slice(0, 5);
 
+      // Usage by country
+      const countryCount: Record<string, number> = {};
+      aiGenerations.forEach(gen => {
+        if (gen.country) {
+          countryCount[gen.country] = (countryCount[gen.country] || 0) + 1;
+        }
+      });
+      const usageByCountry = Object.entries(countryCount)
+        .map(([country, count]) => ({ country, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
+
       // Recent generations (last 10)
       const recentGenerations = aiGenerations
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
@@ -185,6 +197,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           category: gen.category,
           timestamp: gen.timestamp,
           sessionId: gen.sessionId,
+          country: gen.country,
+          city: gen.city,
         }));
 
       // Generations by hour (24 hour format)
@@ -206,6 +220,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         weeklyGenerations,
         monthlyGenerations,
         popularCategories,
+        usageByCountry,
         recentGenerations,
         generationsByHour: hourCounts,
         avgResponseTime,
@@ -373,6 +388,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const responseTime = (Date.now() - startTime) / 1000; // Convert to seconds
       const sessionId = req.headers['x-session-id'] as string || crypto.randomUUID();
       
+      // Simple geo detection based on common request headers or default to US
+      const country = req.headers['cf-ipcountry'] as string || 
+                     req.headers['x-country'] as string || 
+                     'United States';
+      const city = req.headers['cf-ipcity'] as string || 
+                  req.headers['x-city'] as string || 
+                  'Unknown';
+
       await storage.trackAiGeneration({
         productName,
         category: productType,
@@ -380,6 +403,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date().toISOString(),
         responseTime,
         formData: req.body,
+        country,
+        city,
       });
 
       // Generate PDF
