@@ -24,7 +24,7 @@ export default function Footer() {
             <h4 className="font-medium mb-4">Support</h4>
             <ul className="space-y-2 text-sm text-gray-300">
               <li>
-                <Link href="/formulations">
+                <Link href="/browse">
                   <a className="hover:text-white transition-colors duration-200" data-testid="link-footer-find-formulation">
                     Find Formulation
                   </a>
