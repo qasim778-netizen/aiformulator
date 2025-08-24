@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useCallback } from "react";
 import type { Formulation, Category } from "@shared/schema";
+import cleaningProductsGuide from "@/assets/generated-images/cleaning-products-guide.png";
 
 export default function FormulationPage() {
   const params = useParams();
@@ -247,6 +248,24 @@ Generated on: ${new Date().toLocaleDateString()}
                 </div>
               </div>
             </div>
+
+            {/* Professional Guide Image for Cleaning Products */}
+            {category?.name === "Cleaning Products" && (
+              <div className="mb-8">
+                <h3 className="text-lg font-inter font-semibold mb-4">Professional Manufacturing Guide</h3>
+                <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-lg">
+                  <img 
+                    src={cleaningProductsGuide} 
+                    alt="Professional Cleaning Products manufacturing guide - Complete chemical formulation with ingredients, procedures, and quality control specifications"
+                    className="w-full max-w-md mx-auto rounded-lg shadow-lg"
+                    data-testid="img-formulation-guide"
+                  />
+                  <p className="text-center text-sm text-gray-600 mt-3">
+                    Professional manufacturing guide with complete specifications
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="mb-8">
               <h3 className="text-lg font-inter font-semibold mb-4">Product Description</h3>
