@@ -19,16 +19,43 @@ export default function Home() {
         {/* Main Navigation Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-6xl mx-auto">
           {!isWizardActive && (
-            <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger value="formulator" className="flex items-center gap-2 text-lg py-3" data-testid="tab-formulator">
-                <Sparkles className="h-5 w-5" />
-                Create Custom Formula
-              </TabsTrigger>
-              <TabsTrigger value="browse" className="flex items-center gap-2 text-lg py-3" data-testid="tab-browse">
-                <BookOpen className="h-5 w-5" />
-                Ready-Made Formulas
-              </TabsTrigger>
-            </TabsList>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <Card 
+                className={`cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] ${
+                  activeTab === 'formulator' 
+                    ? 'ring-2 ring-primary bg-primary/5 border-primary' 
+                    : 'hover:border-primary/50'
+                }`}
+                onClick={() => setActiveTab('formulator')}
+                data-testid="tab-formulator"
+              >
+                <CardContent className="p-8 text-center">
+                  <div className="bg-gradient-to-br from-purple-500 to-pink-500 text-white p-6 rounded-2xl w-20 h-20 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Sparkles className="h-10 w-10" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Create Custom Formula</h3>
+                  <p className="text-gray-600 text-sm">AI-powered formulation wizard with precise specifications</p>
+                </CardContent>
+              </Card>
+
+              <Card 
+                className={`cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] ${
+                  activeTab === 'browse' 
+                    ? 'ring-2 ring-primary bg-primary/5 border-primary' 
+                    : 'hover:border-primary/50'
+                }`}
+                onClick={() => setActiveTab('browse')}
+                data-testid="tab-browse"
+              >
+                <CardContent className="p-8 text-center">
+                  <div className="bg-gradient-to-br from-blue-500 to-teal-500 text-white p-6 rounded-2xl w-20 h-20 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <BookOpen className="h-10 w-10" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Ready-Made Formulas</h3>
+                  <p className="text-gray-600 text-sm">68+ professional formulations across 10 categories</p>
+                </CardContent>
+              </Card>
+            </div>
           )}
 
           <TabsContent value="formulator" className={isWizardActive ? "mt-0" : "mt-8"}>
