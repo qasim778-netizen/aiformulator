@@ -31,22 +31,22 @@ export default function Navbar() {
             <div className="hidden md:block ml-10">
               <div className="flex items-baseline space-x-4">
                 <Link href="/">
-                  <span className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer ${
+                  <a className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                     isActive("/") 
                       ? "text-primary" 
                       : "text-gray-600 hover:text-primary"
                   }`}>
                     Home
-                  </span>
+                  </a>
                 </Link>
                 <Link href="/browse">
-                  <span className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer ${
+                  <a className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                     isActive("/browse") 
                       ? "text-primary" 
                       : "text-gray-600 hover:text-primary"
                   }`} data-testid="link-find-formulation">
                     Find Formulation
-                  </span>
+                  </a>
                 </Link>
                 <a 
                   href="#about" 
@@ -69,20 +69,12 @@ export default function Navbar() {
               placeholder="Search formulations or categories…"
               className="w-64 md:w-80"
             />
-            <div className="flex items-center space-x-2">
-              <Link href="/admin">
-                <Button variant="outline" size="sm" className="text-gray-600 border-gray-300 hover:bg-gray-50">
-                  <Settings className="h-4 w-4 mr-1" />
-                  Admin
-                </Button>
-              </Link>
-              <Link href="/ai-admin">
-                <Button className="bg-blue-600 text-white hover:bg-blue-700">
-                  <Settings className="h-4 w-4 mr-2" />
-                  AI Admin
-                </Button>
-              </Link>
-            </div>
+            <Link href="/admin">
+              <Button className="bg-primary text-white hover:bg-blue-700">
+                <Settings className="h-4 w-4 mr-2" />
+                Admin
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

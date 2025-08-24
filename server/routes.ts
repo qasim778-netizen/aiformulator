@@ -2,14 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema } from "@shared/schema";
-import { generateCategory, generateFormulation as aiGenerateFormulation, generateBulkFormulations, generateProductTypes } from "./ai";
+import { generateCategory, generateFormulation, generateBulkFormulations, generateProductTypes } from "./ai";
 import { optimizeFormulationsForSEO } from "./seo-optimizer";
 import { generateFormulationImages, addImageFieldToFormulations } from "./image-generator";
-import { generateFormulation, type FormulationRequest } from "./openai-service";
-import { db } from "./db";
-import { aiFormulations } from "@shared/schema";
-import { eq, desc } from "drizzle-orm";
-import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Categories API
@@ -265,129 +260,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to generate bulk formulations" });
-    }
-  });
-
-  // AI Formulation Generation API
-  const formulationRequestSchema = z.object({
-    name: z.string().min(1),
-    productCategory: z.string().min(1),
-    consistency: z.string().min(1),
-    targetViscosity: z.string().min(1),
-    specialProperties: z.array(z.string()),
-    phLevel: z.string().min(1),
-    shelfLife: z.string().min(1),
-    storageTemperature: z.string().min(1),
-    budgetCategory: z.string().min(1),
-    productionVolume: z.string().min(1),
-    regulatoryRequirements: z.string().optional(),
-    additionalNotes: z.string().optional(),
-  });
-
-  app.post("/api/ai-formulations/generate", async (req, res) => {
-    try {
-      const validatedData = formulationRequestSchema.parse(req.body);
-      
-      // Generate formulation using OpenAI
-      const generatedFormulation = await generateFormulation(validatedData);
-      
-      // Save to database
-      const savedFormulation = await db.insert(aiFormulations).values({
-        ...validatedData,
-        specialProperties: JSON.stringify(validatedData.specialProperties),
-        generatedFormulation: JSON.stringify(generatedFormulation),
-        costAnalysis: JSON.stringify(generatedFormulation.costAnalysis || {}),
-        status: "generated"
-      }).returning();
-
-      res.status(201).json({
-        formulation: savedFormulation[0],
-        generatedData: generatedFormulation
-      });
-    } catch (error: any) {
-      console.error("AI formulation generation error:", error);
-      res.status(500).json({ message: error.message || "Failed to generate formulation" });
-    }
-  });
-
-  app.get("/api/ai-formulations", async (req, res) => {
-    try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
-      const offset = (page - 1) * limit;
-
-      const formulations = await db
-        .select()
-        .from(aiFormulations)
-        .orderBy(desc(aiFormulations.createdAt))
-        .limit(limit)
-        .offset(offset);
-
-      res.json(formulations);
-    } catch (error) {
-      console.error("Failed to fetch AI formulations:", error);
-      res.status(500).json({ message: "Failed to fetch formulations" });
-    }
-  });
-
-  app.get("/api/ai-formulations/:id", async (req, res) => {
-    try {
-      const formulation = await db
-        .select()
-        .from(aiFormulations)
-        .where(eq(aiFormulations.id, req.params.id))
-        .limit(1);
-
-      if (formulation.length === 0) {
-        return res.status(404).json({ message: "Formulation not found" });
-      }
-
-      res.json(formulation[0]);
-    } catch (error) {
-      console.error("Failed to fetch AI formulation:", error);
-      res.status(500).json({ message: "Failed to fetch formulation" });
-    }
-  });
-
-  app.put("/api/ai-formulations/:id/status", async (req, res) => {
-    try {
-      const { status } = req.body;
-      if (!["generated", "approved", "rejected"].includes(status)) {
-        return res.status(400).json({ message: "Invalid status" });
-      }
-
-      const updatedFormulation = await db
-        .update(aiFormulations)
-        .set({ status, updatedAt: new Date() })
-        .where(eq(aiFormulations.id, req.params.id))
-        .returning();
-
-      if (updatedFormulation.length === 0) {
-        return res.status(404).json({ message: "Formulation not found" });
-      }
-
-      res.json(updatedFormulation[0]);
-    } catch (error) {
-      console.error("Failed to update formulation status:", error);
-      res.status(500).json({ message: "Failed to update status" });
-    }
-  });
-
-  app.delete("/api/ai-formulations/:id", async (req, res) => {
-    try {
-      const deletedFormulation = await db
-        .delete(aiFormulations)
-        .where(eq(aiFormulations.id, req.params.id))
-        .returning();
-
-      if (deletedFormulation.length === 0) {
-        return res.status(404).json({ message: "Formulation not found" });
-      }
-
-      res.status(204).send();
-    } catch (error) {
-      console.error("Failed to delete AI formulation:", error);
-      res.status(500).json({ message: "Failed to delete formulation" });
     }
   });
 
