@@ -84,12 +84,12 @@ export default function SpecificationsStep({ formData, updateFormData }: Props) 
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full overflow-hidden">
       <h3 className="text-xl font-bold text-gray-900 mb-4">Technical Specifications</h3>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
         {/* Left Column */}
-        <div className="space-y-4">
+        <div className="space-y-4 w-full min-w-0">
           {/* Target Viscosity */}
           <div>
             <Label className="text-sm font-semibold text-gray-900 mb-2 block">
@@ -123,13 +123,13 @@ export default function SpecificationsStep({ formData, updateFormData }: Props) 
         </div>
 
         {/* Right Column */}
-        <div className="space-y-4">
+        <div className="space-y-4 w-full min-w-0">
           {/* Special Properties */}
           <div>
             <Label className="text-sm font-semibold text-gray-900 mb-2 block">
               Special Properties (skincare - cream)
             </Label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {specialProperties.map((property) => {
                 const IconComponent = property.icon;
                 return (
@@ -184,7 +184,7 @@ export default function SpecificationsStep({ formData, updateFormData }: Props) 
           </div>
 
           {/* Shelf Life & Storage Temperature - Horizontal */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label htmlFor="shelfLife" className="text-sm font-semibold text-gray-900 mb-2 block">
                 Shelf Life (months)

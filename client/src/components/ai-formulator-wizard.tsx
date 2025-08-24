@@ -238,8 +238,8 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto shadow-lg" data-testid="ai-formulator-wizard">
-      <CardContent className="p-4">
+    <Card className="w-full max-w-4xl mx-auto shadow-lg overflow-hidden" data-testid="ai-formulator-wizard">
+      <CardContent className="p-4 w-full">
         {/* Header */}
         <div className="text-center mb-4">
           <h2 className="text-xl font-bold text-blue-600 mb-2">Formulation Process</h2>
@@ -288,7 +288,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
         </div>
 
         {/* Step Content */}
-        <div className="min-h-80">
+        <div className="min-h-80 w-full overflow-hidden">
           {currentStep === 0 && (
             <ProductTypeStep 
               formData={formData} 
