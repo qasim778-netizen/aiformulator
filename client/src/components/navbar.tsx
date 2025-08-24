@@ -31,22 +31,22 @@ export default function Navbar() {
             <div className="hidden md:block ml-10">
               <div className="flex items-baseline space-x-4">
                 <Link href="/">
-                  <a className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                  <span className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer ${
                     isActive("/") 
                       ? "text-primary" 
                       : "text-gray-600 hover:text-primary"
                   }`}>
                     Home
-                  </a>
+                  </span>
                 </Link>
                 <Link href="/browse">
-                  <a className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                  <span className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer ${
                     isActive("/browse") 
                       ? "text-primary" 
                       : "text-gray-600 hover:text-primary"
                   }`} data-testid="link-find-formulation">
                     Find Formulation
-                  </a>
+                  </span>
                 </Link>
                 <a 
                   href="#about" 

@@ -2,7 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema } from "@shared/schema";
-import { generateCategory, generateFormulation, generateBulkFormulations, generateProductTypes } from "./ai";
+import { generateCategory, generateFormulation, generateBulkFormulations, generateProductTypes, generateCustomFormulation } from "./ai";
+import { generateFormulationPDF } from "./pdf-generator";
 import { optimizeFormulationsForSEO } from "./seo-optimizer";
 import { generateFormulationImages, addImageFieldToFormulations } from "./image-generator";
 
@@ -260,6 +261,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to generate bulk formulations" });
+    }
+  });
+
+  // Custom AI Formulation with PDF Generation
+  app.post("/api/ai/custom-formulation", async (req, res) => {
+    try {
+      const {
+        productName,
+        productDescription,
+        productType,
+        phLevel,
+        costLevel,
+        viscosity,
+        color,
+        fragrance,
+        specialRequirements
+      } = req.body;
+
+      // Validate required fields
+      if (!productName || !productDescription || !productType || !phLevel || !costLevel) {
+        return res.status(400).json({ 
+          message: "Missing required fields: productName, productDescription, productType, phLevel, costLevel" 
+        });
+      }
+
+      // Generate formulation using AI
+      const formulation = await generateCustomFormulation({
+        productName,
+        productDescription,
+        productType,
+        phLevel,
+        costLevel,
+        viscosity,
+        color,
+        fragrance,
+        specialRequirements
+      });
+
+      // Generate PDF
+      const pdfBuffer = generateFormulationPDF(formulation);
+      
+      // Set headers for PDF download
+      const filename = `${productName.replace(/\s+/g, '_')}_formulation.pdf`;
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Length', pdfBuffer.length);
+      
+      // Send PDF
+      res.send(pdfBuffer);
+      
+    } catch (error: any) {
+      console.error("Failed to generate custom formulation:", error);
+      res.status(500).json({ 
+        message: error.message || "Failed to generate custom formulation" 
+      });
     }
   });
 
