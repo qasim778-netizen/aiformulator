@@ -120,44 +120,6 @@ export default function SpecificationsStep({ formData, updateFormData }: Props) 
           </div>
 
 
-          {/* Shelf Life & Storage Temperature - Horizontal */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label htmlFor="shelfLife" className="text-sm font-semibold text-gray-900 mb-2 block">
-                Shelf Life (months)
-              </Label>
-              <Input
-                id="shelfLife"
-                type="number"
-                value={formData.shelfLife}
-                onChange={(e) => updateFormData({ shelfLife: parseInt(e.target.value) || 12 })}
-                min={1}
-                max={60}
-                className="w-full h-10"
-                data-testid="input-shelf-life"
-              />
-            </div>
-            <div>
-              <Label className="text-sm font-semibold text-gray-900 mb-2 block">
-                Storage Temperature
-              </Label>
-              <Select 
-                value={formData.storageTemperature} 
-                onValueChange={(value) => updateFormData({ storageTemperature: value })}
-              >
-                <SelectTrigger className="w-full h-10" data-testid="select-storage-temperature">
-                  <SelectValue placeholder="Select storage..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {storageTemperatures.map((temp) => (
-                    <SelectItem key={temp} value={temp}>
-                      {temp}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
         </div>
 
         {/* Right Column */}
@@ -218,6 +180,45 @@ export default function SpecificationsStep({ formData, updateFormData }: Props) 
                   {getPhLevelLabel(formData.phLevel)}
                 </span>
               </div>
+            </div>
+          </div>
+
+          {/* Shelf Life & Storage Temperature - Horizontal */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="shelfLife" className="text-sm font-semibold text-gray-900 mb-2 block">
+                Shelf Life (months)
+              </Label>
+              <Input
+                id="shelfLife"
+                type="number"
+                value={formData.shelfLife}
+                onChange={(e) => updateFormData({ shelfLife: parseInt(e.target.value) || 12 })}
+                min={1}
+                max={60}
+                className="w-full h-10"
+                data-testid="input-shelf-life"
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-semibold text-gray-900 mb-2 block">
+                Storage Temperature
+              </Label>
+              <Select 
+                value={formData.storageTemperature} 
+                onValueChange={(value) => updateFormData({ storageTemperature: value })}
+              >
+                <SelectTrigger className="w-full h-10" data-testid="select-storage-temperature">
+                  <SelectValue placeholder="Select storage..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {storageTemperatures.map((temp) => (
+                    <SelectItem key={temp} value={temp}>
+                      {temp}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
