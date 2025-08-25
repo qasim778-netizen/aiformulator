@@ -1,4 +1,4 @@
-import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser } from "@shared/schema";
+import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser, type Page, type InsertPage } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IAiGeneration {
@@ -43,6 +43,13 @@ export interface IStorage {
   // User Authentication (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+
+  // Pages Content Management
+  getPages(): Promise<Page[]>;
+  getPageBySlug(slug: string): Promise<Page | undefined>;
+  createPage(page: InsertPage): Promise<Page>;
+  updatePage(id: string, page: Partial<InsertPage>): Promise<Page | undefined>;
+  deletePage(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -52,6 +59,7 @@ export class MemStorage implements IStorage {
   private productProperties: Map<string, string[]>;
   private userNotes: Map<string, UserNote>;
   private users: Map<string, User>;
+  private pages: Map<string, Page>;
 
   constructor() {
     this.categories = new Map();
@@ -60,8 +68,10 @@ export class MemStorage implements IStorage {
     this.productProperties = new Map();
     this.userNotes = new Map();
     this.users = new Map();
+    this.pages = new Map();
     // Only seed data if no data exists (first run)
     this.seedInitialData();
+    this.seedPages();
   }
 
   private seedInitialData() {
@@ -1357,6 +1367,440 @@ export class MemStorage implements IStorage {
     };
     this.users.set(user.id, user);
     return user;
+  }
+
+  // Pages Content Management methods
+  async getPages(): Promise<Page[]> {
+    return Array.from(this.pages.values()).sort((a, b) => a.title.localeCompare(b.title));
+  }
+
+  async getPageBySlug(slug: string): Promise<Page | undefined> {
+    return Array.from(this.pages.values()).find(page => page.slug === slug);
+  }
+
+  async createPage(pageData: InsertPage): Promise<Page> {
+    const id = randomUUID();
+    const page: Page = {
+      id,
+      slug: pageData.slug,
+      title: pageData.title,
+      content: pageData.content,
+      metaDescription: pageData.metaDescription || null,
+      isActive: pageData.isActive ?? true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.pages.set(id, page);
+    return page;
+  }
+
+  async updatePage(id: string, pageData: Partial<InsertPage>): Promise<Page | undefined> {
+    const existingPage = this.pages.get(id);
+    if (!existingPage) {
+      return undefined;
+    }
+
+    const updatedPage: Page = {
+      ...existingPage,
+      ...pageData,
+      updatedAt: new Date(),
+    };
+    
+    this.pages.set(id, updatedPage);
+    return updatedPage;
+  }
+
+  async deletePage(id: string): Promise<boolean> {
+    return this.pages.delete(id);
+  }
+
+  private seedPages() {
+    // Skip seeding if pages already exist
+    if (this.pages.size > 0) {
+      return;
+    }
+
+    const commonPages: Page[] = [
+      {
+        id: randomUUID(),
+        slug: "about",
+        title: "About Us",
+        content: `
+          <div class="prose max-w-none">
+            <h1>About ChemFormula Pro</h1>
+            <p>ChemFormula Pro is a cutting-edge AI-powered platform that revolutionizes chemical formulation for small business manufacturers worldwide. Our mission is to democratize access to professional-grade chemical formulations that were previously only available to large corporations.</p>
+            
+            <h2>Our Mission</h2>
+            <p>We believe that every entrepreneur and small manufacturer should have access to professional chemical formulations. Our AI technology levels the playing field by providing instant access to thousands of tested formulations across multiple product categories.</p>
+            
+            <h2>What We Offer</h2>
+            <ul>
+              <li><strong>AI-Powered Formulations:</strong> Generate custom formulations based on your specific requirements</li>
+              <li><strong>Professional Quality:</strong> All formulations are researched and meet industry standards</li>
+              <li><strong>Comprehensive Database:</strong> Access to formulations for skincare, cosmetics, cleaning products, and more</li>
+              <li><strong>PDF Documentation:</strong> Detailed formulation sheets with ingredients, instructions, and safety guidelines</li>
+              <li><strong>Expert Support:</strong> Get assistance from our team of chemical formulation experts</li>
+            </ul>
+            
+            <h2>Our Technology</h2>
+            <p>Our platform leverages advanced AI algorithms trained on thousands of professional chemical formulations. Each generated formulation includes detailed ingredient lists, mixing instructions, safety guidelines, and quality control specifications.</p>
+            
+            <h2>Contact Information</h2>
+            <p>For questions about our platform or technical support, please visit our <a href="/contact">Contact page</a> or check our <a href="/faq">FAQ section</a>.</p>
+          </div>
+        `,
+        metaDescription: "Learn about ChemFormula Pro - the AI-powered platform revolutionizing chemical formulation for small business manufacturers worldwide.",
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        slug: "faq",
+        title: "Frequently Asked Questions",
+        content: `
+          <div class="prose max-w-none">
+            <h1>Frequently Asked Questions</h1>
+            
+            <h3>What is ChemFormula Pro?</h3>
+            <p>ChemFormula Pro is an AI-powered platform that generates professional chemical formulations for small business manufacturers. Our system provides instant access to tested formulations across multiple product categories including skincare, cosmetics, cleaning products, and more.</p>
+            
+            <h3>How does the AI formulation generator work?</h3>
+            <p>Our AI system analyzes your specific requirements (product type, pH level, cost constraints, etc.) and generates custom formulations based on our extensive database of professional recipes. Each formulation includes detailed ingredients, mixing instructions, and safety guidelines.</p>
+            
+            <h3>Are the formulations safe to use?</h3>
+            <p>All formulations in our database are based on established industry standards and safe ingredient combinations. However, we recommend conducting proper testing and following all safety guidelines before commercial production. Always consult with a qualified chemist for commercial applications.</p>
+            
+            <h3>What formats do you provide?</h3>
+            <p>All formulations are provided as downloadable PDF documents that include ingredient lists, step-by-step mixing instructions, safety information, quality control guidelines, and storage recommendations.</p>
+            
+            <h3>Can I modify the formulations?</h3>
+            <p>Yes, our formulations serve as professional starting points that you can modify to meet your specific needs. We provide detailed ingredient information and substitution guidelines to help you customize formulations.</p>
+            
+            <h3>Do you provide ingredient sourcing information?</h3>
+            <p>Our formulations include detailed ingredient specifications including INCI names, CAS numbers, and typical supplier grades. While we don't directly sell ingredients, we provide the information needed to source them from chemical suppliers.</p>
+            
+            <h3>What product categories do you support?</h3>
+            <p>We currently support formulations for skincare products, cosmetics, hair care, body care, oral care, cleaning products, detergents, and disinfectants. We're constantly expanding our database with new categories.</p>
+            
+            <h3>Is there customer support available?</h3>
+            <p>Yes, we provide technical support for using our platform. For formulation-specific questions, we recommend consulting with a qualified chemist, as regulatory requirements vary by region and intended use.</p>
+            
+            <h3>How much does it cost?</h3>
+            <p>Our platform offers various pricing tiers to suit different business needs. Please contact our sales team for current pricing information and to discuss the best plan for your business requirements.</p>
+            
+            <h3>Can I use these formulations commercially?</h3>
+            <p>Our formulations can be used as the basis for commercial products, but you are responsible for ensuring compliance with local regulations, conducting appropriate testing, and meeting quality standards. We recommend working with regulatory experts in your region.</p>
+          </div>
+        `,
+        metaDescription: "Find answers to common questions about ChemFormula Pro, our AI-powered chemical formulation platform, safety guidelines, and commercial usage.",
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        slug: "terms-of-service",
+        title: "Terms of Service",
+        content: `
+          <div class="prose max-w-none">
+            <h1>Terms of Service</h1>
+            <p><em>Last updated: ${new Date().toLocaleDateString()}</em></p>
+            
+            <h2>1. Acceptance of Terms</h2>
+            <p>By accessing and using ChemFormula Pro, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
+            
+            <h2>2. Description of Service</h2>
+            <p>ChemFormula Pro is an AI-powered platform that provides chemical formulations for educational and commercial purposes. Our service includes access to formulation databases, AI-generated custom formulations, and related documentation.</p>
+            
+            <h2>3. User Responsibilities</h2>
+            <ul>
+              <li>You are responsible for ensuring the safety and legality of any products you create using our formulations</li>
+              <li>You must comply with all applicable laws and regulations in your jurisdiction</li>
+              <li>You agree to conduct appropriate testing before any commercial use</li>
+              <li>You will not use our service for any illegal or prohibited activities</li>
+            </ul>
+            
+            <h2>4. Intellectual Property</h2>
+            <p>The formulations and content provided by ChemFormula Pro are based on publicly available information and industry standards. While you may use these formulations commercially, you cannot claim exclusive ownership of the basic formulation concepts.</p>
+            
+            <h2>5. Disclaimers and Limitations</h2>
+            <p><strong>IMPORTANT:</strong> ChemFormula Pro provides formulations for informational purposes. We make no warranties about the safety, efficacy, or regulatory compliance of any formulations. Users are solely responsible for:</p>
+            <ul>
+              <li>Testing formulations for safety and performance</li>
+              <li>Ensuring regulatory compliance</li>
+              <li>Quality control and product liability</li>
+              <li>Proper handling and use of chemical ingredients</li>
+            </ul>
+            
+            <h2>6. Limitation of Liability</h2>
+            <p>ChemFormula Pro shall not be liable for any direct, indirect, incidental, special, consequential, or punitive damages resulting from the use of our formulations or platform. This includes but is not limited to product failures, injuries, regulatory violations, or business losses.</p>
+            
+            <h2>7. Professional Consultation</h2>
+            <p>We strongly recommend consulting with qualified chemists, regulatory experts, and legal professionals before using our formulations for commercial purposes. ChemFormula Pro does not provide professional chemical, regulatory, or legal advice.</p>
+            
+            <h2>8. Account Terms</h2>
+            <p>You are responsible for maintaining the security of your account and password. ChemFormula Pro cannot and will not be liable for any loss or damage from your failure to comply with this security obligation.</p>
+            
+            <h2>9. Modifications to Service</h2>
+            <p>ChemFormula Pro reserves the right to modify or discontinue, temporarily or permanently, the service with or without notice. We shall not be liable to you or to any third party for any modification, price change, suspension, or discontinuance of the service.</p>
+            
+            <h2>10. Privacy Policy</h2>
+            <p>Your privacy is important to us. Please review our Privacy Policy, which also governs your use of the service, to understand our practices.</p>
+            
+            <h2>11. Termination</h2>
+            <p>ChemFormula Pro may terminate your access to the service for violations of these terms. Upon termination, your right to use the service will cease immediately.</p>
+            
+            <h2>12. Contact Information</h2>
+            <p>If you have any questions about these Terms of Service, please contact us through our support channels.</p>
+          </div>
+        `,
+        metaDescription: "Terms of Service for ChemFormula Pro - understand your rights and responsibilities when using our AI-powered chemical formulation platform.",
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        slug: "privacy-policy",
+        title: "Privacy Policy",
+        content: `
+          <div class="prose max-w-none">
+            <h1>Privacy Policy</h1>
+            <p><em>Last updated: ${new Date().toLocaleDateString()}</em></p>
+            
+            <h2>1. Information We Collect</h2>
+            <h3>Personal Information</h3>
+            <p>When you create an account or use our services, we may collect:</p>
+            <ul>
+              <li>Name and contact information</li>
+              <li>Email address</li>
+              <li>Company information</li>
+              <li>Payment information (processed securely by third parties)</li>
+            </ul>
+            
+            <h3>Usage Information</h3>
+            <p>We automatically collect information about how you use our platform:</p>
+            <ul>
+              <li>Formulations generated and downloaded</li>
+              <li>Platform usage patterns and preferences</li>
+              <li>Device information and browser type</li>
+              <li>IP address and location data</li>
+            </ul>
+            
+            <h2>2. How We Use Your Information</h2>
+            <p>We use the information we collect to:</p>
+            <ul>
+              <li>Provide and improve our formulation services</li>
+              <li>Generate personalized recommendations</li>
+              <li>Process payments and manage accounts</li>
+              <li>Communicate with you about services and updates</li>
+              <li>Analyze usage patterns to improve our platform</li>
+              <li>Ensure platform security and prevent fraud</li>
+            </ul>
+            
+            <h2>3. AI and Data Processing</h2>
+            <p>Our AI system processes your formulation requests to generate custom solutions. This includes:</p>
+            <ul>
+              <li>Analyzing your product specifications and requirements</li>
+              <li>Using anonymized usage data to improve AI recommendations</li>
+              <li>Storing formulation history to provide better service</li>
+            </ul>
+            
+            <h2>4. Information Sharing</h2>
+            <p>We do not sell, trade, or rent your personal information to third parties. We may share information only in these limited circumstances:</p>
+            <ul>
+              <li><strong>Service Providers:</strong> With trusted partners who help us operate our platform</li>
+              <li><strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
+              <li><strong>Business Transfers:</strong> In the event of a merger or sale of our company</li>
+            </ul>
+            
+            <h2>5. Data Security</h2>
+            <p>We implement appropriate security measures to protect your information:</p>
+            <ul>
+              <li>Encryption of data in transit and at rest</li>
+              <li>Regular security audits and updates</li>
+              <li>Access controls and authentication requirements</li>
+              <li>Secure payment processing through certified providers</li>
+            </ul>
+            
+            <h2>6. Data Retention</h2>
+            <p>We retain your information for as long as necessary to provide services and comply with legal obligations. You may request deletion of your account and associated data at any time.</p>
+            
+            <h2>7. Your Rights</h2>
+            <p>Depending on your location, you may have rights regarding your personal information:</p>
+            <ul>
+              <li>Access and review your personal data</li>
+              <li>Correct inaccurate information</li>
+              <li>Request deletion of your data</li>
+              <li>Object to certain processing activities</li>
+              <li>Data portability rights</li>
+            </ul>
+            
+            <h2>8. Cookies and Tracking</h2>
+            <p>We use cookies and similar technologies to:</p>
+            <ul>
+              <li>Remember your preferences and login status</li>
+              <li>Analyze platform usage and performance</li>
+              <li>Provide personalized content and recommendations</li>
+            </ul>
+            <p>You can control cookie settings through your browser preferences.</p>
+            
+            <h2>9. Third-Party Services</h2>
+            <p>Our platform may integrate with third-party services (payment processors, analytics providers, etc.). These services have their own privacy policies, and we encourage you to review them.</p>
+            
+            <h2>10. International Transfers</h2>
+            <p>Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place for international data transfers.</p>
+            
+            <h2>11. Children's Privacy</h2>
+            <p>Our service is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13.</p>
+            
+            <h2>12. Changes to This Policy</h2>
+            <p>We may update this privacy policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the "last updated" date.</p>
+            
+            <h2>13. Contact Us</h2>
+            <p>If you have any questions about this Privacy Policy, please contact us through our support channels or privacy contact information.</p>
+          </div>
+        `,
+        metaDescription: "Privacy Policy for ChemFormula Pro - learn how we collect, use, and protect your personal information on our AI formulation platform.",
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        slug: "disclaimer",
+        title: "Disclaimer",
+        content: `
+          <div class="prose max-w-none">
+            <h1>Disclaimer</h1>
+            <p><em>Last updated: ${new Date().toLocaleDateString()}</em></p>
+            
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+              <p class="font-bold text-red-800">IMPORTANT SAFETY NOTICE</p>
+              <p class="text-red-700">Chemical formulation and manufacturing involve inherent risks. This platform provides information for educational and professional purposes only. Users assume all responsibility for safety, testing, and regulatory compliance.</p>
+            </div>
+            
+            <h2>1. General Disclaimer</h2>
+            <p>The information provided by ChemFormula Pro is for general informational and educational purposes only. All formulations, advice, and recommendations are provided "as is" without warranties of any kind, either express or implied.</p>
+            
+            <h2>2. Professional Consultation Required</h2>
+            <p><strong>WARNING:</strong> Chemical formulation requires professional expertise. Before using any formulation for commercial purposes, you must:</p>
+            <ul>
+              <li>Consult with qualified chemists and regulatory experts</li>
+              <li>Conduct thorough safety and compatibility testing</li>
+              <li>Ensure compliance with local and international regulations</li>
+              <li>Obtain necessary permits and certifications</li>
+              <li>Implement proper quality control procedures</li>
+            </ul>
+            
+            <h2>3. Safety and Testing</h2>
+            <p>Users are solely responsible for:</p>
+            <ul>
+              <li><strong>Safety Testing:</strong> Conducting appropriate safety, stability, and compatibility tests</li>
+              <li><strong>Risk Assessment:</strong> Evaluating potential hazards and implementing safety measures</li>
+              <li><strong>Personal Protection:</strong> Using proper protective equipment and safety protocols</li>
+              <li><strong>Environmental Impact:</strong> Assessing and minimizing environmental effects</li>
+            </ul>
+            
+            <h2>4. Regulatory Compliance</h2>
+            <p>Chemical products are subject to various regulations that vary by:</p>
+            <ul>
+              <li>Geographic location and jurisdiction</li>
+              <li>Intended use and target market</li>
+              <li>Product category and ingredients</li>
+              <li>Manufacturing and distribution methods</li>
+            </ul>
+            <p><strong>You are responsible for ensuring full compliance with all applicable regulations.</strong></p>
+            
+            <h2>5. AI-Generated Content</h2>
+            <p>Our platform uses artificial intelligence to generate formulations. Please note:</p>
+            <ul>
+              <li>AI systems may produce unexpected or incorrect results</li>
+              <li>Always verify AI-generated formulations with human expertise</li>
+              <li>Conduct independent testing before any commercial use</li>
+              <li>AI recommendations are not a substitute for professional judgment</li>
+            </ul>
+            
+            <h2>6. Ingredient Information</h2>
+            <p>While we strive to provide accurate ingredient information, users must:</p>
+            <ul>
+              <li>Verify ingredient specifications with suppliers</li>
+              <li>Confirm regulatory status in your jurisdiction</li>
+              <li>Assess potential allergenic or sensitizing properties</li>
+              <li>Evaluate ingredient interactions and stability</li>
+            </ul>
+            
+            <h2>7. Limitations of Liability</h2>
+            <p>ChemFormula Pro, its affiliates, and team members shall not be liable for:</p>
+            <ul>
+              <li>Product failures or defects</li>
+              <li>Regulatory violations or legal issues</li>
+              <li>Personal injury or property damage</li>
+              <li>Business losses or commercial damages</li>
+              <li>Environmental harm or contamination</li>
+              <li>Intellectual property disputes</li>
+            </ul>
+            
+            <h2>8. Quality Control</h2>
+            <p>Users must establish and maintain appropriate quality control systems including:</p>
+            <ul>
+              <li>Raw material testing and verification</li>
+              <li>In-process monitoring and controls</li>
+              <li>Finished product testing and certification</li>
+              <li>Documentation and record-keeping</li>
+              <li>Batch tracking and traceability</li>
+            </ul>
+            
+            <h2>9. Intellectual Property</h2>
+            <p>While basic formulation concepts may be in the public domain, users are responsible for:</p>
+            <ul>
+              <li>Conducting freedom-to-operate analysis</li>
+              <li>Avoiding infringement of existing patents</li>
+              <li>Protecting their own intellectual property</li>
+              <li>Respecting trademark and copyright laws</li>
+            </ul>
+            
+            <h2>10. International Considerations</h2>
+            <p>Chemical regulations vary significantly by country. International users must:</p>
+            <ul>
+              <li>Research local regulatory requirements</li>
+              <li>Consider import/export restrictions</li>
+              <li>Evaluate regional safety standards</li>
+              <li>Adapt formulations for local markets</li>
+            </ul>
+            
+            <h2>11. Emergency Procedures</h2>
+            <p>Users must establish emergency procedures including:</p>
+            <ul>
+              <li>Accident response and first aid protocols</li>
+              <li>Spill containment and cleanup procedures</li>
+              <li>Emergency contact information</li>
+              <li>Safety data sheets and hazard information</li>
+            </ul>
+            
+            <h2>12. Updates and Changes</h2>
+            <p>This disclaimer may be updated periodically. Continued use of our platform constitutes acceptance of any changes. Users are responsible for reviewing updates regularly.</p>
+            
+            <h2>13. Contact and Support</h2>
+            <p>For questions about this disclaimer or our platform, contact our support team. However, remember that our support is limited to platform usage and does not constitute professional chemical or regulatory advice.</p>
+            
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mt-6">
+              <p class="font-bold text-yellow-800">Remember:</p>
+              <p class="text-yellow-700">When in doubt, consult with qualified professionals. Safety should always be your top priority in chemical formulation and manufacturing.</p>
+            </div>
+          </div>
+        `,
+        metaDescription: "Important disclaimer for ChemFormula Pro users - understand the risks, responsibilities, and safety requirements for chemical formulation.",
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+
+    commonPages.forEach(page => {
+      this.pages.set(page.id, page);
+    });
   }
 }
 

@@ -20,6 +20,7 @@ import AiFormulationForm from "@/components/admin/ai-formulation-form";
 import BulkGenerationForm from "@/components/admin/bulk-generation-form";
 import BulkFormulationGenerator from "@/components/admin/bulk-formulation-generator";
 import LogoSettings from "@/components/admin/logo-settings";
+import ContentManagementTab from "@/components/admin/content-management-tab";
 import type { Category, Formulation } from "@shared/schema";
 
 export default function AdminPage() {
@@ -350,6 +351,17 @@ export default function AdminPage() {
                 data-testid="admin-settings-tab"
               >
                 Settings
+              </button>
+              <button
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "content"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+                onClick={() => setActiveTab("content")}
+                data-testid="admin-content-tab"
+              >
+                Content Management
               </button>
             </nav>
           </div>
@@ -1415,6 +1427,11 @@ export default function AdminPage() {
             </div>
             <LogoSettings />
           </div>
+        )}
+        
+        {/* Content Management Tab */}
+        {activeTab === "content" && (
+          <ContentManagementTab />
         )}
       </div>
     </div>

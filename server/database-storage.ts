@@ -1,6 +1,6 @@
 import { eq, desc } from "drizzle-orm";
-import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable } from "./db";
-import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser } from "@shared/schema";
+import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable } from "./db";
+import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
 import crypto from "crypto";
 
@@ -426,6 +426,65 @@ export class DatabaseStorage implements IStorage {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
+    }
+  }
+
+  // Pages Content Management methods
+  async getPages(): Promise<Page[]> {
+    try {
+      const { pages } = await import("@shared/schema");
+      return await db.select().from(pages).orderBy(pages.title);
+    } catch (error) {
+      console.log("Pages table not yet available, returning empty array");
+      return [];
+    }
+  }
+
+  async getPageBySlug(slug: string): Promise<Page | undefined> {
+    try {
+      const { pages } = await import("@shared/schema");
+      const [page] = await db.select().from(pages).where(eq(pages.slug, slug));
+      return page;
+    } catch (error) {
+      console.log("Pages table not yet available, returning undefined");
+      return undefined;
+    }
+  }
+
+  async createPage(pageData: InsertPage): Promise<Page> {
+    try {
+      const { pages } = await import("@shared/schema");
+      const [page] = await db.insert(pages).values(pageData).returning();
+      return page;
+    } catch (error) {
+      console.error("Failed to create page:", error);
+      throw new Error("Failed to create page");
+    }
+  }
+
+  async updatePage(id: string, pageData: Partial<InsertPage>): Promise<Page | undefined> {
+    try {
+      const { pages } = await import("@shared/schema");
+      const [page] = await db
+        .update(pages)
+        .set({ ...pageData, updatedAt: new Date() })
+        .where(eq(pages.id, id))
+        .returning();
+      return page;
+    } catch (error) {
+      console.error("Failed to update page:", error);
+      return undefined;
+    }
+  }
+
+  async deletePage(id: string): Promise<boolean> {
+    try {
+      const { pages } = await import("@shared/schema");
+      const result = await db.delete(pages).where(eq(pages.id, id));
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error("Failed to delete page:", error);
+      return false;
     }
   }
 }

@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import crypto from "crypto";
 import { storage } from "./storage";
-import { insertCategorySchema, insertFormulationSchema, insertUserNoteSchema } from "@shared/schema";
+import { insertCategorySchema, insertFormulationSchema, insertUserNoteSchema, insertPageSchema } from "@shared/schema";
 import { generateCategory, generateFormulation, generateBulkFormulations, generateProductTypes, generateCustomFormulation } from "./ai";
 import { generateFormulationPDF } from "./pdf-generator";
 import { optimizeFormulationsForSEO } from "./seo-optimizer";
@@ -708,6 +708,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Failed to fetch recommendations:", error);
       res.status(500).json({ message: "Failed to fetch recommendations" });
+    }
+  });
+
+  // Pages Content Management API
+  // Get all pages
+  app.get("/api/pages", async (req, res) => {
+    try {
+      const pages = await storage.getPages();
+      res.json(pages);
+    } catch (error: any) {
+      console.error("Failed to fetch pages:", error);
+      res.status(500).json({ message: "Failed to fetch pages" });
+    }
+  });
+
+  // Get single page by slug
+  app.get("/api/pages/:slug", async (req, res) => {
+    try {
+      const page = await storage.getPageBySlug(req.params.slug);
+      if (!page) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      res.json(page);
+    } catch (error: any) {
+      console.error("Failed to fetch page:", error);
+      res.status(500).json({ message: "Failed to fetch page" });
+    }
+  });
+
+  // Create new page
+  app.post("/api/pages", async (req, res) => {
+    try {
+      const validatedData = insertPageSchema.parse(req.body);
+      const page = await storage.createPage(validatedData);
+      res.status(201).json(page);
+    } catch (error: any) {
+      console.error("Failed to create page:", error);
+      res.status(400).json({ message: error.message || "Invalid page data" });
+    }
+  });
+
+  // Update page
+  app.put("/api/pages/:id", async (req, res) => {
+    try {
+      const validatedData = insertPageSchema.parse(req.body);
+      const page = await storage.updatePage(req.params.id, validatedData);
+      if (!page) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      res.json(page);
+    } catch (error: any) {
+      console.error("Failed to update page:", error);
+      res.status(400).json({ message: error.message || "Invalid page data" });
+    }
+  });
+
+  // Delete page
+  app.delete("/api/pages/:id", async (req, res) => {
+    try {
+      const success = await storage.deletePage(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      res.status(204).send();
+    } catch (error: any) {
+      console.error("Failed to delete page:", error);
+      res.status(500).json({ message: "Failed to delete page" });
     }
   });
 

@@ -60,11 +60,25 @@ export const userNotesTable = pgTable("user_notes", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Pages table for content management
+export const pagesTable = pgTable("pages", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  slug: text("slug").notNull().unique(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  metaDescription: text("meta_description"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export type DbCategory = typeof categoriesTable.$inferSelect;
 export type DbFormulation = typeof formulationsTable.$inferSelect;
 export type DbProductProperties = typeof productPropertiesTable.$inferSelect;
 export type DbUserNote = typeof userNotesTable.$inferSelect;
+export type DbPage = typeof pagesTable.$inferSelect;
 export type InsertDbCategory = typeof categoriesTable.$inferInsert;
 export type InsertDbFormulation = typeof formulationsTable.$inferInsert;
 export type InsertDbProductProperties = typeof productPropertiesTable.$inferInsert;
 export type InsertDbUserNote = typeof userNotesTable.$inferInsert;
+export type InsertDbPage = typeof pagesTable.$inferInsert;
