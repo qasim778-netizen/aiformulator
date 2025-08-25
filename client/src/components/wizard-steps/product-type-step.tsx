@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Hand, Droplets, Waves, Circle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import type { Formulation } from "@shared/schema";
 
 interface FormData {
   productName: string;
@@ -61,7 +63,90 @@ const productCategories = [
 ];
 
 export default function ProductTypeStep({ formData, updateFormData }: Props) {
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  
   const selectedConsistency = consistencyTypes.find(type => type.id === formData.consistencyType);
+  
+  // Fetch formulations for autocomplete suggestions
+  const { data: formulations = [] } = useQuery<Formulation[]>({
+    queryKey: ["/api/formulations"],
+  });
+  
+  // Update suggestions when product name changes
+  useEffect(() => {
+    if (!formData.productName.trim()) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      setSelectedIndex(-1);
+      return;
+    }
+    
+    const query = formData.productName.toLowerCase();
+    const matchingSuggestions = formulations
+      .filter(f => f.name.toLowerCase().includes(query))
+      .map(f => f.name)
+      .filter(name => name.toLowerCase() !== query) // Don't suggest exact matches
+      .slice(0, 6); // Limit to 6 suggestions
+    
+    setSuggestions(matchingSuggestions);
+    setShowSuggestions(matchingSuggestions.length > 0);
+    setSelectedIndex(-1);
+  }, [formData.productName, formulations]);
+  
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showSuggestions) return;
+    
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setSelectedIndex(prev => 
+          prev < suggestions.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setSelectedIndex(prev => 
+          prev > 0 ? prev - 1 : suggestions.length - 1
+        );
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
+          updateFormData({ productName: suggestions[selectedIndex] });
+          setShowSuggestions(false);
+        }
+        break;
+      case "Escape":
+        setShowSuggestions(false);
+        setSelectedIndex(-1);
+        inputRef.current?.blur();
+        break;
+    }
+  };
+  
+  // Handle suggestion selection
+  const handleSelectSuggestion = (suggestion: string) => {
+    updateFormData({ productName: suggestion });
+    setShowSuggestions(false);
+    setSelectedIndex(-1);
+  };
+  
+  // Handle input blur (with delay to allow clicking suggestions)
+  const handleBlur = () => {
+    setTimeout(() => setShowSuggestions(false), 150);
+  };
+  
+  // Handle input focus
+  const handleFocus = () => {
+    if (formData.productName.trim() && suggestions.length > 0) {
+      setShowSuggestions(true);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -89,19 +174,49 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
           </Select>
         </div>
 
-        <div className="w-full min-w-0">
+        <div className="w-full min-w-0 relative">
           <Label htmlFor="productName" className="text-base font-semibold text-gray-900 mb-3 block">
             Product Name
           </Label>
           <Input
+            ref={inputRef}
             id="productName"
             type="text"
             placeholder="Enter product name..."
             value={formData.productName}
             onChange={(e) => updateFormData({ productName: e.target.value })}
+            onKeyDown={handleKeyDown}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             className="w-full h-12"
             data-testid="input-product-name"
           />
+          
+          {/* Autocomplete Suggestions */}
+          {showSuggestions && suggestions.length > 0 && (
+            <div
+              ref={dropdownRef}
+              className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto"
+              data-testid="dropdown-product-suggestions"
+            >
+              {suggestions.map((suggestion, index) => (
+                <div
+                  key={suggestion}
+                  className={`px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors duration-150 ${
+                    index === selectedIndex
+                      ? "bg-blue-600 text-white"
+                      : "hover:bg-gray-50"
+                  }`}
+                  onClick={() => handleSelectSuggestion(suggestion)}
+                  data-testid={`suggestion-product-${index}`}
+                >
+                  <span className="font-medium text-sm">
+                    {suggestion}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
