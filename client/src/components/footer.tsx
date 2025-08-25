@@ -63,15 +63,36 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        <div className="border-t border-gray-600 mt-8 pt-8 text-center text-sm text-gray-300">
-          <p>&copy; 2024 AI Formulator. All rights reserved.</p>
-          <div className="mt-4">
-            <Link href="/admin">
-              <span className="text-xs text-gray-400 hover:text-gray-300 transition-colors duration-200 cursor-pointer inline-flex items-center">
-                <Settings className="h-3 w-3 mr-1" />
-                System Administration
-              </span>
-            </Link>
+        <div className="border-t border-gray-600 mt-8 pt-8">
+          <div className="text-center mb-4">
+            <div className="flex flex-wrap justify-center items-center space-x-6 text-xs text-gray-400">
+              <Link href="/terms-of-service">
+                <span className="hover:text-gray-300 transition-colors duration-200 cursor-pointer" data-testid="link-footer-terms">
+                  Terms & Conditions
+                </span>
+              </Link>
+              <Link href="/privacy-policy">
+                <span className="hover:text-gray-300 transition-colors duration-200 cursor-pointer" data-testid="link-footer-privacy">
+                  Privacy Policy
+                </span>
+              </Link>
+              <Link href="/disclaimer">
+                <span className="hover:text-gray-300 transition-colors duration-200 cursor-pointer" data-testid="link-footer-disclaimer">
+                  Disclaimer of Use
+                </span>
+              </Link>
+            </div>
+          </div>
+          <div className="text-center text-sm text-gray-300">
+            <p>&copy; 2025 AI Formulator. All rights reserved.</p>
+            <div className="mt-2">
+              <Link href="/admin">
+                <span className="text-xs text-gray-400 hover:text-gray-300 transition-colors duration-200 cursor-pointer inline-flex items-center">
+                  <Settings className="h-3 w-3 mr-1" />
+                  System Administration
+                </span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
