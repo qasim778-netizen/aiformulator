@@ -69,6 +69,13 @@ export default function Navbar() {
               placeholder="Search formulations or categories…"
               className="w-64 md:w-80"
             />
+            <a 
+              href="/api/logout"
+              className="text-sm text-gray-600 hover:text-gray-900 px-2 py-1 rounded hover:bg-gray-100"
+              data-testid="logout-button-navbar"
+            >
+              Logout (Test)
+            </a>
           </div>
         </div>
       </div>
