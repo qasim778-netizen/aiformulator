@@ -1,8 +1,8 @@
-# ChemFormula Pro - Chemical Formulation Management System
+# AIFormulator - Chemical Formulation Management System
 
 ## Overview
 
-ChemFormula Pro is a web application for managing professional chemical formulations targeted at small business manufacturers. The system provides a comprehensive database of ready-to-use formulations across multiple product categories including skincare, beauty products, oral care, and more. It features a modern React frontend with a Node.js/Express backend, using PostgreSQL for data persistence.
+AIFormulator is a web application for managing professional chemical formulations targeted at small business manufacturers. The system provides a comprehensive database of ready-to-use formulations across multiple product categories including skincare, beauty products, oral care, and more. It features a modern React frontend with a Node.js/Express backend, using PostgreSQL for data persistence.
 
 ## User Preferences
 

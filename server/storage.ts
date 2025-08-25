@@ -1433,8 +1433,8 @@ export class MemStorage implements IStorage {
         title: "About Us",
         content: `
           <div class="prose max-w-none">
-            <h1>About ChemFormula Pro</h1>
-            <p>ChemFormula Pro is a cutting-edge AI-powered platform that revolutionizes chemical formulation for small business manufacturers worldwide. Our mission is to democratize access to professional-grade chemical formulations that were previously only available to large corporations.</p>
+            <h1>About AIFormulator</h1>
+            <p>AIFormulator is a cutting-edge AI-powered platform that revolutionizes chemical formulation for small business manufacturers worldwide. Our mission is to democratize access to professional-grade chemical formulations that were previously only available to large corporations.</p>
             
             <h2>Our Mission</h2>
             <p>We believe that every entrepreneur and small manufacturer should have access to professional chemical formulations. Our AI technology levels the playing field by providing instant access to thousands of tested formulations across multiple product categories.</p>
@@ -1455,7 +1455,7 @@ export class MemStorage implements IStorage {
             <p>For questions about our platform or technical support, please visit our <a href="/contact">Contact page</a> or check our <a href="/faq">FAQ section</a>.</p>
           </div>
         `,
-        metaDescription: "Learn about ChemFormula Pro - the AI-powered platform revolutionizing chemical formulation for small business manufacturers worldwide.",
+        metaDescription: "Learn about AIFormulator - the AI-powered platform revolutionizing chemical formulation for small business manufacturers worldwide.",
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -1468,8 +1468,8 @@ export class MemStorage implements IStorage {
           <div class="prose max-w-none">
             <h1>Frequently Asked Questions</h1>
             
-            <h3>What is ChemFormula Pro?</h3>
-            <p>ChemFormula Pro is an AI-powered platform that generates professional chemical formulations for small business manufacturers. Our system provides instant access to tested formulations across multiple product categories including skincare, cosmetics, cleaning products, and more.</p>
+            <h3>What is AIFormulator?</h3>
+            <p>AIFormulator is an AI-powered platform that generates professional chemical formulations for small business manufacturers. Our system provides instant access to tested formulations across multiple product categories including skincare, cosmetics, cleaning products, and more.</p>
             
             <h3>How does the AI formulation generator work?</h3>
             <p>Our AI system analyzes your specific requirements (product type, pH level, cost constraints, etc.) and generates custom formulations based on our extensive database of professional recipes. Each formulation includes detailed ingredients, mixing instructions, and safety guidelines.</p>
@@ -1499,7 +1499,7 @@ export class MemStorage implements IStorage {
             <p>Our formulations can be used as the basis for commercial products, but you are responsible for ensuring compliance with local regulations, conducting appropriate testing, and meeting quality standards. We recommend working with regulatory experts in your region.</p>
           </div>
         `,
-        metaDescription: "Find answers to common questions about ChemFormula Pro, our AI-powered chemical formulation platform, safety guidelines, and commercial usage.",
+        metaDescription: "Find answers to common questions about AIFormulator, our AI-powered chemical formulation platform, safety guidelines, and commercial usage.",
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -1514,10 +1514,10 @@ export class MemStorage implements IStorage {
             <p><em>Last updated: ${new Date().toLocaleDateString()}</em></p>
             
             <h2>1. Acceptance of Terms</h2>
-            <p>By accessing and using ChemFormula Pro, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
+            <p>By accessing and using AIFormulator, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
             
             <h2>2. Description of Service</h2>
-            <p>ChemFormula Pro is an AI-powered platform that provides chemical formulations for educational and commercial purposes. Our service includes access to formulation databases, AI-generated custom formulations, and related documentation.</p>
+            <p>AIFormulator is an AI-powered platform that provides chemical formulations for educational and commercial purposes. Our service includes access to formulation databases, AI-generated custom formulations, and related documentation.</p>
             
             <h2>3. User Responsibilities</h2>
             <ul>
@@ -1528,10 +1528,10 @@ export class MemStorage implements IStorage {
             </ul>
             
             <h2>4. Intellectual Property</h2>
-            <p>The formulations and content provided by ChemFormula Pro are based on publicly available information and industry standards. While you may use these formulations commercially, you cannot claim exclusive ownership of the basic formulation concepts.</p>
+            <p>The formulations and content provided by AIFormulator are based on publicly available information and industry standards. While you may use these formulations commercially, you cannot claim exclusive ownership of the basic formulation concepts.</p>
             
             <h2>5. Disclaimers and Limitations</h2>
-            <p><strong>IMPORTANT:</strong> ChemFormula Pro provides formulations for informational purposes. We make no warranties about the safety, efficacy, or regulatory compliance of any formulations. Users are solely responsible for:</p>
+            <p><strong>IMPORTANT:</strong> AIFormulator provides formulations for informational purposes. We make no warranties about the safety, efficacy, or regulatory compliance of any formulations. Users are solely responsible for:</p>
             <ul>
               <li>Testing formulations for safety and performance</li>
               <li>Ensuring regulatory compliance</li>
@@ -1540,28 +1540,28 @@ export class MemStorage implements IStorage {
             </ul>
             
             <h2>6. Limitation of Liability</h2>
-            <p>ChemFormula Pro shall not be liable for any direct, indirect, incidental, special, consequential, or punitive damages resulting from the use of our formulations or platform. This includes but is not limited to product failures, injuries, regulatory violations, or business losses.</p>
+            <p>AIFormulator shall not be liable for any direct, indirect, incidental, special, consequential, or punitive damages resulting from the use of our formulations or platform. This includes but is not limited to product failures, injuries, regulatory violations, or business losses.</p>
             
             <h2>7. Professional Consultation</h2>
-            <p>We strongly recommend consulting with qualified chemists, regulatory experts, and legal professionals before using our formulations for commercial purposes. ChemFormula Pro does not provide professional chemical, regulatory, or legal advice.</p>
+            <p>We strongly recommend consulting with qualified chemists, regulatory experts, and legal professionals before using our formulations for commercial purposes. AIFormulator does not provide professional chemical, regulatory, or legal advice.</p>
             
             <h2>8. Account Terms</h2>
-            <p>You are responsible for maintaining the security of your account and password. ChemFormula Pro cannot and will not be liable for any loss or damage from your failure to comply with this security obligation.</p>
+            <p>You are responsible for maintaining the security of your account and password. AIFormulator cannot and will not be liable for any loss or damage from your failure to comply with this security obligation.</p>
             
             <h2>9. Modifications to Service</h2>
-            <p>ChemFormula Pro reserves the right to modify or discontinue, temporarily or permanently, the service with or without notice. We shall not be liable to you or to any third party for any modification, price change, suspension, or discontinuance of the service.</p>
+            <p>AIFormulator reserves the right to modify or discontinue, temporarily or permanently, the service with or without notice. We shall not be liable to you or to any third party for any modification, price change, suspension, or discontinuance of the service.</p>
             
             <h2>10. Privacy Policy</h2>
             <p>Your privacy is important to us. Please review our Privacy Policy, which also governs your use of the service, to understand our practices.</p>
             
             <h2>11. Termination</h2>
-            <p>ChemFormula Pro may terminate your access to the service for violations of these terms. Upon termination, your right to use the service will cease immediately.</p>
+            <p>AIFormulator may terminate your access to the service for violations of these terms. Upon termination, your right to use the service will cease immediately.</p>
             
             <h2>12. Contact Information</h2>
             <p>If you have any questions about these Terms of Service, please contact us through our support channels.</p>
           </div>
         `,
-        metaDescription: "Terms of Service for ChemFormula Pro - understand your rights and responsibilities when using our AI-powered chemical formulation platform.",
+        metaDescription: "Terms of Service for AIFormulator - understand your rights and responsibilities when using our AI-powered chemical formulation platform.",
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -1668,7 +1668,7 @@ export class MemStorage implements IStorage {
             <p>If you have any questions about this Privacy Policy, please contact us through our support channels or privacy contact information.</p>
           </div>
         `,
-        metaDescription: "Privacy Policy for ChemFormula Pro - learn how we collect, use, and protect your personal information on our AI formulation platform.",
+        metaDescription: "Privacy Policy for AIFormulator - learn how we collect, use, and protect your personal information on our AI formulation platform.",
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -1688,7 +1688,7 @@ export class MemStorage implements IStorage {
             </div>
             
             <h2>1. General Disclaimer</h2>
-            <p>The information provided by ChemFormula Pro is for general informational and educational purposes only. All formulations, advice, and recommendations are provided "as is" without warranties of any kind, either express or implied.</p>
+            <p>The information provided by AIFormulator is for general informational and educational purposes only. All formulations, advice, and recommendations are provided "as is" without warranties of any kind, either express or implied.</p>
             
             <h2>2. Professional Consultation Required</h2>
             <p><strong>WARNING:</strong> Chemical formulation requires professional expertise. Before using any formulation for commercial purposes, you must:</p>
@@ -1738,7 +1738,7 @@ export class MemStorage implements IStorage {
             </ul>
             
             <h2>7. Limitations of Liability</h2>
-            <p>ChemFormula Pro, its affiliates, and team members shall not be liable for:</p>
+            <p>AIFormulator, its affiliates, and team members shall not be liable for:</p>
             <ul>
               <li>Product failures or defects</li>
               <li>Regulatory violations or legal issues</li>
@@ -1797,7 +1797,7 @@ export class MemStorage implements IStorage {
             </div>
           </div>
         `,
-        metaDescription: "Important disclaimer for ChemFormula Pro users - understand the risks, responsibilities, and safety requirements for chemical formulation.",
+        metaDescription: "Important disclaimer for AIFormulator users - understand the risks, responsibilities, and safety requirements for chemical formulation.",
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
