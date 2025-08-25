@@ -1,4 +1,4 @@
-import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type ProductProperties, type UserNote, type InsertUserNote } from "@shared/schema";
+import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IAiGeneration {
@@ -39,6 +39,10 @@ export interface IStorage {
   // User Notes
   saveUserNote(userNote: InsertUserNote): Promise<UserNote>;
   getRecommendations(productType: string): Promise<string[]>;
+
+  // User Authentication (required for Replit Auth)
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
 }
 
 export class MemStorage implements IStorage {
@@ -47,6 +51,7 @@ export class MemStorage implements IStorage {
   private aiGenerations: Map<string, IAiGeneration>;
   private productProperties: Map<string, string[]>;
   private userNotes: Map<string, UserNote>;
+  private users: Map<string, User>;
 
   constructor() {
     this.categories = new Map();
@@ -54,6 +59,7 @@ export class MemStorage implements IStorage {
     this.aiGenerations = new Map();
     this.productProperties = new Map();
     this.userNotes = new Map();
+    this.users = new Map();
     // Only seed data if no data exists (first run)
     this.seedInitialData();
   }
@@ -1331,6 +1337,26 @@ export class MemStorage implements IStorage {
     return notes
       .map(note => note.additionalNote)
       .filter(note => note && note.trim().length > 0);
+  }
+
+  // User Authentication methods (required for Replit Auth)
+  async getUser(id: string): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const existingUser = this.users.get(userData.id!);
+    const user: User = {
+      id: userData.id!,
+      email: userData.email || null,
+      firstName: userData.firstName || null,
+      lastName: userData.lastName || null,
+      profileImageUrl: userData.profileImageUrl || null,
+      createdAt: existingUser?.createdAt || new Date(),
+      updatedAt: new Date(),
+    };
+    this.users.set(user.id, user);
+    return user;
   }
 }
 

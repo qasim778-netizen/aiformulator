@@ -7,8 +7,23 @@ import { generateCategory, generateFormulation, generateBulkFormulations, genera
 import { generateFormulationPDF } from "./pdf-generator";
 import { optimizeFormulationsForSEO } from "./seo-optimizer";
 import { generateFormulationImages, addImageFieldToFormulations } from "./image-generator";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Auth middleware
+  await setupAuth(app);
+
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
   // Categories API
   app.get("/api/categories", async (req, res) => {
     try {
@@ -172,8 +187,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Dashboard stats
-  app.get("/api/stats", async (req, res) => {
+  // Dashboard stats (protected admin route)
+  app.get("/api/stats", isAuthenticated, async (req, res) => {
     try {
       const categories = await storage.getCategories();
       const formulations = await storage.getFormulations();
@@ -191,8 +206,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI Analytics endpoint
-  app.get("/api/ai-analytics", async (req, res) => {
+  // AI Analytics endpoint (protected admin route)
+  app.get("/api/ai-analytics", isAuthenticated, async (req, res) => {
     try {
       const type = req.query.type as string || 'generation';
       
@@ -430,8 +445,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // SEO Optimization endpoint
-  app.post("/api/admin/optimize-seo", async (req, res) => {
+  // SEO Optimization endpoint (protected admin route)
+  app.post("/api/admin/optimize-seo", isAuthenticated, async (req, res) => {
     try {
       const result = await optimizeFormulationsForSEO();
       res.status(200).json(result);
@@ -440,8 +455,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Image Generation endpoints
-  app.post("/api/admin/setup-images", async (req, res) => {
+  // Image Generation endpoints (protected admin route)
+  app.post("/api/admin/setup-images", isAuthenticated, async (req, res) => {
     try {
       await addImageFieldToFormulations();
       res.status(200).json({ message: "Image fields added to database successfully" });
@@ -450,7 +465,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/generate-images", async (req, res) => {
+  app.post("/api/admin/generate-images", isAuthenticated, async (req, res) => {
     try {
       const result = await generateFormulationImages();
       res.status(200).json(result);
@@ -459,8 +474,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI Generation endpoints
-  app.post("/api/ai/generate-category", async (req, res) => {
+  // AI Generation endpoints (protected admin routes)
+  app.post("/api/ai/generate-category", isAuthenticated, async (req, res) => {
     try {
       const { description } = req.body;
       if (!description) {
@@ -480,7 +495,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/generate-formulation", async (req, res) => {
+  app.post("/api/ai/generate-formulation", isAuthenticated, async (req, res) => {
     try {
       const { categoryId, productDescription } = req.body;
       if (!categoryId || !productDescription) {
@@ -504,8 +519,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Bulk AI Generation endpoint
-  app.post("/api/ai/generate-bulk-formulations", async (req, res) => {
+  // Bulk AI Generation endpoint (protected admin route)
+  app.post("/api/ai/generate-bulk-formulations", isAuthenticated, async (req, res) => {
     try {
       const { categoryId, count } = req.body;
       if (!categoryId || !count) {

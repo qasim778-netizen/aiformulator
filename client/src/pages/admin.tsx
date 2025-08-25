@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Sparkles, Package, BarChart3, TrendingUp, Users, Globe } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Sparkles, Package, BarChart3, TrendingUp, Users, Globe, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
 import { HelpButton } from "@/components/ui/help-button";
 import { useGuidance } from "@/hooks/use-guidance";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -34,6 +35,22 @@ export default function AdminPage() {
   const [editingFormulation, setEditingFormulation] = useState<Formulation | null>(null);
   const { toast } = useToast();
   const { startGuidance, isCompleted } = useGuidance();
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Unauthorized",
+        description: "You need to log in to access the admin dashboard. Redirecting...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 1000);
+      return;
+    }
+  }, [isAuthenticated, isLoading, toast]);
 
   // Auto-start guidance for first-time users
   useEffect(() => {
@@ -180,6 +197,33 @@ export default function AdminPage() {
     setEditingFormulation(null);
   };
 
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span className="text-lg text-gray-600">Checking authentication...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render admin content if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Restricted</h1>
+          <p className="text-gray-600 mb-6">You need to log in to access the admin dashboard.</p>
+          <a href="/api/login" className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+            Log In
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Admin Header */}
@@ -197,9 +241,29 @@ export default function AdminPage() {
             </div>
             <div className="flex items-center space-x-4">
               <HelpButton flowId="admin-overview" />
-              <span className="text-sm text-gray-600">Welcome, Administrator</span>
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                <User className="text-white text-sm h-4 w-4" />
+              <span className="text-sm text-gray-600">
+                Welcome, {user?.firstName || user?.email || 'Administrator'}
+              </span>
+              <div className="flex items-center space-x-2">
+                {user?.profileImageUrl ? (
+                  <img 
+                    src={user.profileImageUrl} 
+                    alt="Profile" 
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                    <User className="text-white text-sm h-4 w-4" />
+                  </div>
+                )}
+                <a 
+                  href="/api/logout"
+                  className="flex items-center text-sm text-gray-600 hover:text-gray-900 px-2 py-1 rounded hover:bg-gray-100"
+                  data-testid="logout-button"
+                >
+                  <LogOut className="h-4 w-4 mr-1" />
+                  Logout
+                </a>
               </div>
             </div>
           </div>

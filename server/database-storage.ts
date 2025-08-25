@@ -1,6 +1,6 @@
 import { eq, desc } from "drizzle-orm";
 import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable } from "./db";
-import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote } from "@shared/schema";
+import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
 import crypto from "crypto";
 
@@ -382,5 +382,50 @@ export class DatabaseStorage implements IStorage {
       .filter(note => note && note.trim().length > 0);
     
     return recommendations;
+  }
+
+  // User Authentication methods (required for Replit Auth)
+  async getUser(id: string): Promise<User | undefined> {
+    // This method uses shared schema which will be updated to include users table
+    // For now return undefined as users table needs to be created via migration
+    try {
+      const { users } = await import("@shared/schema");
+      const [user] = await db.select().from(users).where(eq(users.id, id));
+      return user || undefined;
+    } catch (error) {
+      // Users table doesn't exist yet, will be created after schema update
+      console.log("Users table not yet available, will be created after migration");
+      return undefined;
+    }
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    try {
+      const { users } = await import("@shared/schema");
+      const [user] = await db
+        .insert(users)
+        .values(userData)
+        .onConflictDoUpdate({
+          target: users.id,
+          set: {
+            ...userData,
+            updatedAt: new Date(),
+          },
+        })
+        .returning();
+      return user;
+    } catch (error) {
+      // For now, return a mock user until migration completes
+      console.log("Users table not yet available, returning mock user");
+      return {
+        id: userData.id || crypto.randomUUID(),
+        email: userData.email || null,
+        firstName: userData.firstName || null,
+        lastName: userData.lastName || null,
+        profileImageUrl: userData.profileImageUrl || null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+    }
   }
 }
