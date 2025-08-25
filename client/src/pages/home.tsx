@@ -14,12 +14,12 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-blue-50 to-white overflow-x-hidden w-full">
       <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-6 w-full max-w-none">
         {/* Hero Section - Hidden when in wizard */}
-        <div className="text-center mb-8"></div>
+        <div className="text-center mb-4"></div>
 
         {/* Main Navigation Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-6xl mx-auto">
           {!isWizardActive && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <Card 
                 className={`cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] ${
                   activeTab === 'formulator' 
@@ -29,9 +29,9 @@ export default function Home() {
                 onClick={() => setActiveTab('formulator')}
                 data-testid="tab-formulator"
               >
-                <CardContent className="p-8 text-center">
-                  <div className="bg-gradient-to-br from-purple-500 to-pink-500 text-white p-6 rounded-2xl w-20 h-20 flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <Sparkles className="h-10 w-10" />
+                <CardContent className="p-5 text-center">
+                  <div className="bg-gradient-to-br from-purple-500 to-pink-500 text-white p-4 rounded-xl w-16 h-16 flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <Sparkles className="h-8 w-8" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Create Custom Formula</h3>
                   <p className="text-gray-600 text-sm">AI-powered formulation wizard with precise specifications</p>
@@ -47,9 +47,9 @@ export default function Home() {
                 onClick={() => setActiveTab('browse')}
                 data-testid="tab-browse"
               >
-                <CardContent className="p-6 text-center">
-                  <div className="bg-gradient-to-br from-blue-500 to-teal-500 text-white p-6 rounded-2xl w-20 h-20 flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <BookOpen className="h-10 w-10" />
+                <CardContent className="p-5 text-center">
+                  <div className="bg-gradient-to-br from-blue-500 to-teal-500 text-white p-4 rounded-xl w-16 h-16 flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <BookOpen className="h-8 w-8" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Ready-Made Formulas</h3>
                   <p className="text-gray-600 text-sm">68+ professional formulations across 10 categories</p>
