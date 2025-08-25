@@ -13,7 +13,7 @@ interface GuidanceConfig {
   [key: string]: TooltipStep[];
 }
 
-const GUIDANCE_STORAGE_KEY = "chemformula_guidance_completed";
+const GUIDANCE_STORAGE_KEY = "aiformulator_guidance_completed";
 
 // Predefined guidance flows for different pages/features
 const guidanceFlows: GuidanceConfig = {

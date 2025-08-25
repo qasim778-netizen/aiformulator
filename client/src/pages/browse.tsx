@@ -158,7 +158,7 @@ export default function Browse() {
       <section id="about" className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-inter font-bold text-gray-900 mb-4">About ChemFormula Pro</h2>
+            <h2 className="text-3xl font-inter font-bold text-gray-900 mb-4">About AI Formulator</h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               We provide professional chemical formulations for small business manufacturers 
               who want to create high-quality products efficiently and cost-effectively.
@@ -226,7 +226,7 @@ export default function Browse() {
                 </svg>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Email Us</h3>
-              <p className="text-gray-600">support@chemformula.pro</p>
+              <p className="text-gray-600">support@aiformulator.com</p>
             </div>
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">

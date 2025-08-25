@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/search-bar";
+import logoImage from "@assets/logo_1756133481367.png";
 
 export default function Navbar() {
   const [location] = useLocation();
@@ -23,9 +24,16 @@ export default function Navbar() {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <Link href="/">
-                <h1 className="text-xl font-inter font-bold text-primary cursor-pointer">
-                  ChemFormula Pro
-                </h1>
+                <div className="flex items-center space-x-3 cursor-pointer">
+                  <img 
+                    src={logoImage} 
+                    alt="AI Formulator Logo" 
+                    className="h-10 w-10"
+                  />
+                  <h1 className="text-xl font-inter font-bold text-primary">
+                    AI Formulator
+                  </h1>
+                </div>
               </Link>
             </div>
             <div className="hidden md:block ml-10">
