@@ -81,8 +81,14 @@ export default function FormulationPage() {
         title: "PDF Downloaded",
         description: `Formulation report for ${formulation.name} has been downloaded.`
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating PDF:', error);
+      
+      // Don't show error toast if sign-in dialog is being shown
+      if (showSignInDialog) {
+        return;
+      }
+      
       toast({
         title: "Download Failed",
         description: "There was an error downloading the formulation report. Please try again.",

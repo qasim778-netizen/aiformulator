@@ -61,8 +61,9 @@ export default function AIFormulator() {
 
       if (!response.ok) {
         if (response.status === 401) {
+          setIsGenerating(false);
           setShowSignInDialog(true);
-          throw new Error("Authentication required");
+          return null; // Don't throw error, just show dialog
         }
         const error = await response.json();
         throw new Error(error.message || "Failed to generate formulation");
@@ -86,21 +87,29 @@ export default function AIFormulator() {
       return data;
     },
     onSuccess: (data: FormulatorData) => {
-      toast({
-        title: "Formulation Generated Successfully!",
-        description: `Created formulation for ${data.productName} and downloaded PDF`,
-      });
-      
-      form.reset();
+      if (data) { // Only show success if data exists (not null from auth error)
+        toast({
+          title: "Formulation Generated Successfully!",
+          description: `Created formulation for ${data.productName} and downloaded PDF`,
+        });
+        
+        form.reset();
+      }
       setIsGenerating(false);
     },
     onError: (error: any) => {
+      setIsGenerating(false);
+      
+      // Don't show error toast for authentication errors since dialog will handle it
+      if (error.message === "Authentication required") {
+        return;
+      }
+      
       toast({
         title: "Generation Failed",
         description: error.message || "Please try again",
         variant: "destructive",
       });
-      setIsGenerating(false);
     },
   });
 
