@@ -68,14 +68,14 @@ export default function Browse() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-blue-50 to-white py-8">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-blue-50 to-white py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-3xl md:text-4xl font-inter font-bold text-gray-900 mb-4">
+            <h1 className="text-2xl md:text-3xl font-inter font-bold text-gray-900 mb-3">
               Professional Chemical
               <span className="text-primary block">Formulations</span>
             </h1>
-            <p className="text-lg text-gray-600 mb-4 max-w-3xl mx-auto">
+            <p className="text-base text-gray-600 mb-3 max-w-3xl mx-auto">
               Access 68+ ready-to-use professional formulations across 10 product categories. 
               Perfect for small business manufacturers looking to create high-quality chemical products.
             </p>

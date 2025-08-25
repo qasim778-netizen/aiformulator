@@ -47,7 +47,7 @@ export default function Home() {
                 onClick={() => setActiveTab('browse')}
                 data-testid="tab-browse"
               >
-                <CardContent className="p-8 text-center">
+                <CardContent className="p-6 text-center">
                   <div className="bg-gradient-to-br from-blue-500 to-teal-500 text-white p-6 rounded-2xl w-20 h-20 flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <BookOpen className="h-10 w-10" />
                   </div>
@@ -62,18 +62,18 @@ export default function Home() {
             <AIFormulatorWizard onWizardStateChange={setIsWizardActive} />
           </TabsContent>
 
-          <TabsContent value="browse" className="mt-8">
+          <TabsContent value="browse" className="mt-4">
             <Card className="max-w-4xl mx-auto shadow-lg">
-              <CardContent className="p-12 text-center">
+              <CardContent className="p-8 text-center">
                 <div className="flex items-center justify-center mb-6">
                   <BookOpen className="h-12 w-12 text-primary mr-4" />
-                  <h2 className="text-3xl font-bold text-gray-900">Formulation Library</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">Formulation Library</h2>
                 </div>
-                <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                <p className="text-base text-gray-600 mb-6 max-w-2xl mx-auto">
                   Access 68+ ready-to-use professional formulations across 10 product categories. 
                   Create high-quality chemical products with tested recipes and detailed specifications.
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   <div className="text-center">
                     <div className="bg-primary/10 rounded-full p-4 w-16 h-16 flex items-center justify-center mx-auto mb-3">
                       <Beaker className="h-8 w-8 text-primary" />

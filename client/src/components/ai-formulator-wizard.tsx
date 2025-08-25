@@ -196,7 +196,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   if (!showWizard) {
     return (
       <Card className="w-full max-w-4xl mx-auto shadow-lg bg-gradient-to-br from-blue-50 to-white overflow-hidden" data-testid="ai-formulator-landing">
-        <CardContent className="p-4 text-center w-full box-border">
+        <CardContent className="p-3 text-center w-full box-border">
           {/* Header */}
           <div className="flex items-center justify-center mb-4">
             <div className="bg-blue-600 text-white p-3 rounded-xl">
@@ -205,16 +205,16 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
           </div>
 
           {/* Main Title */}
-          <h2 className="text-3xl font-bold text-gray-900 mb-3">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
             Create Perfect Formulations
           </h2>
-          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+          <p className="text-gray-600 mb-4 max-w-2xl mx-auto text-sm">
             Advanced AI-powered formulation platform with precise specifications, manufacturing 
             protocols, and comprehensive documentation.
           </p>
 
           {/* Feature Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 overflow-hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 overflow-hidden">
             <div className="bg-white p-4 rounded-xl shadow-md border border-gray-100">
               <div className="bg-green-100 text-green-600 p-3 rounded-xl w-12 h-12 flex items-center justify-center mx-auto mb-3">
                 <Settings className="h-6 w-6" />

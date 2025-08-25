@@ -49,11 +49,11 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center" style={{ minHeight: `${Math.max(64, logoSettings.logoSize + 24)}px` }}>
+        <div className="flex justify-between items-center" style={{ minHeight: `${Math.max(48, logoSettings.logoSize + 16)}px` }}>
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <Link href="/">
-                <div className="flex items-center space-x-3 cursor-pointer">
+                <div className="flex items-center space-x-2 cursor-pointer">
                   <img 
                     src={logoSettings.logoUrl} 
                     alt={`${logoSettings.companyName} Logo`}
@@ -67,7 +67,7 @@ export default function Navbar() {
                       e.currentTarget.src = logoImage; // Fallback to default
                     }}
                   />
-                  <h1 className="text-xl font-inter font-bold text-primary">
+                  <h1 className="text-lg font-inter font-bold text-primary">
                     {logoSettings.companyName}
                   </h1>
                 </div>
