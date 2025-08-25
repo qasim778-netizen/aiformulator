@@ -209,16 +209,16 @@ export default function LogoSettings() {
               <Slider
                 value={[settings.logoSize]}
                 onValueChange={handleSizeChange}
-                max={80}
+                max={200}
                 min={20}
-                step={5}
+                step={10}
                 className="w-full"
                 data-testid="slider-logo-size"
               />
               <div className="flex justify-between text-xs text-gray-500 mt-1">
                 <span>20px</span>
-                <span>50px</span>
-                <span>80px</span>
+                <span>110px</span>
+                <span>200px</span>
               </div>
             </div>
           </div>
