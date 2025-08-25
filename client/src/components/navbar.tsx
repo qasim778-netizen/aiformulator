@@ -49,7 +49,7 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center" style={{ minHeight: `${Math.max(64, logoSettings.logoSize + 24)}px` }}>
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <Link href="/">
@@ -57,7 +57,11 @@ export default function Navbar() {
                   <img 
                     src={logoSettings.logoUrl} 
                     alt={`${logoSettings.companyName} Logo`}
-                    style={{ height: `${logoSettings.logoSize}px` }}
+                    style={{ 
+                      height: `${logoSettings.logoSize}px`,
+                      maxHeight: `${logoSettings.logoSize}px`,
+                      width: 'auto'
+                    }}
                     className="object-contain"
                     onError={(e) => {
                       e.currentTarget.src = logoImage; // Fallback to default
