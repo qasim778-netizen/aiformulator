@@ -1,11 +1,40 @@
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/search-bar";
 import logoImage from "@assets/logo_1756133481367.png";
 
+interface LogoSettings {
+  logoUrl: string;
+  logoSize: number;
+  companyName: string;
+}
+
 export default function Navbar() {
   const [location] = useLocation();
+  const [logoSettings, setLogoSettings] = useState<LogoSettings>(() => {
+    // Load from localStorage or use defaults
+    const saved = localStorage.getItem('ai_formulator_logo_settings');
+    return saved ? JSON.parse(saved) : {
+      logoUrl: logoImage,
+      logoSize: 40,
+      companyName: 'AI Formulator'
+    };
+  });
+  
+  // Listen for logo settings changes
+  useEffect(() => {
+    const handleLogoSettingsChange = (event: any) => {
+      setLogoSettings(event.detail);
+    };
+    
+    window.addEventListener('logoSettingsChanged', handleLogoSettingsChange);
+    
+    return () => {
+      window.removeEventListener('logoSettingsChanged', handleLogoSettingsChange);
+    };
+  }, []);
 
   const isActive = (path: string) => location === path;
 
@@ -26,12 +55,16 @@ export default function Navbar() {
               <Link href="/">
                 <div className="flex items-center space-x-3 cursor-pointer">
                   <img 
-                    src={logoImage} 
-                    alt="AI Formulator Logo" 
-                    className="h-10 w-10"
+                    src={logoSettings.logoUrl} 
+                    alt={`${logoSettings.companyName} Logo`}
+                    style={{ height: `${logoSettings.logoSize}px` }}
+                    className="object-contain"
+                    onError={(e) => {
+                      e.currentTarget.src = logoImage; // Fallback to default
+                    }}
                   />
                   <h1 className="text-xl font-inter font-bold text-primary">
-                    AI Formulator
+                    {logoSettings.companyName}
                   </h1>
                 </div>
               </Link>
