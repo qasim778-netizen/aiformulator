@@ -31,10 +31,27 @@ export default function Footer() {
                   </span>
                 </Link>
               </li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Documentation</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Technical Support</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Contact Us</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">FAQ</a></li>
+              <li>
+                <Link href="/about">
+                  <span className="hover:text-white transition-colors duration-200 cursor-pointer" data-testid="link-footer-about">
+                    About Us
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact">
+                  <span className="hover:text-white transition-colors duration-200 cursor-pointer" data-testid="link-footer-contact">
+                    Contact Us
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq">
+                  <span className="hover:text-white transition-colors duration-200 cursor-pointer" data-testid="link-footer-faq">
+                    FAQ
+                  </span>
+                </Link>
+              </li>
             </ul>
           </div>
           <div>

@@ -11,6 +11,9 @@ import Browse from "@/pages/browse";
 import Category from "@/pages/category";
 import Formulation from "@/pages/formulation";
 import Admin from "@/pages/admin";
+import About from "@/pages/about";
+import Contact from "@/pages/contact";
+import FAQ from "@/pages/faq";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 
@@ -22,6 +25,9 @@ function Router() {
       <Route path="/category/:id" component={Category} />
       <Route path="/formulation/:id" component={Formulation} />
       <Route path="/admin" component={Admin} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/faq" component={FAQ} />
       <Route component={NotFound} />
     </Switch>
   );

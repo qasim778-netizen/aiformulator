@@ -93,18 +93,33 @@ export default function Navbar() {
                     Find Formulation
                   </span>
                 </Link>
-                <a 
-                  href="#about" 
-                  className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  About
-                </a>
-                <a 
-                  href="#contact" 
-                  className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  Contact
-                </a>
+                <Link href="/about">
+                  <span className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer ${
+                    isActive("/about") 
+                      ? "text-primary" 
+                      : "text-gray-600 hover:text-primary"
+                  }`} data-testid="link-about">
+                    About
+                  </span>
+                </Link>
+                <Link href="/contact">
+                  <span className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer ${
+                    isActive("/contact") 
+                      ? "text-primary" 
+                      : "text-gray-600 hover:text-primary"
+                  }`} data-testid="link-contact">
+                    Contact
+                  </span>
+                </Link>
+                <Link href="/faq">
+                  <span className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer ${
+                    isActive("/faq") 
+                      ? "text-primary" 
+                      : "text-gray-600 hover:text-primary"
+                  }`} data-testid="link-faq">
+                    FAQ
+                  </span>
+                </Link>
               </div>
             </div>
           </div>
