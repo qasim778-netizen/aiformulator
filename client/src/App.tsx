@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TooltipGuidance, GuidanceProvider } from "@/components/ui/tooltip-guidance";
+import { ChatWidget } from "@/components/chat-widget";
 import { useGuidance } from "@/hooks/use-guidance";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
@@ -41,6 +43,7 @@ function Router() {
 
 function AppContent() {
   const { activeFlow, completeGuidance, skipGuidance, getSteps } = useGuidance();
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
     <GuidanceProvider>
@@ -60,6 +63,11 @@ function AppContent() {
           isActive={true}
         />
       )}
+      
+      <ChatWidget 
+        isOpen={isChatOpen} 
+        onToggle={() => setIsChatOpen(!isChatOpen)} 
+      />
       
       <Toaster />
     </GuidanceProvider>

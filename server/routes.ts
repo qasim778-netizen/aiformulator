@@ -1,8 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { WebSocketServer, WebSocket } from "ws";
 import crypto from "crypto";
 import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema, insertUserNoteSchema, insertPageSchema } from "@shared/schema";
+import type { ChatMessage, InsertChatMessage } from "@shared/schema";
 import { generateCategory, generateFormulation, generateBulkFormulations, generateProductTypes, generateCustomFormulation } from "./ai";
 import { generateFormulationPDF } from "./pdf-generator";
 import { optimizeFormulationsForSEO } from "./seo-optimizer";
@@ -778,6 +780,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Chat API endpoints
+  app.get("/api/chat/messages/:sessionId", async (req, res) => {
+    try {
+      const messages = await storage.getChatMessages(req.params.sessionId);
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch chat messages" });
+    }
+  });
+
+  app.post("/api/chat/messages", async (req, res) => {
+    try {
+      const messageData: InsertChatMessage = req.body;
+      const message = await storage.createChatMessage(messageData);
+      
+      // Broadcast to all connected clients in the same session
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          const clientData = (client as any).sessionId;
+          if (clientData === message.sessionId) {
+            client.send(JSON.stringify({
+              type: 'new_message',
+              data: message
+            }));
+          }
+        }
+      });
+      
+      res.status(201).json(message);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
   const httpServer = createServer(app);
+  
+  // WebSocket server for real-time chat
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  wss.on('connection', (ws, req) => {
+    console.log('New WebSocket connection');
+    
+    ws.on('message', (data) => {
+      try {
+        const message = JSON.parse(data.toString());
+        
+        if (message.type === 'join_session') {
+          (ws as any).sessionId = message.sessionId;
+          console.log(`Client joined session: ${message.sessionId}`);
+        }
+        
+        if (message.type === 'chat_message') {
+          // Store message in database and broadcast
+          storage.createChatMessage({
+            sessionId: message.sessionId,
+            message: message.content,
+            senderType: message.senderType,
+            senderName: message.senderName
+          }).then((newMessage) => {
+            // Broadcast to all clients in the same session
+            wss.clients.forEach((client) => {
+              if (client.readyState === WebSocket.OPEN) {
+                const clientSessionId = (client as any).sessionId;
+                if (clientSessionId === message.sessionId) {
+                  client.send(JSON.stringify({
+                    type: 'new_message',
+                    data: newMessage
+                  }));
+                }
+              }
+            });
+          });
+        }
+      } catch (error) {
+        console.error('WebSocket message error:', error);
+      }
+    });
+    
+    ws.on('close', () => {
+      console.log('WebSocket connection closed');
+    });
+  });
+
   return httpServer;
 }

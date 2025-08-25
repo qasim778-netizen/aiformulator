@@ -113,6 +113,19 @@ export const users = pgTable("users", {
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 
+// Chat messages table for human farmulator chat
+export const chatMessages = pgTable("chat_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sessionId: varchar("session_id").notNull(),
+  message: text("message").notNull(),
+  senderType: varchar("sender_type").notNull(), // 'user' or 'admin'
+  senderName: varchar("sender_name"),
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = typeof chatMessages.$inferInsert;
+
 // Pages content management table
 export const pages = pgTable("pages", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),

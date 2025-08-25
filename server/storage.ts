@@ -1,4 +1,4 @@
-import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser, type Page, type InsertPage } from "@shared/schema";
+import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser, type Page, type InsertPage, type ChatMessage, type InsertChatMessage } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IAiGeneration {
@@ -50,6 +50,10 @@ export interface IStorage {
   createPage(page: InsertPage): Promise<Page>;
   updatePage(id: string, page: Partial<InsertPage>): Promise<Page | undefined>;
   deletePage(id: string): Promise<boolean>;
+
+  // Chat methods
+  getChatMessages(sessionId: string): Promise<ChatMessage[]>;
+  createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
 }
 
 export class MemStorage implements IStorage {
@@ -60,6 +64,7 @@ export class MemStorage implements IStorage {
   private userNotes: Map<string, UserNote>;
   private users: Map<string, User>;
   private pages: Map<string, Page>;
+  private chatMessages: Map<string, ChatMessage[]>;
 
   constructor() {
     this.categories = new Map();
@@ -69,6 +74,7 @@ export class MemStorage implements IStorage {
     this.userNotes = new Map();
     this.users = new Map();
     this.pages = new Map();
+    this.chatMessages = new Map();
     // Only seed data if no data exists (first run)
     this.seedInitialData();
     this.seedPages();
@@ -1801,6 +1807,29 @@ export class MemStorage implements IStorage {
     commonPages.forEach(page => {
       this.pages.set(page.id, page);
     });
+  }
+
+  // Chat methods implementation
+  async getChatMessages(sessionId: string): Promise<ChatMessage[]> {
+    return this.chatMessages.get(sessionId) || [];
+  }
+
+  async createChatMessage(messageData: InsertChatMessage): Promise<ChatMessage> {
+    const message: ChatMessage = {
+      id: randomUUID(),
+      sessionId: messageData.sessionId,
+      message: messageData.message,
+      senderType: messageData.senderType,
+      senderName: messageData.senderName,
+      timestamp: new Date(),
+    };
+
+    if (!this.chatMessages.has(messageData.sessionId)) {
+      this.chatMessages.set(messageData.sessionId, []);
+    }
+
+    this.chatMessages.get(messageData.sessionId)!.push(message);
+    return message;
   }
 }
 

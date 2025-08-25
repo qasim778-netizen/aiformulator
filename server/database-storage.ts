@@ -1,6 +1,6 @@
 import { eq, desc } from "drizzle-orm";
 import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable } from "./db";
-import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage } from "@shared/schema";
+import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, ChatMessage, InsertChatMessage } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
 import crypto from "crypto";
 
@@ -485,6 +485,32 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error("Failed to delete page:", error);
       return false;
+    }
+  }
+
+  // Chat methods implementation
+  async getChatMessages(sessionId: string): Promise<ChatMessage[]> {
+    try {
+      const { chatMessages } = await import("@shared/schema");
+      return await db.select().from(chatMessages).where(eq(chatMessages.sessionId, sessionId)).orderBy(chatMessages.timestamp);
+    } catch (error) {
+      console.log("Chat messages table not yet available, returning empty array");
+      return [];
+    }
+  }
+
+  async createChatMessage(messageData: InsertChatMessage): Promise<ChatMessage> {
+    try {
+      const { chatMessages } = await import("@shared/schema");
+      const [message] = await db.insert(chatMessages).values({
+        ...messageData,
+        id: crypto.randomUUID(),
+        timestamp: new Date()
+      }).returning();
+      return message;
+    } catch (error) {
+      console.error("Failed to create chat message:", error);
+      throw new Error("Failed to create chat message");
     }
   }
 }
