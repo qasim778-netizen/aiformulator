@@ -69,12 +69,6 @@ export default function Navbar() {
               placeholder="Search formulations or categories…"
               className="w-64 md:w-80"
             />
-            <Link href="/admin">
-              <Button className="bg-primary text-white hover:bg-blue-700">
-                <Settings className="h-4 w-4 mr-2" />
-                Admin
-              </Button>
-            </Link>
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { Settings } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -47,6 +48,14 @@ export default function Footer() {
         </div>
         <div className="border-t border-gray-600 mt-8 pt-8 text-center text-sm text-gray-300">
           <p>&copy; 2024 ChemFormula Pro. All rights reserved.</p>
+          <div className="mt-4">
+            <Link href="/admin">
+              <span className="text-xs text-gray-400 hover:text-gray-300 transition-colors duration-200 cursor-pointer inline-flex items-center">
+                <Settings className="h-3 w-3 mr-1" />
+                System Administration
+              </span>
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
