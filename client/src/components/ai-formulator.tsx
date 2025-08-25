@@ -49,8 +49,8 @@ export default function AIFormulator() {
     },
   });
 
-  const generateFormulation = useMutation({
-    mutationFn: async (data: FormulatorData) => {
+  const generateFormulation = useMutation<FormulatorData | null, Error, FormulatorData>({
+    mutationFn: async (data: FormulatorData): Promise<FormulatorData | null> => {
       const response = await fetch("/api/ai/custom-formulation", {
         method: "POST",
         headers: {
@@ -63,7 +63,7 @@ export default function AIFormulator() {
         if (response.status === 401) {
           setIsGenerating(false);
           setShowSignInDialog(true);
-          return null; // Don't throw error, just show dialog
+          return null;
         }
         const error = await response.json();
         throw new Error(error.message || "Failed to generate formulation");
@@ -86,13 +86,12 @@ export default function AIFormulator() {
       
       return data;
     },
-    onSuccess: (data: FormulatorData) => {
-      if (data) { // Only show success if data exists (not null from auth error)
+    onSuccess: (data: FormulatorData | null) => {
+      if (data) {
         toast({
           title: "Formulation Generated Successfully!",
           description: `Created formulation for ${data.productName} and downloaded PDF`,
         });
-        
         form.reset();
       }
       setIsGenerating(false);
