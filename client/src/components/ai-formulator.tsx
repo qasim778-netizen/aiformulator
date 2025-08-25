@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Loader2, Download, FileText, Beaker } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import SignInDialog from "@/components/signin-dialog";
 
 const formulatorSchema = z.object({
   productName: z.string().min(1, "Product name is required"),
@@ -30,6 +31,7 @@ type FormulatorData = z.infer<typeof formulatorSchema>;
 
 export default function AIFormulator() {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showSignInDialog, setShowSignInDialog] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<FormulatorData>({
@@ -58,6 +60,10 @@ export default function AIFormulator() {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          setShowSignInDialog(true);
+          throw new Error("Authentication required");
+        }
         const error = await response.json();
         throw new Error(error.message || "Failed to generate formulation");
       }
@@ -104,7 +110,8 @@ export default function AIFormulator() {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto shadow-lg" data-testid="ai-formulator-card">
+    <>
+      <Card className="w-full max-w-4xl mx-auto shadow-lg" data-testid="ai-formulator-card">
       <CardHeader className="text-center bg-gradient-to-r from-primary/5 to-blue-50">
         <div className="flex items-center justify-center mb-4">
           <Beaker className="h-8 w-8 text-primary mr-3" />
@@ -340,5 +347,13 @@ export default function AIFormulator() {
         </Form>
       </CardContent>
     </Card>
+    
+    <SignInDialog 
+      open={showSignInDialog}
+      onOpenChange={setShowSignInDialog}
+      title="Sign In to Generate"
+      description="Please sign in to generate and download your custom formulation as a PDF."
+    />
+    </>
   );
 }

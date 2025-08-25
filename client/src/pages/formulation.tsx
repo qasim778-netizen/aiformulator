@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useCallback } from "react";
 import type { Formulation, Category } from "@shared/schema";
+import SignInDialog from "@/components/signin-dialog";
 import cleaningProductsGuide from "@/assets/generated-images/cleaning-products-guide.png";
 import woodFloorCleaner from "@/assets/generated-images/wood-floor-cleaner.png";
 import glassCleaner from "@/assets/generated-images/glass-cleaner.png";
@@ -29,6 +30,7 @@ export default function FormulationPage() {
   const formulationId = params.id;
   const { toast } = useToast();
   const [isFavorited, setIsFavorited] = useState(false);
+  const [showSignInDialog, setShowSignInDialog] = useState(false);
 
   const { data: formulation, isLoading: formulationLoading } = useQuery<Formulation>({
     queryKey: ["/api/formulations", formulationId],
@@ -58,6 +60,10 @@ export default function FormulationPage() {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          setShowSignInDialog(true);
+          return;
+        }
         throw new Error("Failed to generate PDF");
       }
 
@@ -516,6 +522,13 @@ export default function FormulationPage() {
           </CardContent>
         </Card>
       </div>
+      
+      <SignInDialog 
+        open={showSignInDialog}
+        onOpenChange={setShowSignInDialog}
+        title="Sign In to Download"
+        description="Please sign in to download this formulation as a PDF report."
+      />
     </div>
   );
 }

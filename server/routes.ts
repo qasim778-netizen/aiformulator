@@ -561,7 +561,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Custom AI Formulation with PDF Generation
-  app.post("/api/ai/custom-formulation", async (req, res) => {
+  app.post("/api/ai/custom-formulation", isAuthenticated, async (req, res) => {
     const startTime = Date.now();
     try {
       const {
@@ -640,7 +640,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // PDF Generation for existing formulations
-  app.post("/api/formulations/:id/pdf", async (req, res) => {
+  app.post("/api/formulations/:id/pdf", isAuthenticated, async (req, res) => {
     try {
       const formulationId = req.params.id;
       const formulation = await storage.getFormulation(formulationId);
