@@ -29,7 +29,7 @@ export function ChatWidget({ isOpen, onToggle }: ChatWidgetProps) {
     }
 
     return () => {
-      if (wsRef.current) {
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         wsRef.current.close();
         wsRef.current = null;
       }
@@ -73,6 +73,16 @@ export function ChatWidget({ isOpen, onToggle }: ChatWidgetProps) {
     wsRef.current.onclose = () => {
       console.log("WebSocket disconnected");
       setIsConnected(false);
+      wsRef.current = null;
+      
+      // Auto-reconnect after 3 seconds if chat is still open
+      if (isOpen) {
+        setTimeout(() => {
+          if (isOpen && !wsRef.current) {
+            connectWebSocket();
+          }
+        }, 3000);
+      }
     };
 
     wsRef.current.onerror = (error) => {
@@ -138,7 +148,8 @@ export function ChatWidget({ isOpen, onToggle }: ChatWidgetProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const formatTime = (timestamp: Date | string) => {
+  const formatTime = (timestamp: Date | string | null) => {
+    if (!timestamp) return '';
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };

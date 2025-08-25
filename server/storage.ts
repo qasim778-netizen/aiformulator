@@ -1820,7 +1820,7 @@ export class MemStorage implements IStorage {
       sessionId: messageData.sessionId,
       message: messageData.message,
       senderType: messageData.senderType,
-      senderName: messageData.senderName,
+      senderName: messageData.senderName || null,
       timestamp: new Date(),
     };
 

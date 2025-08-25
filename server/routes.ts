@@ -795,21 +795,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const messageData: InsertChatMessage = req.body;
       const message = await storage.createChatMessage(messageData);
       
-      // Broadcast to all connected clients in the same session
-      wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-          const clientData = (client as any).sessionId;
-          if (clientData === message.sessionId) {
-            client.send(JSON.stringify({
-              type: 'new_message',
-              data: message
-            }));
+      // Broadcast to all connected clients in the same session via WebSocket
+      if (typeof wss !== 'undefined') {
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            const clientData = (client as any).sessionId;
+            if (clientData === message.sessionId) {
+              client.send(JSON.stringify({
+                type: 'new_message',
+                data: message
+              }));
+            }
           }
-        }
-      });
+        });
+      }
       
       res.status(201).json(message);
     } catch (error) {
+      console.error('Error in POST /api/chat/messages:', error);
       res.status(500).json({ message: "Failed to send message" });
     }
   });
@@ -851,6 +854,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 }
               }
             });
+          }).catch((error) => {
+            console.error('Error creating chat message:', error);
+            ws.send(JSON.stringify({
+              type: 'error',
+              message: 'Failed to send message'
+            }));
           });
         }
       } catch (error) {

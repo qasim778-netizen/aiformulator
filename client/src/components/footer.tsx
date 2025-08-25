@@ -7,10 +7,17 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-inter font-semibold mb-4">AI Formulator</h3>
-            <p className="text-gray-300 text-sm">
-              Professional chemical formulations for small business manufacturers worldwide.
+            <h3 className="text-lg font-inter font-semibold mb-4">ChemFormula Pro</h3>
+            <p className="text-gray-300 text-sm mb-3">
+              Revolutionary AI-powered platform that democratizes access to professional-grade chemical formulations for small business manufacturers worldwide.
             </p>
+            <div className="space-y-2 text-xs text-gray-400">
+              <div>🤖 <span className="font-medium">AI-Powered Intelligence:</span> Advanced algorithms trained on thousands of professional formulations</div>
+              <div>📊 <span className="font-medium">Instant Generation:</span> Custom formulations in seconds based on your specific requirements</div>
+              <div>📋 <span className="font-medium">Professional Quality:</span> Detailed PDFs with ingredients, instructions, and safety guidelines</div>
+              <div>🔬 <span className="font-medium">Expert Support:</span> Access to human formulation specialists when needed</div>
+              <div>🏭 <span className="font-medium">Industry Standards:</span> All formulations meet established safety and quality standards</div>
+            </div>
           </div>
           <div>
             <h4 className="font-medium mb-4">Categories</h4>
@@ -84,8 +91,18 @@ export default function Footer() {
             </div>
           </div>
           <div className="text-center text-sm text-gray-300">
-            <p>&copy; 2025 AI Formulator. All rights reserved.</p>
-            <div className="mt-2">
+            <p>&copy; 2025 ChemFormula Pro. All rights reserved.</p>
+            <p className="text-xs text-gray-400 mt-1 max-w-2xl mx-auto">
+              Empowering entrepreneurs with professional chemical formulations through cutting-edge AI technology. 
+              Trusted by manufacturers worldwide for safe, effective, and regulatory-compliant formulations.
+            </p>
+            <div className="mt-3 flex justify-center items-center space-x-4 text-xs">
+              <span className="text-gray-400">🌍 Global Coverage</span>
+              <span className="text-gray-400">🛡️ Safety First</span>
+              <span className="text-gray-400">⚡ Instant Results</span>
+              <span className="text-gray-400">🎯 Professional Grade</span>
+            </div>
+            <div className="mt-3">
               <Link href="/admin">
                 <span className="text-xs text-gray-400 hover:text-gray-300 transition-colors duration-200 cursor-pointer inline-flex items-center">
                   <Settings className="h-3 w-3 mr-1" />
