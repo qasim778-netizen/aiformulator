@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
+import logoImage from "@assets/logo_1756133481367.png";
 
 interface LogoSettings {
   logoUrl: string;
@@ -16,10 +17,10 @@ interface LogoSettings {
 
 export default function LogoSettings() {
   const [settings, setSettings] = useState<LogoSettings>(() => {
-    // Load from localStorage or use defaults
+    // Force sync with navbar - get current localStorage or use defaults
     const saved = localStorage.getItem('ai_formulator_logo_settings');
     return saved ? JSON.parse(saved) : {
-      logoUrl: '/src/assets/logo_1756133481367.png',
+      logoUrl: logoImage,
       logoSize: 40,
       companyName: 'AIFormulator'
     };
@@ -28,6 +29,27 @@ export default function LogoSettings() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Listen for localStorage changes from navbar
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem('ai_formulator_logo_settings');
+      if (saved) {
+        const parsedSettings = JSON.parse(saved);
+        setSettings(parsedSettings);
+        setPreviewUrl(null); // Clear any preview since localStorage has been updated
+      }
+    };
+
+    // Listen for custom navbar events
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('logoSettingsChanged', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('logoSettingsChanged', handleStorageChange);
+    };
+  }, []);
 
   // Save settings to localStorage
   const saveSettings = (newSettings: LogoSettings) => {
@@ -105,7 +127,7 @@ export default function LogoSettings() {
 
   const handleReset = () => {
     const defaultSettings = {
-      logoUrl: '/src/assets/logo_1756133481367.png',
+      logoUrl: logoImage,
       logoSize: 40,
       companyName: 'AIFormulator'
     };
