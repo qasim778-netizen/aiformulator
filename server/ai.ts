@@ -202,13 +202,14 @@ export async function generateFormulationWithKeywords(categoryName: string, prod
         });
         imageUrl = imageResponse.data?.[0]?.url || "";
         console.log(`Image generated successfully: ${imageUrl ? 'Yes' : 'No'}`);
+        console.log(`Image URL: ${imageUrl}`);
       } catch (error) {
         console.error("Failed to generate image for", name, ":", error);
         // Still continue with formulation creation even if image fails
       }
     }
     
-    return {
+    const formulationData = {
       name: name,
       description: result.description,
       image: imageUrl,
@@ -226,6 +227,12 @@ export async function generateFormulationWithKeywords(categoryName: string, prod
       certification: result.certification || "",
       isActive: result.isActive ?? true
     };
+    
+    console.log(`=== RETURNING FORMULATION DATA ===`);
+    console.log(`Name: ${formulationData.name}`);
+    console.log(`Image URL in return data: ${formulationData.image}`);
+    
+    return formulationData;
   } catch (error) {
     throw new Error("Failed to generate formulation: " + (error as Error).message);
   }
