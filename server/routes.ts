@@ -521,7 +521,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         viscosity,
         color,
         fragrance,
-        specialRequirements
+        specialRequirements,
+        logoSettings
       } = req.body;
 
       // Validate required fields
@@ -567,8 +568,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         city,
       });
 
-      // Generate PDF
-      const pdfBuffer = generateFormulationPDF(formulation);
+      // Generate PDF with logo settings
+      const pdfBuffer = generateFormulationPDF(formulation, logoSettings);
       
       // Set headers for PDF download
       const filename = `${productName.replace(/\s+/g, '_')}_formulation.pdf`;
@@ -597,8 +598,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Formulation not found" });
       }
 
-      // Generate PDF
-      const pdfBuffer = generateFormulationPDF(formulation);
+      // Get logo settings from request body
+      const logoSettings = req.body.logoSettings || {};
+
+      // Generate PDF with logo settings
+      const pdfBuffer = generateFormulationPDF(formulation, logoSettings);
       
       // Set headers for PDF download
       const filename = `${formulation.name.replace(/\s+/g, '_')}_formulation.pdf`;

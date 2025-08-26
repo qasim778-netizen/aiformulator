@@ -54,9 +54,13 @@ export default function FormulationPage() {
     if (!formulation) return;
     
     try {
+      // Get logo settings from localStorage
+      const logoSettings = JSON.parse(localStorage.getItem('ai_formulator_logo_settings') || '{}');
+      
       const response = await fetch(`/api/formulations/${formulation.id}/pdf`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ logoSettings }),
       });
 
       if (!response.ok) {

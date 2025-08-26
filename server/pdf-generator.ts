@@ -1,12 +1,18 @@
 import { jsPDF } from 'jspdf';
 import type { InsertFormulation } from '@shared/schema';
 
+interface LogoSettings {
+  logoUrl?: string;
+  logoSize?: number;
+  companyName?: string;
+}
+
 interface FormulationPDFData extends Omit<InsertFormulation, 'categoryId'> {
   ingredients: string;
   instructions: string;
 }
 
-export function generateFormulationPDF(formulation: FormulationPDFData): Buffer {
+export function generateFormulationPDF(formulation: FormulationPDFData, logoSettings?: LogoSettings): Buffer {
   const doc = new jsPDF();
   
   // Parse JSON strings
@@ -35,11 +41,28 @@ export function generateFormulationPDF(formulation: FormulationPDFData): Buffer 
     return yPosition;
   };
   
-  // Header
-  doc.setFontSize(24);
-  doc.setTextColor(41, 128, 185); // Blue color
-  doc.text('AIFormulator', margin, yPosition);
-  yPosition += 15;
+  // Header with Logo
+  if (logoSettings?.logoUrl) {
+    try {
+      // Add logo image
+      const logoHeight = logoSettings.logoSize ? Math.min(logoSettings.logoSize * 0.3, 30) : 30; // Scale down for PDF
+      doc.addImage(logoSettings.logoUrl, 'JPEG', margin, yPosition, 0, logoHeight); // Auto-width based on height
+      yPosition += logoHeight + 10;
+    } catch (error) {
+      console.log('Failed to add logo to PDF, falling back to text');
+      // Fallback to company name text if logo fails
+      doc.setFontSize(24);
+      doc.setTextColor(41, 128, 185); // Blue color
+      doc.text(logoSettings.companyName || 'AIFormulator', margin, yPosition);
+      yPosition += 15;
+    }
+  } else {
+    // Fallback to company name text
+    doc.setFontSize(24);
+    doc.setTextColor(41, 128, 185); // Blue color
+    doc.text(logoSettings?.companyName || 'AIFormulator', margin, yPosition);
+    yPosition += 15;
+  }
   
   doc.setFontSize(20);
   doc.setTextColor(0, 0, 0);

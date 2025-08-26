@@ -51,12 +51,15 @@ export default function AIFormulator() {
 
   const generateFormulation = useMutation<FormulatorData | null, Error, FormulatorData>({
     mutationFn: async (data: FormulatorData): Promise<FormulatorData | null> => {
+      // Get logo settings from localStorage
+      const logoSettings = JSON.parse(localStorage.getItem('ai_formulator_logo_settings') || '{}');
+      
       const response = await fetch("/api/ai/custom-formulation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, logoSettings }),
       });
 
       if (!response.ok) {
