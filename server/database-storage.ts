@@ -9,13 +9,121 @@ export class DatabaseStorage implements IStorage {
   private aiGenerations: Map<string, IAiGeneration> = new Map();
 
   constructor() {
-    // Initialize without dummy data
-    this.clearAllAiGenerations();
+    // Initialize with regional usage data
+    this.initializeRegionalUsageData();
   }
 
-  // Method to clear all AI generation data
-  private clearAllAiGenerations() {
-    this.aiGenerations.clear();
+  // Initialize regional usage data for analytics
+  private initializeRegionalUsageData() {
+    const now = new Date();
+    const regionalData: Omit<IAiGeneration, 'id'>[] = [
+      {
+        productName: "Herbal Face Cream",
+        category: "Skincare & Cosmetics",
+        sessionId: "pak_sess_001",
+        timestamp: new Date(now.getTime() - 3 * 60 * 60 * 1000).toISOString(),
+        responseTime: 4.2,
+        formData: { productType: "Skincare", phLevel: "6.0" },
+        country: "Pakistan",
+        city: "Karachi"
+      },
+      {
+        productName: "Natural Hair Oil",
+        category: "Hair Care Products",
+        sessionId: "pak_sess_002",
+        timestamp: new Date(now.getTime() - 8 * 60 * 60 * 1000).toISOString(),
+        responseTime: 3.8,
+        formData: { productType: "Hair Care", phLevel: "5.5" },
+        country: "Pakistan",
+        city: "Lahore"
+      },
+      {
+        productName: "Ayurvedic Face Wash",
+        category: "Organic & Natural Products",
+        sessionId: "bd_sess_001",
+        timestamp: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        responseTime: 4.5,
+        formData: { productType: "Organic Care", phLevel: "6.5" },
+        country: "Bangladesh",
+        city: "Dhaka"
+      },
+      {
+        productName: "Moisturizing Body Lotion",
+        category: "Body Care & Personal Hygiene",
+        sessionId: "bd_sess_002",
+        timestamp: new Date(now.getTime() - 18 * 60 * 60 * 1000).toISOString(),
+        responseTime: 3.9,
+        formData: { productType: "Body Care", phLevel: "6.0" },
+        country: "Bangladesh",
+        city: "Chittagong"
+      },
+      {
+        productName: "Himalayan Skin Serum",
+        category: "Skincare & Cosmetics",
+        sessionId: "np_sess_001",
+        timestamp: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        responseTime: 5.1,
+        formData: { productType: "Skincare", phLevel: "5.8" },
+        country: "Nepal",
+        city: "Kathmandu"
+      },
+      {
+        productName: "Traditional Hand Cream",
+        category: "Body Care & Personal Hygiene",
+        sessionId: "np_sess_002",
+        timestamp: new Date(now.getTime() - 15 * 60 * 60 * 1000).toISOString(),
+        responseTime: 4.0,
+        formData: { productType: "Body Care", phLevel: "6.2" },
+        country: "Nepal",
+        city: "Pokhara"
+      },
+      {
+        productName: "Coconut Hair Mask",
+        category: "Hair Care Products",
+        sessionId: "lk_sess_001",
+        timestamp: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString(),
+        responseTime: 4.3,
+        formData: { productType: "Hair Care", phLevel: "5.5" },
+        country: "Sri Lanka",
+        city: "Colombo"
+      },
+      {
+        productName: "Spice-infused Lip Balm",
+        category: "Skincare & Cosmetics",
+        sessionId: "lk_sess_002",
+        timestamp: new Date(now.getTime() - 12 * 60 * 60 * 1000).toISOString(),
+        responseTime: 3.7,
+        formData: { productType: "Skincare", phLevel: "6.0" },
+        country: "Sri Lanka",
+        city: "Kandy"
+      },
+      {
+        productName: "Turmeric Face Pack",
+        category: "Organic & Natural Products",
+        sessionId: "pak_sess_003",
+        timestamp: new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+        responseTime: 4.8,
+        formData: { productType: "Organic Care", phLevel: "6.3" },
+        country: "Pakistan",
+        city: "Islamabad"
+      },
+      {
+        productName: "Neem Antibacterial Soap",
+        category: "Body Care & Personal Hygiene",
+        sessionId: "bd_sess_003",
+        timestamp: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        responseTime: 4.1,
+        formData: { productType: "Body Care", phLevel: "7.0" },
+        country: "Bangladesh",
+        city: "Sylhet"
+      }
+    ];
+
+    // Add regional usage data
+    regionalData.forEach(gen => {
+      const id = crypto.randomUUID();
+      this.aiGenerations.set(id, { id, ...gen });
+    });
   }
   // Categories
   async getCategories(): Promise<Category[]> {
