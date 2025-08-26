@@ -39,15 +39,15 @@ interface DynamicPropertiesProps {
 
 const initialFormData: FormData = {
   productName: "",
-  productCategory: "",
-  consistencyType: "",
-  viscosity: "",
+  productCategory: "Skincare & Cosmetics",
+  consistencyType: "cream",
+  viscosity: "Medium",
   specialProperties: [],
   phLevel: 7,
   shelfLife: 12,
-  storageTemperature: "",
-  budgetCategory: "",
-  productionVolume: "",
+  storageTemperature: "Room Temperature (15-25°C)",
+  budgetCategory: "Medium Quality",
+  productionVolume: "Small Batch (1-100 units)",
   regulatoryRequirements: [],
   additionalNotes: "",
 };
