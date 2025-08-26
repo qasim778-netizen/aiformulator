@@ -188,16 +188,19 @@ export async function generateFormulationWithKeywords(categoryName: string, prod
     let imageUrl = "";
     if (includeImage) {
       try {
+        console.log(`Generating image for: ${name}`);
         const imageResponse = await openai.images.generate({
           model: "dall-e-3",
-          prompt: `Professional product photography of ${name} - ${result.description}. Clean, commercial laboratory setting with professional cosmetic/chemical product packaging. High quality, bright lighting, product focus.`,
+          prompt: `Professional cosmetic product bottle labeled "${name}". Clean white background, modern packaging design, high quality product photography, commercial style.`,
           n: 1,
           size: "1024x1024",
           quality: "standard"
         });
         imageUrl = imageResponse.data?.[0]?.url || "";
+        console.log(`Image generated successfully: ${imageUrl ? 'Yes' : 'No'}`);
       } catch (error) {
-        console.error("Failed to generate image:", error);
+        console.error("Failed to generate image for", name, ":", error);
+        // Still continue with formulation creation even if image fails
       }
     }
     
