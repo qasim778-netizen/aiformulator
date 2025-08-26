@@ -5,7 +5,7 @@ import crypto from "crypto";
 import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema, insertUserNoteSchema, insertPageSchema } from "@shared/schema";
 import type { ChatMessage, InsertChatMessage } from "@shared/schema";
-import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateProductTypes, generateCustomFormulation } from "./ai";
+import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateBulkFormulationsWithKeywords, generateProductTypes, generateCustomFormulation } from "./ai";
 import { generateFormulationPDF } from "./pdf-generator";
 import { optimizeFormulationsForSEO } from "./seo-optimizer";
 import { generateFormulationImages, addImageFieldToFormulations } from "./image-generator";
@@ -459,6 +459,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to generate bulk formulations" });
+    }
+  });
+
+  // Bulk AI Generation with Keywords & Images endpoint (protected admin route)
+  app.post("/api/ai/generate-bulk-formulations-with-keywords", isAuthenticated, async (req, res) => {
+    try {
+      const { categoryId, count, includeImages = false } = req.body;
+      if (!categoryId || !count) {
+        return res.status(400).json({ message: "Category ID and count are required" });
+      }
+
+      const category = await storage.getCategory(categoryId);
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+
+      // Generate product types based on the category
+      const productTypes = await generateProductTypes(category.name, category.description, count);
+      const formulations = await generateBulkFormulationsWithKeywords(category.name, count, productTypes, includeImages);
+      
+      // Create all formulations in the database
+      const createdFormulations = [];
+      for (const formulationData of formulations) {
+        try {
+          const formulation = await storage.createFormulation({
+            ...formulationData,
+            categoryId
+          });
+          createdFormulations.push(formulation);
+        } catch (error) {
+          console.error('Failed to save formulation:', error);
+        }
+      }
+      
+      res.status(201).json({ 
+        message: `Successfully generated ${createdFormulations.length} formula formulations${includeImages ? ' with images' : ''}`,
+        count: createdFormulations.length,
+        formulations: createdFormulations
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Failed to generate bulk formulations with keywords" });
     }
   });
 

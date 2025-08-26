@@ -99,6 +99,25 @@ export async function generateBulkFormulations(categoryName: string, count: numb
   return formulations;
 }
 
+export async function generateBulkFormulationsWithKeywords(categoryName: string, count: number, productTypes: string[], includeImages: boolean = false): Promise<Omit<InsertFormulation, 'categoryId'>[]> {
+  const formulations: Omit<InsertFormulation, 'categoryId'>[] = [];
+  
+  for (let i = 0; i < count; i++) {
+    const productType = productTypes[i % productTypes.length];
+    try {
+      const formulation = await generateFormulationWithKeywords(categoryName, productType, includeImages);
+      formulations.push(formulation);
+      // Add small delay to avoid rate limiting and image generation
+      await new Promise(resolve => setTimeout(resolve, includeImages ? 500 : 100));
+    } catch (error) {
+      console.error(`Failed to generate formula formulation ${i + 1}:`, error);
+      // Continue with the next formulation
+    }
+  }
+  
+  return formulations;
+}
+
 export async function generateFormulationWithKeywords(categoryName: string, productDescription: string, includeImage: boolean = false): Promise<Omit<InsertFormulation, 'categoryId'>> {
   try {
     const response = await openai.chat.completions.create({
@@ -176,7 +195,7 @@ export async function generateFormulationWithKeywords(categoryName: string, prod
           size: "1024x1024",
           quality: "standard"
         });
-        imageUrl = imageResponse.data[0].url || "";
+        imageUrl = imageResponse.data?.[0]?.url || "";
       } catch (error) {
         console.error("Failed to generate image:", error);
       }

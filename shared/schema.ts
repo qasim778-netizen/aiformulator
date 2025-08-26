@@ -18,6 +18,7 @@ export const formulations = pgTable("formulations", {
   categoryId: uuid("category_id").notNull().references(() => categories.id),
   name: text("name").notNull(),
   description: text("description").notNull(),
+  image: text("image"), // Optional AI-generated product image URL
   ingredients: text("ingredients").notNull(), // JSON string of ingredients array
   instructions: text("instructions").notNull(), // JSON string of instruction steps
   usageInstructions: text("usage_instructions").notNull(),

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Sparkles, Loader2, FlaskConical, Package } from "lucide-react";
+import { Sparkles, Loader2, FlaskConical, Package, Image, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { Category } from "@shared/schema";
@@ -17,11 +18,12 @@ interface BulkFormulationGeneratorProps {
 export default function BulkFormulationGenerator({ categories }: BulkFormulationGeneratorProps) {
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [formulationCount, setFormulationCount] = useState("5");
+  const [includeAiImages, setIncludeAiImages] = useState(false);
   const { toast } = useToast();
 
   const generateBulkFormulations = useMutation({
-    mutationFn: ({ categoryId, count }: { categoryId: string; count: number }) => 
-      apiRequest("POST", "/api/ai/generate-bulk-formulations", { categoryId, count }),
+    mutationFn: ({ categoryId, count, includeImages }: { categoryId: string; count: number; includeImages: boolean }) => 
+      apiRequest("POST", "/api/ai/generate-bulk-formulations-with-keywords", { categoryId, count, includeImages }),
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
@@ -32,6 +34,7 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
       // Reset form
       setSelectedCategoryId("");
       setFormulationCount("5");
+      setIncludeAiImages(false);
     },
     onError: (error: any) => {
       toast({ 
@@ -64,7 +67,7 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
       return;
     }
 
-    generateBulkFormulations.mutate({ categoryId: selectedCategoryId, count });
+    generateBulkFormulations.mutate({ categoryId: selectedCategoryId, count, includeImages: includeAiImages });
   };
 
   const selectedCategory = categories.find(c => c.id === selectedCategoryId);
@@ -81,21 +84,24 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
             </h3>
           </div>
           <p className="text-green-700 mb-4">
-            Select an existing category and generate multiple professional formulations automatically. 
-            Perfect for quickly populating your product database with diverse chemical formulations.
+            Generate multiple professional formulations with "Formula" or "Formulation" keywords in titles, complete INCI ingredients, manufacturing instructions, and optional AI-generated product images.
           </p>
-          <div className="flex gap-4 text-sm text-green-600">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-green-600">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-              AI-generated unique formulations
+              <Star className="w-4 h-4 text-green-500" />
+              Product names with "Formula" or "Formulation" keywords
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-              Complete with INCI names & instructions
+              <FlaskConical className="w-4 h-4 text-green-500" />
+              Professional chemical formulations with INCI ingredients
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-              Professional technical specifications
+              <Package className="w-4 h-4 text-green-500" />
+              Complete manufacturing instructions and specifications
+            </div>
+            <div className="flex items-center gap-2">
+              <Image className="w-4 h-4 text-green-500" />
+              Optional AI-generated product images for marketing
             </div>
           </div>
         </CardContent>
@@ -149,25 +155,61 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
               </div>
             )}
 
-            <div>
-              <label htmlFor="formulationCount" className="block text-sm font-medium mb-2">
-                Number of Formulations
-              </label>
-              <Input
-                id="formulationCount"
-                data-testid="input-bulk-formulation-count"
-                type="number"
-                min="1"
-                max="50"
-                value={formulationCount}
-                onChange={(e) => setFormulationCount(e.target.value)}
-                className="w-32"
-                disabled={generateBulkFormulations.isPending}
-                placeholder="5"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Generate between 1-50 formulations (recommended: 5-10)
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="formulationCount" className="block text-sm font-medium mb-2">
+                  Number of Formulations
+                </label>
+                <Input
+                  id="formulationCount"
+                  data-testid="input-bulk-formulation-count"
+                  type="number"
+                  min="1"
+                  max="50"
+                  value={formulationCount}
+                  onChange={(e) => setFormulationCount(e.target.value)}
+                  className="w-32"
+                  disabled={generateBulkFormulations.isPending}
+                  placeholder="5"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Generate between 1-50 formulations (recommended: 5-10)
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Generate Product Images
+                </label>
+                <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <Image className="h-5 w-5 text-blue-600" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-blue-900">AI Product Photography</p>
+                    <p className="text-xs text-blue-600">Create professional product images for marketing</p>
+                  </div>
+                  <Switch
+                    checked={includeAiImages}
+                    onCheckedChange={setIncludeAiImages}
+                    disabled={generateBulkFormulations.isPending}
+                    data-testid="switch-include-ai-images"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Formula Features Info */}
+            <div className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200">
+              <h4 className="text-sm font-medium text-yellow-800 mb-3 flex items-center gap-2">
+                <Star className="h-4 w-4" />
+                Formula Features
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-yellow-700">
+                <div>• Product names will include "Formula" or "Formulation" keywords</div>
+                <div>• Professional chemical formulations with INCI ingredients</div>
+                <div>• Complete manufacturing instructions and specifications</div>
+                <div>• {includeAiImages ? "✅ AI-generated" : "❌ No"} product images for marketing use</div>
+                <div>• SEO-optimized content for better discoverability</div>
+              </div>
             </div>
 
             {/* Preview */}
@@ -177,11 +219,16 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
                   <Package className="h-4 w-4" />
                   Generation Preview
                 </h4>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Badge variant="outline" className="bg-purple-100 text-purple-800">
-                    {formulationCount} Formulations
+                    {formulationCount} Formula Formulations
                   </Badge>
                   <span className="text-purple-700 text-sm">for {selectedCategory.name}</span>
+                  {includeAiImages && (
+                    <Badge variant="outline" className="bg-blue-100 text-blue-800">
+                      + AI Images
+                    </Badge>
+                  )}
                 </div>
               </div>
             )}
@@ -189,18 +236,18 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
             <Button
               type="submit"
               disabled={generateBulkFormulations.isPending || !selectedCategoryId || !formulationCount}
-              className="bg-accent text-white hover:bg-orange-600 w-full"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 w-full"
               data-testid="button-generate-bulk-formulations"
             >
               {generateBulkFormulations.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Generating {formulationCount} formulations...
+                  Generating {formulationCount} formula formulations{includeAiImages ? " with images" : ""}...
                 </>
               ) : (
                 <>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Generate {formulationCount} Formulations
+                  <Star className="h-4 w-4 mr-2" />
+                  Generate {formulationCount} Formula Formulations{includeAiImages ? " + Images" : ""}
                 </>
               )}
             </Button>
