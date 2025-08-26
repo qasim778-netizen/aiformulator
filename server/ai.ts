@@ -99,6 +99,112 @@ export async function generateBulkFormulations(categoryName: string, count: numb
   return formulations;
 }
 
+export async function generateFormulationWithKeywords(categoryName: string, productDescription: string, includeImage: boolean = false): Promise<Omit<InsertFormulation, 'categoryId'>> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are a professional chemical formulation expert. Generate a complete, professional chemical formulation for small business manufacturers. 
+          
+          IMPORTANT: The product name MUST include either "Formula" or "Formulation" in the title. Examples:
+          - "Advanced Moisturizing Formula"
+          - "Professional Cleansing Formulation" 
+          - "Anti-Aging Serum Formula"
+          - "Organic Skincare Formulation"
+          
+          Return JSON in this exact format:
+          {
+            "name": "Product Name with Formula/Formulation",
+            "description": "Professional product description",
+            "ingredients": [
+              {
+                "name": "Ingredient Name",
+                "inci": "INCI Name",
+                "percentage": "X.X%",
+                "function": "Function in formulation"
+              }
+            ],
+            "instructions": [
+              {
+                "phase": "Phase Name",
+                "steps": ["Step 1", "Step 2", "Step 3"]
+              }
+            ],
+            "usageInstructions": "Detailed usage instructions",
+            "phLevel": "pH range",
+            "shelfLife": "Shelf life period",
+            "viscosity": "Viscosity range",
+            "storageConditions": "Storage requirements",
+            "batchSize": "Batch size range",
+            "processingTime": "Processing time",
+            "temperature": "Processing temperature",
+            "equipment": "Required equipment",
+            "certification": "Relevant certifications",
+            "isActive": true
+          }
+          
+          Make the formulation realistic, professional, and suitable for commercial manufacturing. Include 6-12 ingredients with proper INCI names and realistic percentages that add up to 100%. Include detailed manufacturing phases and steps. 
+          
+          REMEMBER: The name must contain "Formula" or "Formulation" keyword.`
+        },
+        {
+          role: "user",
+          content: `Generate a ${categoryName} formulation for: ${productDescription}. Ensure the product name includes "Formula" or "Formulation" in the title.`
+        }
+      ],
+      response_format: { type: "json_object" }
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    
+    // Ensure name contains formula/formulation keyword
+    let name = result.name || "Professional Formulation";
+    if (!name.toLowerCase().includes('formula') && !name.toLowerCase().includes('formulation')) {
+      name = `${name} Formula`;
+    }
+    
+    // Generate image if requested
+    let imageUrl = "";
+    if (includeImage) {
+      try {
+        const imageResponse = await openai.images.generate({
+          model: "dall-e-3",
+          prompt: `Professional product photography of ${name} - ${result.description}. Clean, commercial laboratory setting with professional cosmetic/chemical product packaging. High quality, bright lighting, product focus.`,
+          n: 1,
+          size: "1024x1024",
+          quality: "standard"
+        });
+        imageUrl = imageResponse.data[0].url || "";
+      } catch (error) {
+        console.error("Failed to generate image:", error);
+      }
+    }
+    
+    return {
+      name: name,
+      description: result.description,
+      image: imageUrl,
+      ingredients: JSON.stringify(result.ingredients || []),
+      instructions: JSON.stringify(result.instructions || []),
+      usageInstructions: result.usageInstructions || "",
+      phLevel: result.phLevel || "6.0-7.0",
+      shelfLife: result.shelfLife || "24 months",
+      viscosity: result.viscosity || "",
+      storageConditions: result.storageConditions || "Cool, dry place",
+      batchSize: result.batchSize || "100-500 kg",
+      processingTime: result.processingTime || "2-4 hours",
+      temperature: result.temperature || "Room temperature",
+      equipment: result.equipment || "Standard mixer",
+      certification: result.certification || "",
+      isActive: result.isActive ?? true
+    };
+  } catch (error) {
+    throw new Error("Failed to generate formulation: " + (error as Error).message);
+  }
+}
+
 export async function generateFormulation(categoryName: string, productDescription: string): Promise<Omit<InsertFormulation, 'categoryId'>> {
   try {
     const response = await openai.chat.completions.create({

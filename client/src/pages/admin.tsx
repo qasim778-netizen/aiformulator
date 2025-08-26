@@ -19,6 +19,7 @@ import AiCategoryForm from "@/components/admin/ai-category-form";
 import AiFormulationForm from "@/components/admin/ai-formulation-form";
 import BulkGenerationForm from "@/components/admin/bulk-generation-form";
 import BulkFormulationGenerator from "@/components/admin/bulk-formulation-generator";
+import FormulaKeywordGenerator from "@/components/admin/formula-keyword-generator";
 import LogoSettings from "@/components/admin/logo-settings";
 import ContentManagementTab from "@/components/admin/content-management-tab";
 import type { Category, Formulation } from "@shared/schema";
@@ -1035,12 +1036,25 @@ export default function AdminPage() {
 
         {/* Bulk Formulations Tab */}
         {activeTab === "bulk-formulations" && (
-          <div>
-            <div className="mb-6">
-              <h2 className="text-xl font-inter font-semibold text-gray-900">Bulk Formulations Generator</h2>
-              <p className="text-sm text-gray-600 mt-1">Select an existing category and generate multiple formulations automatically</p>
+          <div className="space-y-8">
+            <div>
+              <div className="mb-6">
+                <h2 className="text-xl font-inter font-semibold text-gray-900">Bulk Formulations Generator</h2>
+                <p className="text-sm text-gray-600 mt-1">Select an existing category and generate multiple formulations automatically</p>
+              </div>
+              <BulkFormulationGenerator categories={categories} />
             </div>
-            <BulkFormulationGenerator categories={categories} />
+            
+            <div>
+              <div className="mb-6">
+                <h2 className="text-xl font-inter font-semibold text-gray-900">Formula Generator with Keywords & Images</h2>
+                <p className="text-sm text-gray-600 mt-1">Generate formulations with "Formula" or "Formulation" keywords in titles and optional AI-generated images</p>
+              </div>
+              <FormulaKeywordGenerator categories={categories} onSuccess={() => {
+                queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
+                queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+              }} />
+            </div>
           </div>
         )}
 

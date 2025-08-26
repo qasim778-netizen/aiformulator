@@ -5,7 +5,7 @@ import crypto from "crypto";
 import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema, insertUserNoteSchema, insertPageSchema } from "@shared/schema";
 import type { ChatMessage, InsertChatMessage } from "@shared/schema";
-import { generateCategory, generateFormulation, generateBulkFormulations, generateProductTypes, generateCustomFormulation } from "./ai";
+import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateProductTypes, generateCustomFormulation } from "./ai";
 import { generateFormulationPDF } from "./pdf-generator";
 import { optimizeFormulationsForSEO } from "./seo-optimizer";
 import { generateFormulationImages, addImageFieldToFormulations } from "./image-generator";
@@ -393,6 +393,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(formulation);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to generate formulation" });
+    }
+  });
+
+  // Generate formulation with formula keywords and image
+  app.post("/api/ai/generate-formulation-with-keywords", isAuthenticated, async (req, res) => {
+    try {
+      const { categoryId, productDescription, includeImage = false } = req.body;
+      if (!categoryId || !productDescription) {
+        return res.status(400).json({ message: "Category ID and product description are required" });
+      }
+
+      const category = await storage.getCategory(categoryId);
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+
+      const formulationData = await generateFormulationWithKeywords(category.name, productDescription, includeImage);
+      const formulation = await storage.createFormulation({
+        ...formulationData,
+        categoryId
+      });
+      
+      res.status(201).json(formulation);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Failed to generate formulation with keywords" });
     }
   });
 
