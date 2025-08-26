@@ -52,7 +52,7 @@ export default function Home() {
                     <BookOpen className="h-8 w-8" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Ready-Made Formulas</h3>
-                  <p className="text-gray-600 text-sm">68+ professional formulations across 10 categories</p>
+                  <p className="text-gray-600 text-sm">78+ professional formulations across 12 categories</p>
                 </CardContent>
               </Card>
             </div>
@@ -70,7 +70,7 @@ export default function Home() {
                   <h2 className="text-2xl font-bold text-gray-900">Formulation Library</h2>
                 </div>
                 <p className="text-base text-gray-600 mb-6 max-w-2xl mx-auto">
-                  Access 68+ ready-to-use professional formulations across 10 product categories. 
+                  Access 78+ ready-to-use professional formulations across 12 product categories. 
                   Create high-quality chemical products with tested recipes and detailed specifications.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -78,14 +78,14 @@ export default function Home() {
                     <div className="bg-primary/10 rounded-full p-4 w-16 h-16 flex items-center justify-center mx-auto mb-3">
                       <Beaker className="h-8 w-8 text-primary" />
                     </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">68+ Formulations</h3>
+                    <h3 className="font-semibold text-gray-900 mb-2">78+ Formulations</h3>
                     <p className="text-sm text-gray-600">Professional tested recipes</p>
                   </div>
                   <div className="text-center">
                     <div className="bg-primary/10 rounded-full p-4 w-16 h-16 flex items-center justify-center mx-auto mb-3">
                       <BookOpen className="h-8 w-8 text-primary" />
                     </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">10 Categories</h3>
+                    <h3 className="font-semibold text-gray-900 mb-2">12 Categories</h3>
                     <p className="text-sm text-gray-600">Diverse product types</p>
                   </div>
                   <div className="text-center">
