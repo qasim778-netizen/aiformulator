@@ -19,7 +19,7 @@ export default function Navbar() {
     return saved ? JSON.parse(saved) : {
       logoUrl: logoImage,
       logoSize: 40,
-      companyName: 'AI Formulator'
+      companyName: 'AIFormulator'
     };
   });
   

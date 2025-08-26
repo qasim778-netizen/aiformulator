@@ -21,7 +21,7 @@ export default function LogoSettings() {
     return saved ? JSON.parse(saved) : {
       logoUrl: '/src/assets/logo_1756133481367.png',
       logoSize: 40,
-      companyName: 'AI Formulator'
+      companyName: 'AIFormulator'
     };
   });
   
@@ -107,7 +107,7 @@ export default function LogoSettings() {
     const defaultSettings = {
       logoUrl: '/src/assets/logo_1756133481367.png',
       logoSize: 40,
-      companyName: 'AI Formulator'
+      companyName: 'AIFormulator'
     };
     saveSettings(defaultSettings);
     setPreviewUrl(null);
