@@ -563,7 +563,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Custom AI Formulation with PDF Generation
-  app.post("/api/ai/custom-formulation", isAuthenticated, async (req, res) => {
+  app.post("/api/ai/custom-formulation", async (req, res) => {
     const startTime = Date.now();
     try {
       const {
