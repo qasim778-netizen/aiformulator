@@ -119,6 +119,10 @@ export async function generateBulkFormulationsWithKeywords(categoryName: string,
 }
 
 export async function generateFormulationWithKeywords(categoryName: string, productDescription: string, includeImage: boolean = false): Promise<Omit<InsertFormulation, 'categoryId'>> {
+  console.log(`=== generateFormulationWithKeywords ===`);
+  console.log(`Category: ${categoryName}`);
+  console.log(`Product: ${productDescription}`);
+  console.log(`Include Image: ${includeImage}`);
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
