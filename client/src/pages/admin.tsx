@@ -1036,25 +1036,12 @@ export default function AdminPage() {
 
         {/* Bulk Formulations Tab */}
         {activeTab === "bulk-formulations" && (
-          <div className="space-y-8">
-            <div>
-              <div className="mb-6">
-                <h2 className="text-xl font-inter font-semibold text-gray-900">Formula Generator with Keywords & Images</h2>
-                <p className="text-sm text-gray-600 mt-1">Generate formulations with "Formula" or "Formulation" keywords in titles and optional AI-generated images</p>
-              </div>
-              <FormulaKeywordGenerator categories={categories} onSuccess={() => {
-                queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
-                queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
-              }} />
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-inter font-semibold text-gray-900">Bulk Formulations Generator</h2>
+              <p className="text-sm text-gray-600 mt-1">Select an existing category and generate multiple formulations automatically</p>
             </div>
-            
-            <div>
-              <div className="mb-6">
-                <h2 className="text-xl font-inter font-semibold text-gray-900">Bulk Formulations Generator</h2>
-                <p className="text-sm text-gray-600 mt-1">Select an existing category and generate multiple formulations automatically</p>
-              </div>
-              <BulkFormulationGenerator categories={categories} />
-            </div>
+            <BulkFormulationGenerator categories={categories} />
           </div>
         )}
 
