@@ -195,6 +195,24 @@ export class MemStorage implements IStorage {
         description: "Leather care and maintenance formulations",
         icon: "fas fa-couch",
         image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250",
+      },
+      {
+        name: "Professional Formulas",
+        description: "Advanced professional-grade formulas for commercial use",
+        icon: "fas fa-flask",
+        image: "https://images.unsplash.com/photo-1582719188393-bb71ca45dbb9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250",
+      },
+      {
+        name: "Skin Formulations",
+        description: "Specialized skin care formulations for various skin concerns",
+        icon: "fas fa-user-md",
+        image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250",
+      },
+      {
+        name: "Hair Care Formulations",
+        description: "Professional hair treatment and styling formulations",
+        icon: "fas fa-cut",
+        image: "https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250",
       }
     ];
 
@@ -420,6 +438,201 @@ export class MemStorage implements IStorage {
           usageInstructions: "Apply to damp skin in circular motions. Massage gently for 1-2 minutes. Rinse thoroughly with warm water. Use 2-3 times per week. Avoid eye area. Follow with moisturizer."
         }
       ],
+      "Professional Formulas": [
+        {
+          name: "Advanced Anti-Aging Formula",
+          description: "Professional grade anti-aging formulation with peptides and botanical extracts for advanced skincare.",
+          phLevel: "5.5 - 6.0",
+          shelfLife: "24 months",
+          viscosity: "2500-3000 cP",
+          storageConditions: "Cool, dry place",
+          batchSize: "100-500 kg",
+          processingTime: "2-3 hours",
+          temperature: "60-70°C",
+          equipment: "High-shear mixer",
+          certification: "ISO 22716",
+          ingredients: JSON.stringify([
+            { name: "Distilled Water", inci: "Aqua", percentage: "60.0%", function: "Solvent" },
+            { name: "Glycerin", inci: "Glycerin", percentage: "8.0%", function: "Humectant" },
+            { name: "Peptide Complex", inci: "Palmitoyl Tripeptide-1", percentage: "3.0%", function: "Anti-Aging Active" },
+            { name: "Hyaluronic Acid", inci: "Sodium Hyaluronate", percentage: "2.0%", function: "Hydrating Agent" },
+            { name: "Botanical Extract Blend", inci: "Plant Extract Complex", percentage: "5.0%", function: "Antioxidant" },
+            { name: "Preservative System", inci: "Phenoxyethanol, Ethylhexylglycerin", percentage: "1.0%", function: "Preservative" }
+          ]),
+          instructions: JSON.stringify([
+            { phase: "Water Phase", steps: ["Heat water to 70°C", "Dissolve glycerin", "Add hyaluronic acid"] },
+            { phase: "Active Phase", steps: ["Add peptide complex at 40°C", "Add botanical extracts", "Mix thoroughly"] },
+            { phase: "Final Phase", steps: ["Cool to room temperature", "Add preservatives", "Homogenize"] }
+          ]),
+          usageInstructions: "Apply to clean skin twice daily. Professional formulation for advanced skincare routines."
+        },
+        {
+          name: "Hydrating Facial Formulation",
+          description: "Professional hydrating formulation with multiple moisturizing agents for all skin types.",
+          phLevel: "6.0 - 6.5",
+          shelfLife: "18 months",
+          viscosity: "1500-2000 cP",
+          storageConditions: "Room temperature",
+          batchSize: "200-800 kg",
+          processingTime: "1-2 hours",
+          temperature: "50-60°C",
+          equipment: "Standard mixer",
+          certification: "ISO 22716",
+          ingredients: JSON.stringify([
+            { name: "Distilled Water", inci: "Aqua", percentage: "70.0%", function: "Solvent" },
+            { name: "Glycerin", inci: "Glycerin", percentage: "10.0%", function: "Humectant" },
+            { name: "Sodium Hyaluronate", inci: "Sodium Hyaluronate", percentage: "2.0%", function: "Hydrating Agent" },
+            { name: "Aloe Vera Extract", inci: "Aloe Barbadensis Leaf Extract", percentage: "8.0%", function: "Soothing Agent" },
+            { name: "Vitamin B5", inci: "Panthenol", percentage: "2.0%", function: "Conditioning Agent" },
+            { name: "Preservative System", inci: "Phenoxyethanol, Caprylyl Glycol", percentage: "1.0%", function: "Preservative" }
+          ]),
+          instructions: JSON.stringify([
+            { phase: "Base Phase", steps: ["Heat water to 55°C", "Add glycerin and mix", "Add aloe vera extract"] },
+            { phase: "Active Phase", steps: ["Add sodium hyaluronate slowly", "Add vitamin B5", "Mix until dissolved"] },
+            { phase: "Final Phase", steps: ["Cool to 35°C", "Add preservatives", "Mix thoroughly"] }
+          ]),
+          usageInstructions: "Apply morning and evening to clean skin. Professional hydrating formulation suitable for daily use."
+        },
+        {
+          name: "Brightening Serum Formula",
+          description: "Professional brightening formula with vitamin C and alpha arbutin for even skin tone.",
+          phLevel: "4.0 - 4.5",
+          shelfLife: "12 months",
+          viscosity: "500-800 cP",
+          storageConditions: "Cool, dark place",
+          batchSize: "50-200 kg",
+          processingTime: "1 hour",
+          temperature: "Room temperature",
+          equipment: "Magnetic stirrer",
+          certification: "ISO 22716",
+          ingredients: JSON.stringify([
+            { name: "Distilled Water", inci: "Aqua", percentage: "75.0%", function: "Solvent" },
+            { name: "Magnesium Ascorbyl Phosphate", inci: "Magnesium Ascorbyl Phosphate", percentage: "10.0%", function: "Brightening Active" },
+            { name: "Alpha Arbutin", inci: "Alpha Arbutin", percentage: "2.0%", function: "Skin Lightening" },
+            { name: "Niacinamide", inci: "Niacinamide", percentage: "5.0%", function: "Pore Refining" },
+            { name: "Hyaluronic Acid", inci: "Sodium Hyaluronate", percentage: "1.0%", function: "Hydrating Agent" },
+            { name: "Preservative System", inci: "Sodium Benzoate, Potassium Sorbate", percentage: "0.5%", function: "Preservative" }
+          ]),
+          instructions: JSON.stringify([
+            { phase: "Base Phase", steps: ["Use room temperature water", "Add magnesium ascorbyl phosphate", "Mix until dissolved"] },
+            { phase: "Active Phase", steps: ["Add alpha arbutin", "Add niacinamide", "Add hyaluronic acid slowly"] },
+            { phase: "Final Phase", steps: ["Add preservatives", "Adjust pH to 4.0-4.5", "Filter if needed"] }
+          ]),
+          usageInstructions: "Apply 2-3 drops to clean skin in morning. Follow with moisturizer and SPF. Professional brightening formula."
+        }
+      ],
+      "Skin Formulations": [
+        {
+          name: "Acne Treatment Formulation",
+          description: "Professional acne treatment formulation with salicylic acid and niacinamide for clear skin.",
+          phLevel: "4.0 - 5.0",
+          shelfLife: "18 months",
+          viscosity: "800-1200 cP",
+          storageConditions: "Cool, dry place",
+          batchSize: "100-400 kg",
+          processingTime: "1-2 hours",
+          temperature: "40-50°C",
+          equipment: "Standard mixer",
+          certification: "ISO 22716",
+          ingredients: JSON.stringify([
+            { name: "Distilled Water", inci: "Aqua", percentage: "75.0%", function: "Solvent" },
+            { name: "Salicylic Acid", inci: "Salicylic Acid", percentage: "2.0%", function: "Exfoliating Active" },
+            { name: "Niacinamide", inci: "Niacinamide", percentage: "5.0%", function: "Sebum Control" },
+            { name: "Zinc Oxide", inci: "Zinc Oxide", percentage: "3.0%", function: "Antimicrobial" },
+            { name: "Tea Tree Oil", inci: "Melaleuca Alternifolia Leaf Oil", percentage: "1.0%", function: "Antibacterial" },
+            { name: "Preservative System", inci: "Phenoxyethanol, Ethylhexylglycerin", percentage: "1.0%", function: "Preservative" }
+          ]),
+          instructions: JSON.stringify([
+            { phase: "Water Phase", steps: ["Heat water to 45°C", "Dissolve salicylic acid", "Add niacinamide"] },
+            { phase: "Active Phase", steps: ["Add zinc oxide while mixing", "Add tea tree oil slowly", "Mix thoroughly"] },
+            { phase: "Final Phase", steps: ["Cool to room temperature", "Add preservatives", "Adjust pH"] }
+          ]),
+          usageInstructions: "Apply to affected areas once daily. Professional acne formulation - patch test recommended."
+        },
+        {
+          name: "Sensitive Skin Formula",
+          description: "Gentle formulation designed for sensitive skin with calming botanical ingredients.",
+          phLevel: "6.0 - 6.5",
+          shelfLife: "24 months",
+          viscosity: "1000-1500 cP",
+          storageConditions: "Cool, dry place",
+          batchSize: "200-600 kg",
+          processingTime: "1 hour",
+          temperature: "Room temperature",
+          equipment: "Gentle mixer",
+          certification: "ISO 22716",
+          ingredients: JSON.stringify([
+            { name: "Distilled Water", inci: "Aqua", percentage: "80.0%", function: "Solvent" },
+            { name: "Glycerin", inci: "Glycerin", percentage: "8.0%", function: "Humectant" },
+            { name: "Chamomile Extract", inci: "Matricaria Recutita Flower Extract", percentage: "5.0%", function: "Soothing Agent" },
+            { name: "Calendula Extract", inci: "Calendula Officinalis Flower Extract", percentage: "3.0%", function: "Anti-inflammatory" },
+            { name: "Allantoin", inci: "Allantoin", percentage: "1.0%", function: "Healing Agent" },
+            { name: "Preservative System", inci: "Phenoxyethanol, Caprylyl Glycol", percentage: "0.8%", function: "Preservative" }
+          ]),
+          instructions: JSON.stringify([
+            { phase: "Base Phase", steps: ["Combine water and glycerin", "Add botanical extracts", "Mix gently"] },
+            { phase: "Active Phase", steps: ["Add allantoin slowly", "Mix until dissolved", "Check clarity"] },
+            { phase: "Final Phase", steps: ["Add preservatives", "Mix gently", "Filter if needed"] }
+          ]),
+          usageInstructions: "Apply to clean skin as needed. Gentle formula suitable for daily use on sensitive skin."
+        }
+      ],
+      "Hair Care Formulations": [
+        {
+          name: "Strengthening Hair Formula",
+          description: "Professional hair strengthening formulation with keratin proteins and botanical extracts.",
+          phLevel: "5.5 - 6.0",
+          shelfLife: "18 months",
+          viscosity: "2000-3000 cP",
+          storageConditions: "Room temperature",
+          batchSize: "300-800 kg",
+          processingTime: "2 hours",
+          temperature: "60-70°C",
+          equipment: "High-shear mixer",
+          certification: "ISO 22716",
+          ingredients: JSON.stringify([
+            { name: "Distilled Water", inci: "Aqua", percentage: "65.0%", function: "Solvent" },
+            { name: "Cetyl Alcohol", inci: "Cetyl Alcohol", percentage: "5.0%", function: "Conditioning Agent" },
+            { name: "Hydrolyzed Keratin", inci: "Hydrolyzed Keratin", percentage: "8.0%", function: "Protein" },
+            { name: "Argan Oil", inci: "Argania Spinosa Kernel Oil", percentage: "10.0%", function: "Nourishing Oil" },
+            { name: "Panthenol", inci: "Panthenol", percentage: "3.0%", function: "Conditioning Agent" },
+            { name: "Preservative System", inci: "Phenoxyethanol, Ethylhexylglycerin", percentage: "1.0%", function: "Preservative" }
+          ]),
+          instructions: JSON.stringify([
+            { phase: "Oil Phase", steps: ["Melt cetyl alcohol at 65°C", "Add argan oil", "Mix until homogeneous"] },
+            { phase: "Water Phase", steps: ["Heat water to 65°C", "Add hydrolyzed keratin", "Add panthenol"] },
+            { phase: "Emulsification", steps: ["Add water phase to oil phase", "Mix with high-shear mixer", "Cool while mixing", "Add preservatives at 40°C"] }
+          ]),
+          usageInstructions: "Apply to damp hair, leave for 5-10 minutes, rinse thoroughly. Professional strengthening formula for damaged hair."
+        },
+        {
+          name: "Volume Boosting Formulation",
+          description: "Lightweight formulation designed to add volume and body to fine hair without weighing it down.",
+          phLevel: "6.0 - 6.5",
+          shelfLife: "24 months",
+          viscosity: "500-800 cP",
+          storageConditions: "Room temperature",
+          batchSize: "400-1000 kg",
+          processingTime: "1 hour",
+          temperature: "45-55°C",
+          equipment: "Standard mixer",
+          certification: "ISO 22716",
+          ingredients: JSON.stringify([
+            { name: "Distilled Water", inci: "Aqua", percentage: "85.0%", function: "Solvent" },
+            { name: "Rice Protein", inci: "Hydrolyzed Rice Protein", percentage: "5.0%", function: "Volumizing Agent" },
+            { name: "Panthenol", inci: "Panthenol", percentage: "3.0%", function: "Thickening Agent" },
+            { name: "Glycerin", inci: "Glycerin", percentage: "4.0%", function: "Humectant" },
+            { name: "Biotin", inci: "Biotin", percentage: "0.5%", function: "Hair Health" },
+            { name: "Preservative System", inci: "Phenoxyethanol, Caprylyl Glycol", percentage: "1.0%", function: "Preservative" }
+          ]),
+          instructions: JSON.stringify([
+            { phase: "Base Phase", steps: ["Heat water to 50°C", "Add glycerin and mix", "Add rice protein slowly"] },
+            { phase: "Active Phase", steps: ["Add panthenol", "Add biotin", "Mix until dissolved"] },
+            { phase: "Final Phase", steps: ["Cool to 35°C", "Add preservatives", "Mix thoroughly"] }
+          ]),
+          usageInstructions: "Apply to clean, damp hair focusing on roots. Style as usual. Professional volume formulation for fine hair."
+        }
+      ],
       "Beauty Products": [
         {
           name: "Long-Lasting Foundation",
@@ -496,6 +709,33 @@ export class MemStorage implements IStorage {
           usageInstructions: "Apply from base to tips of lashes. Use zigzag motion for volume. Allow to dry between coats. Remove with waterproof makeup remover."
         },
         {
+          name: "Professional Makeup Base Formula",
+          description: "Advanced makeup base formulation with primer and SPF protection for all-day wear.",
+          phLevel: "6.0 - 7.0",
+          shelfLife: "24 months",
+          viscosity: "1800-2500 cP",
+          storageConditions: "Room temperature",
+          batchSize: "150-400 kg",
+          processingTime: "2-3 hours",
+          temperature: "65-75°C",
+          equipment: "High-speed mixer",
+          certification: "ISO 22716",
+          ingredients: JSON.stringify([
+            { name: "Cyclopentasiloxane", inci: "Cyclopentasiloxane", percentage: "30.0%", function: "Base Carrier" },
+            { name: "Dimethicone", inci: "Dimethicone", percentage: "18.0%", function: "Smoothing Agent" },
+            { name: "Zinc Oxide", inci: "Zinc Oxide", percentage: "10.0%", function: "SPF Protection" },
+            { name: "Titanium Dioxide", inci: "Titanium Dioxide", percentage: "8.0%", function: "Coverage Pigment" },
+            { name: "Hyaluronic Acid", inci: "Sodium Hyaluronate", percentage: "2.0%", function: "Hydrating Agent" },
+            { name: "Vitamin E", inci: "Tocopheryl Acetate", percentage: "1.0%", function: "Antioxidant" }
+          ]),
+          instructions: JSON.stringify([
+            { phase: "Silicone Phase", steps: ["Combine silicones at 70°C", "Mix until homogeneous", "Maintain temperature"] },
+            { phase: "Pigment Phase", steps: ["Disperse zinc oxide and titanium dioxide", "Add to silicone phase slowly", "Mix thoroughly"] },
+            { phase: "Final Phase", steps: ["Cool to 40°C", "Add hyaluronic acid", "Add vitamin E", "Final homogenization"] }
+          ]),
+          usageInstructions: "Apply before makeup as primer and base. Professional makeup formulation with SPF protection."
+        },
+        {
           name: "Matte Liquid Lipstick",
           description: "Long-wearing matte liquid lipstick with comfortable, non-drying formula.",
           phLevel: "6.5 - 7.5",
@@ -531,6 +771,62 @@ export class MemStorage implements IStorage {
             }
           ]),
           usageInstructions: "Apply to clean, dry lips. Allow to dry completely for matte finish. Apply lip balm before use if lips are very dry. Remove with makeup remover."
+        },
+        {
+          name: "Color-Correcting Formula",
+          description: "Multi-tone color correcting formulation for even skin tone and complexion perfection.",
+          phLevel: "6.5 - 7.0",
+          shelfLife: "24 months",
+          viscosity: "2200-2800 cP",
+          storageConditions: "Cool, dry place",
+          batchSize: "100-350 kg",
+          processingTime: "3 hours",
+          temperature: "70-75°C",
+          equipment: "Planetary mixer",
+          certification: "ISO 22716",
+          ingredients: JSON.stringify([
+            { name: "Isododecane", inci: "Isododecane", percentage: "35.0%", function: "Carrier Solvent" },
+            { name: "Dimethicone", inci: "Dimethicone", percentage: "20.0%", function: "Smoothing Agent" },
+            { name: "Green Color Corrector", inci: "Chromium Oxide Green", percentage: "4.0%", function: "Redness Correction" },
+            { name: "Peach Color Corrector", inci: "Iron Oxides Mix", percentage: "6.0%", function: "Dark Circle Correction" },
+            { name: "Purple Color Corrector", inci: "Ultramarines", percentage: "3.0%", function: "Yellow Tone Correction" },
+            { name: "Hyaluronic Acid", inci: "Sodium Hyaluronate", percentage: "1.5%", function: "Hydration" },
+            { name: "Vitamin C", inci: "Magnesium Ascorbyl Phosphate", percentage: "2.0%", function: "Brightening" }
+          ]),
+          instructions: JSON.stringify([
+            { phase: "Base Phase", steps: ["Combine isododecane and dimethicone", "Heat to 72°C", "Mix until smooth"] },
+            { phase: "Color Phase", steps: ["Prepare each color corrector separately", "Add to base in specific order", "Mix thoroughly between additions"] },
+            { phase: "Active Phase", steps: ["Cool to 45°C", "Add hyaluronic acid", "Add vitamin C", "Final homogenization"] }
+          ]),
+          usageInstructions: "Apply targeted colors to specific areas: green for redness, peach for dark circles, purple for yellow tones. Professional color correction formulation."
+        },
+        {
+          name: "Long-Wear Concealer Formulation",
+          description: "High-coverage concealer formulation with 16-hour wear and skin-perfecting properties.",
+          phLevel: "6.0 - 6.8",
+          shelfLife: "24 months",
+          viscosity: "3500-4500 cP",
+          storageConditions: "Room temperature",
+          batchSize: "80-250 kg",
+          processingTime: "4 hours",
+          temperature: "75-80°C",
+          equipment: "High-shear homogenizer",
+          certification: "ISO 22716",
+          ingredients: JSON.stringify([
+            { name: "Cyclopentasiloxane", inci: "Cyclopentasiloxane", percentage: "25.0%", function: "Volatile Carrier" },
+            { name: "Dimethicone Crosspolymer", inci: "Dimethicone Crosspolymer", percentage: "15.0%", function: "Long-Wear Agent" },
+            { name: "Titanium Dioxide", inci: "Titanium Dioxide", percentage: "15.0%", function: "Coverage Pigment" },
+            { name: "Iron Oxide Blend", inci: "Iron Oxides", percentage: "12.0%", function: "Color Matching" },
+            { name: "Trimethylsiloxysilicate", inci: "Trimethylsiloxysilicate", percentage: "8.0%", function: "Film Former" },
+            { name: "Niacinamide", inci: "Niacinamide", percentage: "3.0%", function: "Skin Perfecting" },
+            { name: "Caffeine", inci: "Caffeine", percentage: "1.0%", function: "De-puffing Agent" }
+          ]),
+          instructions: JSON.stringify([
+            { phase: "Silicone Base", steps: ["Combine silicones at 78°C", "Add crosspolymer slowly", "Mix until smooth gel forms"] },
+            { phase: "Pigment Dispersion", steps: ["Pre-disperse pigments separately", "Add to base gradually", "Use high-shear mixing"] },
+            { phase: "Active Integration", steps: ["Cool to 50°C", "Add niacinamide", "Add caffeine", "Final homogenization"] }
+          ]),
+          usageInstructions: "Apply with brush or fingers, blend outward. Build coverage as needed. Professional long-wear concealer formulation."
         },
         {
           name: "Illuminating Highlighter",
