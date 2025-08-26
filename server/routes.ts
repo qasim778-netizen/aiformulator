@@ -466,6 +466,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/ai/generate-bulk-formulations-with-keywords", isAuthenticated, async (req, res) => {
     try {
       const { categoryId, count, includeImages = false } = req.body;
+      console.log(`=== BULK API ENDPOINT ===`);
+      console.log(`Request body:`, req.body);
+      console.log(`includeImages value:`, includeImages);
+      console.log(`includeImages type:`, typeof includeImages);
+      
       if (!categoryId || !count) {
         return res.status(400).json({ message: "Category ID and count are required" });
       }
