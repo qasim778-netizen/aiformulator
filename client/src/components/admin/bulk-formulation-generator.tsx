@@ -208,36 +208,6 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
         </CardContent>
       </Card>
 
-      {/* Category Statistics */}
-      {categories.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Available Categories</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3">
-              {categories.map((category) => (
-                <div key={category.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <img
-                      className="h-8 w-8 rounded-md object-cover"
-                      src={category.image}
-                      alt={category.name}
-                    />
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-900">{category.name}</h4>
-                      <p className="text-xs text-gray-500">{category.description.substring(0, 50)}...</p>
-                    </div>
-                  </div>
-                  <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                    Available
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }
