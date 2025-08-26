@@ -16,11 +16,24 @@ export default function Navbar() {
   const [logoSettings, setLogoSettings] = useState<LogoSettings>(() => {
     // Load from localStorage or use defaults
     const saved = localStorage.getItem('ai_formulator_logo_settings');
-    return saved ? JSON.parse(saved) : {
+    const defaultSettings = {
       logoUrl: logoImage,
       logoSize: 40,
       companyName: 'AIFormulator'
     };
+    
+    // If saved settings exist but company name is old format, update it
+    if (saved) {
+      const parsedSettings = JSON.parse(saved);
+      if (parsedSettings.companyName === 'AI Formulator') {
+        parsedSettings.companyName = 'AIFormulator';
+        localStorage.setItem('ai_formulator_logo_settings', JSON.stringify(parsedSettings));
+        return parsedSettings;
+      }
+      return parsedSettings;
+    }
+    
+    return defaultSettings;
   });
   
   // Listen for logo settings changes
