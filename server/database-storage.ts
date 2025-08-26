@@ -10,6 +10,12 @@ export class DatabaseStorage implements IStorage {
 
   constructor() {
     // Initialize without dummy data
+    this.clearAllAiGenerations();
+  }
+
+  // Method to clear all AI generation data
+  private clearAllAiGenerations() {
+    this.aiGenerations.clear();
   }
   // Categories
   async getCategories(): Promise<Category[]> {
@@ -158,6 +164,11 @@ export class DatabaseStorage implements IStorage {
     };
     this.aiGenerations.set(id, newGeneration);
     return newGeneration;
+  }
+
+  // Method to clear all AI analytics data (admin use)
+  async clearAllAiAnalytics(): Promise<void> {
+    this.aiGenerations.clear();
   }
 
   // Product Properties methods
