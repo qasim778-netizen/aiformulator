@@ -24,28 +24,76 @@ const consistencyTypes = [
     title: "Cream",
     description: "Thick, spreadable",
     icon: Hand,
-    examples: ["Face cream", "Night cream", "Eye cream", "Body lotion"]
+    examples: ["Face cream", "Night cream", "Eye cream", "Body lotion"],
+    colors: {
+      bg: "bg-gradient-to-br from-orange-50 to-yellow-50",
+      border: "border-orange-200",
+      selectedBg: "bg-gradient-to-br from-orange-100 to-yellow-100",
+      selectedBorder: "border-orange-500",
+      icon: "text-orange-600",
+      selectedIcon: "text-orange-700",
+      title: "text-orange-900",
+      desc: "text-orange-700",
+      selectedTitle: "text-orange-900",
+      selectedDesc: "text-orange-800"
+    }
   },
   {
     id: "liquid",
     title: "Liquid/Serum",
     description: "Flowing consistency",
     icon: Droplets,
-    examples: ["Toner", "Serum", "Oil", "Cleanser"]
+    examples: ["Toner", "Serum", "Oil", "Cleanser"],
+    colors: {
+      bg: "bg-gradient-to-br from-blue-50 to-cyan-50",
+      border: "border-blue-200",
+      selectedBg: "bg-gradient-to-br from-blue-100 to-cyan-100",
+      selectedBorder: "border-blue-500",
+      icon: "text-blue-600",
+      selectedIcon: "text-blue-700",
+      title: "text-blue-900",
+      desc: "text-blue-700",
+      selectedTitle: "text-blue-900",
+      selectedDesc: "text-blue-800"
+    }
   },
   {
     id: "gel",
     title: "Gel",
     description: "Semi-solid texture",
     icon: Waves,
-    examples: ["Aloe gel", "Hair gel", "Face mask", "Body gel"]
+    examples: ["Aloe gel", "Hair gel", "Face mask", "Body gel"],
+    colors: {
+      bg: "bg-gradient-to-br from-emerald-50 to-green-50",
+      border: "border-emerald-200",
+      selectedBg: "bg-gradient-to-br from-emerald-100 to-green-100",
+      selectedBorder: "border-emerald-500",
+      icon: "text-emerald-600",
+      selectedIcon: "text-emerald-700",
+      title: "text-emerald-900",
+      desc: "text-emerald-700",
+      selectedTitle: "text-emerald-900",
+      selectedDesc: "text-emerald-800"
+    }
   },
   {
     id: "powder",
     title: "Powder/Foundation",
     description: "Dry, granular",
     icon: Circle,
-    examples: ["Face powder", "Foundation", "Dry shampoo", "Setting powder"]
+    examples: ["Face powder", "Foundation", "Dry shampoo", "Setting powder"],
+    colors: {
+      bg: "bg-gradient-to-br from-purple-50 to-pink-50",
+      border: "border-purple-200",
+      selectedBg: "bg-gradient-to-br from-purple-100 to-pink-100",
+      selectedBorder: "border-purple-500",
+      icon: "text-purple-600",
+      selectedIcon: "text-purple-700",
+      title: "text-purple-900",
+      desc: "text-purple-700",
+      selectedTitle: "text-purple-900",
+      selectedDesc: "text-purple-800"
+    }
   }
 ];
 
@@ -225,31 +273,38 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
         <Label className="text-base font-semibold text-gray-900 mb-4 block">
           Consistency Type
         </Label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
           {consistencyTypes.map((type) => {
             const IconComponent = type.icon;
             const isSelected = formData.consistencyType === type.id;
+            const colors = type.colors;
             
             return (
               <button
                 key={type.id}
                 onClick={() => updateFormData({ consistencyType: type.id })}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 text-center hover:shadow-md ${
+                className={`p-5 rounded-xl border-2 transition-all duration-300 text-center hover:shadow-lg hover:scale-105 transform ${
                   isSelected 
-                    ? 'border-blue-600 bg-blue-50 shadow-md' 
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? `${colors.selectedBg} ${colors.selectedBorder} shadow-lg scale-105` 
+                    : `${colors.bg} ${colors.border} hover:${colors.selectedBorder}`
                 }`}
                 data-testid={`consistency-${type.id}`}
               >
-                <div className={`mx-auto mb-3 w-12 h-12 flex items-center justify-center ${
-                  isSelected ? 'text-blue-600' : 'text-gray-600'
-                }`}>
+                <div className={`mx-auto mb-3 w-14 h-14 flex items-center justify-center rounded-full ${
+                  isSelected 
+                    ? `${colors.selectedIcon} bg-white/50` 
+                    : `${colors.icon} bg-white/30`
+                } transition-all duration-300`}>
                   <IconComponent className="h-8 w-8" />
                 </div>
-                <h4 className={`font-semibold mb-1 text-sm ${isSelected ? 'text-blue-900' : 'text-gray-900'}`}>
+                <h4 className={`font-bold mb-2 text-sm ${
+                  isSelected ? colors.selectedTitle : colors.title
+                } transition-colors duration-300`}>
                   {type.title}
                 </h4>
-                <p className={`text-xs ${isSelected ? 'text-blue-700' : 'text-gray-600'}`}>
+                <p className={`text-xs ${
+                  isSelected ? colors.selectedDesc : colors.desc
+                } transition-colors duration-300`}>
                   {type.description}
                 </p>
               </button>
