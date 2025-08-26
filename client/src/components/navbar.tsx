@@ -17,7 +17,7 @@ export default function Navbar() {
     // Force correct branding - clear any old cached data
     const defaultSettings = {
       logoUrl: logoImage,
-      logoSize: 40,
+      logoSize: 110,
       companyName: 'AIFormulator'
     };
     
@@ -58,7 +58,7 @@ export default function Navbar() {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <Link href="/">
-                <div className="flex items-center space-x-2 cursor-pointer">
+                <div className="flex items-center cursor-pointer">
                   <img 
                     src={logoSettings.logoUrl} 
                     alt={`${logoSettings.companyName} Logo`}
@@ -72,9 +72,6 @@ export default function Navbar() {
                       e.currentTarget.src = logoImage; // Fallback to default
                     }}
                   />
-                  <h1 className="text-lg font-inter font-bold text-primary">
-                    {logoSettings.companyName}
-                  </h1>
                 </div>
               </Link>
             </div>

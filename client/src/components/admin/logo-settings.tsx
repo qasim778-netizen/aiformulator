@@ -21,7 +21,7 @@ export default function LogoSettings() {
     const saved = localStorage.getItem('ai_formulator_logo_settings');
     return saved ? JSON.parse(saved) : {
       logoUrl: logoImage,
-      logoSize: 40,
+      logoSize: 110,
       companyName: 'AIFormulator'
     };
   });
@@ -128,7 +128,7 @@ export default function LogoSettings() {
   const handleReset = () => {
     const defaultSettings = {
       logoUrl: logoImage,
-      logoSize: 40,
+      logoSize: 110,
       companyName: 'AIFormulator'
     };
     saveSettings(defaultSettings);
