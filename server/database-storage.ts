@@ -275,8 +275,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Method to clear all AI analytics data (admin use)
-  async clearAllAiAnalytics(): Promise<void> {
+  async clearAiGenerations(): Promise<boolean> {
     this.aiGenerations.clear();
+    return true;
   }
 
   // Product Properties methods

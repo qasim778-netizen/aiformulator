@@ -307,6 +307,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Clear AI analytics data (admin only)
+  app.delete("/api/ai-analytics", isAuthenticated, async (req, res) => {
+    try {
+      const success = await storage.clearAiGenerations();
+      if (success) {
+        res.json({ message: "AI analytics data cleared successfully" });
+      } else {
+        res.status(500).json({ message: "Failed to clear AI analytics data" });
+      }
+    } catch (error) {
+      console.error("Failed to clear AI analytics:", error);
+      res.status(500).json({ message: "Failed to clear AI analytics data" });
+    }
+  });
+
   // SEO Optimization endpoint (protected admin route)
   app.post("/api/admin/optimize-seo", isAuthenticated, async (req, res) => {
     try {

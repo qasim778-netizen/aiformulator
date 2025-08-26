@@ -32,6 +32,7 @@ export interface IStorage {
   // AI Generations
   getAiGenerations(): Promise<IAiGeneration[]>;
   trackAiGeneration(generation: Omit<IAiGeneration, 'id'>): Promise<IAiGeneration>;
+  clearAiGenerations(): Promise<boolean>;
 
   // Product Properties
   getProductProperties(productType: string): Promise<string[] | undefined>;
@@ -1619,6 +1620,11 @@ export class MemStorage implements IStorage {
     };
     this.aiGenerations.set(id, newGeneration);
     return newGeneration;
+  }
+
+  async clearAiGenerations(): Promise<boolean> {
+    this.aiGenerations.clear();
+    return true;
   }
 
   // Product Properties methods

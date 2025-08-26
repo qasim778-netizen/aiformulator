@@ -171,6 +171,24 @@ export default function AdminPage() {
     },
   });
 
+  const clearAiAnalytics = useMutation({
+    mutationFn: () => apiRequest("DELETE", "/api/ai-analytics"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ai-analytics"] });
+      toast({ 
+        title: "AI Analytics Cleared", 
+        description: "All dummy analytics data has been removed successfully" 
+      });
+    },
+    onError: () => {
+      toast({ 
+        title: "Failed to clear analytics", 
+        description: "There was an error clearing the analytics data",
+        variant: "destructive" 
+      });
+    },
+  });
+
   const filteredFormulations = selectedCategory === "all" 
     ? formulations 
     : formulations.filter(f => f.categoryId === selectedCategory);
@@ -1034,6 +1052,25 @@ export default function AdminPage() {
                 <h2 className="text-xl font-inter font-semibold text-gray-900">AI Analytics & Usage Statistics</h2>
                 <p className="text-sm text-gray-600 mt-1">Monitor AI formulator usage, user activity, and generation trends</p>
               </div>
+              <Button 
+                onClick={() => clearAiAnalytics.mutate()}
+                disabled={clearAiAnalytics.isPending}
+                variant="destructive"
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2"
+                data-testid="button-clear-analytics"
+              >
+                {clearAiAnalytics.isPending ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Clearing...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Clear Dummy Data
+                  </>
+                )}
+              </Button>
             </div>
 
             {/* Analytics Filter */}
