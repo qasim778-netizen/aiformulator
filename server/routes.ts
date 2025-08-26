@@ -502,7 +502,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // PDF Generation for existing formulations
-  app.post("/api/formulations/:id/pdf", isAuthenticated, async (req, res) => {
+  app.post("/api/formulations/:id/pdf", async (req, res) => {
     try {
       const formulationId = req.params.id;
       const formulation = await storage.getFormulation(formulationId);
