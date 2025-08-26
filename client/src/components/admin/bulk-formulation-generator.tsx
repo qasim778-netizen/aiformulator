@@ -155,46 +155,66 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="formulationCount" className="block text-sm font-medium mb-2">
-                  Number of Formulations
-                </label>
-                <Input
-                  id="formulationCount"
-                  data-testid="input-bulk-formulation-count"
-                  type="number"
-                  min="1"
-                  max="50"
-                  value={formulationCount}
-                  onChange={(e) => setFormulationCount(e.target.value)}
-                  className="w-32"
-                  disabled={generateBulkFormulations.isPending}
-                  placeholder="5"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Generate between 1-50 formulations (recommended: 5-10)
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Generate Product Images
-                </label>
-                <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <Image className="h-5 w-5 text-blue-600" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-blue-900">AI Product Photography</p>
-                    <p className="text-xs text-blue-600">Create professional product images for marketing</p>
+            {/* AI Product Photography - PROMINENT SECTION */}
+            <div className={`p-6 rounded-xl border-2 transition-all ${
+              includeAiImages 
+                ? 'bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-400 shadow-lg' 
+                : 'bg-gray-50 border-gray-300 hover:border-blue-300'
+            }`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 rounded-full ${includeAiImages ? 'bg-blue-500' : 'bg-gray-400'}`}>
+                    <Image className="h-6 w-6 text-white" />
                   </div>
+                  <div>
+                    <h3 className={`text-lg font-bold ${includeAiImages ? 'text-blue-900' : 'text-gray-700'}`}>
+                      🎨 AI Product Photography
+                    </h3>
+                    <p className={`text-sm ${includeAiImages ? 'text-blue-700' : 'text-gray-600'}`}>
+                      Generate professional product images with DALL-E AI
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`text-sm font-medium ${includeAiImages ? 'text-blue-700' : 'text-gray-500'}`}>
+                    {includeAiImages ? 'ENABLED' : 'DISABLED'}
+                  </span>
                   <Switch
                     checked={includeAiImages}
                     onCheckedChange={setIncludeAiImages}
                     disabled={generateBulkFormulations.isPending}
                     data-testid="switch-include-ai-images"
+                    className="scale-125"
                   />
                 </div>
               </div>
+              {includeAiImages && (
+                <div className="mt-4 p-3 bg-blue-100 rounded-lg border border-blue-200">
+                  <p className="text-sm font-medium text-blue-800">✅ Images will be generated for each formulation</p>
+                  <p className="text-xs text-blue-600 mt-1">Professional product photography with clean backgrounds</p>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="formulationCount" className="block text-sm font-medium mb-2">
+                Number of Formulations
+              </label>
+              <Input
+                id="formulationCount"
+                data-testid="input-bulk-formulation-count"
+                type="number"
+                min="1"
+                max="50"
+                value={formulationCount}
+                onChange={(e) => setFormulationCount(e.target.value)}
+                className="w-32"
+                disabled={generateBulkFormulations.isPending}
+                placeholder="5"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Generate between 1-50 formulations (recommended: 5-10)
+              </p>
             </div>
 
             {/* Formula Features Info */}
