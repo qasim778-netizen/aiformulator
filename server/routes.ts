@@ -727,7 +727,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Product Properties API - Dynamic special properties based on product type
   app.get("/api/product-properties/:productType", async (req, res) => {
     try {
-      const inputType = req.params.productType.toLowerCase();
+      // Add CORS headers for deployment
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET');
+      res.header('Access-Control-Allow-Headers', 'Content-Type');
+      
+      const rawType = decodeURIComponent(req.params.productType);
+      const inputType = rawType.toLowerCase().trim();
       
       // Map frontend categories to database product types
       const categoryMap: Record<string, string> = {
@@ -771,11 +777,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const mappedType = categoryMap[inputType] || 'other';
-      console.log(`Product properties mapping: "${req.params.productType}" -> "${inputType}" -> "${mappedType}"`);
+      console.log(`Product properties mapping: "${rawType}" -> "${inputType}" -> "${mappedType}"`);
       
       const properties = await storage.getProductProperties(mappedType);
       
-      if (!properties) {
+      if (!properties || properties.length === 0) {
         // Return empty array if no specific properties found
         console.log(`No properties found for product type: ${mappedType}`);
         return res.json([]);
@@ -785,7 +791,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(properties);
     } catch (error: any) {
       console.error("Failed to fetch product properties:", error);
-      res.status(500).json({ message: "Failed to fetch product properties" });
+      res.status(500).json({ message: "Failed to fetch product properties", error: error.message });
     }
   });
 

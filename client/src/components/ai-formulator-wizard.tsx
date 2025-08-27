@@ -74,6 +74,15 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   // Query for dynamic special properties based on product category
   const { data: availableProperties, isLoading: propertiesLoading } = useQuery({
     queryKey: ['/api/product-properties', formData.productCategory],
+    queryFn: async () => {
+      if (!formData.productCategory) return [];
+      const encodedCategory = encodeURIComponent(formData.productCategory);
+      const response = await fetch(`/api/product-properties/${encodedCategory}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch product properties');
+      }
+      return response.json();
+    },
     enabled: !!formData.productCategory,
   });
 
