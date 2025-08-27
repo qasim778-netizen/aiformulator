@@ -273,7 +273,7 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
       {/* Consistency Type Selection */}
       <div>
         <Label className="text-base font-semibold text-orange-800 mb-4 block">
-          Consistency Type
+          <span className="text-red-600 font-bold mr-1">3.</span> Consistency Type <span className="text-red-600 font-bold">*</span>
         </Label>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
           {consistencyTypes.map((type) => {

@@ -73,7 +73,7 @@ export default function RequirementsStep({ formData, updateFormData }: Props) {
           {/* Budget Category */}
           <div>
             <Label className="text-base font-semibold text-green-800 mb-4 block">
-              Budget Category
+              <span className="text-red-600 font-bold mr-1">9.</span> Budget Category <span className="text-red-600 font-bold">*</span>
             </Label>
             <div className="space-y-3">
               {budgetCategories.map((category) => {
@@ -114,8 +114,9 @@ export default function RequirementsStep({ formData, updateFormData }: Props) {
           {/* Production Volume - Enhanced */}
           <div className="bg-white p-6 rounded-xl border-2 border-gray-200 shadow-sm hover:border-blue-300 transition-all duration-200">
             <Label className="text-base font-semibold text-blue-800 mb-4 block flex items-center">
+              <span className="text-red-600 font-bold mr-1">10.</span>
               <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">🏭</span>
-              Production Volume *
+              Production Volume <span className="text-red-600 font-bold">*</span>
             </Label>
             <Select 
               value={formData.productionVolume} 
@@ -140,7 +141,7 @@ export default function RequirementsStep({ formData, updateFormData }: Props) {
           {/* Regulatory Requirements */}
           <div>
             <Label className="text-base font-semibold text-red-800 mb-4 block">
-              Regulatory Requirements
+              <span className="text-red-600 font-bold mr-1">11.</span> Regulatory Requirements
             </Label>
             <div className="space-y-3">
               {regulatoryRequirements.map((req) => (
@@ -171,6 +172,7 @@ export default function RequirementsStep({ formData, updateFormData }: Props) {
       {/* Additional Notes - Enhanced */}
       <div className="bg-white p-6 rounded-xl border-2 border-gray-200 shadow-sm hover:border-blue-300 transition-all duration-200">
         <Label htmlFor="additionalNotes" className="text-base font-semibold text-teal-800 mb-4 block flex items-center">
+          <span className="text-red-600 font-bold mr-1">12.</span>
           <span className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">📝</span>
           Additional Notes
         </Label>

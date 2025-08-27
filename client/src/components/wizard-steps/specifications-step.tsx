@@ -95,7 +95,7 @@ export default function SpecificationsStep({ formData, updateFormData, available
           {/* Target Viscosity */}
           <div>
             <Label className="text-base font-semibold text-blue-800 mb-4 block">
-              Target Viscosity
+              <span className="text-red-600 font-bold mr-1">4.</span> Target Viscosity <span className="text-red-600 font-bold">*</span>
             </Label>
             <RadioGroup 
               value={formData.viscosity} 
@@ -129,7 +129,7 @@ export default function SpecificationsStep({ formData, updateFormData, available
           {/* Special Properties */}
           <div>
             <Label className="text-base font-semibold text-green-800 mb-4 block">
-              Special Properties
+              <span className="text-red-600 font-bold mr-1">5.</span> Special Properties
             </Label>
             {propertiesLoading ? (
               <div className="flex items-center justify-center py-4">
@@ -172,7 +172,7 @@ export default function SpecificationsStep({ formData, updateFormData, available
           {/* pH Level */}
           <div>
             <Label className="text-base font-semibold text-red-800 mb-4 block">
-              pH Level
+              <span className="text-red-600 font-bold mr-1">6.</span> pH Level <span className="text-red-600 font-bold">*</span>
             </Label>
             <div className="px-3 py-2 bg-gray-50 rounded-lg">
               <div className="flex justify-between text-xs font-medium text-gray-700 mb-1">
@@ -201,6 +201,7 @@ export default function SpecificationsStep({ formData, updateFormData, available
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="bg-white p-6 rounded-xl border-2 border-gray-200 shadow-sm hover:border-blue-300 transition-all duration-200">
               <Label htmlFor="shelfLife" className="text-base font-semibold text-purple-800 mb-4 block flex items-center">
+                <span className="text-red-600 font-bold mr-1">7.</span>
                 <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">📅</span>
                 Shelf Life (months) *
               </Label>
@@ -219,6 +220,7 @@ export default function SpecificationsStep({ formData, updateFormData, available
             </div>
             <div className="bg-white p-6 rounded-xl border-2 border-gray-200 shadow-sm hover:border-blue-300 transition-all duration-200">
               <Label className="text-base font-semibold text-orange-800 mb-4 block flex items-center">
+                <span className="text-red-600 font-bold mr-1">8.</span>
                 <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">🌡️</span>
                 Storage Temperature *
               </Label>
