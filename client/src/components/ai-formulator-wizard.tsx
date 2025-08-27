@@ -77,15 +77,54 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     { title: "Generate", icon: "✏️" }
   ];
 
-  const updateFormData = (data: Partial<FormData>) => {
-    const newFormData = { ...formData, ...data };
-    setFormData(newFormData);
+  // Smart consistency type selection based on product category and name
+  const getSmartConsistencyType = (category: string, productName?: string): string => {
+    const categoryLower = category.toLowerCase();
+    const nameLower = (productName || '').toLowerCase();
     
-    // Update dynamic properties when product category changes
+    // Product name-based detection (highest priority)
+    if (nameLower.includes('cleaner') || nameLower.includes('glass') || nameLower.includes('window')) return 'liquid';
+    if (nameLower.includes('cream') || nameLower.includes('moisturizer') || nameLower.includes('lotion')) return 'cream';
+    if (nameLower.includes('gel') || nameLower.includes('aloe')) return 'gel';
+    if (nameLower.includes('powder') || nameLower.includes('foundation') || nameLower.includes('dry')) return 'powder';
+    if (nameLower.includes('scrub') || nameLower.includes('exfoliant')) return 'cream';
+    if (nameLower.includes('shampoo') || nameLower.includes('soap') || nameLower.includes('wash')) return 'liquid';
+    if (nameLower.includes('oil') || nameLower.includes('serum')) return 'liquid';
+    if (nameLower.includes('balm') || nameLower.includes('stick')) return 'cream';
+    
+    // Category-based defaults
+    if (categoryLower.includes('cleaning') || categoryLower.includes('household')) return 'liquid';
+    if (categoryLower.includes('hair care')) return 'liquid'; // Most hair products are liquid
+    if (categoryLower.includes('oral care')) return 'gel'; // Toothpaste is typically gel
+    if (categoryLower.includes('skincare') || categoryLower.includes('cosmetics')) return 'cream'; // Most skincare is cream
+    if (categoryLower.includes('body care')) return 'cream'; // Body lotions/creams
+    if (categoryLower.includes('baby')) return 'cream'; // Baby products are often gentle creams
+    if (categoryLower.includes('organic') || categoryLower.includes('natural')) return 'cream';
+    
+    // Default fallback
+    return 'cream';
+  };
+
+  const updateFormData = (data: Partial<FormData>) => {
+    let updatedData = { ...data };
+    
+    // Auto-select consistency type when category or product name changes
     if (data.productCategory && data.productCategory !== formData.productCategory) {
+      const smartConsistency = getSmartConsistencyType(data.productCategory, formData.productName);
+      updatedData.consistencyType = smartConsistency;
+      
       // Clear existing special properties when category changes
-      setFormData(prev => ({ ...prev, ...data, specialProperties: [] }));
+      updatedData.specialProperties = [];
     }
+    
+    // Auto-update consistency when product name changes (but not if user manually selected it)
+    if (data.productName && data.productName !== formData.productName && formData.productCategory) {
+      const smartConsistency = getSmartConsistencyType(formData.productCategory, data.productName);
+      updatedData.consistencyType = smartConsistency;
+    }
+    
+    const newFormData = { ...formData, ...updatedData };
+    setFormData(newFormData);
   };
 
   // Update dynamic properties when available properties change
