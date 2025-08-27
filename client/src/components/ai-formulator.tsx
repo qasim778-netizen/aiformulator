@@ -14,6 +14,7 @@ import { Loader2, Download, FileText, Beaker } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import SignInDialog from "@/components/signin-dialog";
+import { Captcha } from "@/components/ui/captcha";
 
 const formulatorSchema = z.object({
   productName: z.string().min(1, "Product name is required"),
@@ -32,6 +33,8 @@ type FormulatorData = z.infer<typeof formulatorSchema>;
 export default function AIFormulator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showSignInDialog, setShowSignInDialog] = useState(false);
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
+  const [captchaKey, setCaptchaKey] = useState(0);
   const { toast } = useToast();
 
   const form = useForm<FormulatorData>({
@@ -101,11 +104,13 @@ export default function AIFormulator() {
           description: `Created formulation for ${data.productName} and downloaded PDF`,
         });
         form.reset();
+        resetCaptcha(); // Reset captcha after successful generation
       }
       setIsGenerating(false);
     },
     onError: (error: any) => {
       setIsGenerating(false);
+      resetCaptcha(); // Reset captcha after error so user can try again
       
       // Don't show error toast for authentication errors since dialog will handle it
       if (error.message === "Authentication required") {
@@ -121,8 +126,25 @@ export default function AIFormulator() {
   });
 
   const onSubmit = (data: FormulatorData) => {
+    if (!isCaptchaVerified) {
+      toast({
+        title: "Captcha Required",
+        description: "Please complete the security verification before generating.",
+        variant: "destructive"
+      });
+      return;
+    }
     setIsGenerating(true);
     generateFormulation.mutate(data);
+  };
+
+  const handleCaptchaVerify = (isValid: boolean) => {
+    setIsCaptchaVerified(isValid);
+  };
+
+  const resetCaptcha = () => {
+    setIsCaptchaVerified(false);
+    setCaptchaKey(prev => prev + 1);
   };
 
   return (
@@ -338,12 +360,20 @@ export default function AIFormulator() {
               )}
             />
 
+            <Separator />
+
+            <Captcha 
+              key={captchaKey}
+              onVerify={handleCaptchaVerify}
+              onReset={resetCaptcha}
+            />
+
             <div className="flex justify-center pt-4">
               <Button
                 type="submit"
                 size="lg"
-                disabled={isGenerating}
-                className="bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+                disabled={isGenerating || !isCaptchaVerified}
+                className="bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 data-testid="button-generate-formulation"
               >
                 {isGenerating ? (
