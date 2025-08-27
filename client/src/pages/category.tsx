@@ -2,18 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import FormulationCard from "@/components/formulation-card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import type { Category, Formulation } from "@shared/schema";
-import { useState, useCallback } from "react";
-import { Captcha } from "@/components/ui/captcha";
-import { useToast } from "@/hooks/use-toast";
 
 export default function CategoryPage() {
   const params = useParams();
   const categoryId = params.id;
-  const { toast } = useToast();
-  const [isCaptchaVerified, setIsCaptchaVerified] = useState(true);
-  const [captchaKey, setCaptchaKey] = useState(0);
 
   const { data: category, isLoading: categoryLoading } = useQuery<Category>({
     queryKey: ["/api/categories", categoryId],
@@ -44,61 +39,9 @@ export default function CategoryPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Category not found</h1>
-          <Link href="/">
-            <Button>Return Home</Button>
+          <Link href="/browse">
+            <Button>Return to Browse</Button>
           </Link>
-        </div>
-      </div>
-    );
-  }
-
-  // Captcha verification handlers
-  const handleCaptchaVerify = useCallback((verified: boolean) => {
-    setIsCaptchaVerified(verified);
-    if (verified) {
-      toast({
-        title: "Verification Successful",
-        description: "You can now browse the formulations in this category."
-      });
-    }
-  }, [toast]);
-
-  const resetCaptcha = useCallback(() => {
-    setIsCaptchaVerified(false);
-    setCaptchaKey(prev => prev + 1);
-  }, []);
-
-  // Show captcha verification first
-  if (!isCaptchaVerified) {
-    return (
-      <div className="bg-white py-8">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <Link href="/browse">
-              <Button variant="ghost" className="text-primary hover:text-blue-700 mb-6">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Browse
-              </Button>
-            </Link>
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Security Verification Required</h1>
-            <p className="text-lg text-gray-600 mb-8">
-              To access formulations in the <strong>{category.name}</strong> category, please complete the security verification below.
-            </p>
-          </div>
-          
-          <div className="max-w-lg mx-auto">
-            <Captcha
-              key={captchaKey}
-              onVerify={handleCaptchaVerify}
-              onReset={resetCaptcha}
-            />
-          </div>
-          
-          <div className="text-center mt-8">
-            <p className="text-sm text-gray-500">
-              This verification helps protect against automated access and ensures the security of our formulation database.
-            </p>
-          </div>
         </div>
       </div>
     );
@@ -108,28 +51,63 @@ export default function CategoryPage() {
     <div className="bg-white py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center mb-6">
-          <Link href="/">
+          <Link href="/browse">
             <Button variant="ghost" className="text-primary hover:text-blue-700 mr-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Categories
+              Back to Browse
             </Button>
           </Link>
           <h1 className="text-3xl font-inter font-bold text-gray-900">
-            {category.name} Formulations
+            {category.name} Formulations ({formulations.length})
           </h1>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {formulations.map((formulation) => (
-            <FormulationCard key={formulation.id} formulation={formulation} />
-          ))}
-        </div>
-
-        {formulations.length === 0 && (
+        {formulations.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {formulations.map((formulation) => (
+              <Card key={formulation.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-inter font-semibold text-gray-900">{formulation.name}</h3>
+                    <Badge className={formulation.isActive ? "bg-green-500 text-white" : "bg-yellow-500 text-white"}>
+                      {formulation.isActive ? "Active" : "Draft"}
+                    </Badge>
+                  </div>
+                  <p className="text-gray-600 mb-4 line-clamp-3">{formulation.description}</p>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">pH Level:</span>
+                      <span className="font-medium">{formulation.phLevel}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Shelf Life:</span>
+                      <span className="font-medium">{formulation.shelfLife} months</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Batch Size:</span>
+                      <span className="font-medium">{formulation.batchSize}</span>
+                    </div>
+                  </div>
+                  <Link href={`/formulation/${formulation.id}`}>
+                    <Button className="w-full bg-primary text-white hover:bg-blue-700">
+                      View Details
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
           <div className="text-center py-12">
-            <p className="text-gray-600 text-lg">
-              No formulations available in this category yet.
+            <h2 className="text-xl font-bold text-gray-900 mb-4">No formulations found</h2>
+            <p className="text-gray-600 text-lg mb-6">
+              There are currently no formulations available in the {category.name} category.
             </p>
+            <Link href="/browse">
+              <Button className="bg-primary text-white hover:bg-blue-700">
+                Browse Other Categories
+              </Button>
+            </Link>
           </div>
         )}
       </div>
