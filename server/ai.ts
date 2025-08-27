@@ -313,7 +313,6 @@ interface CustomFormulationRequest {
   color?: string;
   fragrance?: string;
   specialRequirements?: string;
-  logoSettings?: any;
 }
 
 export async function generateCustomFormulation(request: CustomFormulationRequest): Promise<Omit<InsertFormulation, 'categoryId'>> {
@@ -399,38 +398,9 @@ Please create a professional formulation that meets all these requirements exact
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
     
-    // Generate professional formulation image with company branding
-    let imageUrl = "";
-    try {
-      console.log(`Generating branded image for: ${result.name || request.productName}`);
-      
-      // Get company info from logo settings or use defaults
-      const logoSettings = request.logoSettings || {};
-      const companyName = logoSettings.companyName || "Chemical Formula Services";
-      const companyTagline = logoSettings.companyTagline || "Professional Chemical Formulations";
-      
-      // Create professional formulation image prompt based on the example style
-      const imagePrompt = `Professional chemical formulation label design. Clean beige/tan background. Large bold black text "${result.name || request.productName}" at the top. Below that, smaller text "Formulation". In the center, simple black silhouette icons representing ${request.productType} products - like bottles, containers, or relevant chemical equipment. At the bottom in elegant smaller text: "${companyName}" and "${companyTagline}". Minimalist, professional design, no photorealistic elements, clean typography, commercial chemical industry style.`;
-      
-      const imageResponse = await openai.images.generate({
-        model: "dall-e-3",
-        prompt: imagePrompt,
-        n: 1,
-        size: "1024x1024", 
-        quality: "standard"
-      });
-      
-      imageUrl = imageResponse.data?.[0]?.url || "";
-      console.log(`Branded formulation image generated: ${imageUrl ? 'Yes' : 'No'}`);
-    } catch (error) {
-      console.error("Failed to generate branded image for", result.name || request.productName, ":", error);
-      // Continue with formulation creation even if image fails
-    }
-    
     return {
       name: result.name || request.productName,
       description: result.description || request.productDescription,
-      image: imageUrl,
       ingredients: JSON.stringify(result.ingredients || []),
       instructions: JSON.stringify(result.instructions || []),
       usageInstructions: result.usageInstructions || "",
