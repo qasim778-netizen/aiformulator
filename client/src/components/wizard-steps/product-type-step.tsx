@@ -200,17 +200,18 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
     <div className="space-y-6">
       <h3 className="text-xl font-bold text-gray-900 mb-4">Product Type Selection</h3>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
-        <div className="w-full min-w-0">
-          <Label htmlFor="productCategory" className="text-base font-semibold text-gray-900 mb-3 block">
-            Product Category
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+        <div className="w-full min-w-0 bg-white p-6 rounded-xl border-2 border-gray-200 shadow-sm hover:border-blue-300 transition-all duration-200">
+          <Label htmlFor="productCategory" className="text-lg font-bold text-gray-900 mb-4 block flex items-center">
+            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">1</span>
+            Product Category *
           </Label>
           <Select 
             value={formData.productCategory} 
             onValueChange={(value) => updateFormData({ productCategory: value })}
           >
-            <SelectTrigger className="w-full h-12" data-testid="select-product-category">
-              <SelectValue placeholder="Skincare & Cosmetics" />
+            <SelectTrigger className="w-full h-14 border-2 border-gray-300 text-lg font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200" data-testid="select-product-category">
+              <SelectValue placeholder="Select product category..." />
             </SelectTrigger>
             <SelectContent>
               {productCategories.map((category) => (
@@ -222,21 +223,22 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
           </Select>
         </div>
 
-        <div className="w-full min-w-0 relative">
-          <Label htmlFor="productName" className="text-base font-semibold text-gray-900 mb-3 block">
-            Product Name
+        <div className="w-full min-w-0 relative bg-white p-6 rounded-xl border-2 border-gray-200 shadow-sm hover:border-blue-300 transition-all duration-200">
+          <Label htmlFor="productName" className="text-lg font-bold text-gray-900 mb-4 block flex items-center">
+            <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">2</span>
+            Product Name *
           </Label>
           <Input
             ref={inputRef}
             id="productName"
             type="text"
-            placeholder="Enter product name..."
+            placeholder="e.g., Anti-Aging Face Cream, Moisturizing Shampoo..."
             value={formData.productName}
             onChange={(e) => updateFormData({ productName: e.target.value })}
             onKeyDown={handleKeyDown}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            className="w-full h-12"
+            className="w-full h-14 border-2 border-gray-300 text-lg font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             data-testid="input-product-name"
           />
           

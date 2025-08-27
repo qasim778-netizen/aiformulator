@@ -111,17 +111,18 @@ export default function RequirementsStep({ formData, updateFormData }: Props) {
             </div>
           </div>
 
-          {/* Production Volume */}
-          <div>
-            <Label className="text-base font-semibold text-gray-900 mb-3 block">
-              Production Volume
+          {/* Production Volume - Enhanced */}
+          <div className="bg-white p-6 rounded-xl border-2 border-gray-200 shadow-sm hover:border-blue-300 transition-all duration-200">
+            <Label className="text-lg font-bold text-gray-900 mb-4 block flex items-center">
+              <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">🏭</span>
+              Production Volume *
             </Label>
             <Select 
               value={formData.productionVolume} 
               onValueChange={(value) => updateFormData({ productionVolume: value })}
             >
-              <SelectTrigger className="w-full h-12" data-testid="select-production-volume">
-                <SelectValue placeholder="Select production volume..." />
+              <SelectTrigger className="w-full h-14 border-2 border-gray-300 text-lg font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200" data-testid="select-production-volume">
+                <SelectValue placeholder="Choose your batch size..." />
               </SelectTrigger>
               <SelectContent>
                 {productionVolumes.map((volume) => (
@@ -167,21 +168,22 @@ export default function RequirementsStep({ formData, updateFormData }: Props) {
         </div>
       </div>
 
-      {/* Additional Notes */}
-      <div>
-        <Label htmlFor="additionalNotes" className="text-base font-semibold text-gray-900 mb-3 block">
+      {/* Additional Notes - Enhanced */}
+      <div className="bg-white p-6 rounded-xl border-2 border-gray-200 shadow-sm hover:border-blue-300 transition-all duration-200">
+        <Label htmlFor="additionalNotes" className="text-lg font-bold text-gray-900 mb-4 block flex items-center">
+          <span className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">📝</span>
           Additional Notes
         </Label>
         <Textarea
           id="additionalNotes"
-          placeholder="Any specific requirements, allergies to avoid or special considerations..."
+          placeholder="e.g., Avoid parabens, must be cruelty-free, natural ingredients preferred, specific skin type considerations..."
           value={formData.additionalNotes}
           onChange={(e) => updateFormData({ additionalNotes: e.target.value })}
-          className="w-full min-h-24 resize-y"
+          className="w-full min-h-32 resize-y border-2 border-gray-300 text-base focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           data-testid="textarea-additional-notes"
         />
-        <p className="text-sm text-gray-500 mt-2">
-          Be as specific as possible to get the most accurate formulation
+        <p className="text-sm text-gray-600 mt-3 font-medium">
+          💡 Be as specific as possible to get the most accurate formulation tailored to your needs
         </p>
       </div>
 

@@ -197,11 +197,12 @@ export default function SpecificationsStep({ formData, updateFormData, available
             </div>
           </div>
 
-          {/* Shelf Life & Storage Temperature - Horizontal */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <Label htmlFor="shelfLife" className="text-sm font-semibold text-gray-900 mb-2 block">
-                Shelf Life (months)
+          {/* Shelf Life & Storage Temperature - Enhanced */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="bg-white p-6 rounded-xl border-2 border-gray-200 shadow-sm hover:border-blue-300 transition-all duration-200">
+              <Label htmlFor="shelfLife" className="text-lg font-bold text-gray-900 mb-4 block flex items-center">
+                <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">📅</span>
+                Shelf Life (months) *
               </Label>
               <Input
                 id="shelfLife"
@@ -210,20 +211,23 @@ export default function SpecificationsStep({ formData, updateFormData, available
                 onChange={(e) => updateFormData({ shelfLife: parseInt(e.target.value) || 12 })}
                 min={1}
                 max={60}
-                className="w-full h-10"
+                placeholder="12"
+                className="w-full h-14 border-2 border-gray-300 text-lg font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                 data-testid="input-shelf-life"
               />
+              <p className="text-sm text-gray-600 mt-2">Typical range: 6-36 months</p>
             </div>
-            <div>
-              <Label className="text-sm font-semibold text-gray-900 mb-2 block">
-                Storage Temperature
+            <div className="bg-white p-6 rounded-xl border-2 border-gray-200 shadow-sm hover:border-blue-300 transition-all duration-200">
+              <Label className="text-lg font-bold text-gray-900 mb-4 block flex items-center">
+                <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">🌡️</span>
+                Storage Temperature *
               </Label>
               <Select 
                 value={formData.storageTemperature} 
                 onValueChange={(value) => updateFormData({ storageTemperature: value })}
               >
-                <SelectTrigger className="w-full h-10" data-testid="select-storage-temperature">
-                  <SelectValue placeholder="Select storage..." />
+                <SelectTrigger className="w-full h-14 border-2 border-gray-300 text-lg font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200" data-testid="select-storage-temperature">
+                  <SelectValue placeholder="Select storage condition..." />
                 </SelectTrigger>
                 <SelectContent>
                   {storageTemperatures.map((temp) => (
