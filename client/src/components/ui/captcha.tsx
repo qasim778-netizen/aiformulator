@@ -31,11 +31,8 @@ export function Captcha({ onVerify, onReset }: CaptchaProps) {
     generateCaptcha();
   }, []);
 
-  useEffect(() => {
-    if (onReset) {
-      generateCaptcha();
-    }
-  }, [onReset]);
+  // Remove the problematic useEffect that resets on onReset prop change
+  // The parent component will use the key prop to force re-render when needed
 
   const handleVerify = () => {
     const correctAnswer = num1 + num2;

@@ -53,6 +53,7 @@ export default function GenerateStep({ formData, generateFormulation, onBack }: 
   };
 
   const handleCaptchaVerify = (isValid: boolean) => {
+    console.log('GenerateStep: Captcha verification received:', isValid);
     setIsCaptchaVerified(isValid);
   };
 
@@ -222,6 +223,11 @@ export default function GenerateStep({ formData, generateFormulation, onBack }: 
           onVerify={handleCaptchaVerify}
           onReset={resetCaptcha}
         />
+        
+        {/* Debug info */}
+        <div className="text-center mt-2 text-sm text-gray-600">
+          Captcha Status: {isCaptchaVerified ? '✅ Verified' : '❌ Not Verified'}
+        </div>
       </div>
 
       {/* Action Buttons */}
