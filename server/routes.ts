@@ -508,6 +508,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Helper function to map product types to category IDs
+  const getProductTypeCategory = async (productType: string): Promise<string | null> => {
+    const categories = await storage.getCategories();
+    
+    // Create mapping from product types to category names
+    const typeToCategory: Record<string, string> = {
+      'liquid': 'Cleaning Products',
+      'cream': 'Skin Care', 
+      'gel': 'Beauty Products',
+      'powder': 'Baby Care',
+      'paste': 'Oral Care',
+      'foam': 'Men Care'
+    };
+    
+    // Default category name based on product type
+    const categoryName = typeToCategory[productType] || 'Beauty Products';
+    
+    // Find matching category
+    const category = categories.find(cat => 
+      cat.name.toLowerCase().includes(categoryName.toLowerCase()) ||
+      categoryName.toLowerCase().includes(cat.name.toLowerCase())
+    );
+    
+    return category?.id || null;
+  };
+
   // Custom AI Formulation with PDF Generation
   app.post("/api/ai/custom-formulation", async (req, res) => {
     const startTime = Date.now();
@@ -544,6 +570,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fragrance,
         specialRequirements
       });
+
+      // Find appropriate category for this formulation
+      const categoryId = await getProductTypeCategory(productType);
+      
+      // Save formulation to database if we found a category
+      if (categoryId) {
+        try {
+          const savedFormulation = await storage.createFormulation({
+            ...formulation,
+            categoryId
+          });
+          console.log(`✅ Custom formulation saved to database: ${savedFormulation.name} in category ${categoryId}`);
+        } catch (error) {
+          console.error('Failed to save custom formulation to database:', error);
+          // Continue with PDF generation even if save fails
+        }
+      } else {
+        console.log(`⚠️ No matching category found for product type: ${productType}`);
+      }
 
       // Track AI generation for analytics
       const responseTime = (Date.now() - startTime) / 1000; // Convert to seconds
