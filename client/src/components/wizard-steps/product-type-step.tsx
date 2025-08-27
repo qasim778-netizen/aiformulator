@@ -198,11 +198,11 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
 
   return (
     <div className="space-y-6">
-      <h3 className="text-xl font-bold text-gray-900 mb-4">Product Type Selection</h3>
+      <h3 className="text-xl font-bold text-indigo-900 mb-4">Product Type Selection</h3>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
         <div className="w-full min-w-0 bg-white p-6 rounded-xl border-2 border-gray-200 shadow-sm hover:border-blue-300 transition-all duration-200">
-          <Label htmlFor="productCategory" className="text-lg font-bold text-gray-900 mb-4 block flex items-center">
+          <Label htmlFor="productCategory" className="text-lg font-bold text-purple-800 mb-4 block flex items-center">
             <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">1</span>
             Product Category *
           </Label>
@@ -224,7 +224,7 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
         </div>
 
         <div className="w-full min-w-0 relative bg-white p-6 rounded-xl border-2 border-gray-200 shadow-sm hover:border-blue-300 transition-all duration-200">
-          <Label htmlFor="productName" className="text-lg font-bold text-gray-900 mb-4 block flex items-center">
+          <Label htmlFor="productName" className="text-lg font-bold text-emerald-800 mb-4 block flex items-center">
             <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">2</span>
             Product Name *
           </Label>
@@ -272,7 +272,7 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
 
       {/* Consistency Type Selection */}
       <div>
-        <Label className="text-base font-semibold text-gray-900 mb-4 block">
+        <Label className="text-base font-semibold text-orange-800 mb-4 block">
           Consistency Type
         </Label>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">

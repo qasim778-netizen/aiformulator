@@ -87,14 +87,14 @@ export default function SpecificationsStep({ formData, updateFormData, available
 
   return (
     <div className="space-y-4 w-full overflow-hidden">
-      <h3 className="text-xl font-bold text-gray-900 mb-4">Technical Specifications</h3>
+      <h3 className="text-xl font-bold text-indigo-900 mb-4">Technical Specifications</h3>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
         {/* Left Column */}
         <div className="space-y-4 w-full min-w-0">
           {/* Target Viscosity */}
           <div>
-            <Label className="text-sm font-semibold text-gray-900 mb-2 block">
+            <Label className="text-sm font-semibold text-blue-800 mb-2 block">
               Target Viscosity
             </Label>
             <RadioGroup 
@@ -109,10 +109,10 @@ export default function SpecificationsStep({ formData, updateFormData, available
                   }`}>
                     <RadioGroupItem value={option.id} id={option.id} />
                     <div className="flex-1">
-                      <Label htmlFor={option.id} className="text-sm font-medium text-gray-900 cursor-pointer">
+                      <Label htmlFor={option.id} className="text-sm font-medium text-blue-700 cursor-pointer">
                         {option.title}
                       </Label>
-                      <p className="text-xs text-gray-600">{option.description}</p>
+                      <p className="text-xs text-blue-600">{option.description}</p>
                       <p className="text-xs text-gray-500">Examples: {option.examples}</p>
                     </div>
                   </div>
@@ -128,7 +128,7 @@ export default function SpecificationsStep({ formData, updateFormData, available
         <div className="space-y-4 w-full min-w-0">
           {/* Special Properties */}
           <div>
-            <Label className="text-sm font-semibold text-gray-900 mb-2 block">
+            <Label className="text-sm font-semibold text-green-800 mb-2 block">
               Special Properties
             </Label>
             {propertiesLoading ? (
@@ -153,8 +153,8 @@ export default function SpecificationsStep({ formData, updateFormData, available
                         data-testid={`checkbox-${propertyId}`}
                       />
                       <div className="flex items-center space-x-1 flex-1">
-                        <IconComponent className="h-3 w-3 text-gray-600" />
-                        <Label htmlFor={propertyId} className="text-xs font-medium cursor-pointer">
+                        <IconComponent className="h-3 w-3 text-emerald-600" />
+                        <Label htmlFor={propertyId} className="text-xs font-medium cursor-pointer text-emerald-700">
                           {property}
                         </Label>
                       </div>
@@ -171,7 +171,7 @@ export default function SpecificationsStep({ formData, updateFormData, available
 
           {/* pH Level */}
           <div>
-            <Label className="text-sm font-semibold text-gray-900 mb-2 block">
+            <Label className="text-sm font-semibold text-red-800 mb-2 block">
               pH Level
             </Label>
             <div className="px-3 py-2 bg-gray-50 rounded-lg">
