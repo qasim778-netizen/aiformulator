@@ -105,6 +105,58 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     return 'cream';
   };
 
+  // Smart viscosity selection based on product category and consistency type
+  const getSmartDefaultViscosity = (category: string, consistencyType: string, productName?: string): string => {
+    const categoryLower = category.toLowerCase();
+    const nameLower = (productName || '').toLowerCase();
+    
+    // Product name-based detection (highest priority)
+    if (nameLower.includes('serum') || nameLower.includes('essence')) return 'Very Low';
+    if (nameLower.includes('oil') || nameLower.includes('toner')) return 'Low';
+    if (nameLower.includes('cleaner') || nameLower.includes('spray')) return 'Low';
+    if (nameLower.includes('shampoo') || nameLower.includes('wash')) return 'Medium';
+    if (nameLower.includes('cream') || nameLower.includes('moisturizer')) return 'High';
+    if (nameLower.includes('gel') && nameLower.includes('hair')) return 'High';
+    if (nameLower.includes('mask') || nameLower.includes('treatment')) return 'High';
+    if (nameLower.includes('balm') || nameLower.includes('ointment')) return 'Very High';
+    
+    // Consistency type-based defaults
+    if (consistencyType === 'liquid') {
+      if (categoryLower.includes('cleaning') || categoryLower.includes('household')) return 'Low';
+      if (categoryLower.includes('hair care')) return 'Medium';
+      if (categoryLower.includes('oral care')) return 'Medium';
+      return 'Low';
+    }
+    
+    if (consistencyType === 'cream') {
+      if (categoryLower.includes('skincare') || categoryLower.includes('cosmetics')) return 'High';
+      if (categoryLower.includes('body care')) return 'Medium';
+      if (categoryLower.includes('baby')) return 'Medium';
+      return 'High';
+    }
+    
+    if (consistencyType === 'gel') {
+      if (categoryLower.includes('hair care')) return 'High';
+      if (categoryLower.includes('oral care')) return 'Medium';
+      if (categoryLower.includes('skincare')) return 'Medium';
+      return 'Medium';
+    }
+    
+    if (consistencyType === 'powder') {
+      return 'Very High';
+    }
+    
+    // Category-based fallbacks
+    if (categoryLower.includes('cleaning') || categoryLower.includes('household')) return 'Low';
+    if (categoryLower.includes('hair care')) return 'Medium';
+    if (categoryLower.includes('oral care')) return 'Medium';
+    if (categoryLower.includes('skincare') || categoryLower.includes('cosmetics')) return 'High';
+    if (categoryLower.includes('body care')) return 'Medium';
+    
+    // Default fallback
+    return 'Medium';
+  };
+
   // Intelligent Default Properties Mapper
   const getSmartDefaultProperties = (category: string, productName?: string, availableProps: string[] = []): string[] => {
     const categoryLower = category.toLowerCase();
@@ -241,6 +293,10 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
       const smartConsistency = getSmartConsistencyType(data.productCategory, formData.productName);
       updatedData.consistencyType = smartConsistency;
       
+      // Auto-select smart viscosity based on category and consistency
+      const smartViscosity = getSmartDefaultViscosity(data.productCategory, smartConsistency, formData.productName);
+      updatedData.viscosity = smartViscosity;
+      
       // Auto-select intelligent default properties based on category and current product name
       const smartProperties = getSmartDefaultProperties(
         data.productCategory, 
@@ -250,10 +306,14 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
       updatedData.specialProperties = smartProperties;
     }
     
-    // Auto-update consistency and properties when product name changes
+    // Auto-update consistency, viscosity and properties when product name changes
     if (data.productName && data.productName !== formData.productName && formData.productCategory) {
       const smartConsistency = getSmartConsistencyType(formData.productCategory, data.productName);
       updatedData.consistencyType = smartConsistency;
+      
+      // Auto-select smart viscosity based on product name, category and consistency
+      const smartViscosity = getSmartDefaultViscosity(formData.productCategory, smartConsistency, data.productName);
+      updatedData.viscosity = smartViscosity;
       
       // Auto-select intelligent properties based on product name and category
       const smartProperties = getSmartDefaultProperties(
@@ -262,6 +322,12 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
         availableProperties || []
       );
       updatedData.specialProperties = smartProperties;
+    }
+    
+    // Auto-update viscosity when consistency type changes manually
+    if (data.consistencyType && data.consistencyType !== formData.consistencyType && formData.productCategory) {
+      const smartViscosity = getSmartDefaultViscosity(formData.productCategory, data.consistencyType, formData.productName);
+      updatedData.viscosity = smartViscosity;
     }
     
     const newFormData = { ...formData, ...updatedData };
