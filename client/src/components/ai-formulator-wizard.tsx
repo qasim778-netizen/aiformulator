@@ -76,14 +76,23 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     queryKey: ['/api/product-properties', formData.productCategory],
     queryFn: async () => {
       if (!formData.productCategory) return [];
-      const encodedCategory = encodeURIComponent(formData.productCategory);
-      const response = await fetch(`/api/product-properties/${encodedCategory}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch product properties');
+      try {
+        const encodedCategory = encodeURIComponent(formData.productCategory);
+        const response = await fetch(`/api/product-properties/${encodedCategory}`);
+        if (!response.ok) {
+          console.warn('Failed to fetch properties, using fallback');
+          return ['Anti-aging', 'Moisturizing', 'Whitening', 'Anti-acne', 'Antioxidant', 'UV Protection', 'Exfoliating', 'Firming', 'Soothing', 'Regenerating'];
+        }
+        const data = await response.json();
+        return data && data.length > 0 ? data : ['Anti-aging', 'Moisturizing', 'Whitening', 'Anti-acne', 'Antioxidant', 'UV Protection', 'Exfoliating', 'Firming', 'Soothing', 'Regenerating'];
+      } catch (error) {
+        console.warn('Error fetching properties, using fallback:', error);
+        return ['Anti-aging', 'Moisturizing', 'Whitening', 'Anti-acne', 'Antioxidant', 'UV Protection', 'Exfoliating', 'Firming', 'Soothing', 'Regenerating'];
       }
-      return response.json();
     },
     enabled: !!formData.productCategory,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 30 * 60 * 1000, // 30 minutes
   });
 
   const steps = [
