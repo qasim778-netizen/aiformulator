@@ -291,10 +291,12 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     // Auto-select consistency type when category or product name changes
     if (data.productCategory && data.productCategory !== formData.productCategory) {
       const smartConsistency = getSmartConsistencyType(data.productCategory, formData.productName);
+      console.log(`Smart consistency for category "${data.productCategory}": ${smartConsistency}`);
       updatedData.consistencyType = smartConsistency;
       
       // Auto-select smart viscosity based on category and consistency
       const smartViscosity = getSmartDefaultViscosity(data.productCategory, smartConsistency, formData.productName);
+      console.log(`Smart viscosity: ${smartViscosity}`);
       updatedData.viscosity = smartViscosity;
       
       // Auto-select intelligent default properties based on category and current product name
@@ -309,10 +311,12 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     // Auto-update consistency, viscosity and properties when product name changes
     if (data.productName && data.productName !== formData.productName && formData.productCategory) {
       const smartConsistency = getSmartConsistencyType(formData.productCategory, data.productName);
+      console.log(`Smart consistency for product "${data.productName}": ${smartConsistency}`);
       updatedData.consistencyType = smartConsistency;
       
       // Auto-select smart viscosity based on product name, category and consistency
       const smartViscosity = getSmartDefaultViscosity(formData.productCategory, smartConsistency, data.productName);
+      console.log(`Smart viscosity: ${smartViscosity}`);
       updatedData.viscosity = smartViscosity;
       
       // Auto-select intelligent properties based on product name and category
@@ -330,7 +334,11 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
       updatedData.viscosity = smartViscosity;
     }
     
+    console.log('UpdateFormData - before:', formData);
+    console.log('UpdateFormData - changes:', updatedData);
+    
     const newFormData = { ...formData, ...updatedData };
+    console.log('UpdateFormData - after:', newFormData);
     setFormData(newFormData);
   };
 
