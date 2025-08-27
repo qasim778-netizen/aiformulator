@@ -28,6 +28,10 @@ export interface IStorage {
   createFormulation(formulation: InsertFormulation): Promise<Formulation>;
   updateFormulation(id: string, formulation: Partial<InsertFormulation>): Promise<Formulation | undefined>;
   deleteFormulation(id: string): Promise<boolean>;
+  
+  // Admin formulation methods
+  getAllFormulations(): Promise<Formulation[]>; // Includes inactive formulations for admin
+  updateFormulationStatus(id: string, isActive: boolean): Promise<Formulation | undefined>;
 
   // AI Generations
   getAiGenerations(): Promise<IAiGeneration[]>;
@@ -1605,6 +1609,24 @@ export class MemStorage implements IStorage {
 
   async deleteFormulation(id: string): Promise<boolean> {
     return this.formulations.delete(id);
+  }
+
+  // Admin formulation methods
+  async getAllFormulations(): Promise<Formulation[]> {
+    return Array.from(this.formulations.values()); // Return all formulations including inactive
+  }
+
+  async updateFormulationStatus(id: string, isActive: boolean): Promise<Formulation | undefined> {
+    const existing = this.formulations.get(id);
+    if (!existing) return undefined;
+
+    const updated: Formulation = {
+      ...existing,
+      isActive,
+      updatedAt: new Date(),
+    };
+    this.formulations.set(id, updated);
+    return updated;
   }
 
   // AI Generation methods

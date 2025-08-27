@@ -351,6 +351,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin formulation management endpoints
+  app.get("/api/admin/formulations", isAuthenticated, async (req, res) => {
+    try {
+      const formulations = await storage.getAllFormulations(); // Get all including inactive
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const offset = (page - 1) * limit;
+      
+      const totalItems = formulations.length;
+      const totalPages = Math.ceil(totalItems / limit);
+      const paginatedFormulations = formulations
+        .sort((a: Formulation, b: Formulation) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) // Newest first
+        .slice(offset, offset + limit);
+      
+      res.json({
+        data: paginatedFormulations,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems,
+          itemsPerPage: limit
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch admin formulations" });
+    }
+  });
+
+  app.patch("/api/admin/formulations/:id/status", isAuthenticated, async (req, res) => {
+    try {
+      const { isActive } = req.body;
+      if (typeof isActive !== 'boolean') {
+        return res.status(400).json({ message: "isActive must be a boolean" });
+      }
+
+      const formulation = await storage.updateFormulationStatus(req.params.id, isActive);
+      if (!formulation) {
+        return res.status(404).json({ message: "Formulation not found" });
+      }
+
+      res.json({ 
+        message: `Formulation ${isActive ? 'activated' : 'deactivated'} successfully`,
+        formulation 
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update formulation status" });
+    }
+  });
+
   // AI Generation endpoints (protected admin routes)
   app.post("/api/ai/generate-category", isAuthenticated, async (req, res) => {
     try {
@@ -579,7 +628,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const savedFormulation = await storage.createFormulation({
             ...formulation,
-            categoryId
+            categoryId,
+            isActive: false // Custom formulations start as inactive (pending admin approval)
           });
           console.log(`✅ Custom formulation saved to database: ${savedFormulation.name} in category ${categoryId}`);
         } catch (error) {

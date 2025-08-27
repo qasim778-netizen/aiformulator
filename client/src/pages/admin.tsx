@@ -91,16 +91,28 @@ export default function AdminPage() {
     data: Formulation[];
     pagination: { currentPage: number; totalPages: number; totalItems: number; itemsPerPage: number };
   }>({
-    queryKey: ["/api/formulations-paginated", formulationsPage, selectedCategory],
+    queryKey: ["/api/admin/formulations", formulationsPage, selectedCategory],
     queryFn: async () => {
-      const categoryParam = selectedCategory !== 'all' ? `&categoryId=${selectedCategory}` : '';
-      const response = await fetch(`/api/formulations?paginated=true&page=${formulationsPage}&limit=10${categoryParam}`);
+      const response = await fetch(`/api/admin/formulations?page=${formulationsPage}&limit=10`);
       if (!response.ok) {
-        throw new Error('Failed to fetch formulations');
+        throw new Error('Failed to fetch admin formulations');
       }
       return response.json();
     },
   });
+
+  // Separate query for pending approvals
+  const { data: pendingFormulations = [] } = useQuery<Formulation[]>({
+    queryKey: ["/api/admin/formulations-all"],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/formulations');
+      if (!response.ok) throw new Error('Failed to fetch formulations');
+      const data = await response.json();
+      return data.data || [];
+    },
+  });
+  
+  const inactiveFormulations = pendingFormulations.filter(f => !f.isActive);
 
   const { data: stats } = useQuery<{
     totalCategories: number;
@@ -185,6 +197,28 @@ export default function AdminPage() {
       toast({ 
         title: "Failed to clear analytics", 
         description: "There was an error clearing the analytics data",
+        variant: "destructive" 
+      });
+    },
+  });
+
+  const updateFormulationStatus = useMutation({
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => 
+      apiRequest("PATCH", `/api/admin/formulations/${id}/status`, { isActive }),
+    onSuccess: (_, { isActive }) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/formulations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/formulations-all"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      toast({ 
+        title: isActive ? "Formulation Approved" : "Formulation Deactivated", 
+        description: isActive 
+          ? "The formulation is now live and visible to users"
+          : "The formulation has been deactivated"
+      });
+    },
+    onError: () => {
+      toast({ 
+        title: "Failed to update formulation status", 
         variant: "destructive" 
       });
     },
@@ -328,6 +362,22 @@ export default function AdminPage() {
                 data-testid="admin-formulations-tab"
               >
                 Manage Formulations
+              </button>
+              <button
+                className={`py-4 px-1 border-b-2 font-medium text-sm relative ${
+                  activeTab === "approvals"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+                onClick={() => setActiveTab("approvals")}
+                data-testid="admin-approvals-tab"
+              >
+                Pending Approvals
+                {inactiveFormulations.length > 0 && (
+                  <Badge className="ml-2 bg-red-500 text-white text-xs px-1 py-0">
+                    {inactiveFormulations.length}
+                  </Badge>
+                )}
               </button>
               <button
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
@@ -873,6 +923,101 @@ export default function AdminPage() {
                 </div>
               )}
             </Card>
+          </div>
+        )}
+
+        {/* Pending Approvals Tab */}
+        {activeTab === "approvals" && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-xl font-inter font-semibold text-gray-900">Pending Approvals</h2>
+                <p className="text-sm text-gray-600 mt-1">Review and approve custom formulations created by users</p>
+              </div>
+            </div>
+
+            {inactiveFormulations.length === 0 ? (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-inter font-medium text-gray-900 mb-2">All Caught Up!</h3>
+                  <p className="text-gray-600">No formulations pending approval at this time.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Product Name
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Category
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Created
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {inactiveFormulations.map((formulation) => (
+                          <tr key={formulation.id}>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-gray-900">{formulation.name}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="text-sm text-gray-500">{getCategoryName(formulation.categoryId)}</span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {new Date(formulation.createdAt).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <div className="flex space-x-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => updateFormulationStatus.mutate({ id: formulation.id, isActive: true })}
+                                  disabled={updateFormulationStatus.isPending}
+                                  data-testid={`approve-formulation-${formulation.id}`}
+                                >
+                                  <CheckCircle className="h-4 w-4 mr-1" />
+                                  Approve
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleEditFormulation(formulation)}
+                                  data-testid={`edit-formulation-${formulation.id}`}
+                                >
+                                  <Edit className="h-4 w-4 mr-1" />
+                                  View/Edit
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-red-600 hover:text-red-700 border-red-300 hover:border-red-400"
+                                  onClick={() => deleteFormulation.mutate(formulation.id)}
+                                  disabled={deleteFormulation.isPending}
+                                  data-testid={`reject-formulation-${formulation.id}`}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-1" />
+                                  Reject
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
 

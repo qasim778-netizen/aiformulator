@@ -222,6 +222,26 @@ export class DatabaseStorage implements IStorage {
     return result.rowCount > 0;
   }
 
+  // Admin formulation methods
+  async getAllFormulations(): Promise<Formulation[]> {
+    // Get all formulations including inactive ones for admin management
+    const formulations = await db.select().from(formulationsTable)
+      .orderBy(desc(formulationsTable.createdAt));
+    return formulations.map(this.mapDbFormulationToFormulation);
+  }
+
+  async updateFormulationStatus(id: string, isActive: boolean): Promise<Formulation | undefined> {
+    const [updated] = await db
+      .update(formulationsTable)
+      .set({ 
+        isActive,
+        updatedAt: new Date(),
+      })
+      .where(eq(formulationsTable.id, id))
+      .returning();
+    return updated ? this.mapDbFormulationToFormulation(updated) : undefined;
+  }
+
   // Helper methods to map database types to schema types
   private mapDbCategoryToCategory(dbCategory: any): Category {
     return {
