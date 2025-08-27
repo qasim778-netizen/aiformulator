@@ -105,6 +105,134 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     return 'cream';
   };
 
+  // Intelligent Default Properties Mapper
+  const getSmartDefaultProperties = (category: string, productName?: string, availableProps: string[] = []): string[] => {
+    const categoryLower = category.toLowerCase();
+    const nameLower = (productName || '').toLowerCase();
+    const defaultProperties: string[] = [];
+    
+    // Helper function to add property if it exists in available props
+    const addProperty = (prop: string) => {
+      const found = availableProps.find(p => p.toLowerCase().includes(prop.toLowerCase()));
+      if (found && !defaultProperties.includes(found)) {
+        defaultProperties.push(found);
+      }
+    };
+    
+    // Product name-based intelligent selection (highest priority)
+    if (nameLower.includes('anti-aging') || nameLower.includes('wrinkle') || nameLower.includes('firming')) {
+      addProperty('Anti-aging');
+      addProperty('Firming');
+      addProperty('Regenerating');
+    }
+    
+    if (nameLower.includes('moisturizer') || nameLower.includes('hydrating') || nameLower.includes('dry skin')) {
+      addProperty('Moisturizing');
+      addProperty('Soothing');
+    }
+    
+    if (nameLower.includes('acne') || nameLower.includes('blemish') || nameLower.includes('pimple')) {
+      addProperty('Anti-acne');
+      addProperty('Anti-bacterial');
+    }
+    
+    if (nameLower.includes('whitening') || nameLower.includes('brightening') || nameLower.includes('lightening')) {
+      addProperty('Whitening');
+      addProperty('Antioxidant');
+    }
+    
+    if (nameLower.includes('sensitive') || nameLower.includes('gentle') || nameLower.includes('baby')) {
+      addProperty('Soothing');
+      addProperty('Safe for sensitive skin');
+      addProperty('Hypoallergenic');
+    }
+    
+    if (nameLower.includes('sun') || nameLower.includes('spf') || nameLower.includes('uv')) {
+      addProperty('UV Protection');
+      addProperty('Sun protection');
+    }
+    
+    if (nameLower.includes('dandruff') || nameLower.includes('scalp')) {
+      addProperty('Anti-dandruff');
+    }
+    
+    if (nameLower.includes('volume') || nameLower.includes('thickening')) {
+      addProperty('Volume-enhancing');
+    }
+    
+    if (nameLower.includes('color') || nameLower.includes('dyed')) {
+      addProperty('Color-protecting');
+    }
+    
+    if (nameLower.includes('cleaner') || nameLower.includes('cleaning')) {
+      addProperty('Antibacterial');
+      addProperty('Multi-surface');
+      addProperty('Eco-friendly');
+    }
+    
+    if (nameLower.includes('glass') || nameLower.includes('window')) {
+      addProperty('Streak-free');
+      addProperty('Quick-drying');
+    }
+    
+    if (nameLower.includes('eco') || nameLower.includes('green') || nameLower.includes('natural')) {
+      addProperty('Eco-friendly');
+      addProperty('Environmentally friendly');
+      addProperty('Natural ingredients');
+    }
+    
+    if (nameLower.includes('stain') || nameLower.includes('spot')) {
+      addProperty('Stain removal');
+      addProperty('Grease-cutting');
+    }
+    
+    // Category-based intelligent defaults
+    if (categoryLower.includes('skincare') || categoryLower.includes('cosmetics')) {
+      if (defaultProperties.length === 0) {
+        addProperty('Moisturizing');
+        addProperty('Soothing');
+      }
+    }
+    
+    if (categoryLower.includes('hair care')) {
+      if (defaultProperties.length === 0) {
+        addProperty('Moisturizing');
+        addProperty('Strengthening');
+      }
+    }
+    
+    if (categoryLower.includes('cleaning') || categoryLower.includes('household')) {
+      if (defaultProperties.length === 0) {
+        addProperty('Antibacterial');
+        addProperty('Eco-friendly');
+      }
+    }
+    
+    if (categoryLower.includes('oral care')) {
+      if (defaultProperties.length === 0) {
+        addProperty('Fresh breath');
+        addProperty('Anti-bacterial');
+      }
+    }
+    
+    if (categoryLower.includes('body care')) {
+      if (defaultProperties.length === 0) {
+        addProperty('Moisturizing');
+        addProperty('Soothing');
+      }
+    }
+    
+    if (categoryLower.includes('baby')) {
+      if (defaultProperties.length === 0) {
+        addProperty('Safe for sensitive skin');
+        addProperty('Soothing');
+      }
+    }
+    
+    // Limit to maximum 3-4 properties to avoid overwhelming
+    return defaultProperties.slice(0, 4);
+  };
+
   const updateFormData = (data: Partial<FormData>) => {
     let updatedData = { ...data };
     
