@@ -12,7 +12,7 @@ export default function CategoryPage() {
   const params = useParams();
   const categoryId = params.id;
   const { toast } = useToast();
-  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState(true);
   const [captchaKey, setCaptchaKey] = useState(0);
 
   const { data: category, isLoading: categoryLoading } = useQuery<Category>({

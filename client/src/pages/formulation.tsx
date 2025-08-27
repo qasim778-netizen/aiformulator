@@ -31,7 +31,7 @@ export default function FormulationPage() {
   const { toast } = useToast();
   const [isFavorited, setIsFavorited] = useState(false);
   const [showSignInDialog, setShowSignInDialog] = useState(false);
-  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState(true);
   const [captchaKey, setCaptchaKey] = useState(0);
 
   const { data: formulation, isLoading: formulationLoading } = useQuery<Formulation>({
