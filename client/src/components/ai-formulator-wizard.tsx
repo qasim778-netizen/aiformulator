@@ -68,7 +68,6 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [showWizard, setShowWizard] = useState(false);
-  const [dynamicProperties, setDynamicProperties] = useState<string[]>([]);
   const { startGuidance, isCompleted } = useGuidance();
   const { toast } = useToast();
 
@@ -378,11 +377,9 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     setFormData(newFormData);
   };
 
-  // Update dynamic properties when available properties change
+  // Auto-select intelligent properties when available properties change
   useEffect(() => {
     if (availableProperties && Array.isArray(availableProperties)) {
-      setDynamicProperties(availableProperties);
-      
       // Auto-select intelligent properties if none are currently selected
       if (formData.specialProperties.length === 0 && formData.productCategory) {
         const smartProperties = getSmartDefaultProperties(
@@ -663,7 +660,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
               <SpecificationsStep 
                 formData={formData} 
                 updateFormData={updateFormData}
-                availableProperties={dynamicProperties}
+                availableProperties={availableProperties || []}
                 propertiesLoading={propertiesLoading}
               />
             </div>
