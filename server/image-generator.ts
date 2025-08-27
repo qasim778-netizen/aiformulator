@@ -50,7 +50,7 @@ function generateImagePrompt(formulation: any, category: any): string {
   
   Design elements:
   - Modern gradient background in professional blue and purple colors
-  - Company logo "CFS" in circle with "Chemical Formula Services" text
+  - Company logo "AI" in circle with "AIFormulator.com" text
   - Main title: "${category.name}" in large, bold navy text
   - Subtitle: "Product Making Guide" in white text on blue banner
   - Central icon: ${icon} in purple circular background
@@ -61,7 +61,7 @@ function generateImagePrompt(formulation: any, category: any): string {
     • Quality Control Standards
     • Industrial Requirements
     • Technical Documentation
-  - Bottom text: "www.chemicalformulaservices.com"
+  - Bottom text: "www.AIFormulator.com"
   - Clean, professional layout with modern typography
   - High contrast for readability
   - Optimized for web display and social sharing
