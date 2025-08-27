@@ -241,14 +241,27 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
       const smartConsistency = getSmartConsistencyType(data.productCategory, formData.productName);
       updatedData.consistencyType = smartConsistency;
       
-      // Clear existing special properties when category changes
-      updatedData.specialProperties = [];
+      // Auto-select intelligent default properties based on category and current product name
+      const smartProperties = getSmartDefaultProperties(
+        data.productCategory, 
+        formData.productName, 
+        availableProperties || []
+      );
+      updatedData.specialProperties = smartProperties;
     }
     
-    // Auto-update consistency when product name changes (but not if user manually selected it)
+    // Auto-update consistency and properties when product name changes
     if (data.productName && data.productName !== formData.productName && formData.productCategory) {
       const smartConsistency = getSmartConsistencyType(formData.productCategory, data.productName);
       updatedData.consistencyType = smartConsistency;
+      
+      // Auto-select intelligent properties based on product name and category
+      const smartProperties = getSmartDefaultProperties(
+        formData.productCategory, 
+        data.productName, 
+        availableProperties || []
+      );
+      updatedData.specialProperties = smartProperties;
     }
     
     const newFormData = { ...formData, ...updatedData };
@@ -259,8 +272,24 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   useEffect(() => {
     if (availableProperties && Array.isArray(availableProperties)) {
       setDynamicProperties(availableProperties);
+      
+      // Auto-select intelligent properties if none are currently selected
+      if (formData.specialProperties.length === 0 && formData.productCategory) {
+        const smartProperties = getSmartDefaultProperties(
+          formData.productCategory, 
+          formData.productName, 
+          availableProperties
+        );
+        
+        if (smartProperties.length > 0) {
+          setFormData(prev => ({
+            ...prev,
+            specialProperties: smartProperties
+          }));
+        }
+      }
     }
-  }, [availableProperties]);
+  }, [availableProperties, formData.productCategory, formData.productName]);
 
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
