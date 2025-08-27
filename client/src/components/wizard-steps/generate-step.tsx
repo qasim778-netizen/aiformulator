@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Download, ArrowLeft, CheckCircle, FileText, Beaker, Settings } from "lucide-react";
 import { UseMutationResult } from "@tanstack/react-query";
+import { Captcha } from "@/components/ui/captcha";
+import { useToast } from "@/hooks/use-toast";
 
 interface FormData {
   productName: string;
@@ -33,8 +36,29 @@ const formatPropertyName = (prop: string) => {
 };
 
 export default function GenerateStep({ formData, generateFormulation, onBack }: Props) {
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
+  const [captchaKey, setCaptchaKey] = useState(0);
+  const { toast } = useToast();
+
   const handleGenerate = () => {
+    if (!isCaptchaVerified) {
+      toast({
+        title: "Captcha Required",
+        description: "Please complete the security verification before generating.",
+        variant: "destructive"
+      });
+      return;
+    }
     generateFormulation.mutate(formData);
+  };
+
+  const handleCaptchaVerify = (isValid: boolean) => {
+    setIsCaptchaVerified(isValid);
+  };
+
+  const resetCaptcha = () => {
+    setIsCaptchaVerified(false);
+    setCaptchaKey(prev => prev + 1);
   };
 
   return (
@@ -169,6 +193,15 @@ export default function GenerateStep({ formData, generateFormulation, onBack }: 
         </Card>
       )}
 
+      {/* Security Verification */}
+      <div className="border-t border-gray-200 pt-6">
+        <Captcha 
+          key={captchaKey}
+          onVerify={handleCaptchaVerify}
+          onReset={resetCaptcha}
+        />
+      </div>
+
       {/* Action Buttons */}
       <div className="flex justify-between pt-6 border-t border-gray-200">
         <Button
@@ -184,8 +217,8 @@ export default function GenerateStep({ formData, generateFormulation, onBack }: 
 
         <Button
           onClick={handleGenerate}
-          disabled={generateFormulation.isPending}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+          disabled={generateFormulation.isPending || !isCaptchaVerified}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           data-testid="button-generate-formulation"
         >
           {generateFormulation.isPending ? (
