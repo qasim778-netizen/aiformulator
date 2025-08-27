@@ -211,29 +211,35 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     const categoryLower = category.toLowerCase();
     const nameLower = (productName || '').toLowerCase();
     
-    // Product name-based detection (highest priority)
+    // Product name-based detection (highest priority - small units first)
     if (nameLower.includes('serum') || nameLower.includes('essence') || nameLower.includes('oil')) return '30ml';
     if (nameLower.includes('eye') || nameLower.includes('spot') || nameLower.includes('treatment')) return '15ml';
-    if (nameLower.includes('toner') || nameLower.includes('mist') || nameLower.includes('spray')) return '150ml';
-    if (nameLower.includes('shampoo') || nameLower.includes('conditioner') || nameLower.includes('wash')) return '250ml';
-    if (nameLower.includes('cleaner') || nameLower.includes('detergent')) return '500ml';
+    if (nameLower.includes('toner') || nameLower.includes('mist') || nameLower.includes('spray')) return '100ml';
+    if (nameLower.includes('shampoo') || nameLower.includes('conditioner') || nameLower.includes('wash')) return '100ml';
+    if (nameLower.includes('cleaner') || nameLower.includes('detergent')) return '100ml';
     if (nameLower.includes('cream') || nameLower.includes('moisturizer') || nameLower.includes('lotion')) return '50ml';
-    if (nameLower.includes('mask') || nameLower.includes('scrub')) return '100ml';
+    if (nameLower.includes('mask') || nameLower.includes('scrub')) return '50ml';
     if (nameLower.includes('balm') || nameLower.includes('ointment')) return '30ml';
-    if (nameLower.includes('toothpaste') || nameLower.includes('gel')) return '100ml';
-    if (nameLower.includes('mouthwash')) return '250ml';
+    if (nameLower.includes('toothpaste') || nameLower.includes('gel')) return '50ml';
+    if (nameLower.includes('mouthwash')) return '100ml';
     
-    // Category-based defaults
-    if (categoryLower.includes('skincare') || categoryLower.includes('cosmetics')) return '50ml';
-    if (categoryLower.includes('hair care')) return '250ml';
-    if (categoryLower.includes('body care')) return '200ml';
-    if (categoryLower.includes('cleaning') || categoryLower.includes('household')) return '500ml';
-    if (categoryLower.includes('oral care')) return '100ml';
-    if (categoryLower.includes('baby')) return '100ml';
-    if (categoryLower.includes('pet')) return '250ml';
+    // Category-based defaults (small units first priority)
+    if (categoryLower.includes('skincare') || categoryLower.includes('cosmetics')) return '30ml';
+    if (categoryLower.includes('hair care')) return '100ml';
+    if (categoryLower.includes('body care')) return '50ml';
+    if (categoryLower.includes('cleaning') || categoryLower.includes('household')) return '100ml';
+    if (categoryLower.includes('oral care')) return '50ml';
+    if (categoryLower.includes('baby')) return '50ml';
+    if (categoryLower.includes('men')) return '50ml';
+    if (categoryLower.includes('organic') || categoryLower.includes('natural')) return '50ml';
+    if (categoryLower.includes('pet')) return '100ml';
+    if (categoryLower.includes('detergent') || categoryLower.includes('laundry')) return '100ml';
+    if (categoryLower.includes('disinfectant') || categoryLower.includes('sanitizer')) return '50ml';
+    if (categoryLower.includes('shoe care') || categoryLower.includes('leather')) return '30ml';
+    if (categoryLower.includes('construction') || categoryLower.includes('material')) return '100ml';
     
-    // Default fallback
-    return '100ml';
+    // Default fallback (small unit)
+    return '50ml';
   };
 
   // Smart viscosity selection based on product category and consistency type
@@ -429,7 +435,6 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
       
       // Auto-select smart viscosity based on category
       const smartViscosity = getSmartViscosity(data.productCategory);
-      console.log(`🧠 Smart Viscosity Selection: ${data.productCategory} → ${smartViscosity}`);
       updatedData.viscosity = smartViscosity;
       
       // Auto-select intelligent default properties based on category and current product name
