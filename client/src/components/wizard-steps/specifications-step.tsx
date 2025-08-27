@@ -134,7 +134,7 @@ export default function SpecificationsStep({ formData, updateFormData, available
             {propertiesLoading ? (
               <div className="flex items-center justify-center py-4">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                <span className="ml-2 text-sm text-gray-600">Loading properties...</span>
+                <span className="ml-2 text-sm text-gray-600">Loading category-specific properties...</span>
               </div>
             ) : availableProperties && availableProperties.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

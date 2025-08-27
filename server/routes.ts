@@ -730,10 +730,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add CORS headers for deployment
       res.header('Access-Control-Allow-Origin', '*');
       res.header('Access-Control-Allow-Methods', 'GET');
-      res.header('Access-Control-Allow-Headers', 'Content-Type');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
+      res.header('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
       
       const rawType = decodeURIComponent(req.params.productType);
       const inputType = rawType.toLowerCase().trim();
+      
+      if (!inputType) {
+        return res.status(400).json({ message: "Product type parameter is required" });
+      }
       
       // Map frontend categories to database product types
       const categoryMap: Record<string, string> = {
@@ -781,17 +786,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const properties = await storage.getProductProperties(mappedType);
       
-      if (!properties || properties.length === 0) {
-        // Return empty array if no specific properties found
-        console.log(`No properties found for product type: ${mappedType}`);
+      if (!properties || !Array.isArray(properties)) {
+        console.log(`No valid properties array found for product type: ${mappedType}`);
+        return res.json([]);
+      }
+      
+      if (properties.length === 0) {
+        console.log(`Empty properties array for product type: ${mappedType}`);
         return res.json([]);
       }
       
       console.log(`Found ${properties.length} properties for ${mappedType}:`, properties);
       res.json(properties);
     } catch (error: any) {
-      console.error("Failed to fetch product properties:", error);
-      res.status(500).json({ message: "Failed to fetch product properties", error: error.message });
+      console.error("Failed to fetch product properties:", error.stack || error);
+      res.status(500).json({ 
+        message: "Failed to fetch product properties", 
+        error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      });
     }
   });
 

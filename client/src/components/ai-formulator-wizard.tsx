@@ -72,25 +72,44 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   const { toast } = useToast();
 
   // Query for dynamic special properties based on product category
-  const { data: availableProperties, isLoading: propertiesLoading } = useQuery({
+  const { data: availableProperties, isLoading: propertiesLoading, error: propertiesError } = useQuery({
     queryKey: ['/api/product-properties', formData.productCategory],
     queryFn: async () => {
       if (!formData.productCategory) return [];
       try {
         const encodedCategory = encodeURIComponent(formData.productCategory);
-        const response = await fetch(`/api/product-properties/${encodedCategory}`);
+        console.log('Fetching properties for category:', formData.productCategory, 'encoded:', encodedCategory);
+        const response = await fetch(`/api/product-properties/${encodedCategory}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          credentials: 'same-origin'
+        });
+        
         if (!response.ok) {
-          console.warn('Failed to fetch properties, using fallback');
-          return ['Anti-aging', 'Moisturizing', 'Whitening', 'Anti-acne', 'Antioxidant', 'UV Protection', 'Exfoliating', 'Firming', 'Soothing', 'Regenerating'];
+          console.error('Properties API response not ok:', response.status, response.statusText);
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
+        
         const data = await response.json();
-        return data && data.length > 0 ? data : ['Anti-aging', 'Moisturizing', 'Whitening', 'Anti-acne', 'Antioxidant', 'UV Protection', 'Exfoliating', 'Firming', 'Soothing', 'Regenerating'];
+        console.log('Received properties data:', data);
+        
+        if (!Array.isArray(data)) {
+          console.error('Properties data is not an array:', data);
+          throw new Error('Invalid properties data format');
+        }
+        
+        return data;
       } catch (error) {
-        console.warn('Error fetching properties, using fallback:', error);
-        return ['Anti-aging', 'Moisturizing', 'Whitening', 'Anti-acne', 'Antioxidant', 'UV Protection', 'Exfoliating', 'Firming', 'Soothing', 'Regenerating'];
+        console.error('Error fetching properties:', error);
+        throw error; // Re-throw to let React Query handle retries
       }
     },
     enabled: !!formData.productCategory,
+    retry: 3, // Retry 3 times before failing
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
     staleTime: 5 * 60 * 1000, // 5 minutes
     cacheTime: 30 * 60 * 1000, // 30 minutes
   });
