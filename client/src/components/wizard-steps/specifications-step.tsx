@@ -136,9 +136,9 @@ export default function SpecificationsStep({ formData, updateFormData, available
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                 <span className="ml-2 text-sm text-gray-600">Loading category-specific properties...</span>
               </div>
-            ) : availableProperties && availableProperties.length > 0 ? (
+            ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {availableProperties.map((property, index) => {
+                {availableProperties && availableProperties.length > 0 ? availableProperties.map((property, index) => {
                   const propertyId = property.toLowerCase().replace(/[^a-z0-9]/g, '-');
                   const IconComponent = getIconForProperty(property);
                   return (
@@ -160,34 +160,11 @@ export default function SpecificationsStep({ formData, updateFormData, available
                       </div>
                     </div>
                   );
-                })}
-              </div>
-            ) : (
-              // Show fallback properties for skincare if API fails
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {['Anti-aging', 'Moisturizing', 'Whitening', 'Anti-acne', 'Antioxidant', 'UV Protection', 'Exfoliating', 'Firming', 'Soothing', 'Regenerating'].map((property, index) => {
-                  const propertyId = property.toLowerCase().replace(/[^a-z0-9]/g, '-');
-                  const IconComponent = getIconForProperty(property);
-                  return (
-                    <div
-                      key={`fallback-${propertyId}-${index}`}
-                      className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-gray-50 transition-colors"
-                    >
-                      <Checkbox
-                        id={propertyId}
-                        checked={formData.specialProperties.includes(property)}
-                        onCheckedChange={(checked) => handleSpecialPropertyToggle(property, !!checked)}
-                        data-testid={`checkbox-${propertyId}`}
-                      />
-                      <div className="flex items-center space-x-1 flex-1">
-                        <IconComponent className="h-3 w-3 text-gray-600" />
-                        <Label htmlFor={propertyId} className="text-xs font-medium cursor-pointer">
-                          {property}
-                        </Label>
-                      </div>
-                    </div>
-                  );
-                })}
+                }) : (
+                  <div className="text-center py-4 text-gray-500 text-sm">
+                    Select a product category to see available special properties.
+                  </div>
+                )}
               </div>
             )}
           </div>

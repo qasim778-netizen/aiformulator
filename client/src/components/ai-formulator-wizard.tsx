@@ -71,48 +71,57 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   const { startGuidance, isCompleted } = useGuidance();
   const { toast } = useToast();
 
-  // Query for dynamic special properties based on product category
-  const { data: availableProperties, isLoading: propertiesLoading, error: propertiesError } = useQuery({
-    queryKey: ['/api/product-properties', formData.productCategory],
-    queryFn: async () => {
-      if (!formData.productCategory) return [];
-      try {
-        const encodedCategory = encodeURIComponent(formData.productCategory);
-        console.log('Fetching properties for category:', formData.productCategory, 'encoded:', encodedCategory);
-        const response = await fetch(`/api/product-properties/${encodedCategory}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          credentials: 'same-origin'
-        });
-        
-        if (!response.ok) {
-          console.error('Properties API response not ok:', response.status, response.statusText);
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        console.log('Received properties data:', data);
-        
-        if (!Array.isArray(data)) {
-          console.error('Properties data is not an array:', data);
-          throw new Error('Invalid properties data format');
-        }
-        
-        return data;
-      } catch (error) {
-        console.error('Error fetching properties:', error);
-        throw error; // Re-throw to let React Query handle retries
-      }
-    },
-    enabled: !!formData.productCategory,
-    retry: 3, // Retry 3 times before failing
-    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 30 * 60 * 1000, // 30 minutes
-  });
+  // Hardcoded category-specific properties for deployment reliability
+  const getCategoryProperties = (category: string): string[] => {
+    const categoryLower = category.toLowerCase();
+    
+    if (categoryLower.includes('skincare') || categoryLower.includes('cosmetics')) {
+      return ['Anti-aging', 'Moisturizing', 'Whitening', 'Anti-acne', 'Antioxidant', 'UV Protection', 'Exfoliating', 'Firming', 'Soothing', 'Regenerating'];
+    }
+    if (categoryLower.includes('cleaning') || categoryLower.includes('household')) {
+      return ['Antibacterial', 'Eco-friendly', 'Concentrated formula', 'Multi-surface', 'Streak-free', 'Quick-drying', 'Pleasant scent', 'Non-toxic', 'Grease-cutting', 'Stain removal'];
+    }
+    if (categoryLower.includes('hair care')) {
+      return ['Strengthening', 'Volumizing', 'Color-safe', 'Anti-dandruff', 'Moisturizing', 'Heat protection', 'Frizz control', 'Shine enhancement', 'Scalp soothing', 'Sulfate-free'];
+    }
+    if (categoryLower.includes('oral care')) {
+      return ['Whitening', 'Cavity protection', 'Fresh breath', 'Plaque control', 'Enamel strengthening', 'Sensitivity relief', 'Natural ingredients', 'Fluoride-free', 'Antibacterial', 'Gum health'];
+    }
+    if (categoryLower.includes('body care') || categoryLower.includes('personal hygiene')) {
+      return ['Moisturizing', 'Long-lasting', 'Gentle formula', 'Quick absorption', 'Natural ingredients', 'Antibacterial', 'Soothing', 'Non-greasy', 'Fragrance-free', 'Sensitive skin'];
+    }
+    if (categoryLower.includes('baby') || categoryLower.includes('child')) {
+      return ['Hypoallergenic', 'Gentle formula', 'Tear-free', 'Natural ingredients', 'Fragrance-free', 'Sensitive skin', 'Dermatologist tested', 'Non-toxic', 'Moisturizing', 'pH balanced'];
+    }
+    if (categoryLower.includes('men')) {
+      return ['Long-lasting', 'Quick absorption', 'Masculine scent', 'Oil control', 'Anti-aging', 'Moisturizing', 'After-shave', 'Cooling effect', 'Non-greasy', 'Refreshing'];
+    }
+    if (categoryLower.includes('organic') || categoryLower.includes('natural')) {
+      return ['Organic certified', 'Natural ingredients', 'Eco-friendly', 'Chemical-free', 'Sustainable', 'Cruelty-free', 'Biodegradable', 'Non-toxic', 'Plant-based', 'Preservative-free'];
+    }
+    if (categoryLower.includes('detergent') || categoryLower.includes('laundry')) {
+      return ['Stain removal', 'Color protection', 'Fabric softening', 'Fresh scent', 'Concentrated formula', 'Eco-friendly', 'Enzyme-based', 'Quick dissolving', 'Anti-static', 'Whitening'];
+    }
+    if (categoryLower.includes('disinfectant') || categoryLower.includes('sanitizer')) {
+      return ['99.9% germ kill', 'Fast-acting', 'Surface safe', 'Alcohol-based', 'Non-corrosive', 'Quick-drying', 'Residue-free', 'Hospital grade', 'Broad spectrum', 'EPA approved'];
+    }
+    if (categoryLower.includes('shoe care') || categoryLower.includes('leather')) {
+      return ['Waterproofing', 'Leather conditioning', 'Stain protection', 'Color restoration', 'Flexibility enhancement', 'UV protection', 'Long-lasting', 'Easy application', 'Natural oils', 'Breathability'];
+    }
+    if (categoryLower.includes('construction') || categoryLower.includes('material')) {
+      return ['Weather resistant', 'High durability', 'Fast setting', 'Crack resistant', 'Waterproof', 'Temperature stable', 'Chemical resistant', 'Easy application', 'Long-lasting', 'Professional grade'];
+    }
+    if (categoryLower.includes('pet care') || categoryLower.includes('pets')) {
+      return ['Pet-safe', 'Natural ingredients', 'Odor control', 'Gentle formula', 'Hypoallergenic', 'Flea repellent', 'Coat conditioning', 'pH balanced', 'Non-toxic', 'Veterinarian approved'];
+    }
+    
+    // Default fallback
+    return ['Enhanced formula', 'Professional grade', 'Long-lasting', 'High quality', 'Effective results', 'Safe ingredients', 'Easy application', 'Proven performance', 'Reliable', 'Industry standard'];
+  };
+
+  // Use hardcoded properties for deployment reliability
+  const availableProperties = formData.productCategory ? getCategoryProperties(formData.productCategory) : [];
+  const propertiesLoading = false;
 
   const steps = [
     { title: "Product Type", icon: "✓" },
