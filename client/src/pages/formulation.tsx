@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useCallback } from "react";
 import type { Formulation, Category } from "@shared/schema";
 import SignInDialog from "@/components/signin-dialog";
+import { Captcha } from "@/components/ui/captcha";
 import woodFloorCleaner from "@/assets/generated-images/wood-floor-cleaner.png";
 import glassCleaner from "@/assets/generated-images/glass-cleaner.png";
 import multiSurfaceCleaner from "@/assets/generated-images/multi-surface-cleaner.png";
@@ -30,6 +31,8 @@ export default function FormulationPage() {
   const { toast } = useToast();
   const [isFavorited, setIsFavorited] = useState(false);
   const [showSignInDialog, setShowSignInDialog] = useState(false);
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
+  const [captchaKey, setCaptchaKey] = useState(0);
 
   const { data: formulation, isLoading: formulationLoading } = useQuery<Formulation>({
     queryKey: ["/api/formulations", formulationId],
@@ -145,6 +148,22 @@ export default function FormulationPage() {
     }
   }, [formulation, formulationId, isFavorited, toast]);
 
+  // Captcha verification handlers
+  const handleCaptchaVerify = useCallback((verified: boolean) => {
+    setIsCaptchaVerified(verified);
+    if (verified) {
+      toast({
+        title: "Verification Successful",
+        description: "You can now view the complete formulation details."
+      });
+    }
+  }, [toast]);
+
+  const resetCaptcha = useCallback(() => {
+    setIsCaptchaVerified(false);
+    setCaptchaKey(prev => prev + 1);
+  }, []);
+
   if (formulationLoading || categoryLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -161,6 +180,42 @@ export default function FormulationPage() {
           <Link href="/">
             <Button>Return Home</Button>
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Show captcha verification first
+  if (!isCaptchaVerified) {
+    return (
+      <div className="bg-white py-8">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <Link href="/browse">
+              <Button variant="ghost" className="text-primary hover:text-blue-700 mb-6">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Browse
+              </Button>
+            </Link>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Security Verification Required</h1>
+            <p className="text-lg text-gray-600 mb-8">
+              To access detailed formulation information for <strong>{formulation.name}</strong>, please complete the security verification below.
+            </p>
+          </div>
+          
+          <div className="max-w-lg mx-auto">
+            <Captcha
+              key={captchaKey}
+              onVerify={handleCaptchaVerify}
+              onReset={resetCaptcha}
+            />
+          </div>
+          
+          <div className="text-center mt-8">
+            <p className="text-sm text-gray-500">
+              This verification helps protect against automated access and ensures the security of our formulation database.
+            </p>
+          </div>
         </div>
       </div>
     );
