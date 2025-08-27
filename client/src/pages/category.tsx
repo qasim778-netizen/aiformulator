@@ -20,8 +20,15 @@ export default function CategoryPage() {
   });
 
   const { data: formulations = [], isLoading: formulationsLoading } = useQuery<Formulation[]>({
-    queryKey: ["/api/formulations"],
-    select: (data) => data.filter((f) => f.categoryId === categoryId),
+    queryKey: ["/api/formulations", { categoryId }],
+    queryFn: async () => {
+      const response = await fetch(`/api/formulations?categoryId=${categoryId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch formulations');
+      }
+      return response.json();
+    },
+    enabled: !!categoryId,
   });
 
   if (categoryLoading || formulationsLoading) {
