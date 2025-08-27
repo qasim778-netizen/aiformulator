@@ -8,7 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useCallback } from "react";
 import type { Formulation, Category } from "@shared/schema";
 import SignInDialog from "@/components/signin-dialog";
-import cleaningProductsGuide from "@/assets/generated-images/cleaning-products-guide.png";
 import woodFloorCleaner from "@/assets/generated-images/wood-floor-cleaner.png";
 import glassCleaner from "@/assets/generated-images/glass-cleaner.png";
 import multiSurfaceCleaner from "@/assets/generated-images/multi-surface-cleaner.png";
@@ -396,33 +395,7 @@ export default function FormulationPage() {
                       data-testid="img-formulation-product"
                     />
                   )}
-                  {/* Fallback image for any products that don't match specific categories */}
-                  {!formulation.name.includes("Wood Floor") && 
-                   !formulation.name.includes("Glass") && 
-                   !formulation.name.includes("Bathroom") &&
-                   !formulation.name.includes("Degreaser") &&
-                   !formulation.name.includes("All-Purpose") &&
-                   !formulation.name.includes("Refrigerator") &&
-                   !formulation.name.includes("Carpet") &&
-                   !formulation.name.includes("Upholstery") &&
-                   !formulation.name.includes("Tile") &&
-                   !formulation.name.includes("Grout") &&
-                   !formulation.name.includes("Microwave") &&
-                   !formulation.name.includes("Appliance") &&
-                   !formulation.name.includes("Pet-Safe Floor") &&
-                   !formulation.name.includes("Oven") &&
-                   !formulation.name.includes("Grill") &&
-                   !formulation.name.includes("Wood Surface") &&
-                   !formulation.name.includes("Eco-Friendly") &&
-                   !formulation.name.includes("Biodegradable") &&
-                   !formulation.name.includes("Concentrated") && (
-                    <img 
-                      src={cleaningProductsGuide} 
-                      alt="Professional Cleaning Products manufacturing guide - Complete chemical formulation with ingredients, procedures, and quality control specifications"
-                      className="w-full max-w-sm mx-auto rounded-lg"
-                      data-testid="img-formulation-guide"
-                    />
-                  )}
+                  {/* No fallback image for custom formulations */}
                 </div>
               </div>
             )}
