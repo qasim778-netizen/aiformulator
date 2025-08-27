@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, Download, FileText, Beaker } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import SignInDialog from "@/components/signin-dialog";
 
 const formulatorSchema = z.object({
@@ -91,6 +91,11 @@ export default function AIFormulator() {
     },
     onSuccess: (data: FormulatorData | null) => {
       if (data) {
+        // Invalidate formulation caches so they appear in admin panel and browsing
+        queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/formulations-paginated"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+        
         toast({
           title: "Formulation Generated Successfully!",
           description: `Created formulation for ${data.productName} and downloaded PDF`,
