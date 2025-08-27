@@ -558,7 +558,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Generate formulation using AI
+      // Generate formulation using AI with logo settings for branded images
       const formulation = await generateCustomFormulation({
         productName,
         productDescription,
@@ -568,7 +568,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         viscosity,
         color,
         fragrance,
-        specialRequirements
+        specialRequirements,
+        logoSettings
       });
 
       // Find appropriate category for this formulation
