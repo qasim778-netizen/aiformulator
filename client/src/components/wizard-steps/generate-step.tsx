@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -60,6 +60,16 @@ export default function GenerateStep({ formData, generateFormulation, onBack }: 
     setIsCaptchaVerified(false);
     setCaptchaKey(prev => prev + 1);
   };
+
+  // Reset captcha after generation completes (success or error)
+  useEffect(() => {
+    if (!generateFormulation.isPending && (generateFormulation.isSuccess || generateFormulation.isError)) {
+      const timer = setTimeout(() => {
+        resetCaptcha();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [generateFormulation.isPending, generateFormulation.isSuccess, generateFormulation.isError]);
 
   return (
     <div className="space-y-8">
@@ -193,8 +203,20 @@ export default function GenerateStep({ formData, generateFormulation, onBack }: 
         </Card>
       )}
 
-      {/* Security Verification */}
-      <div className="border-t border-gray-200 pt-6">
+      {/* Security Verification - Prominent Section */}
+      <div className="my-8">
+        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center justify-center">
+            <div className="bg-yellow-100 p-2 rounded-full mr-3">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            <div className="text-center">
+              <h3 className="text-lg font-bold text-yellow-800">Security Check Required</h3>
+              <p className="text-yellow-700 text-sm">Complete verification to generate your formulation</p>
+            </div>
+          </div>
+        </div>
+        
         <Captcha 
           key={captchaKey}
           onVerify={handleCaptchaVerify}
@@ -215,24 +237,30 @@ export default function GenerateStep({ formData, generateFormulation, onBack }: 
           Previous
         </Button>
 
-        <Button
-          onClick={handleGenerate}
-          disabled={generateFormulation.isPending || !isCaptchaVerified}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          data-testid="button-generate-formulation"
-        >
-          {generateFormulation.isPending ? (
-            <>
-              <Loader2 className="h-5 w-5 mr-3 animate-spin" />
-              Generating Formulation...
-            </>
-          ) : (
-            <>
-              <Download className="h-5 w-5 mr-3" />
-              Generate Formulation
-            </>
-          )}
-        </Button>
+        {!isCaptchaVerified ? (
+          <div className="bg-red-50 border border-red-200 rounded-lg px-8 py-3 text-center">
+            <span className="text-red-700 font-medium">🔒 Complete security verification above to enable generation</span>
+          </div>
+        ) : (
+          <Button
+            onClick={handleGenerate}
+            disabled={generateFormulation.isPending}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+            data-testid="button-generate-formulation"
+          >
+            {generateFormulation.isPending ? (
+              <>
+                <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                Generating Formulation...
+              </>
+            ) : (
+              <>
+                <Download className="h-5 w-5 mr-3" />
+                Generate Formulation
+              </>
+            )}
+          </Button>
+        )}
       </div>
 
       {/* Information Footer */}
