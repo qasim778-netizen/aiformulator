@@ -130,6 +130,54 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     { title: "Generate", icon: "✏️" }
   ];
 
+  // Smart viscosity selection based on product category
+  const getSmartViscosity = (category: string): string => {
+    const categoryLower = category.toLowerCase();
+    
+    if (categoryLower.includes('skincare') || categoryLower.includes('cosmetics')) {
+      return 'medium'; // Lotions, creams, gels - medium viscosity
+    }
+    if (categoryLower.includes('cleaning') || categoryLower.includes('household')) {
+      return 'low'; // Cleaners, sprays - low viscosity for easy application
+    }
+    if (categoryLower.includes('hair care')) {
+      return 'low'; // Shampoos, conditioners - low to medium viscosity
+    }
+    if (categoryLower.includes('oral care')) {
+      return 'high'; // Toothpaste - high viscosity paste
+    }
+    if (categoryLower.includes('body care') || categoryLower.includes('personal hygiene')) {
+      return 'medium'; // Body lotions, deodorants - medium viscosity
+    }
+    if (categoryLower.includes('baby') || categoryLower.includes('child')) {
+      return 'medium'; // Baby creams, gentle formulas - medium viscosity
+    }
+    if (categoryLower.includes('men')) {
+      return 'medium'; // Aftershave, moisturizers - medium viscosity
+    }
+    if (categoryLower.includes('organic') || categoryLower.includes('natural')) {
+      return 'medium'; // Natural creams, lotions - medium viscosity
+    }
+    if (categoryLower.includes('detergent') || categoryLower.includes('laundry')) {
+      return 'low'; // Liquid detergents - low viscosity
+    }
+    if (categoryLower.includes('disinfectant') || categoryLower.includes('sanitizer')) {
+      return 'low'; // Hand sanitizers, sprays - low viscosity
+    }
+    if (categoryLower.includes('shoe care') || categoryLower.includes('leather')) {
+      return 'high'; // Polishes, conditioners - high viscosity
+    }
+    if (categoryLower.includes('construction') || categoryLower.includes('material')) {
+      return 'high'; // Adhesives, sealants - high viscosity
+    }
+    if (categoryLower.includes('pet care') || categoryLower.includes('pets')) {
+      return 'medium'; // Pet shampoos, treatments - medium viscosity
+    }
+    
+    // Default fallback
+    return 'medium';
+  };
+
   // Smart consistency type selection based on product category and name
   const getSmartConsistencyType = (category: string, productName?: string): string => {
     const categoryLower = category.toLowerCase();
@@ -379,8 +427,8 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
       updatedData.consistencyType = smartConsistency;
       updatedData.volume = smartVolume;
       
-      // Auto-select smart viscosity based on category and consistency
-      const smartViscosity = getSmartDefaultViscosity(data.productCategory, smartConsistency, formData.productName);
+      // Auto-select smart viscosity based on category
+      const smartViscosity = getSmartViscosity(data.productCategory);
       updatedData.viscosity = smartViscosity;
       
       // Auto-select intelligent default properties based on category and current product name
@@ -415,7 +463,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     
     // Auto-update viscosity when consistency type changes manually
     if (data.consistencyType && data.consistencyType !== formData.consistencyType && formData.productCategory) {
-      const smartViscosity = getSmartDefaultViscosity(formData.productCategory, data.consistencyType, formData.productName);
+      const smartViscosity = getSmartViscosity(formData.productCategory);
       updatedData.viscosity = smartViscosity;
     }
     
