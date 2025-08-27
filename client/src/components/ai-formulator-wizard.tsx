@@ -52,7 +52,7 @@ const getInitialFormData = (): FormData => {
     shelfLife: 12,
     storageTemperature: "Room Temperature (15-25°C)",
     budgetCategory: "Medium Quality",
-    productionVolume: "Small Batch (1-100 units)",
+    productionVolume: "Small Batch (1-100 units)", // Default to Small Batch
     regulatoryRequirements: [],
     additionalNotes: "",
   };
