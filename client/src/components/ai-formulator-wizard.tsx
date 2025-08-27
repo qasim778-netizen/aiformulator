@@ -429,6 +429,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
       
       // Auto-select smart viscosity based on category
       const smartViscosity = getSmartViscosity(data.productCategory);
+      console.log(`🧠 Smart Viscosity Selection: ${data.productCategory} → ${smartViscosity}`);
       updatedData.viscosity = smartViscosity;
       
       // Auto-select intelligent default properties based on category and current product name
@@ -448,8 +449,8 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
       updatedData.consistencyType = smartConsistency;
       updatedData.volume = smartVolume;
       
-      // Auto-select smart viscosity based on product name, category and consistency
-      const smartViscosity = getSmartDefaultViscosity(formData.productCategory, smartConsistency, data.productName);
+      // Auto-select smart viscosity based on category
+      const smartViscosity = getSmartViscosity(formData.productCategory);
       updatedData.viscosity = smartViscosity;
       
       // Auto-select intelligent properties based on product name and category
