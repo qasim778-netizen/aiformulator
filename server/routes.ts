@@ -727,14 +727,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Product Properties API - Dynamic special properties based on product type
   app.get("/api/product-properties/:productType", async (req, res) => {
     try {
-      const productType = req.params.productType.toLowerCase().replace(/[^a-z0-9]/g, '_');
-      const properties = await storage.getProductProperties(productType);
+      const inputType = req.params.productType.toLowerCase();
+      
+      // Map frontend categories to database product types
+      const categoryMap: Record<string, string> = {
+        'skincare & cosmetics': 'skincare',
+        'skincare': 'skincare',
+        'skin care': 'skincare',
+        'beauty products': 'cosmetics',
+        'cosmetics': 'cosmetics',
+        'hair care products': 'hair_care',
+        'hair care': 'hair_care',
+        'oral care': 'oral_care',
+        'body care & personal hygiene': 'body_care',
+        'body care': 'body_care',
+        'cleaning & household': 'cleaning',
+        'cleaning products': 'cleaning',
+        'cleaning': 'cleaning',
+        'detergent': 'detergent',
+        'disinfectant': 'disinfectant',
+        'specialty chemicals': 'specialty',
+        'specialty': 'specialty',
+        'other': 'other'
+      };
+      
+      const mappedType = categoryMap[inputType] || 'other';
+      console.log(`Product properties mapping: "${req.params.productType}" -> "${inputType}" -> "${mappedType}"`);
+      
+      const properties = await storage.getProductProperties(mappedType);
       
       if (!properties) {
         // Return empty array if no specific properties found
+        console.log(`No properties found for product type: ${mappedType}`);
         return res.json([]);
       }
       
+      console.log(`Found ${properties.length} properties for ${mappedType}:`, properties);
       res.json(properties);
     } catch (error: any) {
       console.error("Failed to fetch product properties:", error);
