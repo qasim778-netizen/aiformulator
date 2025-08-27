@@ -617,7 +617,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pdfBuffer = generateFormulationPDF(formulation, logoSettings);
       
       // Set headers for PDF download
-      const filename = `${productName.replace(/\s+/g, '_')}_formulation.pdf`;
+      const sanitizedName = productName
+        .replace(/[^a-zA-Z0-9\s]/g, '') // Remove special characters
+        .replace(/\s+/g, '_') // Replace spaces with underscores
+        .substring(0, 50); // Limit length
+      const filename = `${sanitizedName}_formulation.pdf`;
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       res.setHeader('Content-Length', pdfBuffer.length);
@@ -650,7 +654,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pdfBuffer = generateFormulationPDF(formulation, logoSettings);
       
       // Set headers for PDF download
-      const filename = `${formulation.name.replace(/\s+/g, '_')}_formulation.pdf`;
+      const sanitizedName = formulation.name
+        .replace(/[^a-zA-Z0-9\s]/g, '') // Remove special characters
+        .replace(/\s+/g, '_') // Replace spaces with underscores
+        .substring(0, 50); // Limit length
+      const filename = `${sanitizedName}_formulation.pdf`;
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       res.setHeader('Content-Length', pdfBuffer.length);
