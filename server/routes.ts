@@ -625,6 +625,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ success: true, message: "API working" });
   });
 
+  // Robots.txt endpoint
+  app.get("/robots.txt", (req, res) => {
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+    
+    const baseUrl = `https://${req.get('host')}` || 'https://your-domain.replit.app';
+    
+    const robotsTxt = `User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: ${baseUrl}/sitemap.xml
+
+# Disallow admin pages
+Disallow: /admin
+
+# Allow important pages
+Allow: /
+Allow: /browse
+Allow: /category/
+Allow: /formulation/
+Allow: /about
+Allow: /contact
+Allow: /faq
+Allow: /terms-of-service
+Allow: /privacy-policy
+Allow: /disclaimer`;
+
+    res.send(robotsTxt);
+    console.log('🤖 Robots.txt served');
+  });
+
+  // Sitemap.xml generation endpoint
+  app.get("/sitemap.xml", async (req, res) => {
+    try {
+      // Set content type to XML
+      res.setHeader('Content-Type', 'application/xml');
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+      
+      // Get base URL from request headers
+      const baseUrl = `https://${req.get('host')}` || 'https://your-domain.replit.app';
+      
+      // Get all categories and formulations
+      const categories = await storage.getCategories();
+      const formulations = await storage.getFormulations();
+      
+      // Static pages
+      const staticPages = [
+        { url: '/', priority: '1.0', changefreq: 'daily' },
+        { url: '/browse', priority: '0.9', changefreq: 'daily' },
+        { url: '/about', priority: '0.5', changefreq: 'monthly' },
+        { url: '/contact', priority: '0.5', changefreq: 'monthly' },
+        { url: '/faq', priority: '0.6', changefreq: 'weekly' },
+        { url: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
+        { url: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
+        { url: '/disclaimer', priority: '0.3', changefreq: 'yearly' }
+      ];
+      
+      // Generate XML sitemap
+      let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
+
+      // Add static pages
+      staticPages.forEach(page => {
+        sitemap += `
+  <url>
+    <loc>${baseUrl}${page.url}</loc>
+    <changefreq>${page.changefreq}</changefreq>
+    <priority>${page.priority}</priority>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+  </url>`;
+      });
+
+      // Add category pages
+      categories.forEach(category => {
+        sitemap += `
+  <url>
+    <loc>${baseUrl}/category/${category.id}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>${new Date(category.updatedAt).toISOString().split('T')[0]}</lastmod>
+  </url>`;
+      });
+
+      // Add formulation pages (only active ones)
+      formulations.filter(f => f.isActive).forEach(formulation => {
+        sitemap += `
+  <url>
+    <loc>${baseUrl}/formulation/${formulation.id}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>${new Date(formulation.updatedAt).toISOString().split('T')[0]}</lastmod>
+  </url>`;
+      });
+
+      sitemap += `
+</urlset>`;
+
+      res.send(sitemap);
+      console.log(`📋 Sitemap generated with ${staticPages.length + categories.length + formulations.filter(f => f.isActive).length} URLs`);
+    } catch (error) {
+      console.error('Failed to generate sitemap:', error);
+      res.status(500).send('Error generating sitemap');
+    }
+  });
+
   // Custom AI Formulation with PDF Generation
   app.post("/api/ai/custom-formulation", async (req, res) => {
     console.log('🔥 Custom formulation endpoint hit!');
