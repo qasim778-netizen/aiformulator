@@ -61,8 +61,20 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
       
       console.log('🚀 Sending request to API:', requestData);
       
-      // Use the apiRequest function which should now work with proper routing
-      const response = await apiRequest('POST', '/api/ai/custom-formulation', requestData);
+      // Use direct fetch instead of apiRequest
+      const response = await fetch('/api/ai/custom-formulation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to generate formulation');
+      }
+      
       const result = await response.json();
       
       console.log('✅ API Response received:', result);

@@ -75,20 +75,14 @@ export default function AIFormulator() {
         throw new Error(error.message || "Failed to generate formulation");
       }
 
-      // Get the PDF blob
-      const pdfBlob = await response.blob();
+      // Get the JSON response (not PDF blob for now)
+      const result = await response.json();
       
-      // Create download link
-      const url = window.URL.createObjectURL(pdfBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${data.productName.replace(/\s+/g, '_')}_formulation.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // For now, just log the formulation since we're using mock data
+      console.log('Generated formulation:', result.formulation);
       
-      // Clean up
-      window.URL.revokeObjectURL(url);
+      // TODO: Implement real PDF generation when backend is ready
+      // For now, show success without downloading
       
       return data;
     },
@@ -101,7 +95,7 @@ export default function AIFormulator() {
         
         toast({
           title: "Formulation Generated Successfully!",
-          description: `Created formulation for ${data.productName} and downloaded PDF`,
+          description: `Created formulation for ${data.productName}`,
         });
         form.reset();
         resetCaptcha(); // Reset captcha after successful generation
