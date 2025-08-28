@@ -38,7 +38,28 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
 
   const generateFormulation = useMutation({
     mutationFn: async (data: FormData) => {
-      const response = await apiRequest('POST', '/api/formulations/generate', data);
+      // Map our FormData to the expected API format
+      const requestData = {
+        productName: data.productName,
+        productDescription: `${data.productCategory} - ${data.consistencyType}`,
+        productType: data.consistencyType,
+        phLevel: data.phLevel,
+        costLevel: data.budgetCategory,
+        viscosity: data.viscosity,
+        color: 'Default',
+        fragrance: 'Default',
+        specialRequirements: [
+          ...data.specialProperties,
+          ...data.regulatoryRequirements,
+          data.additionalNotes
+        ].filter(Boolean).join(', '),
+        logoSettings: {
+          showLogo: true,
+          companyName: 'AIFormulator.com'
+        }
+      };
+      
+      const response = await apiRequest('POST', '/api/ai/custom-formulation', requestData);
       return await response.json();
     },
     onSuccess: (data: any) => {
