@@ -56,11 +56,4 @@ export const queryClient = new QueryClient({
   },
 });
 
-// Add global error handler for unhandled promise rejections
-if (typeof window !== 'undefined') {
-  window.addEventListener('unhandledrejection', (event) => {
-    console.warn('Unhandled promise rejection:', event.reason);
-    // Prevent the browser from showing the error in console
-    event.preventDefault();
-  });
-}
+// Remove problematic promise rejection handler

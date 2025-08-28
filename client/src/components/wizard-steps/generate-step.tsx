@@ -91,31 +91,11 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
     },
   });
 
-  const handleGenerate = async () => {
+  const handleGenerate = () => {
     if (!isCaptchaVerified) {
       toast({
         title: "Verification Required",
         description: "Please complete the captcha verification first.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Test API connection first
-    try {
-      console.log('Testing API connection...');
-      const testResponse = await fetch('/api/test');
-      const testResult = await testResponse.json();
-      console.log('Test API response:', testResult);
-      
-      if (!testResult.success) {
-        throw new Error('API test failed');
-      }
-    } catch (error) {
-      console.error('API test failed:', error);
-      toast({
-        title: "Connection Error",
-        description: "Cannot connect to server. Please check your connection.",
         variant: "destructive",
       });
       return;
