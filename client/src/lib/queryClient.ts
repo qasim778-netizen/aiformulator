@@ -60,6 +60,6 @@ export const queryClient = new QueryClient({
 if (typeof window !== 'undefined') {
   window.addEventListener('unhandledrejection', (event) => {
     console.warn('Unhandled promise rejection:', event.reason);
-    event.preventDefault();
+    // Don't prevent default - let it be handled properly
   });
 }

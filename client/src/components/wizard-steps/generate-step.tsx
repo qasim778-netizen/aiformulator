@@ -40,12 +40,12 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
     mutationFn: async (data: FormData) => {
       // Map our FormData to the expected API format
       const requestData = {
-        productName: data.productName,
+        productName: data.productName || 'Custom Product',
         productDescription: `${data.productCategory} - ${data.consistencyType}`,
-        productType: data.consistencyType,
-        phLevel: data.phLevel,
-        costLevel: data.budgetCategory,
-        viscosity: data.viscosity,
+        productType: data.consistencyType || 'cream',
+        phLevel: data.phLevel || 7,
+        costLevel: data.budgetCategory || 'Medium Quality',
+        viscosity: data.viscosity || 'Medium',
         color: 'Default',
         fragrance: 'Default',
         specialRequirements: [
@@ -59,24 +59,35 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
         }
       };
       
-      const response = await apiRequest('POST', '/api/ai/custom-formulation', requestData);
-      return await response.json();
+      try {
+        const response = await apiRequest('POST', '/api/ai/custom-formulation', requestData);
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`API Error: ${response.status} - ${errorText}`);
+        }
+        const result = await response.json();
+        return result;
+      } catch (error) {
+        console.error('API Error:', error);
+        throw error;
+      }
     },
     onSuccess: (data: any) => {
-      if (data.pdfUrl) {
-        // Create download link
+      console.log('Generation success:', data);
+      toast({
+        title: "Success!",
+        description: "Your formulation has been generated successfully!",
+        variant: "default",
+      });
+      
+      if (data.pdfUrl && data.pdfUrl !== "data:application/pdf;base64,test") {
+        // Create download link only if we have a real PDF
         const link = document.createElement('a');
         link.href = data.pdfUrl;
         link.download = `${formData.productName || 'Formulation'}.pdf`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
-        toast({
-          title: "Success!",
-          description: "Your formulation PDF has been generated and downloaded.",
-          variant: "default",
-        });
       }
     },
     onError: (error) => {
