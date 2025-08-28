@@ -60,29 +60,42 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
       };
       
       try {
-        console.log('Making request to:', '/api/ai/custom-formulation');
-        console.log('Request data:', requestData);
+        console.log('Making direct fetch request...');
         
-        const response = await apiRequest('POST', '/api/ai/custom-formulation', requestData);
+        // Use direct fetch instead of apiRequest to avoid any routing issues
+        const response = await fetch('/api/ai/custom-formulation', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestData),
+          credentials: 'include',
+        });
+        
         console.log('Response status:', response.status);
         console.log('Response headers:', response.headers.get('content-type'));
         
         if (!response.ok) {
           const errorText = await response.text();
+          console.error('API Error:', errorText);
           throw new Error(`API Error: ${response.status} - ${errorText}`);
         }
         
         const contentType = response.headers.get('content-type');
+        console.log('Content type:', contentType);
+        
         if (!contentType || !contentType.includes('application/json')) {
           const responseText = await response.text();
-          console.error('Expected JSON but got:', contentType, responseText.slice(0, 200));
-          throw new Error('Server returned HTML instead of JSON. Check server logs.');
+          console.error('Expected JSON but got HTML:', responseText.slice(0, 500));
+          throw new Error('Server returned HTML instead of JSON');
         }
         
         const result = await response.json();
+        console.log('Successful response:', result);
         return result;
+        
       } catch (error) {
-        console.error('API Error:', error);
+        console.error('Complete error details:', error);
         throw error;
       }
     },

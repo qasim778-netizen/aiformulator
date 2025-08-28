@@ -585,6 +585,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Custom AI Formulation with PDF Generation
   app.post("/api/ai/custom-formulation", async (req, res) => {
+    console.log('🔥 Custom formulation endpoint hit!');
+    console.log('Request method:', req.method);
+    console.log('Request headers:', req.headers);
+    console.log('Request body:', req.body);
     const startTime = Date.now();
     try {
       const {
