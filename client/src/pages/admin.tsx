@@ -183,6 +183,8 @@ export default function AdminPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
       queryClient.invalidateQueries({ queryKey: ["/api/formulations-paginated"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/formulations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/formulations-all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       toast({ title: "Formulation deleted successfully" });
     },
@@ -862,6 +864,8 @@ export default function AdminPage() {
                               size="sm"
                               className="text-red-600 hover:text-red-900"
                               onClick={() => deleteFormulation.mutate(formulation.id)}
+                              disabled={deleteFormulation.isPending}
+                              data-testid={`delete-formulation-${formulation.id}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
