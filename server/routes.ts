@@ -506,10 +506,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
             categoryId
           });
           createdFormulations.push(formulation);
+          
+          // Track each AI generation for analytics
+          await storage.trackAiGeneration({
+            productName: formulation.name,
+            category: categoryId,
+            sessionId: req.sessionID || 'admin-bulk',
+            timestamp: new Date().toISOString(),
+            responseTime: undefined,
+            formData: { categoryId, count, bulkGeneration: true },
+            country: undefined,
+            city: undefined
+          });
         } catch (error) {
           console.error('Failed to save formulation:', error);
         }
       }
+      console.log(`📊 Tracked ${createdFormulations.length} AI generations for analytics`);
       
       res.status(201).json({ 
         message: `Successfully generated ${createdFormulations.length} formulations`,
@@ -552,10 +565,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
             categoryId
           });
           createdFormulations.push(formulation);
+          
+          // Track each AI generation for analytics
+          await storage.trackAiGeneration({
+            productName: formulation.name,
+            category: categoryId,
+            sessionId: req.sessionID || 'admin-bulk',
+            timestamp: new Date().toISOString(),
+            responseTime: undefined,
+            formData: { categoryId, count, includeImages, bulkGeneration: true },
+            country: undefined,
+            city: undefined
+          });
         } catch (error) {
           console.error('Failed to save formulation:', error);
         }
       }
+      console.log(`📊 Tracked ${createdFormulations.length} AI generations for analytics`);
       
       res.status(201).json({ 
         message: `Successfully generated ${createdFormulations.length} formula formulations${includeImages ? ' with images' : ''}`,
@@ -754,6 +780,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const savedFormulation = await storage.createFormulation(formulationToSave);
         console.log('✅ Formulation saved to database for approval:', savedFormulation.id);
+
+        // Track AI generation for analytics
+        const endTime = Date.now();
+        const responseTime = endTime - startTime;
+        await storage.trackAiGeneration({
+          productName,
+          category: categoryId,
+          sessionId: req.sessionID || 'anonymous',
+          timestamp: new Date().toISOString(),
+          responseTime,
+          formData: req.body,
+          country: req.headers['x-forwarded-for'] ? 'Unknown' : undefined,
+          city: undefined
+        });
+        console.log('📊 AI generation tracked for analytics');
       } catch (dbError) {
         console.error('Failed to save formulation to database:', dbError);
         // Continue with PDF generation even if database save fails
