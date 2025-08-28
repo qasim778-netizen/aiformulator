@@ -4,9 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { TooltipGuidance, GuidanceProvider } from "@/components/ui/tooltip-guidance";
 import { ChatWidget } from "@/components/chat-widget";
-import { useGuidance } from "@/hooks/use-guidance";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Browse from "@/pages/browse";
@@ -44,7 +42,6 @@ function Router() {
 }
 
 function AppContent() {
-  const { activeFlow, completeGuidance, skipGuidance, getSteps } = useGuidance();
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
@@ -54,15 +51,6 @@ function AppContent() {
         <Router />
       </main>
       <Footer />
-      
-      {activeFlow && (
-        <TooltipGuidance
-          steps={getSteps(activeFlow)}
-          onComplete={() => completeGuidance(activeFlow)}
-          onSkip={skipGuidance}
-          isActive={true}
-        />
-      )}
       
       <ChatWidget 
         isOpen={isChatOpen} 
@@ -78,9 +66,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <GuidanceProvider>
-          <AppContent />
-        </GuidanceProvider>
+        <AppContent />
       </TooltipProvider>
     </QueryClientProvider>
   );

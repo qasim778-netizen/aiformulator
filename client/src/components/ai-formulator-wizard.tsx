@@ -6,7 +6,6 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowRight, ArrowLeft, Settings, BarChart, FileText, Beaker } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { HelpButton } from "@/components/ui/help-button";
-import { useGuidance } from "@/hooks/use-guidance";
 import ProductTypeStep from "./wizard-steps/product-type-step";
 import SpecificationsStep from "./wizard-steps/specifications-step";
 import RequirementsStep from "./wizard-steps/requirements-step";
@@ -68,7 +67,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [showWizard, setShowWizard] = useState(false);
-  const { startGuidance, isCompleted } = useGuidance();
+  // Guidance system removed for stability
   const { toast } = useToast();
 
   // Hardcoded category-specific properties for deployment reliability
@@ -671,11 +670,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
               onWizardStateChange?.(true);
               
               // Start guidance for first-time users
-              if (!isCompleted("ai-formulator")) {
-                setTimeout(() => {
-                  startGuidance("ai-formulator");
-                }, 500);
-              }
+              // Guidance system removed for stability
             }}
             size="lg"
             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
