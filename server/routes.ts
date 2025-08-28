@@ -621,27 +621,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const formulation = {
         name: productName,
         description: `Professional ${productType} formulation for ${productDescription}`,
-        ingredients: `Water 65%, Glycerin 5%, Carbomer 0.5%, Sodium Hydroxide 0.1%, Preservative 0.3%, Active ingredients 5%, Fragrance 0.1%, Remaining to 100%`,
-        instructions: `1. Heat water to 70°C\n2. Add glycerin and mix\n3. Slowly add carbomer while mixing\n4. Adjust pH to ${phLevel} using sodium hydroxide\n5. Add preservative and active ingredients\n6. Cool to room temperature\n7. Add fragrance\n8. Mix thoroughly`,
-        keyFeatures: specialRequirements || 'Professional grade formulation',
-        benefits: `High quality ${productType} with ${viscosity} viscosity`,
-        usage: 'Apply as needed according to product instructions',
-        warnings: 'For external use only. Avoid contact with eyes.',
-        specifications: {
-          phLevel: phLevel,
-          viscosity: viscosity || 'Medium',
-          color: color || 'Natural',
-          fragrance: fragrance || 'Unscented'
-        }
+        ingredients: JSON.stringify([
+          "Water 65%",
+          "Glycerin 5%", 
+          "Carbomer 0.5%",
+          "Sodium Hydroxide 0.1%",
+          "Preservative 0.3%",
+          "Active ingredients 5%",
+          "Fragrance 0.1%",
+          "Remaining to 100%"
+        ]),
+        instructions: JSON.stringify([
+          "Heat water to 70°C",
+          "Add glycerin and mix",
+          "Slowly add carbomer while mixing",
+          `Adjust pH to ${phLevel} using sodium hydroxide`,
+          "Add preservative and active ingredients",
+          "Cool to room temperature",
+          "Add fragrance",
+          "Mix thoroughly"
+        ]),
+        usageInstructions: 'Apply as needed according to product instructions',
+        phLevel: phLevel.toString(),
+        shelfLife: "24 months when stored properly",
+        viscosity: viscosity || 'Medium',
+        storageConditions: "Store in cool, dry place away from direct sunlight",
+        batchSize: "1000ml",
+        processingTime: "2-3 hours",
+        temperature: "Room temperature (20-25°C)",
+        equipment: "Standard mixing equipment, pH meter, thermometer",
+        certification: "Meets industry standards"
       };
 
-      // Ensure proper JSON response
-      res.setHeader('Content-Type', 'application/json');
-      res.status(200).json({
-        message: "Formulation generated successfully",
-        pdfUrl: "data:application/pdf;base64,test", // Mock PDF URL for now
-        formulation: formulation
-      });
+      // Generate PDF with logo settings
+      const pdfBuffer = generateFormulationPDF(formulation, logoSettings);
+      
+      // Set headers for PDF download
+      const sanitizedName = productName
+        .replace(/[^a-zA-Z0-9\s]/g, '') // Remove special characters
+        .replace(/\s+/g, '_') // Replace spaces with underscores
+        .substring(0, 50); // Limit length
+      const filename = `${sanitizedName}_formulation.pdf`;
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Length', pdfBuffer.length);
+      
+      // Send PDF
+      res.send(pdfBuffer);
       
     } catch (error: any) {
       console.error("Failed to generate custom formulation:", error);

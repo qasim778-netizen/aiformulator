@@ -75,10 +75,23 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
         throw new Error(error.message || 'Failed to generate formulation');
       }
       
-      const result = await response.json();
+      // Get the PDF blob and trigger download
+      const pdfBlob = await response.blob();
       
-      console.log('✅ API Response received:', result);
-      return result;
+      // Create download link
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${data.productName.replace(/\s+/g, '_')}_formulation.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      
+      console.log('✅ PDF generated and downloaded');
+      return data;
     },
     onSuccess: (data: any) => {
       console.log('Generation success:', data);
@@ -86,15 +99,9 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
       // Show success message
       toast({
         title: "Success!",
-        description: "Your formulation has been generated successfully!",
+        description: "Your formulation has been generated and downloaded as PDF!",
         variant: "default",
       });
-      
-      // For now, just show success since we're using mock PDF data
-      // In the future, this will handle real PDF downloads
-      if (data.formulation) {
-        console.log('Generated formulation:', data.formulation);
-      }
     },
     onError: (error) => {
       toast({
