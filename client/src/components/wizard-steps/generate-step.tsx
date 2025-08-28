@@ -62,13 +62,8 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
       console.log('🚀 Sending request to API:', requestData);
       
       // Use the apiRequest function which should now work with proper routing
-      const result = await apiRequest('/api/ai/custom-formulation', {
-        method: 'POST',
-        body: JSON.stringify(requestData),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await apiRequest('POST', '/api/ai/custom-formulation', requestData);
+      const result = await response.json();
       
       console.log('✅ API Response received:', result);
       return result;
