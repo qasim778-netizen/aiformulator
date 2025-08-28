@@ -36,7 +36,9 @@ function Router() {
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/disclaimer" component={Disclaimer} />
-      <Route component={NotFound} />
+      <Route>
+        <Home />
+      </Route>
     </Switch>
   );
 }
