@@ -6,7 +6,21 @@ import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { Captcha } from '@/components/ui/captcha';
-import type { FormData } from '../ai-formulator-wizard';
+interface FormData {
+  productName: string;
+  productCategory: string;
+  consistencyType: string;
+  volume: string;
+  viscosity: string;
+  specialProperties: string[];
+  phLevel: number;
+  shelfLife: number;
+  storageTemperature: string;
+  budgetCategory: string;
+  productionVolume: string;
+  regulatoryRequirements: string[];
+  additionalNotes: string;
+}
 
 interface GenerateStepProps {
   formData: FormData;
@@ -24,13 +38,10 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
 
   const generateFormulation = useMutation({
     mutationFn: async (data: FormData) => {
-      const response = await apiRequest(`/api/formulations/generate`, {
-        method: 'POST',
-        body: data,
-      });
-      return response;
+      const response = await apiRequest('POST', '/api/formulations/generate', data);
+      return await response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       if (data.pdfUrl) {
         // Create download link
         const link = document.createElement('a');
@@ -174,7 +185,7 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
                   <h4 className="text-lg font-semibold text-gray-900">Special Properties</h4>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {formData.specialProperties.map((prop) => (
+                  {formData.specialProperties.map((prop: string) => (
                     <span key={prop} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
                       {formatPropertyName(prop)}
                     </span>
@@ -206,7 +217,7 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
                   <div>
                     <Label className="text-sm font-medium text-gray-600">Regulatory Requirements</Label>
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {formData.regulatoryRequirements.map((req) => (
+                      {formData.regulatoryRequirements.map((req: string) => (
                         <span key={req} className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">
                           {formatPropertyName(req)}
                         </span>

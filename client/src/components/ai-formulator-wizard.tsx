@@ -777,7 +777,6 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
             <div data-testid="wizard-step-4">
               <GenerateStep 
                 formData={formData} 
-                generateFormulation={generateFormulation}
                 onBack={prevStep}
               />
             </div>
