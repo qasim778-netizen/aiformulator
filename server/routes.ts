@@ -354,15 +354,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin formulation management endpoints
   app.get("/api/admin/formulations", isAuthenticated, async (req, res) => {
     try {
-      const formulations = await storage.getAllFormulations(); // Get all including inactive
+      const { categoryId } = req.query;
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 50;
       const offset = (page - 1) * limit;
       
+      let formulations;
+      
+      if (categoryId && categoryId !== "all") {
+        // Filter by category if categoryId is provided
+        formulations = await storage.getFormulationsByCategory(categoryId as string);
+      } else {
+        // Get all formulations including inactive
+        formulations = await storage.getAllFormulations();
+      }
+      
       const totalItems = formulations.length;
       const totalPages = Math.ceil(totalItems / limit);
       const paginatedFormulations = formulations
-        .sort((a: Formulation, b: Formulation) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) // Newest first
+        .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) // Newest first
         .slice(offset, offset + limit);
       
       res.json({

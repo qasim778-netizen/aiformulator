@@ -27,6 +27,12 @@ import type { Category, Formulation } from "@shared/schema";
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  
+  // Reset page to 1 when category changes
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    setFormulationsPage(1);
+  };
   const [analyticsFilter, setAnalyticsFilter] = useState<'browse' | 'generation'>('generation');
   const [currentPage, setCurrentPage] = useState(1);
   const [categoriesPage, setCategoriesPage] = useState(1);
@@ -93,7 +99,8 @@ export default function AdminPage() {
   }>({
     queryKey: ["/api/admin/formulations", formulationsPage, selectedCategory],
     queryFn: async () => {
-      const response = await fetch(`/api/admin/formulations?page=${formulationsPage}&limit=10`);
+      const categoryParam = selectedCategory === "all" ? "" : `&categoryId=${selectedCategory}`;
+      const response = await fetch(`/api/admin/formulations?page=${formulationsPage}&limit=10${categoryParam}`);
       if (!response.ok) {
         throw new Error('Failed to fetch admin formulations');
       }
@@ -730,7 +737,7 @@ export default function AdminPage() {
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-inter font-semibold text-gray-900">Manage Formulations</h2>
               <div className="flex space-x-4">
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <Select value={selectedCategory} onValueChange={handleCategoryChange}>
                   <SelectTrigger className="w-48">
                     <SelectValue placeholder="Filter by category" />
                   </SelectTrigger>
