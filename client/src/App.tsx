@@ -46,14 +46,12 @@ function AppContent() {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
-    <GuidanceProvider>
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Navbar />
-        <main className="flex-1">
-          <Router />
-        </main>
-        <Footer />
-      </div>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Navbar />
+      <main className="flex-1">
+        <Router />
+      </main>
+      <Footer />
       
       {activeFlow && (
         <TooltipGuidance
@@ -70,7 +68,7 @@ function AppContent() {
       />
       
       <Toaster />
-    </GuidanceProvider>
+    </div>
   );
 }
 
@@ -78,7 +76,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <AppContent />
+        <GuidanceProvider>
+          <AppContent />
+        </GuidanceProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

@@ -103,13 +103,14 @@ export function useGuidance() {
 
   useEffect(() => {
     // Load completed guidance flows from localStorage
-    const stored = localStorage.getItem(GUIDANCE_STORAGE_KEY);
-    if (stored) {
-      try {
+    try {
+      const stored = localStorage.getItem(GUIDANCE_STORAGE_KEY);
+      if (stored) {
         setCompletedFlows(JSON.parse(stored));
-      } catch {
-        setCompletedFlows([]);
       }
+    } catch (error) {
+      console.warn('Error loading guidance data:', error);
+      setCompletedFlows([]);
     }
   }, []);
 
@@ -123,7 +124,11 @@ export function useGuidance() {
   const completeGuidance = (flowId: string) => {
     const updated = [...completedFlows, flowId];
     setCompletedFlows(updated);
-    localStorage.setItem(GUIDANCE_STORAGE_KEY, JSON.stringify(updated));
+    try {
+      localStorage.setItem(GUIDANCE_STORAGE_KEY, JSON.stringify(updated));
+    } catch (error) {
+      console.warn('Error saving guidance data:', error);
+    }
     setActiveFlow(null);
   };
 
