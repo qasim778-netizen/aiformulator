@@ -881,7 +881,7 @@ export default function AdminPage() {
               </div>
               
               {/* Formulations Pagination */}
-              {formulationsPaginated?.pagination && (
+              {formulationsPaginated?.pagination && formulationsPaginated.pagination.totalItems > 0 && (
                 <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
                   <div className="text-sm text-gray-600">
                     Showing {((formulationsPaginated.pagination.currentPage - 1) * formulationsPaginated.pagination.itemsPerPage) + 1} to {Math.min(formulationsPaginated.pagination.currentPage * formulationsPaginated.pagination.itemsPerPage, formulationsPaginated.pagination.totalItems)} of {formulationsPaginated.pagination.totalItems} formulations
