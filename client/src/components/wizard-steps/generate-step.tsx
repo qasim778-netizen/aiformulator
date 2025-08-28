@@ -38,33 +38,37 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
 
   const generateFormulation = useMutation({
     mutationFn: async (data: FormData) => {
-      // Since the API routing is having issues, let's simulate the response for now
-      // This will allow the user to see the success flow working
-      const mockFormulation = {
-        name: data.productName || 'Custom Product',
-        description: `Professional ${data.consistencyType} formulation for ${data.productCategory}`,
-        ingredients: 'Water 65%, Glycerin 5%, Carbomer 0.5%, Sodium Hydroxide 0.1%, Preservative 0.3%, Active ingredients 5%, Fragrance 0.1%, Remaining to 100%',
-        instructions: `1. Heat water to 70°C\n2. Add glycerin and mix\n3. Slowly add carbomer while mixing\n4. Adjust pH to ${data.phLevel} using sodium hydroxide\n5. Add preservative and active ingredients\n6. Cool to room temperature\n7. Add fragrance\n8. Mix thoroughly`,
-        keyFeatures: 'Professional grade formulation',
-        benefits: `High quality ${data.consistencyType} with ${data.viscosity} viscosity`,
-        usage: 'Apply as needed according to product instructions',
-        warnings: 'For external use only. Avoid contact with eyes.',
-        specifications: {
-          phLevel: data.phLevel,
-          viscosity: data.viscosity || 'Medium',
-          color: 'Natural',
-          fragrance: 'Unscented'
+      // Map our FormData to the expected API format
+      const requestData = {
+        productName: data.productName || 'Custom Product',
+        productDescription: `${data.productCategory} - ${data.consistencyType}`,
+        productType: data.consistencyType || 'cream',
+        phLevel: data.phLevel || 7,
+        costLevel: data.budgetCategory || 'Medium Quality',
+        viscosity: data.viscosity || 'Medium',
+        color: 'Default',
+        fragrance: 'Default',
+        specialRequirements: [
+          ...data.specialProperties,
+          ...data.regulatoryRequirements,
+          data.additionalNotes
+        ].filter(Boolean).join(', '),
+        logoSettings: {
+          showLogo: true,
+          companyName: 'AIFormulator.com'
         }
       };
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log('🚀 Sending request to API:', requestData);
       
-      return {
-        message: "Formulation generated successfully",
-        pdfUrl: "mock-pdf-url",
-        formulation: mockFormulation
-      };
+      // Use the apiRequest function which should now work with proper routing
+      const result = await apiRequest('/api/ai/custom-formulation', {
+        method: 'POST',
+        body: requestData,
+      });
+      
+      console.log('✅ API Response received:', result);
+      return result;
     },
     onSuccess: (data: any) => {
       console.log('Generation success:', data);
