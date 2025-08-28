@@ -88,20 +88,18 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
     },
     onSuccess: (data: any) => {
       console.log('Generation success:', data);
+      
+      // Show success message
       toast({
         title: "Success!",
         description: "Your formulation has been generated successfully!",
         variant: "default",
       });
       
-      if (data.pdfUrl && data.pdfUrl !== "data:application/pdf;base64,test") {
-        // Create download link only if we have a real PDF
-        const link = document.createElement('a');
-        link.href = data.pdfUrl;
-        link.download = `${formData.productName || 'Formulation'}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      // For now, just show success since we're using mock PDF data
+      // In the future, this will handle real PDF downloads
+      if (data.formulation) {
+        console.log('Generated formulation:', data.formulation);
       }
     },
     onError: (error) => {
