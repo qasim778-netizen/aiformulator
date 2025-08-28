@@ -583,6 +583,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return category?.id || null;
   };
 
+  // Test endpoint to verify routing works
+  app.get("/api/test", (req, res) => {
+    console.log('✅ Test endpoint hit!');
+    res.json({ success: true, message: "API working" });
+  });
+
   // Custom AI Formulation with PDF Generation
   app.post("/api/ai/custom-formulation", async (req, res) => {
     console.log('🔥 Custom formulation endpoint hit!');
