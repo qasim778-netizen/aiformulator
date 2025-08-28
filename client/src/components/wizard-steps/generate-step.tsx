@@ -60,11 +60,25 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
       };
       
       try {
+        console.log('Making request to:', '/api/ai/custom-formulation');
+        console.log('Request data:', requestData);
+        
         const response = await apiRequest('POST', '/api/ai/custom-formulation', requestData);
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers.get('content-type'));
+        
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(`API Error: ${response.status} - ${errorText}`);
         }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const responseText = await response.text();
+          console.error('Expected JSON but got:', contentType, responseText.slice(0, 200));
+          throw new Error('Server returned HTML instead of JSON. Check server logs.');
+        }
+        
         const result = await response.json();
         return result;
       } catch (error) {

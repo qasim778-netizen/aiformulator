@@ -625,8 +625,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       };
 
-      // For now, return a simple JSON response to test the functionality
-      res.json({
+      // Ensure proper JSON response
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200).json({
         message: "Formulation generated successfully",
         pdfUrl: "data:application/pdf;base64,test", // Mock PDF URL for now
         formulation: formulation
