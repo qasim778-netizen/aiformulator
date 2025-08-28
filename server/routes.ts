@@ -735,6 +735,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         certification: "Meets industry standards"
       };
 
+      // Get category ID for the product type
+      const categoryId = await getProductTypeCategory(productType);
+      
+      if (!categoryId) {
+        return res.status(400).json({ 
+          message: "Unable to determine category for the product type" 
+        });
+      }
+
+      // Save formulation to database with isActive: false (pending approval)
+      const formulationToSave = {
+        ...formulation,
+        categoryId,
+        isActive: false // This will make it appear in pending approval
+      };
+
+      try {
+        const savedFormulation = await storage.createFormulation(formulationToSave);
+        console.log('✅ Formulation saved to database for approval:', savedFormulation.id);
+      } catch (dbError) {
+        console.error('Failed to save formulation to database:', dbError);
+        // Continue with PDF generation even if database save fails
+      }
+
       // Generate PDF with logo settings
       const pdfBuffer = generateFormulationPDF(formulation, logoSettings);
       
