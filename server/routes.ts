@@ -622,24 +622,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name: productName,
         description: `Professional ${productType} formulation for ${productDescription}`,
         ingredients: JSON.stringify([
-          "Water 65%",
-          "Glycerin 5%", 
-          "Carbomer 0.5%",
-          "Sodium Hydroxide 0.1%",
-          "Preservative 0.3%",
-          "Active ingredients 5%",
-          "Fragrance 0.1%",
-          "Remaining to 100%"
+          {
+            "name": "Deionized Water",
+            "inci": "Aqua",
+            "percentage": "60.0%",
+            "function": "Solvent"
+          },
+          {
+            "name": "Glycerin",
+            "inci": "Glycerin",
+            "percentage": "15.0%",
+            "function": "Humectant and viscosity modifier"
+          },
+          {
+            "name": "Carbomer",
+            "inci": "Carbomer",
+            "percentage": "2.0%",
+            "function": "Thickening agent"
+          },
+          {
+            "name": "Sodium Hydroxide",
+            "inci": "Sodium Hydroxide",
+            "percentage": "0.5%",
+            "function": "pH adjuster"
+          },
+          {
+            "name": "Preservative System",
+            "inci": "Phenoxyethanol, Ethylhexylglycerin",
+            "percentage": "1.0%",
+            "function": "Preservative"
+          },
+          {
+            "name": "Active Ingredients",
+            "inci": "Various",
+            "percentage": "20.0%",
+            "function": "Primary active components"
+          },
+          {
+            "name": "Fragrance",
+            "inci": "Parfum",
+            "percentage": "1.0%",
+            "function": "Scenting agent"
+          },
+          {
+            "name": "Colorant",
+            "inci": "CI 19140",
+            "percentage": "0.5%",
+            "function": "Coloring agent"
+          }
         ]),
         instructions: JSON.stringify([
-          "Heat water to 70°C",
-          "Add glycerin and mix",
-          "Slowly add carbomer while mixing",
-          `Adjust pH to ${phLevel} using sodium hydroxide`,
-          "Add preservative and active ingredients",
-          "Cool to room temperature",
-          "Add fragrance",
-          "Mix thoroughly"
+          {
+            "phase": "Phase A",
+            "steps": [
+              "Combine Deionized Water and Glycerin in main vessel",
+              "Heat mixture to 70°C while stirring",
+              "Maintain temperature until uniform"
+            ]
+          },
+          {
+            "phase": "Phase B",
+            "steps": [
+              "Slowly add Carbomer to Phase A under continuous mixing",
+              "Mix until fully dispersed and hydrated",
+              "Avoid creating excessive foam"
+            ]
+          },
+          {
+            "phase": "Phase C",
+            "steps": [
+              `Adjust pH to ${phLevel} using diluted Sodium Hydroxide solution`,
+              "Add dropwise while monitoring pH continuously",
+              "Mix thoroughly after each addition"
+            ]
+          },
+          {
+            "phase": "Phase D",
+            "steps": [
+              "Cool mixture to below 40°C",
+              "Add preservative system and mix well",
+              "Add active ingredients gradually while mixing"
+            ]
+          },
+          {
+            "phase": "Phase E",
+            "steps": [
+              "Add fragrance and colorant if specified",
+              "Mix until evenly distributed",
+              "Perform final quality checks and package"
+            ]
+          }
         ]),
         usageInstructions: 'Apply as needed according to product instructions',
         phLevel: phLevel.toString(),
