@@ -884,12 +884,15 @@ Allow: /disclaimer`;
       }
 
       // Save formulation to database with isActive: false (pending approval)
-      // Add SEO fields to custom formulation
+      // Add SEO fields to custom formulation  
+      const categoryResult = await storage.getCategory(categoryId);
+      const categoryName = categoryResult ? categoryResult.name : 'Custom';
+      
       const formulationWithSEO = addSEOFields({
         ...formulation,
         categoryId,
         isActive: false // This will make it appear in pending approval
-      }, category.name);
+      }, categoryName);
       
       const formulationToSave = formulationWithSEO;
 
@@ -917,7 +920,12 @@ Allow: /disclaimer`;
       }
 
       // Generate PDF with logo settings
-      const pdfBuffer = generateFormulationPDF(formulation, logoSettings);
+      const pdfBuffer = generateFormulationPDF({
+        ...formulation,
+        slug: 'custom-formulation',
+        metaDescription: undefined,
+        keywords: undefined
+      }, logoSettings);
       
       // Set headers for PDF download
       const sanitizedName = productName
