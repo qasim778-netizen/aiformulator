@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,6 +18,7 @@ import { Captcha } from "@/components/ui/captcha";
 
 const formulatorSchema = z.object({
   productName: z.string().min(1, "Product name is required"),
+  productCategory: z.string().min(1, "Product category is required"),
   productDescription: z.string().min(10, "Product description must be at least 10 characters"),
   productType: z.enum(["liquid", "cream", "gel", "powder", "paste", "foam"]),
   phLevel: z.string().min(1, "pH level is required"),
@@ -37,10 +38,17 @@ export default function AIFormulator() {
   const [captchaKey, setCaptchaKey] = useState(0);
   const { toast } = useToast();
 
+  // Fetch categories for dropdown
+  const { data: categoriesData } = useQuery({
+    queryKey: ['/api/categories'],
+    enabled: true
+  });
+
   const form = useForm<FormulatorData>({
     resolver: zodResolver(formulatorSchema),
     defaultValues: {
       productName: "",
+      productCategory: "",
       productDescription: "",
       productType: "liquid",
       phLevel: "",
@@ -184,6 +192,33 @@ export default function AIFormulator() {
                           data-testid="input-product-name"
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="productCategory"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product Category *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-product-category">
+                            <SelectValue placeholder="Select product category..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {(categoriesData as any)?.map((category: any) => (
+                            <SelectItem key={category.id} value={category.name}>
+                              {category.name}
+                            </SelectItem>
+                          )) || [
+                            <SelectItem key="loading" value="" disabled>Loading categories...</SelectItem>
+                          ]}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
