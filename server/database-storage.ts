@@ -80,11 +80,12 @@ export class DatabaseStorage implements IStorage {
         return this.mapDbFormulationToFormulation(formulation);
       }
       
-      // If no exact match, try to find by generated slug from name
+      // If no exact match, try to find by generated slug from name (with and without category)
       const allFormulations = await db.select().from(formulationsTable);
       for (const f of allFormulations) {
         const generatedSlug = this.generateSlugFromName(f.name);
-        if (generatedSlug === slug) {
+        const generatedSlugWithCategory = this.generateSlugFromNameWithCategory(f.name, f.categoryId);
+        if (generatedSlug === slug || generatedSlugWithCategory === slug) {
           return this.mapDbFormulationToFormulation(f);
         }
       }
@@ -186,8 +187,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   private mapDbFormulationToFormulation = (dbFormulation: any): Formulation => {
-    // Generate SEO slug on-the-fly if missing
-    const slug = dbFormulation.slug || this.generateSlugFromName(dbFormulation.name);
+    // Generate SEO slug on-the-fly if missing, including category name
+    const slug = dbFormulation.slug || this.generateSlugFromNameWithCategory(dbFormulation.name, dbFormulation.categoryId);
     
     return {
       id: dbFormulation.id,
@@ -230,6 +231,38 @@ export class DatabaseStorage implements IStorage {
     }
     
     return baseSlug + '-formula';
+  }
+
+  private generateSlugFromNameWithCategory(name: string, categoryId: string): string {
+    const baseSlug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+    
+    // Get category name for slug (simple mapping for common categories)
+    const categoryMapping: Record<string, string> = {
+      '438911e6-9f73-428b-9527-11d3c0eb446a': 'oral',
+      '1c045920-e28c-41b5-b372-eb189966ae40': 'baby',
+      'a1150e3f-7bfb-4f30-b580-b5a9dcc83485': 'skin',
+      '335555d4-179f-42a3-915d-729086a9af49': 'beauty',
+      '07437262-b191-458e-8ca0-b8d0656ccac9': 'cleaning',
+      'dd57e6f2-d568-4986-aa83-b1eb10a039fa': 'detergent',
+      '1c12a84d-aa92-45bb-b0a3-53db112156c8': 'leather',
+      '99c06153-76c8-4a0e-9195-226228a3757f': 'men',
+      '0758f4b6-5d52-49c6-96a5-3802d5c244be': 'organic',
+      '3fccd0f2-f606-42b0-a70b-feff692247c7': 'shoe'
+    };
+    
+    const categorySlug = categoryMapping[categoryId] || 'general';
+    
+    // Don't add -formula suffix if it already contains 'formula'
+    if (baseSlug.includes('formula')) {
+      return `${baseSlug}-${categorySlug}`;
+    }
+    
+    return `${baseSlug}-${categorySlug}-formula`;
   }
 
   // AI Generation tracking methods (in-memory for demo)
