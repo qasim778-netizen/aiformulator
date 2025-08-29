@@ -97,7 +97,13 @@ const consistencyTypes = [
   }
 ];
 
-const productCategories = [
+// Fetch categories from API instead of hardcoded list
+const { data: categoriesData } = useQuery({
+  queryKey: ['/api/categories'],
+  enabled: true
+});
+
+const productCategories = categoriesData?.map(cat => cat.name) || [
   "Skincare & Cosmetics",
   "Hair Care Products",
   "Body Care & Personal Hygiene",
