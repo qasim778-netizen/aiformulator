@@ -22,6 +22,11 @@ export class DatabaseStorage implements IStorage {
     return category ? this.mapDbCategoryToCategory(category) : undefined;
   }
 
+  async getCategoryBySlug(slug: string): Promise<Category | undefined> {
+    const [category] = await db.select().from(categoriesTable).where(eq(categoriesTable.slug, slug));
+    return category ? this.mapDbCategoryToCategory(category) : undefined;
+  }
+
   async createCategory(category: InsertCategory): Promise<Category> {
     const [created] = await db.insert(categoriesTable).values({
       name: category.name,
@@ -143,7 +148,10 @@ export class DatabaseStorage implements IStorage {
     return {
       id: dbCategory.id,
       name: dbCategory.name,
+      slug: dbCategory.slug,
       description: dbCategory.description,
+      metaDescription: dbCategory.metaDescription,
+      keywords: dbCategory.keywords,
       icon: dbCategory.icon,
       image: dbCategory.image,
       isActive: dbCategory.isActive,

@@ -6,12 +6,17 @@ import { z } from "zod";
 export const categories = pgTable("categories", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
+  slug: text("slug").notNull(), // SEO-friendly URL slug
   description: text("description").notNull(),
+  metaDescription: text("meta_description"), // SEO meta description (max 160 chars)
+  keywords: text("keywords"), // SEO keywords (comma-separated)
   icon: text("icon").notNull(),
   image: text("image").notNull(),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
-});
+}, (table) => ({
+  slugIndex: index("category_slug_idx").on(table.slug), // Index for SEO URL lookups
+}));
 
 export const formulations = pgTable("formulations", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),

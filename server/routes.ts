@@ -58,9 +58,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/categories/:id", async (req, res) => {
+  app.get("/api/categories/:identifier", async (req, res) => {
     try {
-      const category = await storage.getCategory(req.params.id);
+      const identifier = req.params.identifier;
+      let category;
+      
+      // Check if identifier is a UUID (contains hyphens and is 36 chars long)
+      if (identifier.includes('-') && identifier.length === 36) {
+        category = await storage.getCategory(identifier);
+      } else {
+        // Try to find by slug
+        category = await storage.getCategoryBySlug(identifier);
+      }
+      
       if (!category) {
         return res.status(404).json({ message: "Category not found" });
       }
@@ -716,11 +726,18 @@ Allow: /disclaimer`;
   </url>`;
       });
 
-      // Add category pages
+      // Add category pages  
       categories.forEach(category => {
+        // Always generate SEO-friendly URLs from category name for better SEO
+        const friendlySlug = category.name
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-');
+        const categoryUrl = `/category/${friendlySlug}`;
+        
         sitemap += `
   <url>
-    <loc>${baseUrl}/category/${category.id}</loc>
+    <loc>${baseUrl}${categoryUrl}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>

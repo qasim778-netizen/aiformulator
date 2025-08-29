@@ -1,4 +1,4 @@
-import { InsertFormulation } from '../shared/schema';
+import { InsertFormulation, InsertCategory } from '../shared/schema';
 
 /**
  * Generate SEO-friendly URL slug from formulation name
@@ -128,4 +128,47 @@ export function generateStructuredData(formulation: any, categoryName: string, b
       "reviewCount": "12"
     }
   };
+}
+
+/**
+ * Generate SEO-friendly URL slug from category name
+ */
+export function generateCategorySEOSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+}
+
+/**
+ * Generate SEO meta description for category
+ */
+export function generateCategoryMetaDescription(name: string, description: string): string {
+  const baseDescription = `Explore professional ${name.toLowerCase()} formulations. ${description} Complete manufacturing guides, ingredients, and instructions for small business production.`;
+  
+  // Truncate to 160 characters if needed
+  return baseDescription.length > 160 
+    ? baseDescription.substring(0, 157) + '...'
+    : baseDescription;
+}
+
+/**
+ * Generate SEO keywords for category
+ */
+export function generateCategorySEOKeywords(name: string, description: string): string {
+  const keywords = [];
+  
+  // Base keywords
+  keywords.push(name.toLowerCase());
+  keywords.push(`${name.toLowerCase()} formulations`);
+  keywords.push(`${name.toLowerCase()} formulas`);
+  keywords.push(`${name.toLowerCase()} manufacturing`);
+  keywords.push('chemical formulation');
+  keywords.push('professional recipes');
+  keywords.push('manufacturing guide');
+  keywords.push('small business production');
+  
+  return keywords.join(', ');
 }

@@ -17,6 +17,7 @@ export interface IStorage {
   // Categories
   getCategories(): Promise<Category[]>;
   getCategory(id: string): Promise<Category | undefined>;
+  getCategoryBySlug(slug: string): Promise<Category | undefined>;
   createCategory(category: InsertCategory): Promise<Category>;
   updateCategory(id: string, category: Partial<InsertCategory>): Promise<Category | undefined>;
   deleteCategory(id: string): Promise<boolean>;
