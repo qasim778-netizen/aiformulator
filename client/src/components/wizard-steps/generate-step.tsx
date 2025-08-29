@@ -41,6 +41,7 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
       // Map our FormData to the expected API format
       const requestData = {
         productName: data.productName || 'Custom Product',
+        productCategory: data.productCategory,
         productDescription: `${data.productCategory} - ${data.consistencyType}`,
         productType: data.consistencyType || 'cream',
         phLevel: data.phLevel || 7,
