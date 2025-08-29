@@ -9,6 +9,7 @@ import { generateCategory, generateFormulation, generateFormulationWithKeywords,
 import { generateFormulationPDF } from "./pdf-generator";
 import { optimizeFormulationsForSEO } from "./seo-optimizer";
 import { generateFormulationImages, addImageFieldToFormulations } from "./image-generator";
+import { addSEOFields, generateStructuredData } from "./seo-utils";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {

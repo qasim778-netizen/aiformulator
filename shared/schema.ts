@@ -17,7 +17,10 @@ export const formulations = pgTable("formulations", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   categoryId: uuid("category_id").notNull().references(() => categories.id),
   name: text("name").notNull(),
+  slug: text("slug").notNull(), // SEO-friendly URL slug
   description: text("description").notNull(),
+  metaDescription: text("meta_description"), // SEO meta description (max 160 chars)
+  keywords: text("keywords"), // SEO keywords (comma-separated)
   image: text("image"), // Optional AI-generated product image URL
   ingredients: text("ingredients").notNull(), // JSON string of ingredients array
   instructions: text("instructions").notNull(), // JSON string of instruction steps
@@ -34,7 +37,9 @@ export const formulations = pgTable("formulations", {
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
-});
+}, (table) => ({
+  slugIndex: index("formulation_slug_idx").on(table.slug), // Index for SEO URL lookups
+}));
 
 export const insertCategorySchema = createInsertSchema(categories).omit({
   id: true,
