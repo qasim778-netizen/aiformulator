@@ -97,26 +97,25 @@ const consistencyTypes = [
   }
 ];
 
-// Fetch categories from API instead of hardcoded list
-const { data: categoriesData } = useQuery({
-  queryKey: ['/api/categories'],
-  enabled: true
-});
-
-const productCategories = categoriesData?.map(cat => cat.name) || [
-  "Skincare & Cosmetics",
-  "Hair Care Products",
-  "Body Care & Personal Hygiene",
-  "Oral Care Products",
-  "Cleaning & Household",
-  "Industrial & Specialty",
-  "Organic & Natural Products",
-  "Baby & Child Care",
-  "Pet Care Products",
-  "Pharmaceutical & Medical"
-];
-
 export default function ProductTypeStep({ formData, updateFormData }: Props) {
+  // Fetch categories from API instead of hardcoded list
+  const { data: categoriesData } = useQuery({
+    queryKey: ['/api/categories'],
+    enabled: true
+  });
+
+  const productCategories = (categoriesData as any)?.map((cat: any) => cat.name) || [
+    "Skincare & Cosmetics",
+    "Hair Care Products",
+    "Body Care & Personal Hygiene",
+    "Oral Care Products",
+    "Cleaning & Household",
+    "Industrial & Specialty",
+    "Organic & Natural Products",
+    "Baby & Child Care",
+    "Pet Care Products",
+    "Pharmaceutical & Medical"
+  ];
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -220,7 +219,7 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
               <SelectValue placeholder="Select product category..." />
             </SelectTrigger>
             <SelectContent>
-              {productCategories.map((category) => (
+              {productCategories.map((category: string) => (
                 <SelectItem key={category} value={category}>
                   {category}
                 </SelectItem>
