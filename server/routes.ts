@@ -54,7 +54,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json(categories);
       }
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch categories" });
+      console.error("Error fetching categories:", error);
+      console.error("Stack trace:", error.stack);
+      res.status(500).json({ message: "Failed to fetch categories", error: error.message });
     }
   });
 

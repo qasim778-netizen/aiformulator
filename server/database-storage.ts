@@ -158,7 +158,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Helper methods to map database types to schema types
-  private mapDbCategoryToCategory(dbCategory: any): Category {
+  private mapDbCategoryToCategory = (dbCategory: any): Category => {
     // Generate SEO slug on-the-fly if missing
     const slug = dbCategory.slug || this.generateCategorySlugFromName(dbCategory.name);
     
@@ -171,7 +171,7 @@ export class DatabaseStorage implements IStorage {
       keywords: dbCategory.keywords || `${dbCategory.name.toLowerCase()}, formulations, manufacturing, chemical recipes`,
       icon: dbCategory.icon,
       image: dbCategory.image,
-      isActive: dbCategory.isActive,
+      isActive: dbCategory.isActive ?? true,
       createdAt: dbCategory.createdAt,
     };
   }
@@ -185,7 +185,7 @@ export class DatabaseStorage implements IStorage {
       .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
   }
 
-  private mapDbFormulationToFormulation(dbFormulation: any): Formulation {
+  private mapDbFormulationToFormulation = (dbFormulation: any): Formulation => {
     // Generate SEO slug on-the-fly if missing
     const slug = dbFormulation.slug || this.generateSlugFromName(dbFormulation.name);
     
@@ -210,7 +210,7 @@ export class DatabaseStorage implements IStorage {
       ingredients: dbFormulation.ingredients,
       instructions: dbFormulation.instructions,
       usageInstructions: dbFormulation.usageInstructions,
-      isActive: dbFormulation.isActive,
+      isActive: dbFormulation.isActive ?? true,
       createdAt: dbFormulation.createdAt,
       updatedAt: dbFormulation.updatedAt,
     };
