@@ -22,7 +22,11 @@ export const formulationsTable = pgTable("formulations", {
   id: uuid("id").primaryKey().defaultRandom(),
   categoryId: uuid("category_id").notNull().references(() => categoriesTable.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
+  slug: text("slug").notNull(), // SEO-friendly URL slug
   description: text("description").notNull(),
+  metaDescription: text("meta_description"), // SEO meta description
+  keywords: text("keywords"), // SEO keywords
+  image: text("image"), // Optional AI-generated product image URL
   phLevel: text("ph_level").notNull(),
   shelfLife: text("shelf_life").notNull(),
   viscosity: text("viscosity"),

@@ -68,8 +68,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getFormulationBySlug(slug: string): Promise<Formulation | undefined> {
-    const [formulation] = await db.select().from(formulationsTable).where(eq(formulationsTable.slug, slug));
-    return formulation ? this.mapDbFormulationToFormulation(formulation) : undefined;
+    try {
+      const [formulation] = await db.select().from(formulationsTable).where(eq(formulationsTable.slug, slug));
+      return formulation ? this.mapDbFormulationToFormulation(formulation) : undefined;
+    } catch (error) {
+      console.error('Error fetching formulation by slug:', error);
+      return undefined;
+    }
   }
 
   async createFormulation(formulation: InsertFormulation): Promise<Formulation> {
@@ -151,7 +156,11 @@ export class DatabaseStorage implements IStorage {
       id: dbFormulation.id,
       categoryId: dbFormulation.categoryId,
       name: dbFormulation.name,
+      slug: dbFormulation.slug,
       description: dbFormulation.description,
+      metaDescription: dbFormulation.metaDescription,
+      keywords: dbFormulation.keywords,
+      image: dbFormulation.image,
       phLevel: dbFormulation.phLevel,
       shelfLife: dbFormulation.shelfLife,
       viscosity: dbFormulation.viscosity,
