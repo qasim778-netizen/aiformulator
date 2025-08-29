@@ -74,8 +74,22 @@ export class DatabaseStorage implements IStorage {
 
   async getFormulationBySlug(slug: string): Promise<Formulation | undefined> {
     try {
+      // First try to find by exact slug match
       const [formulation] = await db.select().from(formulationsTable).where(eq(formulationsTable.slug, slug));
-      return formulation ? this.mapDbFormulationToFormulation(formulation) : undefined;
+      if (formulation) {
+        return this.mapDbFormulationToFormulation(formulation);
+      }
+      
+      // If no exact match, try to find by generated slug from name
+      const allFormulations = await db.select().from(formulationsTable);
+      for (const f of allFormulations) {
+        const generatedSlug = this.generateSlugFromName(f.name);
+        if (generatedSlug === slug) {
+          return this.mapDbFormulationToFormulation(f);
+        }
+      }
+      
+      return undefined;
     } catch (error) {
       console.error('Error fetching formulation by slug:', error);
       return undefined;
@@ -203,12 +217,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   private generateSlugFromName(name: string): string {
-    return name
+    const baseSlug = name
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
       .replace(/\s+/g, '-') // Replace spaces with hyphens
       .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-      .replace(/^-|-$/g, '') + '-formula'; // Remove leading/trailing hyphens and add suffix
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+    
+    // Don't add -formula suffix if it already contains 'formula'
+    if (baseSlug.includes('formula')) {
+      return baseSlug;
+    }
+    
+    return baseSlug + '-formula';
   }
 
   // AI Generation tracking methods (in-memory for demo)
