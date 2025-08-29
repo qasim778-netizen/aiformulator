@@ -145,13 +145,16 @@ export class DatabaseStorage implements IStorage {
 
   // Helper methods to map database types to schema types
   private mapDbCategoryToCategory(dbCategory: any): Category {
+    // Generate SEO slug on-the-fly if missing
+    const slug = dbCategory.slug || this.generateCategorySlugFromName(dbCategory.name);
+    
     return {
       id: dbCategory.id,
       name: dbCategory.name,
-      slug: dbCategory.slug,
+      slug: slug,
       description: dbCategory.description,
-      metaDescription: dbCategory.metaDescription,
-      keywords: dbCategory.keywords,
+      metaDescription: dbCategory.metaDescription || `Explore professional ${dbCategory.name.toLowerCase()} formulations with complete manufacturing guides.`,
+      keywords: dbCategory.keywords || `${dbCategory.name.toLowerCase()}, formulations, manufacturing, chemical recipes`,
       icon: dbCategory.icon,
       image: dbCategory.image,
       isActive: dbCategory.isActive,
@@ -159,15 +162,27 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
+  private generateCategorySlugFromName(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+  }
+
   private mapDbFormulationToFormulation(dbFormulation: any): Formulation {
+    // Generate SEO slug on-the-fly if missing
+    const slug = dbFormulation.slug || this.generateSlugFromName(dbFormulation.name);
+    
     return {
       id: dbFormulation.id,
       categoryId: dbFormulation.categoryId,
       name: dbFormulation.name,
-      slug: dbFormulation.slug,
+      slug: slug,
       description: dbFormulation.description,
-      metaDescription: dbFormulation.metaDescription,
-      keywords: dbFormulation.keywords,
+      metaDescription: dbFormulation.metaDescription || `Professional ${dbFormulation.name} formulation with complete manufacturing guide and ingredients.`,
+      keywords: dbFormulation.keywords || `${dbFormulation.name}, chemical formulation, manufacturing guide`,
       image: dbFormulation.image,
       phLevel: dbFormulation.phLevel,
       shelfLife: dbFormulation.shelfLife,
@@ -185,6 +200,15 @@ export class DatabaseStorage implements IStorage {
       createdAt: dbFormulation.createdAt,
       updatedAt: dbFormulation.updatedAt,
     };
+  }
+
+  private generateSlugFromName(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-|-$/g, '') + '-formula'; // Remove leading/trailing hyphens and add suffix
   }
 
   // AI Generation tracking methods (in-memory for demo)
