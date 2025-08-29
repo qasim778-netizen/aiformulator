@@ -67,6 +67,11 @@ export class DatabaseStorage implements IStorage {
     return formulation ? this.mapDbFormulationToFormulation(formulation) : undefined;
   }
 
+  async getFormulationBySlug(slug: string): Promise<Formulation | undefined> {
+    const [formulation] = await db.select().from(formulationsTable).where(eq(formulationsTable.slug, slug));
+    return formulation ? this.mapDbFormulationToFormulation(formulation) : undefined;
+  }
+
   async createFormulation(formulation: InsertFormulation): Promise<Formulation> {
     const [created] = await db.insert(formulationsTable).values({
       categoryId: formulation.categoryId,

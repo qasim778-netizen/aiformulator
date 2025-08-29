@@ -88,7 +88,7 @@ export default function CategoryPage() {
                       <span className="font-medium">{formulation.batchSize}</span>
                     </div>
                   </div>
-                  <Link href={`/formulation/${formulation.id}`}>
+                  <Link href={`/formulation/${formulation.slug || formulation.id}`}>
                     <Button className="w-full bg-primary text-white hover:bg-blue-700">
                       View Details
                     </Button>

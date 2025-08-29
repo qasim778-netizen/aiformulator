@@ -25,6 +25,7 @@ export interface IStorage {
   getFormulations(): Promise<Formulation[]>;
   getFormulationsByCategory(categoryId: string): Promise<Formulation[]>;
   getFormulation(id: string): Promise<Formulation | undefined>;
+  getFormulationBySlug(slug: string): Promise<Formulation | undefined>;
   createFormulation(formulation: InsertFormulation): Promise<Formulation>;
   updateFormulation(id: string, formulation: Partial<InsertFormulation>): Promise<Formulation | undefined>;
   deleteFormulation(id: string): Promise<boolean>;
@@ -1579,6 +1580,11 @@ export class MemStorage implements IStorage {
 
   async getFormulation(id: string): Promise<Formulation | undefined> {
     return this.formulations.get(id);
+  }
+
+  async getFormulationBySlug(slug: string): Promise<Formulation | undefined> {
+    const formulation = Array.from(this.formulations.values()).find(f => f.slug === slug);
+    return formulation ? formulation : undefined;
   }
 
   async createFormulation(formulation: InsertFormulation): Promise<Formulation> {

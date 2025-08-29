@@ -143,9 +143,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/formulations/:id", async (req, res) => {
+  // Get formulation by ID or slug
+  app.get("/api/formulations/:identifier", async (req, res) => {
     try {
-      const formulation = await storage.getFormulation(req.params.id);
+      const identifier = req.params.identifier;
+      let formulation;
+      
+      // Check if identifier is a UUID (contains hyphens and proper length)
+      if (identifier.includes('-') && identifier.length === 36) {
+        formulation = await storage.getFormulation(identifier);
+      } else {
+        // Try to find by slug
+        formulation = await storage.getFormulationBySlug(identifier);
+      }
+      
       if (!formulation) {
         return res.status(404).json({ message: "Formulation not found" });
       }
@@ -718,9 +729,10 @@ Allow: /disclaimer`;
 
       // Add formulation pages (only active ones)
       formulations.filter(f => f.isActive).forEach(formulation => {
+        const url = formulation.slug ? `/formulation/${formulation.slug}` : `/formulation/${formulation.id}`;
         sitemap += `
   <url>
-    <loc>${baseUrl}/formulation/${formulation.id}</loc>
+    <loc>${baseUrl}${url}</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>

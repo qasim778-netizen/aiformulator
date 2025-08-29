@@ -35,7 +35,7 @@ export default function FormulationCard({ formulation }: FormulationCardProps) {
             <span className="font-medium">{ingredients.length} components</span>
           </div>
         </div>
-        <Link href={`/formulation/${formulation.id}`}>
+        <Link href={`/formulation/${formulation.slug || formulation.id}`}>
           <Button className="w-full bg-primary text-white hover:bg-blue-700">
             View Details
           </Button>
