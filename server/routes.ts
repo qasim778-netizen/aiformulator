@@ -502,10 +502,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const createdFormulations = [];
       for (const formulationData of formulations) {
         try {
-          const formulation = await storage.createFormulation({
+          // Add SEO fields to formulation data
+          const formulationWithSEO = addSEOFields({
             ...formulationData,
             categoryId
-          });
+          }, category.name);
+          
+          const formulation = await storage.createFormulation(formulationWithSEO);
           createdFormulations.push(formulation);
           
           // Track each AI generation for analytics
@@ -561,10 +564,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const createdFormulations = [];
       for (const formulationData of formulations) {
         try {
-          const formulation = await storage.createFormulation({
+          // Add SEO fields to formulation data
+          const formulationWithSEO = addSEOFields({
             ...formulationData,
             categoryId
-          });
+          }, category.name);
+          
+          const formulation = await storage.createFormulation(formulationWithSEO);
           createdFormulations.push(formulation);
           
           // Track each AI generation for analytics
@@ -706,7 +712,7 @@ Allow: /disclaimer`;
     <loc>${baseUrl}/category/${category.id}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <lastmod>${new Date(category.updatedAt).toISOString().split('T')[0]}</lastmod>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
   </url>`;
       });
 
@@ -717,7 +723,7 @@ Allow: /disclaimer`;
     <loc>${baseUrl}/formulation/${formulation.id}</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-    <lastmod>${new Date(formulation.updatedAt).toISOString().split('T')[0]}</lastmod>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
   </url>`;
       });
 
@@ -878,11 +884,14 @@ Allow: /disclaimer`;
       }
 
       // Save formulation to database with isActive: false (pending approval)
-      const formulationToSave = {
+      // Add SEO fields to custom formulation
+      const formulationWithSEO = addSEOFields({
         ...formulation,
         categoryId,
         isActive: false // This will make it appear in pending approval
-      };
+      }, category.name);
+      
+      const formulationToSave = formulationWithSEO;
 
       try {
         const savedFormulation = await storage.createFormulation(formulationToSave);

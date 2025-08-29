@@ -7,9 +7,12 @@ interface LogoSettings {
   companyName?: string;
 }
 
-interface FormulationPDFData extends Omit<InsertFormulation, 'categoryId'> {
+interface FormulationPDFData extends Omit<InsertFormulation, 'categoryId' | 'slug' | 'metaDescription' | 'keywords'> {
   ingredients: string;
   instructions: string;
+  slug?: string;
+  metaDescription?: string;
+  keywords?: string;
 }
 
 export function generateFormulationPDF(formulation: FormulationPDFData, logoSettings?: LogoSettings): Buffer {
