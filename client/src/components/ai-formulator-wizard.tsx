@@ -498,6 +498,18 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   }, [availableProperties, formData.productCategory, formData.productName]);
 
   const nextStep = () => {
+    // Validate required fields for current step
+    if (currentStep === 0) { // Product Type Step
+      if (!formData.productName || !formData.productCategory || !formData.consistencyType) {
+        toast({
+          title: "Required Fields Missing",
+          description: "Please fill in Product Name, Category, and Consistency Type before proceeding",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+    
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -548,6 +560,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
 
       const requestData = {
         productName: data.productName,
+        productCategory: data.productCategory,
         productDescription: `${data.productCategory} - ${data.consistencyType} formulation with ${data.specialProperties.join(', ')} properties`,
         productType: data.consistencyType.toLowerCase(),
         phLevel: data.phLevel.toString(),
