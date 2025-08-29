@@ -779,6 +779,7 @@ Allow: /disclaimer`;
     try {
       const {
         productName,
+        productCategory,
         productDescription,
         productType,
         phLevel,
@@ -791,9 +792,9 @@ Allow: /disclaimer`;
       } = req.body;
 
       // Validate required fields
-      if (!productName || !productDescription || !productType || !phLevel || !costLevel) {
+      if (!productName || !productCategory || !productDescription || !productType || !phLevel || !costLevel) {
         return res.status(400).json({ 
-          message: "Missing required fields: productName, productDescription, productType, phLevel, costLevel" 
+          message: "Missing required fields: productName, productCategory, productDescription, productType, phLevel, costLevel" 
         });
       }
 
@@ -905,14 +906,17 @@ Allow: /disclaimer`;
         certification: "Meets industry standards"
       };
 
-      // Get category ID for the product type
-      const categoryId = await getProductTypeCategory(productType);
+      // Get category ID for the selected product category
+      const categories = await storage.getCategories();
+      const selectedCategory = categories.find(cat => cat.name === productCategory);
       
-      if (!categoryId) {
+      if (!selectedCategory) {
         return res.status(400).json({ 
-          message: "Unable to determine category for the product type" 
+          message: "Invalid product category selected" 
         });
       }
+      
+      const categoryId = selectedCategory.id;
 
       // Save formulation to database with isActive: false (pending approval)
       // Add SEO fields to custom formulation  
