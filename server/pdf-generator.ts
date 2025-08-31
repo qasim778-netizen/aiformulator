@@ -54,8 +54,8 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
     const logoBase64 = logoBuffer.toString('base64');
     const logoDataUrl = `data:image/png;base64,${logoBase64}`;
     
-    // Add logo image with 110px height (converted to PDF units)
-    const logoHeight = 110 * 0.75; // Convert pixels to PDF points (roughly 110px * 0.75)
+    // Add logo image with 40px height (converted to PDF units)
+    const logoHeight = 40 * 0.75; // Convert pixels to PDF points (roughly 40px * 0.75)
     doc.addImage(logoDataUrl, 'PNG', margin, yPosition, 0, logoHeight); // Auto-width based on height
     yPosition += logoHeight + 10;
   } catch (error) {
