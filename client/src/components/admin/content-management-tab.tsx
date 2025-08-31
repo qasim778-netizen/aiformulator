@@ -26,10 +26,13 @@ export default function ContentManagementTab() {
 
   const { data: pages = [], isLoading, error } = useQuery<Page[]>({
     queryKey: ["/api/pages"],
+    retry: 3,
+    staleTime: 0,
+    refetchOnMount: true,
   });
 
   // Debug logging
-  console.log("Content Management - Pages data:", pages);
+  console.log("Content Management - Pages data:", pages, "Length:", pages.length);
   console.log("Content Management - Loading:", isLoading);
   console.log("Content Management - Error:", error);
 
