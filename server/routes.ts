@@ -11,6 +11,7 @@ import { optimizeFormulationsForSEO } from "./seo-optimizer";
 import { generateFormulationImages, addImageFieldToFormulations } from "./image-generator";
 import { addSEOFields, generateStructuredData } from "./seo-utils";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { aiBlogGenerator } from "./ai-blog-generator";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -1269,6 +1270,98 @@ Allow: /disclaimer`;
     } catch (error: any) {
       console.error("Failed to delete blog post:", error);
       res.status(500).json({ message: "Failed to delete blog post" });
+    }
+  });
+
+  // AI Blog Generation API
+  // Analyze content gaps and suggest topics
+  app.get("/api/ai-blog/content-gaps", async (req, res) => {
+    try {
+      const suggestions = await aiBlogGenerator.analyzeContentGaps();
+      res.json(suggestions);
+    } catch (error: any) {
+      console.error("Failed to analyze content gaps:", error);
+      res.status(500).json({ message: "Failed to analyze content gaps" });
+    }
+  });
+
+  // Get trending topics
+  app.get("/api/ai-blog/trending-topics", async (req, res) => {
+    try {
+      const trendingTopics = await aiBlogGenerator.generateTrendingTopics();
+      res.json(trendingTopics);
+    } catch (error: any) {
+      console.error("Failed to get trending topics:", error);
+      res.status(500).json({ message: "Failed to get trending topics" });
+    }
+  });
+
+  // Generate single blog post
+  app.post("/api/ai-blog/generate", async (req, res) => {
+    try {
+      const { topic, targetKeywords = [], shouldPublish = false } = req.body;
+      
+      if (!topic) {
+        return res.status(400).json({ message: "Topic is required" });
+      }
+
+      const blogPost = await aiBlogGenerator.createPublishableBlogPost(topic, targetKeywords, shouldPublish);
+      
+      if (shouldPublish) {
+        // Save to database if should publish
+        const savedPost = await storage.createBlogPost(blogPost);
+        res.json(savedPost);
+      } else {
+        // Return generated content without saving
+        res.json(blogPost);
+      }
+    } catch (error: any) {
+      console.error("Failed to generate blog post:", error);
+      res.status(500).json({ message: error.message || "Failed to generate blog post" });
+    }
+  });
+
+  // Batch generate multiple blog posts
+  app.post("/api/ai-blog/generate-batch", async (req, res) => {
+    try {
+      const { topics, targetKeywords = [], shouldPublish = false } = req.body;
+      
+      if (!topics || !Array.isArray(topics) || topics.length === 0) {
+        return res.status(400).json({ message: "Topics array is required" });
+      }
+
+      const blogPosts = await aiBlogGenerator.generateBatchBlogPosts(topics, targetKeywords, false);
+      
+      if (shouldPublish) {
+        // Save all to database
+        const savedPosts = [];
+        for (const post of blogPosts) {
+          try {
+            const savedPost = await storage.createBlogPost(post);
+            savedPosts.push(savedPost);
+          } catch (error) {
+            console.error("Failed to save generated post:", error);
+          }
+        }
+        res.json(savedPosts);
+      } else {
+        res.json(blogPosts);
+      }
+    } catch (error: any) {
+      console.error("Failed to generate batch blog posts:", error);
+      res.status(500).json({ message: error.message || "Failed to generate blog posts" });
+    }
+  });
+
+  // Generate content calendar
+  app.get("/api/ai-blog/content-calendar", async (req, res) => {
+    try {
+      const weeksAhead = parseInt(req.query.weeks as string) || 4;
+      const calendar = await aiBlogGenerator.generateContentCalendar(weeksAhead);
+      res.json(calendar);
+    } catch (error: any) {
+      console.error("Failed to generate content calendar:", error);
+      res.status(500).json({ message: "Failed to generate content calendar" });
     }
   });
 

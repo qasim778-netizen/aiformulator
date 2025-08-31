@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Edit, Trash2, Plus, Save, X, Eye, EyeOff, RefreshCw, Calendar } from "lucide-react";
+import { Edit, Trash2, Plus, Save, X, Eye, EyeOff, RefreshCw, Calendar, Sparkles, TrendingUp, Target, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -15,6 +15,10 @@ import type { BlogPost, InsertBlogPost } from "@shared/schema";
 export default function BlogManagementTab() {
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAIDialogOpen, setIsAIDialogOpen] = useState(false);
+  const [aiGenerationMode, setAIGenerationMode] = useState<'single' | 'batch' | 'trending'>('single');
+  const [aiTopic, setAITopic] = useState('');
+  const [aiKeywords, setAIKeywords] = useState('');
   const [formData, setFormData] = useState<Partial<InsertBlogPost>>({
     title: "",
     slug: "",
@@ -27,6 +31,35 @@ export default function BlogManagementTab() {
     isPublished: false,
   });
   const { toast } = useToast();
+
+  // AI content suggestions queries
+  const { data: contentGaps = [], isLoading: isLoadingGaps } = useQuery<any[]>({
+    queryKey: ["ai-blog-content-gaps"],
+    queryFn: async () => {
+      const response = await fetch("/api/ai-blog/content-gaps", {
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return await response.json();
+    },
+    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
+  });
+
+  const { data: trendingTopics = [], isLoading: isLoadingTrending } = useQuery<any[]>({
+    queryKey: ["ai-blog-trending-topics"],
+    queryFn: async () => {
+      const response = await fetch("/api/ai-blog/trending-topics", {
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return await response.json();
+    },
+    staleTime: 60 * 60 * 1000, // Cache for 1 hour
+  });
 
   const { data: posts = [], isLoading, error, refetch } = useQuery<BlogPost[]>({
     queryKey: ["blog-posts"],
@@ -89,6 +122,81 @@ export default function BlogManagementTab() {
       toast({
         title: "Error",
         description: error.message || "Failed to update blog post",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // AI blog generation mutations
+  const generateAIBlogMutation = useMutation({
+    mutationFn: async ({ topic, keywords, shouldPublish }: { topic: string; keywords: string[]; shouldPublish: boolean }) => {
+      const response = await apiRequest("POST", "/api/ai-blog/generate", {
+        topic,
+        targetKeywords: keywords,
+        shouldPublish
+      });
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      if (data.id) {
+        // Post was published, refresh the posts list
+        queryClient.invalidateQueries({ queryKey: ["blog-posts"] });
+        refetch();
+        toast({
+          title: "Success",
+          description: "AI blog post generated and published successfully",
+        });
+      } else {
+        // Post was generated but not published, populate the form
+        setFormData({
+          title: data.title,
+          slug: data.slug,
+          excerpt: data.excerpt,
+          content: data.content,
+          featuredImage: data.featuredImage,
+          metaDescription: data.metaDescription,
+          keywords: data.keywords,
+          authorName: data.authorName || "AI Formulator Team",
+          isPublished: false,
+        });
+        setIsAIDialogOpen(false);
+        setIsDialogOpen(true);
+        toast({
+          title: "Content Generated",
+          description: "AI content generated successfully. Review and publish when ready.",
+        });
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate AI blog post",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const generateBatchBlogMutation = useMutation({
+    mutationFn: async ({ topics, shouldPublish }: { topics: string[]; shouldPublish: boolean }) => {
+      const response = await apiRequest("POST", "/api/ai-blog/generate-batch", {
+        topics,
+        shouldPublish
+      });
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["blog-posts"] });
+      refetch();
+      setIsAIDialogOpen(false);
+      toast({
+        title: "Success",
+        description: `${data.length} AI blog posts generated successfully`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate batch blog posts",
         variant: "destructive",
       });
     },
@@ -200,6 +308,39 @@ export default function BlogManagementTab() {
     resetForm();
   };
 
+  const handleAIGenerate = () => {
+    if (!aiTopic.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a topic for AI generation",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const keywords = aiKeywords.split(',').map(k => k.trim()).filter(k => k);
+    generateAIBlogMutation.mutate({
+      topic: aiTopic,
+      keywords,
+      shouldPublish: false // Always generate as draft first
+    });
+  };
+
+  const handleGenerateFromSuggestion = (suggestion: any, shouldPublish: boolean = false) => {
+    generateAIBlogMutation.mutate({
+      topic: suggestion.title,
+      keywords: suggestion.targetKeywords || [],
+      shouldPublish
+    });
+  };
+
+  const handleBatchGenerate = (topics: string[], shouldPublish: boolean = false) => {
+    generateBatchBlogMutation.mutate({
+      topics,
+      shouldPublish
+    });
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -218,6 +359,171 @@ export default function BlogManagementTab() {
             <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
+          <Dialog open={isAIDialogOpen} onOpenChange={setIsAIDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 hover:from-purple-600 hover:to-pink-600"
+                data-testid="button-ai-generate"
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                AI Generate
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center">
+                  <Sparkles className="mr-2 h-5 w-5 text-purple-500" />
+                  AI Blog Content Generator
+                </DialogTitle>
+              </DialogHeader>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Manual Generation */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold flex items-center">
+                    <Zap className="mr-2 h-4 w-4 text-blue-500" />
+                    Manual Topic Generation
+                  </h3>
+                  <div>
+                    <Label htmlFor="ai-topic">Topic or Title</Label>
+                    <Input
+                      id="ai-topic"
+                      value={aiTopic}
+                      onChange={(e) => setAITopic(e.target.value)}
+                      placeholder="e.g., The Future of Sustainable Chemical Formulation"
+                      data-testid="input-ai-topic"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="ai-keywords">Target Keywords (comma-separated)</Label>
+                    <Input
+                      id="ai-keywords"
+                      value={aiKeywords}
+                      onChange={(e) => setAIKeywords(e.target.value)}
+                      placeholder="e.g., sustainable formulation, green chemistry, eco-friendly"
+                      data-testid="input-ai-keywords"
+                    />
+                  </div>
+                  <Button 
+                    onClick={handleAIGenerate}
+                    disabled={generateAIBlogMutation.isPending}
+                    className="w-full"
+                    data-testid="button-generate-manual"
+                  >
+                    {generateAIBlogMutation.isPending ? "Generating..." : "Generate Content"}
+                  </Button>
+                </div>
+
+                {/* Content Gap Suggestions */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold flex items-center">
+                    <Target className="mr-2 h-4 w-4 text-green-500" />
+                    Content Gap Analysis
+                  </h3>
+                  {isLoadingGaps ? (
+                    <div className="text-center py-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
+                      <p className="text-sm text-gray-500 mt-2">Analyzing content gaps...</p>
+                    </div>
+                  ) : (
+                    <div className="max-h-64 overflow-y-auto space-y-2">
+                      {contentGaps.slice(0, 5).map((gap, index) => (
+                        <div key={index} className="p-3 border rounded-lg hover:bg-gray-50">
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-medium text-sm">{gap.title}</h4>
+                            <span className={`text-xs px-2 py-1 rounded ${
+                              gap.estimatedDifficulty === 'low' ? 'bg-green-100 text-green-800' :
+                              gap.estimatedDifficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {gap.estimatedDifficulty}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600 mb-2">{gap.description}</p>
+                          <div className="flex justify-between items-center">
+                            <div className="flex flex-wrap gap-1">
+                              {gap.targetKeywords?.slice(0, 2).map((keyword: string, idx: number) => (
+                                <span key={idx} className="text-xs bg-blue-100 text-blue-800 px-1 py-0.5 rounded">
+                                  {keyword}
+                                </span>
+                              ))}
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleGenerateFromSuggestion(gap)}
+                              data-testid={`button-generate-gap-${index}`}
+                            >
+                              Generate
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Trending Topics */}
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold flex items-center mb-4">
+                  <TrendingUp className="mr-2 h-4 w-4 text-orange-500" />
+                  Trending Topics
+                </h3>
+                {isLoadingTrending ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
+                    <p className="text-sm text-gray-500 mt-2">Finding trending topics...</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {trendingTopics.slice(0, 6).map((topic, index) => (
+                      <div key={index} className="p-4 border rounded-lg hover:bg-gray-50">
+                        <h4 className="font-medium text-sm mb-2">{topic.title}</h4>
+                        <p className="text-xs text-gray-600 mb-3">{topic.description}</p>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
+                            {topic.contentType}
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleGenerateFromSuggestion(topic)}
+                            data-testid={`button-generate-trending-${index}`}
+                          >
+                            Generate
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-4 border-t">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsAIDialogOpen(false)}
+                >
+                  Close
+                </Button>
+                <Button
+                  onClick={() => {
+                    const topSuggestions = contentGaps.slice(0, 3).map(gap => gap.title);
+                    if (topSuggestions.length > 0) {
+                      handleBatchGenerate(topSuggestions, false);
+                    }
+                  }}
+                  disabled={generateBatchBlogMutation.isPending || contentGaps.length === 0}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+                  data-testid="button-batch-generate"
+                >
+                  {generateBatchBlogMutation.isPending ? "Generating..." : "Batch Generate Top 3"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button
