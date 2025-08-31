@@ -25,23 +25,20 @@ export default function ContentManagementTab() {
   const { toast } = useToast();
 
   const { data: pages = [], isLoading, error, refetch } = useQuery<Page[]>({
-    queryKey: ["/api/pages"],
+    queryKey: ["pages"],
     queryFn: async () => {
-      try {
-        const response = await fetch("/api/pages", {
-          credentials: "include",
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        const data = await response.json();
-        console.log("Pages API response:", data);
-        return data;
-      } catch (err) {
-        console.error("Pages API error:", err);
-        throw err;
+      console.log("Fetching pages from API...");
+      const response = await fetch("/api/pages", {
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
+      const data = await response.json();
+      console.log("Pages API response:", data);
+      return data;
     },
+    enabled: true,
     retry: 1,
     staleTime: 0,
     refetchOnMount: true,
@@ -53,7 +50,7 @@ export default function ContentManagementTab() {
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/pages"] });
+      queryClient.invalidateQueries({ queryKey: ["pages"] });
       setIsDialogOpen(false);
       resetForm();
       toast({
@@ -76,7 +73,7 @@ export default function ContentManagementTab() {
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/pages"] });
+      queryClient.invalidateQueries({ queryKey: ["pages"] });
       setIsDialogOpen(false);
       setEditingPage(null);
       resetForm();
@@ -100,7 +97,7 @@ export default function ContentManagementTab() {
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/pages"] });
+      queryClient.invalidateQueries({ queryKey: ["pages"] });
       toast({
         title: "Success",
         description: "Page deleted successfully",
