@@ -286,7 +286,7 @@ export default function BlogManagementTab() {
 
     const submitData = {
       ...formData,
-      publishedAt: formData.isPublished ? new Date().toISOString() : null,
+      publishedAt: formData.isPublished ? new Date() : null,
     } as InsertBlogPost;
 
     if (editingPost) {

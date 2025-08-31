@@ -215,7 +215,7 @@ export class AIBlogGenerator {
       keywords: generatedContent.keywords,
       authorName: "AI Formulator Team",
       isPublished: shouldPublish,
-      publishedAt: shouldPublish ? new Date().toISOString() : null,
+      publishedAt: shouldPublish ? new Date() : null,
     };
   }
 
