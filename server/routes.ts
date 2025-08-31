@@ -54,7 +54,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.json(categories);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching categories:", error);
       console.error("Stack trace:", error.stack);
       res.status(500).json({ message: "Failed to fetch categories", error: error.message });
@@ -997,8 +997,13 @@ Allow: /disclaimer`;
       // Get logo settings from request body
       const logoSettings = req.body.logoSettings || {};
 
-      // Generate PDF with logo settings
-      const pdfBuffer = generateFormulationPDF(formulation, logoSettings);
+      // Generate PDF with logo settings - convert null values to undefined for type compatibility
+      const formulationData = {
+        ...formulation,
+        metaDescription: formulation.metaDescription ?? undefined,
+        keywords: formulation.keywords ?? undefined,
+      };
+      const pdfBuffer = generateFormulationPDF(formulationData, logoSettings);
       
       // Set headers for PDF download
       const sanitizedName = formulation.name

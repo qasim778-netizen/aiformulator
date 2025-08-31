@@ -37,8 +37,6 @@ export default function BlogManagementTab() {
   // AI content suggestions queries - DISABLED to prevent continuous generation
   const contentGaps: any[] = [];
   const isLoadingGaps = false;
-  const trendingTopics: any[] = [];
-  const isLoadingTrending = false;
 
   const { data: posts = [], isLoading, error, refetch } = useQuery<BlogPost[]>({
     queryKey: ["blog-posts"],
