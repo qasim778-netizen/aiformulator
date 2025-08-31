@@ -173,29 +173,25 @@ export default function SearchBar({
     
     if (!trimmedQuery) return;
 
-    // First, try to find an exact formulation match
-    const exactFormulationMatch = formulations.find(f => 
-      f.name.toLowerCase() === trimmedQuery.toLowerCase()
+    // First, look for formulation matches and show them as cards
+    const matchingFormulations = formulations.filter(f => 
+      f.name.toLowerCase().includes(trimmedQuery.toLowerCase()) ||
+      f.description.toLowerCase().includes(trimmedQuery.toLowerCase())
     );
     
-    if (exactFormulationMatch) {
-      console.log('Found exact formulation match:', exactFormulationMatch.name);
-      setLocation(`/formulation/${exactFormulationMatch.id}`);
-      return;
+    if (matchingFormulations.length > 0) {
+      // Find the category of the first matching formulation
+      const firstMatch = matchingFormulations[0];
+      const matchCategory = categories.find(c => c.id === firstMatch.categoryId);
+      
+      if (matchCategory) {
+        console.log('Found formulation matches, showing category:', matchCategory.name);
+        setLocation(`/category/${matchCategory.id}`);
+        return;
+      }
     }
 
-    // If no exact match, look for close formulation matches
-    const closeFormulationMatch = formulations.find(f => 
-      f.name.toLowerCase().includes(trimmedQuery.toLowerCase())
-    );
-    
-    if (closeFormulationMatch) {
-      console.log('Found close formulation match:', closeFormulationMatch.name);
-      setLocation(`/formulation/${closeFormulationMatch.id}`);
-      return;
-    }
-
-    // If no formulation match, try to find an exact category match
+    // If no formulation matches, try to find category matches
     const exactCategoryMatch = categories.find(c => 
       c.name.toLowerCase() === trimmedQuery.toLowerCase()
     );
