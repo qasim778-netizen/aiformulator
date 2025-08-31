@@ -619,14 +619,6 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
             </div>
           </div>
 
-          {/* Main Title */}
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Create Perfect Formulations
-          </h2>
-          <p className="text-gray-600 mb-4 max-w-2xl mx-auto text-sm">
-            Advanced AI-powered formulation platform with precise specifications, manufacturing 
-            protocols, and comprehensive documentation.
-          </p>
 
           {/* Feature Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 overflow-hidden">
