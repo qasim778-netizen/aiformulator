@@ -56,7 +56,7 @@ export default function Navbar() {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
         {/* Main navigation bar */}
-        <div className="flex justify-between items-center h-16 sm:h-20">
+        <div className="flex justify-between items-center h-14 sm:h-16 lg:h-20">
           {/* Logo - Always visible */}
           <div className="flex-shrink-0">
             <Link href="/">
@@ -64,7 +64,7 @@ export default function Navbar() {
                 <img 
                   src={logoSettings.logoUrl} 
                   alt={`${logoSettings.companyName} Logo`}
-                  className="h-8 w-auto sm:h-10 md:h-12 object-contain"
+                  className="h-7 w-auto sm:h-8 lg:h-10 xl:h-12 object-contain"
                   onError={(e) => {
                     e.currentTarget.src = logoImage; // Fallback to default
                   }}
@@ -73,8 +73,8 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop Navigation - Hidden on mobile */}
-          <div className="hidden lg:flex items-center space-x-6">
+          {/* Desktop Navigation - Hidden on mobile and tablet */}
+          <div className="hidden xl:flex items-center space-x-6">
             <Link href="/">
               <span className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer ${
                 isActive("/") 
@@ -123,7 +123,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Right Side - Search and Logout */}
-          <div className="hidden md:flex items-center space-x-3">
+          <div className="hidden xl:flex items-center space-x-3">
             <SearchBar 
               onSearch={handleSearch}
               placeholder="Search..."
@@ -138,12 +138,13 @@ export default function Navbar() {
             </a>
           </div>
 
-          {/* Mobile menu button */}
-          <div className="lg:hidden">
+          {/* Mobile menu button - Show on mobile, tablet, and small desktop */}
+          <div className="xl:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-md text-gray-600 hover:text-primary hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              className="flex items-center justify-center w-10 h-10 p-2 rounded-md text-gray-600 hover:text-primary hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 touch-target"
               data-testid="mobile-menu-button"
+              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
             >
               {isMobileMenuOpen ? (
                 <X className="h-6 w-6" />
@@ -156,7 +157,7 @@ export default function Navbar() {
 
         {/* Mobile Menu - Collapsible */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-gray-200">
+          <div className="xl:hidden border-t border-gray-200">
             <div className="px-2 pt-2 pb-3 space-y-1">
               <Link href="/">
                 <span 
