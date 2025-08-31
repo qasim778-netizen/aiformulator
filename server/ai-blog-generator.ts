@@ -69,7 +69,6 @@ export class AIBlogGenerator {
           }
         ],
         response_format: { type: "json_object" },
-        temperature: 0.7,
       });
 
       const result = JSON.parse(response.choices[0].message.content || "{}");
@@ -129,7 +128,6 @@ export class AIBlogGenerator {
           }
         ],
         response_format: { type: "json_object" },
-        temperature: 0.6,
       });
 
       const result = JSON.parse(response.choices[0].message.content || "{}");
@@ -193,7 +191,6 @@ export class AIBlogGenerator {
           }
         ],
         response_format: { type: "json_object" },
-        temperature: 0.8,
       });
 
       const result = JSON.parse(response.choices[0].message.content || "{}");
@@ -298,7 +295,6 @@ export class AIBlogGenerator {
           }
         ],
         response_format: { type: "json_object" },
-        temperature: 0.7,
       });
 
       const result = JSON.parse(response.choices[0].message.content || "{}");
