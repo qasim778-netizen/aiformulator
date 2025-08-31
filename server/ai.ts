@@ -81,41 +81,13 @@ export async function generateProductTypes(categoryName: string, categoryDescrip
 }
 
 export async function generateBulkFormulations(categoryName: string, count: number, productTypes: string[]): Promise<Omit<InsertFormulation, 'categoryId'>[]> {
-  const formulations: Omit<InsertFormulation, 'categoryId'>[] = [];
-  
-  for (let i = 0; i < count; i++) {
-    const productType = productTypes[i % productTypes.length];
-    try {
-      const formulation = await generateFormulation(categoryName, productType);
-      formulations.push(formulation);
-      // Add small delay to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 100));
-    } catch (error) {
-      console.error(`Failed to generate formulation ${i + 1}:`, error);
-      // Continue with the next formulation
-    }
-  }
-  
-  return formulations;
+  console.log("Bulk formulation generation disabled to prevent continuous processing");
+  return [];
 }
 
 export async function generateBulkFormulationsWithKeywords(categoryName: string, count: number, productTypes: string[], includeImages: boolean = false): Promise<Omit<InsertFormulation, 'categoryId'>[]> {
-  const formulations: Omit<InsertFormulation, 'categoryId'>[] = [];
-  
-  for (let i = 0; i < count; i++) {
-    const productType = productTypes[i % productTypes.length];
-    try {
-      const formulation = await generateFormulationWithKeywords(categoryName, productType, includeImages);
-      formulations.push(formulation);
-      // Add small delay to avoid rate limiting and image generation
-      await new Promise(resolve => setTimeout(resolve, includeImages ? 500 : 100));
-    } catch (error) {
-      console.error(`Failed to generate formula formulation ${i + 1}:`, error);
-      // Continue with the next formulation
-    }
-  }
-  
-  return formulations;
+  console.log("Bulk formulations with keywords generation disabled to prevent continuous processing");
+  return [];
 }
 
 export async function generateFormulationWithKeywords(categoryName: string, productDescription: string, includeImage: boolean = false): Promise<Omit<InsertFormulation, 'categoryId'>> {

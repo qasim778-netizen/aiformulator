@@ -241,24 +241,10 @@ export class AIBlogGenerator {
       .substring(0, 60);
   }
 
-  // Batch generate multiple blog posts
+  // Batch generate multiple blog posts - DISABLED to prevent continuous generation
   async generateBatchBlogPosts(topics: string[], targetKeywords: string[][] = [], shouldPublish: boolean = false): Promise<InsertBlogPost[]> {
-    const blogPosts: InsertBlogPost[] = [];
-    
-    for (let i = 0; i < topics.length; i++) {
-      try {
-        const keywords = targetKeywords[i] || [];
-        const blogPost = await this.createPublishableBlogPost(topics[i], keywords, shouldPublish);
-        blogPosts.push(blogPost);
-        
-        // Add delay to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      } catch (error) {
-        console.error(`Error generating blog post for topic "${topics[i]}":`, error);
-      }
-    }
-    
-    return blogPosts;
+    console.log("Batch generation disabled to prevent continuous processing");
+    return [];
   }
 
   // Generate trending formulations by region

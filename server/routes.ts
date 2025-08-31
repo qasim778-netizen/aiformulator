@@ -1273,27 +1273,17 @@ Allow: /disclaimer`;
     }
   });
 
-  // AI Blog Generation API
+  // AI Blog Generation API - DISABLED to prevent continuous processing
   // Analyze content gaps and suggest topics
   app.get("/api/ai-blog/content-gaps", async (req, res) => {
-    try {
-      const suggestions = await aiBlogGenerator.analyzeContentGaps();
-      res.json(suggestions);
-    } catch (error: any) {
-      console.error("Failed to analyze content gaps:", error);
-      res.status(500).json({ message: "Failed to analyze content gaps" });
-    }
+    console.log("Content gaps analysis disabled to prevent continuous processing");
+    res.json([]);
   });
 
   // Get trending topics
   app.get("/api/ai-blog/trending-topics", async (req, res) => {
-    try {
-      const trendingTopics = await aiBlogGenerator.generateTrendingTopics();
-      res.json(trendingTopics);
-    } catch (error: any) {
-      console.error("Failed to get trending topics:", error);
-      res.status(500).json({ message: "Failed to get trending topics" });
-    }
+    console.log("Trending topics generation disabled to prevent continuous processing");
+    res.json([]);
   });
 
   // Generate single blog post

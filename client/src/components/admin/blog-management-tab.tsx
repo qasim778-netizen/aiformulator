@@ -32,34 +32,11 @@ export default function BlogManagementTab() {
   });
   const { toast } = useToast();
 
-  // AI content suggestions queries
-  const { data: contentGaps = [], isLoading: isLoadingGaps } = useQuery<any[]>({
-    queryKey: ["ai-blog-content-gaps"],
-    queryFn: async () => {
-      const response = await fetch("/api/ai-blog/content-gaps", {
-        credentials: "include",
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      return await response.json();
-    },
-    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
-  });
-
-  const { data: trendingTopics = [], isLoading: isLoadingTrending } = useQuery<any[]>({
-    queryKey: ["ai-blog-trending-topics"],
-    queryFn: async () => {
-      const response = await fetch("/api/ai-blog/trending-topics", {
-        credentials: "include",
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      return await response.json();
-    },
-    staleTime: 60 * 60 * 1000, // Cache for 1 hour
-  });
+  // AI content suggestions queries - DISABLED to prevent continuous generation
+  const contentGaps: any[] = [];
+  const isLoadingGaps = false;
+  const trendingTopics: any[] = [];
+  const isLoadingTrending = false;
 
   const { data: posts = [], isLoading, error, refetch } = useQuery<BlogPost[]>({
     queryKey: ["blog-posts"],
