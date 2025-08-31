@@ -27,20 +27,16 @@ export default function ContentManagementTab() {
   const { data: pages = [], isLoading, error, refetch } = useQuery<Page[]>({
     queryKey: ["pages"],
     queryFn: async () => {
-      console.log("Fetching pages from API...");
       const response = await fetch("/api/pages", {
         credentials: "include",
       });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      const data = await response.json();
-      console.log("Pages API response:", data);
-      return data;
+      return await response.json();
     },
-    enabled: true,
     retry: 1,
-    staleTime: 0,
+    staleTime: 1000 * 60 * 5,
     refetchOnMount: true,
   });
 
