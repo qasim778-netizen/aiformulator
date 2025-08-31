@@ -169,11 +169,59 @@ export default function SearchBar({
   // Handle search execution
   const handleSearch = (searchQuery: string) => {
     console.log('SearchBar handleSearch called with:', searchQuery);
-    if (onSearch && searchQuery.trim()) {
-      console.log('Calling onSearch prop with:', searchQuery.trim());
-      onSearch(searchQuery.trim());
-    } else {
-      console.log('onSearch not available or empty query');
+    const trimmedQuery = searchQuery.trim();
+    
+    if (!trimmedQuery) return;
+
+    // First, try to find an exact formulation match
+    const exactFormulationMatch = formulations.find(f => 
+      f.name.toLowerCase() === trimmedQuery.toLowerCase()
+    );
+    
+    if (exactFormulationMatch) {
+      console.log('Found exact formulation match:', exactFormulationMatch.name);
+      setLocation(`/formulation/${exactFormulationMatch.id}`);
+      return;
+    }
+
+    // If no exact match, look for close formulation matches
+    const closeFormulationMatch = formulations.find(f => 
+      f.name.toLowerCase().includes(trimmedQuery.toLowerCase())
+    );
+    
+    if (closeFormulationMatch) {
+      console.log('Found close formulation match:', closeFormulationMatch.name);
+      setLocation(`/formulation/${closeFormulationMatch.id}`);
+      return;
+    }
+
+    // If no formulation match, try to find an exact category match
+    const exactCategoryMatch = categories.find(c => 
+      c.name.toLowerCase() === trimmedQuery.toLowerCase()
+    );
+    
+    if (exactCategoryMatch) {
+      console.log('Found exact category match:', exactCategoryMatch.name);
+      setLocation(`/category/${exactCategoryMatch.id}`);
+      return;
+    }
+
+    // If no exact category match, find the most relevant category
+    const relevantCategory = categories.find(c => 
+      c.name.toLowerCase().includes(trimmedQuery.toLowerCase()) ||
+      c.description.toLowerCase().includes(trimmedQuery.toLowerCase())
+    );
+    
+    if (relevantCategory) {
+      console.log('Found relevant category:', relevantCategory.name);
+      setLocation(`/category/${relevantCategory.id}`);
+      return;
+    }
+
+    // If no direct matches, fall back to browse page search
+    if (onSearch) {
+      console.log('No direct matches, using browse page search');
+      onSearch(trimmedQuery);
     }
   };
 
