@@ -378,48 +378,103 @@ export default function BlogManagementTab() {
                 </DialogTitle>
               </DialogHeader>
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Manual Generation */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold flex items-center">
-                    <Zap className="mr-2 h-4 w-4 text-blue-500" />
-                    Manual Topic Generation
-                  </h3>
+              {/* Featured Manual Topic Input */}
+              <div className="mb-6 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-2 border-blue-200">
+                <h3 className="text-xl font-bold flex items-center mb-4">
+                  <Zap className="mr-3 h-5 w-5 text-blue-600" />
+                  Create Custom Blog Post
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Enter any topic you want and let AI generate a professional, SEO-optimized blog post for your chemical formulation website.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="ai-topic">Topic or Title</Label>
+                    <Label htmlFor="ai-topic" className="text-sm font-medium">Blog Topic or Title</Label>
                     <Input
                       id="ai-topic"
                       value={aiTopic}
                       onChange={(e) => setAITopic(e.target.value)}
-                      placeholder="e.g., The Future of Sustainable Chemical Formulation"
+                      placeholder="e.g., How to Create Natural Preservatives for Skincare"
+                      className="mt-1"
                       data-testid="input-ai-topic"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="ai-keywords">Target Keywords (comma-separated)</Label>
+                    <Label htmlFor="ai-keywords" className="text-sm font-medium">Target Keywords (optional)</Label>
                     <Input
                       id="ai-keywords"
                       value={aiKeywords}
                       onChange={(e) => setAIKeywords(e.target.value)}
-                      placeholder="e.g., sustainable formulation, green chemistry, eco-friendly"
+                      placeholder="e.g., natural preservatives, skincare formulation"
+                      className="mt-1"
                       data-testid="input-ai-keywords"
                     />
                   </div>
+                </div>
+                <div className="flex justify-between items-center mt-4">
+                  <div className="text-xs text-gray-500">
+                    ✨ AI will generate 500 words of professional content with proper SEO optimization
+                  </div>
                   <Button 
                     onClick={handleAIGenerate}
-                    disabled={generateAIBlogMutation.isPending}
-                    className="w-full"
+                    disabled={generateAIBlogMutation.isPending || !aiTopic.trim()}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6"
                     data-testid="button-generate-manual"
                   >
-                    {generateAIBlogMutation.isPending ? "Generating..." : "Generate Content"}
+                    {generateAIBlogMutation.isPending ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Generate Blog Post
+                      </>
+                    )}
                   </Button>
                 </div>
+              </div>
 
-                {/* Content Gap Suggestions */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Quick Topic Examples */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold flex items-center">
                     <Target className="mr-2 h-4 w-4 text-green-500" />
-                    Content Gap Analysis
+                    Quick Topic Ideas
+                  </h3>
+                  <div className="space-y-2">
+                    {[
+                      "Essential Oils in Natural Cosmetics: Safety and Efficacy",
+                      "Understanding pH Balance in Skincare Formulations", 
+                      "Sustainable Packaging for Chemical Products",
+                      "Regulatory Compliance for Small Cosmetic Manufacturers",
+                      "Cost-Effective Ingredient Sourcing Strategies"
+                    ].map((topic, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <span className="text-sm text-gray-700">{topic}</span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setAITopic(topic);
+                            setAIKeywords('');
+                          }}
+                          className="text-xs"
+                          data-testid={`button-use-topic-${index}`}
+                        >
+                          Use This
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* AI Content Gap Analysis */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold flex items-center">
+                    <Sparkles className="mr-2 h-4 w-4 text-purple-500" />
+                    AI Content Suggestions
                   </h3>
                   {isLoadingGaps ? (
                     <div className="text-center py-4">
