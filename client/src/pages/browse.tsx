@@ -77,6 +77,7 @@ export default function Browse() {
   }
 
   const handleSearch = (query: string) => {
+    console.log('Browse page handleSearch called with:', query);
     setSearchQuery(query)
     // Scroll to categories section to show filtered results
     setTimeout(() => {

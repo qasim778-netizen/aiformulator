@@ -137,6 +137,7 @@ export default function SearchBar({
           handleSelectSuggestion(suggestions[selectedIndex]);
         } else if (query.trim()) {
           handleSearch(query);
+          setIsOpen(false);
         }
         break;
       case "Escape":
@@ -167,8 +168,12 @@ export default function SearchBar({
 
   // Handle search execution
   const handleSearch = (searchQuery: string) => {
+    console.log('SearchBar handleSearch called with:', searchQuery);
     if (onSearch && searchQuery.trim()) {
+      console.log('Calling onSearch prop with:', searchQuery.trim());
       onSearch(searchQuery.trim());
+    } else {
+      console.log('onSearch not available or empty query');
     }
   };
 
@@ -200,7 +205,16 @@ export default function SearchBar({
 
   return (
     <div className={`relative ${className}`}>
-      <div className="relative">
+      <form 
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (query.trim()) {
+            handleSearch(query);
+            setIsOpen(false);
+          }
+        }}
+        className="relative"
+      >
         <Input
           ref={inputRef}
           type="text"
@@ -213,9 +227,15 @@ export default function SearchBar({
           className="form-input pl-10 pr-10 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 text-responsive-sm touch-target"
           data-testid="input-search-query"
         />
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
+        <button
+          type="submit"
+          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary transition-colors touch-target"
+        >
+          <Search className="h-4 w-4 sm:h-5 sm:w-5" />
+        </button>
         {query && (
           <button
+            type="button"
             onClick={clearSearch}
             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200 touch-target"
             data-testid="button-clear-search"
@@ -223,7 +243,7 @@ export default function SearchBar({
             <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         )}
-      </div>
+      </form>
 
       {/* Suggestions Dropdown */}
       {isOpen && suggestions.length > 0 && (
