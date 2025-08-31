@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Calendar, User, ArrowRight, BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import TrendingFormulations from "@/components/blog/trending-formulations";
 import type { BlogPost } from "@shared/schema";
 
 export default function BlogPage() {
@@ -58,6 +59,13 @@ export default function BlogPage() {
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Insights, tips, and innovations in chemical formulation and AI-powered product development
           </p>
+        </div>
+      </div>
+
+      {/* Trending Formulations Section */}
+      <div className="bg-white dark:bg-gray-900 py-16">
+        <div className="container mx-auto px-4">
+          <TrendingFormulations />
         </div>
       </div>
 

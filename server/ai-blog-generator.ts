@@ -12,6 +12,17 @@ export interface BlogTopicSuggestion {
   contentType: 'tutorial' | 'guide' | 'news' | 'opinion' | 'review';
 }
 
+export interface RegionalTrendingFormulation {
+  name: string;
+  category: string;
+  description: string;
+  popularityScore: number;
+  keyIngredients: string[];
+  targetMarket: string;
+  region: 'Asia' | 'USA' | 'Europe';
+  trendReason: string;
+}
+
 export interface GeneratedBlogContent {
   title: string;
   slug: string;
@@ -248,6 +259,70 @@ export class AIBlogGenerator {
     }
     
     return blogPosts;
+  }
+
+  // Generate trending formulations by region
+  async generateRegionalTrendingFormulations(): Promise<RegionalTrendingFormulation[]> {
+    const prompt = `
+    As an expert in global cosmetics and chemical formulation trends, identify the top 15 trending product formulations that people are most interested in across three key regions: Asia, USA, and Europe (5 formulations per region).
+
+    Focus on:
+    - Current consumer demands and market trends
+    - Popular ingredients gaining traction
+    - Emerging product categories
+    - Regional preferences and cultural influences
+    - Sustainable and clean beauty trends
+    - Scientific innovations in formulation
+
+    For each formulation, provide:
+    - Product name and category
+    - Brief description of what makes it trending
+    - Key ingredients driving interest
+    - Target market segment
+    - Reason for popularity in that region
+    - Popularity score (1-100)
+
+    Return JSON with this structure:
+    {
+      "formulations": [
+        {
+          "name": "Product formulation name",
+          "category": "skincare|haircare|cosmetics|personal_care",
+          "description": "Why this formulation is trending",
+          "popularityScore": 85,
+          "keyIngredients": ["ingredient1", "ingredient2", "ingredient3"],
+          "targetMarket": "demographic description",
+          "region": "Asia|USA|Europe",
+          "trendReason": "Specific reason for popularity in this region"
+        }
+      ]
+    }
+
+    Ensure 5 formulations each for Asia, USA, and Europe (15 total).
+    `;
+
+    try {
+      const response = await openai.chat.completions.create({
+        model: "gpt-5",
+        messages: [
+          {
+            role: "system",
+            content: "You are a global cosmetics industry analyst with deep knowledge of regional formulation trends, consumer behavior, and emerging ingredients across Asia, USA, and Europe."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        response_format: { type: "json_object" },
+      });
+
+      const result = JSON.parse(response.choices[0].message.content || "{}");
+      return result.formulations || [];
+    } catch (error) {
+      console.error("Error generating regional trending formulations:", error);
+      return [];
+    }
   }
 
   // Generate content calendar suggestions

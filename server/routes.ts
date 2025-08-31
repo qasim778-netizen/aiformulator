@@ -1365,6 +1365,17 @@ Allow: /disclaimer`;
     }
   });
 
+  // Get trending formulations by region
+  app.get("/api/ai-blog/trending-formulations", async (req, res) => {
+    try {
+      const formulations = await aiBlogGenerator.generateRegionalTrendingFormulations();
+      res.json(formulations);
+    } catch (error: any) {
+      console.error("Failed to get trending formulations:", error);
+      res.status(500).json({ message: "Failed to get trending formulations" });
+    }
+  });
+
   // Chat API endpoints
   app.get("/api/chat/messages/:sessionId", async (req, res) => {
     try {
