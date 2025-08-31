@@ -268,25 +268,15 @@ export default function SearchBar({
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className="form-input pl-10 pr-10 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 text-responsive-sm touch-target"
+          className="pl-10 pr-4 py-2 rounded-md border border-gray-300 bg-white focus:border-gray-400 focus:ring-0 focus:outline-none transition-colors"
           data-testid="input-search-query"
         />
         <button
           type="submit"
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary transition-colors touch-target"
+          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
         >
-          <Search className="h-4 w-4 sm:h-5 sm:w-5" />
+          <Search className="h-4 w-4" />
         </button>
-        {query && (
-          <button
-            type="button"
-            onClick={clearSearch}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200 touch-target"
-            data-testid="button-clear-search"
-          >
-            <X className="h-4 w-4 sm:h-5 sm:w-5" />
-          </button>
-        )}
       </form>
 
       {/* Suggestions Dropdown */}
