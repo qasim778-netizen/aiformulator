@@ -42,13 +42,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/contact">
-                  <span className="hover:text-white transition-colors duration-200 cursor-pointer" data-testid="link-footer-contact">
-                    Contact Us
-                  </span>
-                </Link>
-              </li>
-              <li>
                 <Link href="/faq">
                   <span className="hover:text-white transition-colors duration-200 cursor-pointer" data-testid="link-footer-faq">
                     FAQ

@@ -194,19 +194,6 @@ export default function Navbar() {
                   About
                 </span>
               </Link>
-              <Link href="/contact">
-                <span 
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 cursor-pointer ${
-                    isActive("/contact") 
-                      ? "text-primary bg-primary/10 font-semibold" 
-                      : "text-gray-600 hover:text-primary hover:bg-gray-50"
-                  }`}
-                  data-testid="mobile-link-contact"
-                >
-                  Contact
-                </span>
-              </Link>
               <Link href="/faq">
                 <span 
                   onClick={() => setIsMobileMenuOpen(false)}
