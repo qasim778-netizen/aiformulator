@@ -44,11 +44,21 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
     return yPosition;
   };
   
-  // Header with Company Name
-  doc.setFontSize(24);
-  doc.setTextColor(41, 128, 185); // Blue color
-  doc.text('AI Formulator', margin, yPosition);
-  yPosition += 15;
+  // Header with Logo
+  try {
+    // Add logo image
+    const logoPath = 'attached_assets/logo_1756133481367-B1IqNIhU_1756679964101.png';
+    const logoHeight = 40; // Set appropriate height for the logo
+    doc.addImage(logoPath, 'PNG', margin, yPosition, 0, logoHeight); // Auto-width based on height
+    yPosition += logoHeight + 10;
+  } catch (error) {
+    console.log('Failed to add logo to PDF, falling back to text');
+    // Fallback to company name text if logo fails
+    doc.setFontSize(24);
+    doc.setTextColor(41, 128, 185); // Blue color
+    doc.text('AI Formulator', margin, yPosition);
+    yPosition += 15;
+  }
   
   doc.setFontSize(20);
   doc.setTextColor(0, 0, 0);
