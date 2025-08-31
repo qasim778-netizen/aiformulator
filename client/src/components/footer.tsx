@@ -48,6 +48,13 @@ export default function Footer() {
                   </span>
                 </Link>
               </li>
+              <li>
+                <Link href="/blog">
+                  <span className="hover:text-white transition-colors duration-200 cursor-pointer" data-testid="link-footer-blog">
+                    Blog
+                  </span>
+                </Link>
+              </li>
             </ul>
           </div>
           <div>

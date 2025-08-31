@@ -157,3 +157,32 @@ export const insertPageSchema = createInsertSchema(pages).omit({
 
 export type InsertPage = z.infer<typeof insertPageSchema>;
 export type Page = typeof pages.$inferSelect;
+
+// Blog posts table
+export const blogPosts = pgTable("blog_posts", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(), // SEO-friendly URL slug
+  excerpt: text("excerpt"), // Short description for preview
+  content: text("content").notNull(), // Full HTML content
+  featuredImage: text("featured_image"), // Optional featured image URL
+  metaDescription: text("meta_description"), // SEO meta description
+  keywords: text("keywords"), // SEO keywords (comma-separated)
+  authorName: text("author_name").notNull().default("AI Formulator Team"),
+  isPublished: boolean("is_published").notNull().default(false),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+}, (table) => ({
+  slugIndex: index("blog_post_slug_idx").on(table.slug), // Index for SEO URL lookups
+  publishedIndex: index("blog_post_published_idx").on(table.isPublished, table.publishedAt),
+}));
+
+export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
+export type BlogPost = typeof blogPosts.$inferSelect;

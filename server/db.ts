@@ -76,13 +76,32 @@ export const pagesTable = pgTable("pages", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Blog posts table
+export const blogPostsTable = pgTable("blog_posts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  excerpt: text("excerpt"),
+  content: text("content").notNull(),
+  featuredImage: text("featured_image"),
+  metaDescription: text("meta_description"),
+  keywords: text("keywords"),
+  authorName: text("author_name").notNull().default("AI Formulator Team"),
+  isPublished: boolean("is_published").notNull().default(false),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export type DbCategory = typeof categoriesTable.$inferSelect;
 export type DbFormulation = typeof formulationsTable.$inferSelect;
 export type DbProductProperties = typeof productPropertiesTable.$inferSelect;
 export type DbUserNote = typeof userNotesTable.$inferSelect;
 export type DbPage = typeof pagesTable.$inferSelect;
+export type DbBlogPost = typeof blogPostsTable.$inferSelect;
 export type InsertDbCategory = typeof categoriesTable.$inferInsert;
 export type InsertDbFormulation = typeof formulationsTable.$inferInsert;
 export type InsertDbProductProperties = typeof productPropertiesTable.$inferInsert;
 export type InsertDbUserNote = typeof userNotesTable.$inferInsert;
 export type InsertDbPage = typeof pagesTable.$inferInsert;
+export type InsertDbBlogPost = typeof blogPostsTable.$inferInsert;

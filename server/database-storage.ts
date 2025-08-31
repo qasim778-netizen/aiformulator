@@ -1,6 +1,6 @@
 import { eq, desc } from "drizzle-orm";
-import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable } from "./db";
-import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, ChatMessage, InsertChatMessage } from "@shared/schema";
+import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable } from "./db";
+import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
 import crypto from "crypto";
 
@@ -447,6 +447,92 @@ export class DatabaseStorage implements IStorage {
       return result.rowCount > 0;
     } catch (error) {
       console.error("Failed to delete page:", error);
+      return false;
+    }
+  }
+
+  // Blog posts methods implementation
+  async getBlogPosts(): Promise<BlogPost[]> {
+    try {
+      const { blogPosts } = await import("@shared/schema");
+      return await db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt));
+    } catch (error) {
+      console.log("Blog posts table not yet available, returning empty array");
+      return [];
+    }
+  }
+
+  async getPublishedBlogPosts(): Promise<BlogPost[]> {
+    try {
+      const { blogPosts } = await import("@shared/schema");
+      return await db.select()
+        .from(blogPosts)
+        .where(eq(blogPosts.isPublished, true))
+        .orderBy(desc(blogPosts.publishedAt));
+    } catch (error) {
+      console.log("Blog posts table not yet available, returning empty array");
+      return [];
+    }
+  }
+
+  async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
+    try {
+      const { blogPosts } = await import("@shared/schema");
+      const [blogPost] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
+      return blogPost;
+    } catch (error) {
+      console.log("Blog posts table not yet available, returning undefined");
+      return undefined;
+    }
+  }
+
+  async createBlogPost(blogPostData: InsertBlogPost): Promise<BlogPost> {
+    try {
+      const { blogPosts } = await import("@shared/schema");
+      const [blogPost] = await db.insert(blogPosts).values({
+        ...blogPostData,
+        publishedAt: blogPostData.isPublished ? new Date() : null,
+      }).returning();
+      return blogPost;
+    } catch (error) {
+      console.error("Failed to create blog post:", error);
+      throw new Error("Failed to create blog post");
+    }
+  }
+
+  async updateBlogPost(id: string, blogPostData: Partial<InsertBlogPost>): Promise<BlogPost | undefined> {
+    try {
+      const { blogPosts } = await import("@shared/schema");
+      const existingPost = await this.getBlogPosts();
+      const currentPost = existingPost.find(p => p.id === id);
+      
+      const updateData = {
+        ...blogPostData,
+        publishedAt: blogPostData.isPublished !== undefined 
+          ? (blogPostData.isPublished ? (currentPost?.publishedAt || new Date()) : null)
+          : currentPost?.publishedAt || null,
+        updatedAt: new Date()
+      };
+
+      const [blogPost] = await db
+        .update(blogPosts)
+        .set(updateData)
+        .where(eq(blogPosts.id, id))
+        .returning();
+      return blogPost;
+    } catch (error) {
+      console.error("Failed to update blog post:", error);
+      return undefined;
+    }
+  }
+
+  async deleteBlogPost(id: string): Promise<boolean> {
+    try {
+      const { blogPosts } = await import("@shared/schema");
+      const result = await db.delete(blogPosts).where(eq(blogPosts.id, id));
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error("Failed to delete blog post:", error);
       return false;
     }
   }

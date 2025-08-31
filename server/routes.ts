@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import crypto from "crypto";
 import { storage } from "./storage";
-import { insertCategorySchema, insertFormulationSchema, insertUserNoteSchema, insertPageSchema } from "@shared/schema";
+import { insertCategorySchema, insertFormulationSchema, insertUserNoteSchema, insertPageSchema, insertBlogPostSchema } from "@shared/schema";
 import type { ChatMessage, InsertChatMessage } from "@shared/schema";
 import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateBulkFormulationsWithKeywords, generateProductTypes, generateCustomFormulation } from "./ai";
 import { generateFormulationPDF } from "./pdf-generator";
@@ -1191,6 +1191,84 @@ Allow: /disclaimer`;
     } catch (error: any) {
       console.error("Failed to delete page:", error);
       res.status(500).json({ message: "Failed to delete page" });
+    }
+  });
+
+  // Blog Posts API
+  // Get all blog posts
+  app.get("/api/blog", async (req, res) => {
+    try {
+      const blogPosts = await storage.getBlogPosts();
+      res.json(blogPosts);
+    } catch (error: any) {
+      console.error("Failed to fetch blog posts:", error);
+      res.status(500).json({ message: "Failed to fetch blog posts" });
+    }
+  });
+
+  // Get published blog posts for public view
+  app.get("/api/blog/published", async (req, res) => {
+    try {
+      const blogPosts = await storage.getPublishedBlogPosts();
+      res.json(blogPosts);
+    } catch (error: any) {
+      console.error("Failed to fetch published blog posts:", error);
+      res.status(500).json({ message: "Failed to fetch published blog posts" });
+    }
+  });
+
+  // Get single blog post by slug
+  app.get("/api/blog/:slug", async (req, res) => {
+    try {
+      const blogPost = await storage.getBlogPostBySlug(req.params.slug);
+      if (!blogPost) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+      res.json(blogPost);
+    } catch (error: any) {
+      console.error("Failed to fetch blog post:", error);
+      res.status(500).json({ message: "Failed to fetch blog post" });
+    }
+  });
+
+  // Create new blog post
+  app.post("/api/blog", async (req, res) => {
+    try {
+      const validatedData = insertBlogPostSchema.parse(req.body);
+      const blogPost = await storage.createBlogPost(validatedData);
+      res.status(201).json(blogPost);
+    } catch (error: any) {
+      console.error("Failed to create blog post:", error);
+      res.status(400).json({ message: error.message || "Invalid blog post data" });
+    }
+  });
+
+  // Update blog post
+  app.put("/api/blog/:id", async (req, res) => {
+    try {
+      const validatedData = insertBlogPostSchema.parse(req.body);
+      const blogPost = await storage.updateBlogPost(req.params.id, validatedData);
+      if (!blogPost) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+      res.json(blogPost);
+    } catch (error: any) {
+      console.error("Failed to update blog post:", error);
+      res.status(400).json({ message: error.message || "Invalid blog post data" });
+    }
+  });
+
+  // Delete blog post
+  app.delete("/api/blog/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteBlogPost(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+      res.status(204).send();
+    } catch (error: any) {
+      console.error("Failed to delete blog post:", error);
+      res.status(500).json({ message: "Failed to delete blog post" });
     }
   });
 

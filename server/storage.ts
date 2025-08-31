@@ -1,4 +1,4 @@
-import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser, type Page, type InsertPage, type ChatMessage, type InsertChatMessage } from "@shared/schema";
+import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser, type Page, type InsertPage, type BlogPost, type InsertBlogPost, type ChatMessage, type InsertChatMessage } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IAiGeneration {
@@ -58,6 +58,14 @@ export interface IStorage {
   updatePage(id: string, page: Partial<InsertPage>): Promise<Page | undefined>;
   deletePage(id: string): Promise<boolean>;
 
+  // Blog Posts Management
+  getBlogPosts(): Promise<BlogPost[]>;
+  getPublishedBlogPosts(): Promise<BlogPost[]>;
+  getBlogPostBySlug(slug: string): Promise<BlogPost | undefined>;
+  createBlogPost(blogPost: InsertBlogPost): Promise<BlogPost>;
+  updateBlogPost(id: string, blogPost: Partial<InsertBlogPost>): Promise<BlogPost | undefined>;
+  deleteBlogPost(id: string): Promise<boolean>;
+
   // Chat methods
   getChatMessages(sessionId: string): Promise<ChatMessage[]>;
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
@@ -71,6 +79,7 @@ export class MemStorage implements IStorage {
   private userNotes: Map<string, UserNote>;
   private users: Map<string, User>;
   private pages: Map<string, Page>;
+  private blogPosts: Map<string, BlogPost>;
   private chatMessages: Map<string, ChatMessage[]>;
 
   constructor() {
@@ -81,10 +90,12 @@ export class MemStorage implements IStorage {
     this.userNotes = new Map();
     this.users = new Map();
     this.pages = new Map();
+    this.blogPosts = new Map();
     this.chatMessages = new Map();
     // Only seed data if no data exists (first run)
     this.seedInitialData();
     this.seedPages();
+    this.seedBlogPosts();
   }
 
   private seedInitialData() {
@@ -2138,6 +2149,105 @@ export class MemStorage implements IStorage {
     commonPages.forEach(page => {
       this.pages.set(page.id, page);
     });
+  }
+
+  // Blog posts methods implementation
+  private seedBlogPosts() {
+    // Skip seeding if blog posts already exist
+    if (this.blogPosts.size > 0) {
+      return;
+    }
+
+    const sampleBlogPost: BlogPost = {
+      id: randomUUID(),
+      title: "The Future of Chemical Formulation: AI-Powered Innovation",
+      slug: "future-of-chemical-formulation-ai-powered-innovation",
+      excerpt: "Discover how artificial intelligence is revolutionizing chemical formulation, making it faster, more precise, and accessible to small businesses.",
+      content: `
+        <p>The chemical formulation industry is experiencing a transformative shift with the integration of artificial intelligence. This revolution is not just changing how we develop new products, but also making advanced formulation capabilities accessible to small and medium-sized businesses.</p>
+        
+        <h2>AI-Driven Precision</h2>
+        <p>Traditional formulation required years of experience and countless trials. With AI, we can now predict ingredient interactions, optimize formulations for specific properties, and reduce development time from months to hours.</p>
+        
+        <h2>Democratizing Innovation</h2>
+        <p>Small businesses no longer need extensive R&D departments. AI-powered platforms provide instant access to professional-grade formulations across multiple categories including skincare, cosmetics, cleaning products, and more.</p>
+        
+        <h2>The Benefits Include:</h2>
+        <ul>
+          <li>Reduced development costs</li>
+          <li>Faster time to market</li>
+          <li>Improved product consistency</li>
+          <li>Access to cutting-edge ingredients</li>
+        </ul>
+        
+        <h2>Looking Forward</h2>
+        <p>As AI technology continues to evolve, we can expect even more sophisticated formulation capabilities, including real-time optimization, sustainability scoring, and regulatory compliance checking.</p>
+      `,
+      featuredImage: null,
+      metaDescription: "Learn how AI is transforming chemical formulation for small businesses. Discover the benefits of AI-powered innovation in product development.",
+      keywords: "AI formulation, chemical innovation, small business, product development, artificial intelligence",
+      authorName: "AI Formulator Team",
+      isPublished: true,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    this.blogPosts.set(sampleBlogPost.id, sampleBlogPost);
+  }
+
+  async getBlogPosts(): Promise<BlogPost[]> {
+    return Array.from(this.blogPosts.values()).sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
+  async getPublishedBlogPosts(): Promise<BlogPost[]> {
+    return Array.from(this.blogPosts.values())
+      .filter(post => post.isPublished)
+      .sort((a, b) => 
+        new Date(b.publishedAt || b.createdAt).getTime() - new Date(a.publishedAt || a.createdAt).getTime()
+      );
+  }
+
+  async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
+    return Array.from(this.blogPosts.values()).find(post => post.slug === slug);
+  }
+
+  async createBlogPost(blogPostData: InsertBlogPost): Promise<BlogPost> {
+    const blogPost: BlogPost = {
+      id: randomUUID(),
+      ...blogPostData,
+      publishedAt: blogPostData.isPublished ? new Date() : null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    this.blogPosts.set(blogPost.id, blogPost);
+    return blogPost;
+  }
+
+  async updateBlogPost(id: string, blogPostData: Partial<InsertBlogPost>): Promise<BlogPost | undefined> {
+    const existingPost = this.blogPosts.get(id);
+    if (!existingPost) {
+      return undefined;
+    }
+
+    const updatedPost: BlogPost = {
+      ...existingPost,
+      ...blogPostData,
+      publishedAt: blogPostData.isPublished !== undefined 
+        ? (blogPostData.isPublished ? (existingPost.publishedAt || new Date()) : null)
+        : existingPost.publishedAt,
+      updatedAt: new Date(),
+    };
+
+    this.blogPosts.set(id, updatedPost);
+    return updatedPost;
+  }
+
+  async deleteBlogPost(id: string): Promise<boolean> {
+    return this.blogPosts.delete(id);
   }
 
   // Chat methods implementation
