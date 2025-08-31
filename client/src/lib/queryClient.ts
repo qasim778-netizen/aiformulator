@@ -47,11 +47,14 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
+      staleTime: 1000 * 60 * 5, // 5 minutes instead of Infinity
       retry: false,
     },
     mutations: {
       retry: false,
+      onError: (error) => {
+        console.error('Mutation error:', error);
+      },
     },
   },
 });

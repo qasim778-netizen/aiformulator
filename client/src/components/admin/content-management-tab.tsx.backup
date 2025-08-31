@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Edit, Trash2, Plus, Save, X, Eye, EyeOff, RefreshCw } from "lucide-react";
+import { Edit, Trash2, Plus, Save, X, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -87,7 +87,7 @@ export default function ContentManagementTab() {
   const deletePageMutation = useMutation({
     mutationFn: async (id: string) => {
       const response = await apiRequest("DELETE", `/api/pages/${id}`);
-      return await response.json();
+      return response.status === 204;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/pages"] });
@@ -121,7 +121,7 @@ export default function ContentManagementTab() {
       slug: page.slug,
       title: page.title,
       content: page.content,
-      metaDescription: page.metaDescription,
+      metaDescription: page.metaDescription || "",
       isActive: page.isActive,
     });
     setIsDialogOpen(true);
@@ -174,7 +174,7 @@ export default function ContentManagementTab() {
             variant="outline"
             data-testid="button-refresh-pages"
           >
-            <RefreshCw className="mr-2 h-4 w-4" />
+            <Plus className="mr-2 h-4 w-4" />
             Refresh
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -191,100 +191,100 @@ export default function ContentManagementTab() {
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingPage ? "Edit Page" : "Create New Page"}
-                </DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="slug">Slug *</Label>
-                    <Input
-                      id="slug"
-                      value={formData.slug}
-                      onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                      placeholder="e.g., about, faq, terms"
-                      required
-                      data-testid="input-slug"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      URL-friendly identifier (no spaces, lowercase)
-                    </p>
-                  </div>
-                  <div>
-                    <Label htmlFor="title">Title *</Label>
-                    <Input
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      placeholder="e.g., About Us"
-                      required
-                      data-testid="input-title"
-                    />
-                  </div>
-                </div>
-
+            <DialogHeader>
+              <DialogTitle>
+                {editingPage ? "Edit Page" : "Create New Page"}
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="metaDescription">Meta Description</Label>
+                  <Label htmlFor="slug">Slug *</Label>
                   <Input
-                    id="metaDescription"
-                    value={formData.metaDescription || ""}
-                    onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
-                    placeholder="Brief description for search engines (optional)"
-                    maxLength={160}
-                    data-testid="input-meta-description"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formData.metaDescription?.length || 0}/160 characters
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="content">Content *</Label>
-                  <Textarea
-                    id="content"
-                    value={formData.content}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    placeholder="Enter page content (HTML supported)"
-                    className="min-h-[200px]"
+                    id="slug"
+                    value={formData.slug}
+                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                    placeholder="e.g., about, faq, terms"
                     required
-                    data-testid="textarea-content"
+                    data-testid="input-slug"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    HTML tags are supported for formatting
+                    URL-friendly identifier (no spaces, lowercase)
                   </p>
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="isActive"
-                    checked={formData.isActive}
-                    onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
-                    data-testid="switch-active"
+                <div>
+                  <Label htmlFor="title">Title *</Label>
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="e.g., About Us"
+                    required
+                    data-testid="input-title"
                   />
-                  <Label htmlFor="isActive">Active (visible to users)</Label>
                 </div>
+              </div>
 
-                <div className="flex justify-end space-x-2 pt-4">
-                  <Button type="button" variant="outline" onClick={handleDialogClose}>
-                    <X className="mr-2 h-4 w-4" />
-                    Cancel
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    disabled={createPageMutation.isPending || updatePageMutation.isPending}
-                    data-testid="button-save-page"
-                  >
-                    <Save className="mr-2 h-4 w-4" />
-                    {editingPage ? "Update Page" : "Create Page"}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
+              <div>
+                <Label htmlFor="metaDescription">Meta Description</Label>
+                <Input
+                  id="metaDescription"
+                  value={formData.metaDescription || ""}
+                  onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
+                  placeholder="Brief description for search engines (optional)"
+                  maxLength={160}
+                  data-testid="input-meta-description"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {formData.metaDescription?.length || 0}/160 characters
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="content">Content *</Label>
+                <Textarea
+                  id="content"
+                  value={formData.content}
+                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                  placeholder="Enter HTML content for the page..."
+                  required
+                  rows={15}
+                  className="font-mono text-sm"
+                  data-testid="textarea-content"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  HTML content that will be displayed on the page
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isActive"
+                  checked={formData.isActive}
+                  onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                  data-testid="switch-active"
+                />
+                <Label htmlFor="isActive">Page is active</Label>
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button type="button" variant="outline" onClick={handleDialogClose}>
+                  <X className="mr-2 h-4 w-4" />
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={createPageMutation.isPending || updatePageMutation.isPending}
+                  data-testid="button-save-page"
+                >
+                  <Save className="mr-2 h-4 w-4" />
+                  {editingPage ? "Update Page" : "Create Page"}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
           </Dialog>
         </div>
-      </div>
 
       {isLoading ? (
         <div className="text-center py-8">Loading pages...</div>
