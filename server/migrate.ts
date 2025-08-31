@@ -28,13 +28,11 @@ export async function runMigrations() {
       console.log(`Inserting ${tempCategories.length} categories...`);
       for (const category of tempCategories) {
         await db.insert(categoriesTable).values({
-          id: category.id,
           name: category.name,
           description: category.description,
           icon: category.icon,
           image: category.image,
           isActive: category.isActive,
-          createdAt: category.createdAt,
         });
       }
 
@@ -42,10 +40,13 @@ export async function runMigrations() {
       console.log(`Inserting ${tempFormulations.length} formulations...`);
       for (const formulation of tempFormulations) {
         await db.insert(formulationsTable).values({
-          id: formulation.id,
           categoryId: formulation.categoryId,
           name: formulation.name,
+          slug: formulation.slug || formulation.name.toLowerCase().replace(/\s+/g, '-'),
           description: formulation.description,
+          metaDescription: formulation.metaDescription || formulation.description?.slice(0, 160),
+          keywords: formulation.keywords,
+          image: formulation.image,
           phLevel: formulation.phLevel,
           shelfLife: formulation.shelfLife,
           viscosity: formulation.viscosity,
@@ -59,8 +60,6 @@ export async function runMigrations() {
           instructions: formulation.instructions,
           usageInstructions: formulation.usageInstructions,
           isActive: formulation.isActive,
-          createdAt: formulation.createdAt,
-          updatedAt: formulation.updatedAt,
         });
       }
 

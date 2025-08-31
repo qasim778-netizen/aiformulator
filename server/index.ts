@@ -3,6 +3,32 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { runMigrations } from "./migrate";
 
+// Environment validation function
+function validateEnvironment() {
+  const requiredVars = ['DATABASE_URL'];
+  const missingVars = requiredVars.filter(varName => !process.env[varName]);
+  
+  if (missingVars.length > 0) {
+    console.error('❌ Missing required environment variables:', missingVars.join(', '));
+    throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+  }
+  
+  // Optional vars with warnings
+  const optionalVars = [
+    { name: 'OPENAI_API_KEY', description: 'OpenAI API functionality will be disabled' },
+    { name: 'SESSION_SECRET', description: 'Session management may be insecure' },
+    { name: 'REPLIT_DOMAINS', description: 'Replit authentication will be disabled' }
+  ];
+  
+  optionalVars.forEach(({ name, description }) => {
+    if (!process.env[name]) {
+      console.warn(`⚠️  Optional environment variable ${name} not set: ${description}`);
+    }
+  });
+  
+  console.log('✅ Environment validation passed');
+}
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -38,8 +64,12 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Run database migrations first
-  await runMigrations();
+  try {
+    // Validate environment variables first
+    validateEnvironment();
+    
+    // Run database migrations
+    await runMigrations();
   
   // Register API routes BEFORE Vite middleware to ensure API calls reach Express
   const server = await registerRoutes(app);
@@ -73,4 +103,9 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
   });
+  
+  } catch (error) {
+    console.error('❌ Server startup failed:', error);
+    process.exit(1);
+  }
 })();
