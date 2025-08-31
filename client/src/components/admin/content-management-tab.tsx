@@ -26,16 +26,26 @@ export default function ContentManagementTab() {
 
   const { data: pages = [], isLoading, error, refetch } = useQuery<Page[]>({
     queryKey: ["/api/pages"],
-    retry: 3,
+    queryFn: async () => {
+      try {
+        const response = await fetch("/api/pages", {
+          credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const data = await response.json();
+        console.log("Pages API response:", data);
+        return data;
+      } catch (err) {
+        console.error("Pages API error:", err);
+        throw err;
+      }
+    },
+    retry: 1,
     staleTime: 0,
     refetchOnMount: true,
-    refetchOnWindowFocus: true,
   });
-
-  // Debug logging
-  console.log("Content Management - Pages data:", pages, "Length:", pages.length);
-  console.log("Content Management - Loading:", isLoading);
-  console.log("Content Management - Error:", error);
 
   const createPageMutation = useMutation({
     mutationFn: async (data: InsertPage) => {
@@ -286,9 +296,20 @@ export default function ContentManagementTab() {
         </div>
       </div>
 
+      {error && (
+        <div className="text-center py-8 text-red-600">
+          <p className="font-medium">Error loading pages:</p>
+          <p className="text-sm">{error.message}</p>
+          <Button onClick={() => refetch()} className="mt-2">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Try Again
+          </Button>
+        </div>
+      )}
+      
       {isLoading ? (
         <div className="text-center py-8">Loading pages...</div>
-      ) : (
+      ) : !error ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {pages.map((page) => (
             <Card key={page.id} className="bg-white">
@@ -371,7 +392,7 @@ export default function ContentManagementTab() {
             </div>
           )}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
