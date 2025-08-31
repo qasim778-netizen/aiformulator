@@ -24,13 +24,19 @@ export default function ContentManagementTab() {
   });
   const { toast } = useToast();
 
-  const { data: pages = [], isLoading } = useQuery<Page[]>({
+  const { data: pages = [], isLoading, error } = useQuery<Page[]>({
     queryKey: ["/api/pages"],
   });
 
+  // Debug logging
+  console.log("Content Management - Pages data:", pages);
+  console.log("Content Management - Loading:", isLoading);
+  console.log("Content Management - Error:", error);
+
   const createPageMutation = useMutation({
     mutationFn: async (data: InsertPage) => {
-      return await apiRequest("/api/pages", "POST", data);
+      const response = await apiRequest("POST", "/api/pages", data);
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/pages"] });
@@ -52,7 +58,8 @@ export default function ContentManagementTab() {
 
   const updatePageMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<InsertPage> }) => {
-      return await apiRequest(`/api/pages/${id}`, "PUT", data);
+      const response = await apiRequest("PUT", `/api/pages/${id}`, data);
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/pages"] });
@@ -75,7 +82,8 @@ export default function ContentManagementTab() {
 
   const deletePageMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await apiRequest(`/api/pages/${id}`, "DELETE");
+      const response = await apiRequest("DELETE", `/api/pages/${id}`);
+      return response.status === 204;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/pages"] });
