@@ -1,4 +1,6 @@
 import { jsPDF } from 'jspdf';
+import * as fs from 'fs';
+import * as path from 'path';
 import type { InsertFormulation } from '@shared/schema';
 
 interface LogoSettings {
@@ -46,13 +48,18 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   
   // Header with Logo
   try {
-    // Add logo image
-    const logoPath = 'attached_assets/logo_1756133481367-B1IqNIhU_1756679964101.png';
-    const logoHeight = 40; // Set appropriate height for the logo
-    doc.addImage(logoPath, 'PNG', margin, yPosition, 0, logoHeight); // Auto-width based on height
+    // Read and convert logo to base64
+    const logoPath = path.join(process.cwd(), 'attached_assets/logo_1756133481367-B1IqNIhU_1756679964101.png');
+    const logoBuffer = fs.readFileSync(logoPath);
+    const logoBase64 = logoBuffer.toString('base64');
+    const logoDataUrl = `data:image/png;base64,${logoBase64}`;
+    
+    // Add logo image with 110px height (converted to PDF units)
+    const logoHeight = 110 * 0.75; // Convert pixels to PDF points (roughly 110px * 0.75)
+    doc.addImage(logoDataUrl, 'PNG', margin, yPosition, 0, logoHeight); // Auto-width based on height
     yPosition += logoHeight + 10;
   } catch (error) {
-    console.log('Failed to add logo to PDF, falling back to text');
+    console.log('Failed to add logo to PDF, falling back to text:', error);
     // Fallback to company name text if logo fails
     doc.setFontSize(24);
     doc.setTextColor(41, 128, 185); // Blue color
