@@ -185,8 +185,8 @@ export default function SearchBar({
       const matchCategory = categories.find(c => c.id === firstMatch.categoryId);
       
       if (matchCategory) {
-        console.log('Found formulation matches, showing category:', matchCategory.name);
-        setLocation(`/category/${matchCategory.id}`);
+        console.log('Found formulation matches, showing category with highlight:', matchCategory.name);
+        setLocation(`/category/${matchCategory.id}?highlight=${firstMatch.id}&search=${encodeURIComponent(trimmedQuery)}`);
         return;
       }
     }

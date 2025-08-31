@@ -1,14 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useSearch } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Category, Formulation } from "@shared/schema";
+import { useEffect } from "react";
 
 export default function CategoryPage() {
   const params = useParams();
   const categoryId = params.id;
+  const search = useSearch();
+  
+  // Get URL parameters for highlighting and search terms
+  const urlParams = new URLSearchParams(search);
+  const highlightId = urlParams.get('highlight');
+  const searchTerm = urlParams.get('search');
 
   const { data: category, isLoading: categoryLoading } = useQuery<Category>({
     queryKey: ["/api/categories", categoryId],
@@ -25,6 +32,18 @@ export default function CategoryPage() {
     },
     enabled: !!categoryId,
   });
+
+  // Scroll to highlighted formulation when page loads
+  useEffect(() => {
+    if (highlightId && formulations.length > 0) {
+      setTimeout(() => {
+        const highlightedCard = document.getElementById(`formulation-${highlightId}`);
+        if (highlightedCard) {
+          highlightedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 500);
+    }
+  }, [highlightId, formulations]);
 
   if (categoryLoading || formulationsLoading) {
     return (
@@ -59,13 +78,45 @@ export default function CategoryPage() {
           </Link>
           <h1 className="text-3xl font-inter font-bold text-gray-900">
             {category.name} Formulations ({formulations.length})
+            {searchTerm && (
+              <span className="block text-lg font-normal text-primary mt-1">
+                Search results for "{searchTerm}"
+              </span>
+            )}
           </h1>
         </div>
         
         {formulations.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {formulations.map((formulation) => (
-              <Card key={formulation.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-200">
+            {formulations
+              .sort((a, b) => {
+                // Put highlighted formulation first
+                if (highlightId === a.id) return -1;
+                if (highlightId === b.id) return 1;
+                
+                // If there's a search term, put matching formulations first
+                if (searchTerm) {
+                  const aMatches = a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                 a.description.toLowerCase().includes(searchTerm.toLowerCase());
+                  const bMatches = b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                 b.description.toLowerCase().includes(searchTerm.toLowerCase());
+                  
+                  if (aMatches && !bMatches) return -1;
+                  if (!aMatches && bMatches) return 1;
+                }
+                
+                return 0;
+              })
+              .map((formulation) => (
+              <Card 
+                key={formulation.id} 
+                id={`formulation-${formulation.id}`}
+                className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border ${
+                  highlightId === formulation.id 
+                    ? 'border-primary ring-2 ring-primary ring-opacity-50 bg-primary/5 scale-105' 
+                    : 'border-gray-200'
+                }`}
+              >
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-inter font-semibold text-gray-900">{formulation.name}</h3>
