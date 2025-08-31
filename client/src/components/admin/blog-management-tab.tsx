@@ -19,6 +19,8 @@ export default function BlogManagementTab() {
   const [aiGenerationMode, setAIGenerationMode] = useState<'single' | 'batch' | 'trending'>('single');
   const [aiTopic, setAITopic] = useState('');
   const [aiKeywords, setAIKeywords] = useState('');
+  const [isLoadingTrending, setIsLoadingTrending] = useState(false);
+  const [trendingTopics, setTrendingTopics] = useState<any[]>([]);
   const [formData, setFormData] = useState<Partial<InsertBlogPost>>({
     title: "",
     slug: "",
@@ -413,6 +415,83 @@ export default function BlogManagementTab() {
                 </div>
               </div>
 
+              {/* Simple AI Suggestions - Manual Only */}
+              <div className="mt-6 p-4 border rounded-lg bg-gray-50">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold flex items-center">
+                    <TrendingUp className="mr-2 h-4 w-4 text-blue-500" />
+                    Trending Product Formulations Worldwide
+                  </h3>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setIsLoadingTrending(true);
+                      // This will only run when button is clicked
+                      fetch('/api/ai/trending-suggestions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include'
+                      })
+                      .then(res => res.json())
+                      .then(data => {
+                        setTrendingTopics(data.suggestions || []);
+                        setIsLoadingTrending(false);
+                      })
+                      .catch(err => {
+                        console.error('Error fetching suggestions:', err);
+                        setIsLoadingTrending(false);
+                      });
+                    }}
+                    disabled={isLoadingTrending}
+                    data-testid="button-get-suggestions"
+                  >
+                    {isLoadingTrending ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
+                        Loading...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Get AI Suggestions
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {trendingTopics.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {trendingTopics.slice(0, 4).map((topic, index) => (
+                      <div key={index} className="p-3 border rounded-lg bg-white hover:bg-gray-50">
+                        <h4 className="font-medium text-sm mb-2">{topic.title}</h4>
+                        <p className="text-xs text-gray-600 mb-3">{topic.description}</p>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                            Global Trend
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setAITopic(topic.title);
+                              setAIKeywords(topic.targetKeywords?.join(', ') || '');
+                            }}
+                            data-testid={`button-use-suggestion-${index}`}
+                          >
+                            Use This
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {trendingTopics.length === 0 && !isLoadingTrending && (
+                  <p className="text-center text-gray-500 py-4">
+                    Click "Get AI Suggestions" to see trending formulation topics from around the world
+                  </p>
+                )}
+              </div>
 
               <div className="flex justify-end space-x-2 pt-4 border-t">
                 <Button 

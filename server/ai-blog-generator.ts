@@ -247,6 +247,66 @@ export class AIBlogGenerator {
     return [];
   }
 
+  // Generate global trending formulation suggestions - manual trigger only
+  async generateGlobalTrendingSuggestions(): Promise<BlogTopicSuggestion[]> {
+    const prompt = `
+    As a global chemical formulation expert, identify 4 trending product formulation topics that people are most interested in worldwide right now.
+    
+    Focus on formulations that are:
+    - Currently trending across Asia, USA, and Europe
+    - High consumer demand and search interest
+    - Commercially viable for small manufacturers
+    - Have strong market potential and growing popularity
+    
+    Examples of trending categories:
+    - Clean beauty formulations
+    - Sustainable packaging solutions
+    - Anti-aging innovations
+    - Natural preservative systems
+    - Microbiome-friendly products
+    - Waterless formulations
+    - Multifunctional ingredients
+    
+    Return JSON array with 4 trending formulation topics.
+    
+    Structure:
+    {
+      "topics": [
+        {
+          "title": "Blog post title about trending formulation",
+          "description": "Why this formulation is trending globally",
+          "targetKeywords": ["formulation keyword", "trending ingredient"],
+          "estimatedDifficulty": "low|medium|high",
+          "contentType": "guide"
+        }
+      ]
+    }
+    `;
+
+    try {
+      const response = await openai.chat.completions.create({
+        model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+        messages: [
+          {
+            role: "system",
+            content: "You are a global expert in chemical formulation trends tracking worldwide consumer interests and market demands."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        response_format: { type: "json_object" },
+      });
+
+      const result = JSON.parse(response.choices[0].message.content || "{}");
+      return result.topics || [];
+    } catch (error) {
+      console.error("Error generating global trending suggestions:", error);
+      return [];
+    }
+  }
+
   // Generate trending formulations by region
   async generateRegionalTrendingFormulations(): Promise<RegionalTrendingFormulation[]> {
     // Return curated trending formulations based on current market research

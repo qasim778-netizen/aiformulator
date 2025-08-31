@@ -1355,6 +1355,17 @@ Allow: /disclaimer`;
     }
   });
 
+  // Simple AI trending suggestions endpoint - manual trigger only
+  app.post("/api/ai/trending-suggestions", async (req, res) => {
+    try {
+      const suggestions = await aiBlogGenerator.generateGlobalTrendingSuggestions();
+      res.json({ suggestions });
+    } catch (error: any) {
+      console.error("Error generating trending suggestions:", error);
+      res.status(500).json({ error: "Failed to generate suggestions" });
+    }
+  });
+
   // Get trending formulations by region
   app.get("/api/ai-blog/trending-formulations", async (req, res) => {
     try {
