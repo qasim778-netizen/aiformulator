@@ -36,8 +36,9 @@ export default function ContentManagementTab() {
       return await response.json();
     },
     retry: 1,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
     refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const createPageMutation = useMutation({
@@ -47,6 +48,7 @@ export default function ContentManagementTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pages"] });
+      refetch();
       setIsDialogOpen(false);
       resetForm();
       toast({
@@ -70,6 +72,7 @@ export default function ContentManagementTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pages"] });
+      refetch();
       setIsDialogOpen(false);
       setEditingPage(null);
       resetForm();
@@ -94,6 +97,7 @@ export default function ContentManagementTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pages"] });
+      refetch();
       toast({
         title: "Success",
         description: "Page deleted successfully",
