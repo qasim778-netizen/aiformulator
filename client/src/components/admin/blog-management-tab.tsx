@@ -540,19 +540,6 @@ export default function BlogManagementTab() {
                 >
                   Close
                 </Button>
-                <Button
-                  onClick={() => {
-                    const topSuggestions = contentGaps.slice(0, 3).map(gap => gap.title);
-                    if (topSuggestions.length > 0) {
-                      handleBatchGenerate(topSuggestions, false);
-                    }
-                  }}
-                  disabled={generateBatchBlogMutation.isPending || contentGaps.length === 0}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
-                  data-testid="button-batch-generate"
-                >
-                  {generateBatchBlogMutation.isPending ? "Generating..." : "Batch Generate Top 3"}
-                </Button>
               </div>
             </DialogContent>
           </Dialog>
