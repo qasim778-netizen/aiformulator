@@ -56,7 +56,7 @@ export default function Navbar() {
     <nav className="bg-white shadow-md sticky top-0 z-50 w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main navigation bar */}
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between min-h-[120px] py-2">
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/">
@@ -84,9 +84,9 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* Desktop Navigation - hide on small screens */}
-          <div className="hidden sm:flex items-center space-x-4">
-            <div className="flex items-baseline space-x-4">
+          {/* Left side - Navigation Menu */}
+          <div className="hidden sm:flex items-center space-x-6 flex-1">
+            <div className="flex items-center space-x-4">
               <Link href="/">
                 <span className={`px-3 py-2 rounded-md text-sm font-medium cursor-pointer ${
                   isActive("/") 
@@ -133,11 +133,14 @@ export default function Navbar() {
                 </span>
               </Link>
             </div>
-            
+          </div>
+
+          {/* Right side - Search Bar and Logout */}
+          <div className="hidden sm:flex items-center space-x-4">
             <SearchBar 
               onSearch={handleSearch}
-              placeholder="Search..."
-              className="w-48"
+              placeholder="Search formulations..."
+              className="w-80"
             />
             <a 
               href="/api/logout"
