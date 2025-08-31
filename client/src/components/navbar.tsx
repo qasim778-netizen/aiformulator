@@ -63,7 +63,8 @@ export default function Navbar() {
               <img 
                 src={logoSettings.logoUrl} 
                 alt={`${logoSettings.companyName} Logo`}
-                className="h-8 w-auto object-contain"
+                style={{ height: `${logoSettings.logoSize}px` }}
+                className="w-auto object-contain"
                 onError={(e) => {
                   e.currentTarget.src = logoImage;
                 }}
