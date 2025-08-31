@@ -52,9 +52,39 @@ export default function Browse() {
     return formulations.filter(f => f.categoryId === categoryId).length
   }
 
+  // Filter categories and formulations based on search query
+  const filteredCategories = searchQuery.trim() 
+    ? categories.filter(category => 
+        category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        category.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        formulations.some(f => 
+          f.categoryId === category.id && 
+          (f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           f.description.toLowerCase().includes(searchQuery.toLowerCase()))
+        )
+      )
+    : categories
+
+  const getFilteredFormulationCount = (categoryId: string) => {
+    if (!searchQuery.trim()) {
+      return getFormulationCount(categoryId)
+    }
+    return formulations.filter(f => 
+      f.categoryId === categoryId && 
+      (f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+       f.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    ).length
+  }
+
   const handleSearch = (query: string) => {
     setSearchQuery(query)
-    setLocation(`/formulations?search=${encodeURIComponent(query)}`)
+    // Scroll to categories section to show filtered results
+    setTimeout(() => {
+      const categoriesSection = document.getElementById('categories')
+      if (categoriesSection) {
+        categoriesSection.scrollIntoView({ behavior: 'smooth' })
+      }
+    }, 100)
   }
 
   if (categoriesLoading) {
@@ -136,20 +166,40 @@ export default function Browse() {
       <section id="categories" className="py-8 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-inter font-bold text-gray-900 mb-3">Product Categories</h2>
+            <h2 className="text-2xl font-inter font-bold text-gray-900 mb-3">
+              {searchQuery.trim() ? `Search Results for "${searchQuery}"` : 'Product Categories'}
+            </h2>
             <p className="text-base text-gray-600 mb-4">
-              Choose from our comprehensive range of formulation categories
+              {searchQuery.trim() 
+                ? `Found ${filteredCategories.length} categories matching your search`
+                : 'Choose from our comprehensive range of formulation categories'
+              }
             </p>
+            {searchQuery.trim() && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="text-primary hover:text-primary/80 text-sm underline mb-4"
+              >
+                Clear search and show all categories
+              </button>
+            )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {categories.map((category, index) => (
-              <CategoryCard
-                key={category.id}
-                category={category}
-                formulationCount={getFormulationCount(category.id)}
-                index={index}
-              />
-            ))}
+            {filteredCategories.length > 0 ? (
+              filteredCategories.map((category, index) => (
+                <CategoryCard
+                  key={category.id}
+                  category={category}
+                  formulationCount={getFilteredFormulationCount(category.id)}
+                  index={index}
+                />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-500 text-lg">No categories found matching "{searchQuery}"</p>
+                <p className="text-gray-400 text-sm mt-2">Try searching with different keywords</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
