@@ -114,15 +114,6 @@ export default function Navbar() {
                   About
                 </span>
               </Link>
-              <Link href="/contact">
-                <span className={`px-3 py-2 rounded-md text-sm font-medium cursor-pointer ${
-                  isActive("/contact") 
-                    ? "text-primary bg-primary/10" 
-                    : "text-gray-600 hover:text-primary"
-                }`}>
-                  Contact
-                </span>
-              </Link>
               <Link href="/faq">
                 <span className={`px-3 py-2 rounded-md text-sm font-medium cursor-pointer ${
                   isActive("/faq") 
