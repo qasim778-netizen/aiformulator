@@ -33,7 +33,71 @@ export default function TrendingFormulations() {
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
   const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
 
-  const { data: formulations = [], isLoading, error } = useQuery<RegionalTrendingFormulation[]>({
+  // Sample trending formulations to show while AI generates content
+  const sampleFormulations: RegionalTrendingFormulation[] = [
+    {
+      name: "K-Beauty Glass Skin Serum",
+      category: "skincare",
+      description: "Ultra-hydrating serum with fermented ingredients for glass-like skin finish",
+      popularityScore: 94,
+      keyIngredients: ["Hyaluronic Acid", "Niacinamide", "Fermented Rice Water"],
+      targetMarket: "Millennials and Gen Z seeking dewy, luminous skin",
+      region: "Asia",
+      trendReason: "Korean beauty trend dominance and social media influence"
+    },
+    {
+      name: "Clean Beauty Retinol Alternative",
+      category: "skincare",
+      description: "Plant-based anti-aging serum with bakuchiol and peptides",
+      popularityScore: 91,
+      keyIngredients: ["Bakuchiol", "Peptides", "Vitamin C"],
+      targetMarket: "Health-conscious consumers avoiding synthetic retinoids",
+      region: "USA",
+      trendReason: "Growing demand for clean, non-toxic beauty alternatives"
+    },
+    {
+      name: "Sustainable Solid Shampoo Bar",
+      category: "haircare",
+      description: "Zero-waste shampoo bar with organic botanicals and marine extracts",
+      popularityScore: 89,
+      keyIngredients: ["Sea Buckthorn", "Argan Oil", "Quinoa Protein"],
+      targetMarket: "Eco-conscious consumers seeking plastic-free alternatives",
+      region: "Europe",
+      trendReason: "EU sustainability regulations and environmental consciousness"
+    },
+    {
+      name: "Probiotic Barrier Repair Cream",
+      category: "skincare",
+      description: "Microbiome-friendly moisturizer with live probiotics and ceramides",
+      popularityScore: 87,
+      keyIngredients: ["Live Probiotics", "Ceramides", "Centella Asiatica"],
+      targetMarket: "Sensitive skin sufferers and microbiome enthusiasts",
+      region: "Asia",
+      trendReason: "Rising awareness of skin microbiome health in Asian markets"
+    },
+    {
+      name: "CBD-Infused Recovery Balm",
+      category: "personal_care",
+      description: "Therapeutic balm with broad-spectrum CBD and cooling menthol",
+      popularityScore: 85,
+      keyIngredients: ["CBD", "Menthol", "Arnica Extract"],
+      targetMarket: "Athletes and wellness enthusiasts seeking natural pain relief",
+      region: "USA",
+      trendReason: "Legalization of hemp-derived CBD and wellness trend growth"
+    },
+    {
+      name: "Mediterranean Antioxidant Face Oil",
+      category: "skincare",
+      description: "Luxurious face oil blend with Mediterranean botanicals and vitamins",
+      popularityScore: 83,
+      keyIngredients: ["Olive Squalane", "Vitamin E", "Rosemary Extract"],
+      targetMarket: "Mature skin seeking natural anti-aging solutions",
+      region: "Europe",
+      trendReason: "Heritage beauty traditions and natural ingredient preference"
+    }
+  ];
+
+  const { data: aiFormulations, isLoading, error } = useQuery<RegionalTrendingFormulation[]>({
     queryKey: ["trending-formulations"],
     queryFn: async () => {
       const response = await fetch("/api/ai-blog/trending-formulations", {
@@ -45,7 +109,12 @@ export default function TrendingFormulations() {
       return await response.json();
     },
     staleTime: 60 * 60 * 1000, // Cache for 1 hour
+    retry: 1, // Only retry once if it fails
+    refetchOnWindowFocus: false,
   });
+
+  // Use AI formulations if available, otherwise use sample data
+  const formulations = aiFormulations && aiFormulations.length > 0 ? aiFormulations : sampleFormulations;
 
   const toggleCardExpansion = (index: number) => {
     const newExpanded = new Set(expandedCards);
@@ -125,17 +194,18 @@ export default function TrendingFormulations() {
         </div>
       </div>
 
-      {/* Loading State */}
-      {isLoading && (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="text-gray-500 mt-4">Analyzing global formulation trends...</p>
+      {/* AI Loading Indicator */}
+      {isLoading && !aiFormulations && (
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+            <p className="text-blue-700 text-sm">AI is analyzing latest market trends in the background...</p>
+          </div>
         </div>
       )}
 
       {/* Formulations Grid */}
-      {!isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredFormulations.map((formulation, index) => (
             <Card key={index} className="hover:shadow-lg transition-shadow border-l-4 border-l-purple-500">
               <CardHeader className="pb-3">
@@ -242,10 +312,9 @@ export default function TrendingFormulations() {
             </Card>
           ))}
         </div>
-      )}
 
       {/* Empty State */}
-      {!isLoading && filteredFormulations.length === 0 && (
+      {filteredFormulations.length === 0 && (
         <div className="text-center py-12">
           <TrendingUp className="h-16 w-16 text-gray-300 mx-auto mb-4" />
           <p className="text-gray-500">No trending formulations available for the selected region.</p>
