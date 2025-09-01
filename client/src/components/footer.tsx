@@ -19,10 +19,26 @@ export default function Footer() {
           <div>
             <h4 className="font-medium mb-4">Categories</h4>
             <ul className="space-y-2 text-sm text-gray-300">
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Skin Care</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Beauty Products</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Cleaning Products</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Organic Care</a></li>
+              <li>
+                <Link href="/category/a1150e3f-7bfb-4f30-b580-b5a9dcc83485">
+                  <span className="hover:text-white transition-colors duration-200 cursor-pointer">Skin Care</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/category/335555d4-179f-42a3-915d-729086a9af49">
+                  <span className="hover:text-white transition-colors duration-200 cursor-pointer">Beauty Products</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/category/07437262-b191-458e-8ca0-b8d0656ccac9">
+                  <span className="hover:text-white transition-colors duration-200 cursor-pointer">Cleaning Products</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/category/0758f4b6-5d52-49c6-96a5-3802d5c244be">
+                  <span className="hover:text-white transition-colors duration-200 cursor-pointer">Organic Care</span>
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
