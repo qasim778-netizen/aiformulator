@@ -27,8 +27,7 @@ export default function CategoryCard({ category, formulationCount, index }: Cate
               </span>
             )}
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-primary font-medium">{formulationCount} Products</span>
+          <div className="flex items-center justify-end">
             <ArrowRight className="h-4 w-4 text-primary" />
           </div>
         </CardContent>
