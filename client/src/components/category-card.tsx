@@ -21,13 +21,11 @@ export default function CategoryCard({ category, formulationCount, index }: Cate
         <CardContent className="p-6">
           <div className="flex items-start justify-between mb-2">
             <h3 className="text-lg font-inter font-semibold">{category.name}</h3>
-            {index !== undefined && (
-              <span className="bg-primary/10 text-primary text-xs font-bold px-2 py-1 rounded-full">
-                #{index + 1}
-              </span>
-            )}
           </div>
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">
+              {formulationCount} {formulationCount === 1 ? 'Product' : 'Products'}
+            </span>
             <ArrowRight className="h-4 w-4 text-primary" />
           </div>
         </CardContent>
