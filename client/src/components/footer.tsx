@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { Settings } from "lucide-react";
+import { SiYoutube, SiTiktok, SiInstagram, SiFacebook } from "react-icons/si";
 
 export default function Footer() {
   return (
@@ -58,11 +59,23 @@ export default function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="font-medium mb-4">Contact Info</h4>
-            <div className="space-y-2 text-sm text-gray-300">
+            <h4 className="font-medium mb-4">Follow Us</h4>
+            <div className="space-y-2 text-sm text-gray-300 mb-4">
               <p><i className="fas fa-envelope mr-2"></i>info@aiformulator.com</p>
-              <p><i className="fas fa-phone mr-2"></i>+1 (555) 123-4567</p>
-              <p><i className="fas fa-map-marker-alt mr-2"></i>123 Chemistry Lane, Lab City</p>
+            </div>
+            <div className="flex space-x-4">
+              <a href="#" className="text-gray-300 hover:text-white transition-colors duration-200" aria-label="YouTube">
+                <SiYoutube className="h-6 w-6" />
+              </a>
+              <a href="#" className="text-gray-300 hover:text-white transition-colors duration-200" aria-label="TikTok">
+                <SiTiktok className="h-6 w-6" />
+              </a>
+              <a href="#" className="text-gray-300 hover:text-white transition-colors duration-200" aria-label="Instagram">
+                <SiInstagram className="h-6 w-6" />
+              </a>
+              <a href="#" className="text-gray-300 hover:text-white transition-colors duration-200" aria-label="Facebook">
+                <SiFacebook className="h-6 w-6" />
+              </a>
             </div>
           </div>
         </div>
