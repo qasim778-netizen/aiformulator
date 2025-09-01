@@ -12,6 +12,7 @@ import { generateFormulationImages, addImageFieldToFormulations } from "./image-
 import { addSEOFields, generateStructuredData } from "./seo-utils";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { aiBlogGenerator } from "./ai-blog-generator";
+import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -28,6 +29,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch user" });
     }
   });
+
+  // Object Storage routes for image uploads
+  app.post("/api/objects/upload", isAuthenticated, async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting upload URL:", error);
+      res.status(500).json({ error: "Failed to get upload URL" });
+    }
+  });
+
+  app.put("/api/categories/:id/image", isAuthenticated, async (req, res) => {
+    try {
+      if (!req.body.imageURL) {
+        return res.status(400).json({ error: "imageURL is required" });
+      }
+
+      const categoryId = req.params.id;
+      const objectStorageService = new ObjectStorageService();
+      
+      // Set ACL policy for public access (category images should be public)
+      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        req.body.imageURL,
+        {
+          owner: req.user?.claims?.sub || "admin",
+          visibility: "public",
+        }
+      );
+
+      // Update category with the new image path
+      const category = await storage.getCategory(categoryId);
+      if (!category) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+
+      const updatedCategory = await storage.updateCategory(categoryId, {
+        image: objectPath
+      });
+
+      res.json({ 
+        success: true, 
+        objectPath,
+        category: updatedCategory 
+      });
+    } catch (error) {
+      console.error("Error updating category image:", error);
+      res.status(500).json({ error: "Failed to update category image" });
+    }
+  });
+
+  // Serve uploaded objects
+  app.get("/objects/:objectPath(*)", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Error serving object:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.sendStatus(404);
+      }
+      return res.sendStatus(500);
+    }
+  });
+
   // Categories API
   app.get("/api/categories", async (req, res) => {
     try {
