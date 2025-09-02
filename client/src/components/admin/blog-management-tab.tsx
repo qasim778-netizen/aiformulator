@@ -71,9 +71,16 @@ export default function BlogManagementTab() {
       });
     },
     onError: (error: any) => {
+      console.error("Create post error:", error);
+      let errorMessage = error.message || "Failed to create blog post";
+      
+      if (error.issues && Array.isArray(error.issues)) {
+        errorMessage = "Validation errors: " + error.issues.map((issue: any) => `${issue.path.join('.')}: ${issue.message}`).join(", ");
+      }
+      
       toast({
         title: "Error",
-        description: error.message || "Failed to create blog post",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -252,19 +259,34 @@ export default function BlogManagementTab() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.title || !formData.slug || !formData.content) {
+    // Trim whitespace from required fields
+    const title = formData.title?.trim();
+    const slug = formData.slug?.trim();
+    const content = formData.content?.trim();
+    
+    if (!title || !slug || !content) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields (Title, Slug, and Content)",
         variant: "destructive",
       });
       return;
     }
 
-    const submitData = {
-      ...formData,
+    const submitData: InsertBlogPost = {
+      title: title,
+      slug: slug,
+      excerpt: formData.excerpt?.trim() || null,
+      content: content,
+      featuredImage: formData.featuredImage?.trim() || null,
+      metaDescription: formData.metaDescription?.trim() || null,
+      keywords: formData.keywords?.trim() || null,
+      authorName: formData.authorName?.trim() || "AI Formulator Team",
+      isPublished: Boolean(formData.isPublished),
       publishedAt: formData.isPublished ? new Date() : null,
-    } as InsertBlogPost;
+    };
+
+    console.log("Submitting blog post data:", submitData);
 
     if (editingPost) {
       updatePostMutation.mutate({ id: editingPost.id, data: submitData });
