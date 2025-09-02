@@ -131,10 +131,6 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
   });
 
   const onSubmit = (data: InsertCategory) => {
-    console.log("Form submitted:", data);
-    console.log("Is editing:", isEditing);
-    console.log("Category ID:", category?.id);
-    
     if (isEditing) {
       updateCategory.mutate(data);
     } else {
@@ -234,7 +230,16 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
           <Button type="button" variant="outline" onClick={onSuccess}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
+          <Button 
+            type="submit" 
+            disabled={isLoading || isImageUploading}
+            data-testid="button-save-category"
+            onClick={(e) => {
+              console.log("Button clicked!", { isEditing, categoryId: category?.id });
+              console.log("Form errors:", form.formState.errors);
+              console.log("Form values:", form.getValues());
+            }}
+          >
             {isLoading ? "Saving..." : isEditing ? "Update Category" : "Create Category"}
           </Button>
         </div>
