@@ -182,6 +182,7 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+  publishedAt: true,
 }).extend({
   publishedAt: z.union([z.date(), z.string(), z.null()]).transform((val) => {
     if (val === null || val === undefined) return null;
@@ -190,7 +191,7 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
       return new Date(val);
     }
     return val;
-  }).nullable(),
+  }).nullable().optional(),
 });
 
 export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;

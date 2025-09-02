@@ -1308,16 +1308,12 @@ Allow: /disclaimer`;
   // Create new blog post
   app.post("/api/blog", async (req, res) => {
     try {
-      console.log("Received blog post data:", req.body);
       const validatedData = insertBlogPostSchema.parse(req.body);
-      console.log("Validated blog post data:", validatedData);
       const blogPost = await storage.createBlogPost(validatedData);
       res.status(201).json(blogPost);
     } catch (error: any) {
       console.error("Failed to create blog post:", error);
-      console.error("Error details:", error.message);
       if (error.issues) {
-        console.error("Validation issues:", error.issues);
         res.status(400).json({ 
           message: "Validation failed", 
           issues: error.issues.map((issue: any) => ({
