@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HelpButton } from "@/components/ui/help-button";
@@ -582,6 +582,9 @@ export default function AdminPage() {
                       <DialogTitle>
                         {editingCategory ? "Edit Category" : "Add New Category"}
                       </DialogTitle>
+                      <DialogDescription>
+                        {editingCategory ? "Update the category details below" : "Create a new category for your chemical formulations"}
+                      </DialogDescription>
                     </DialogHeader>
                     <Tabs defaultValue="manual" className="w-full">
                       <TabsList className="grid w-full grid-cols-2">

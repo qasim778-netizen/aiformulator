@@ -234,11 +234,6 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
             type="submit" 
             disabled={isLoading || isImageUploading}
             data-testid="button-save-category"
-            onClick={(e) => {
-              console.log("Button clicked!", { isEditing, categoryId: category?.id });
-              console.log("Form errors:", form.formState.errors);
-              console.log("Form values:", form.getValues());
-            }}
           >
             {isLoading ? "Saving..." : isEditing ? "Update Category" : "Create Category"}
           </Button>
