@@ -120,12 +120,21 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
       toast({ title: "Category updated successfully" });
       onSuccess();
     },
-    onError: () => {
-      toast({ title: "Failed to update category", variant: "destructive" });
+    onError: (error: any) => {
+      console.error("Update category error:", error);
+      toast({ 
+        title: "Failed to update category", 
+        description: error.message || "Please try again",
+        variant: "destructive" 
+      });
     },
   });
 
   const onSubmit = (data: InsertCategory) => {
+    console.log("Form submitted:", data);
+    console.log("Is editing:", isEditing);
+    console.log("Category ID:", category?.id);
+    
     if (isEditing) {
       updateCategory.mutate(data);
     } else {
