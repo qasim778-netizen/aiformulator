@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -35,6 +35,19 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
   });
 
   const [isImageUploading, setIsImageUploading] = useState(false);
+
+  // Reset form when category changes
+  useEffect(() => {
+    if (category) {
+      form.reset({
+        name: category.name || "",
+        description: category.description || "",
+        icon: category.icon || "fas fa-flask",
+        image: category.image || "",
+        isActive: category.isActive ?? true,
+      });
+    }
+  }, [category, form]);
 
   const uploadImageMutation = useMutation({
     mutationFn: async (imageURL: string) => {
@@ -132,6 +145,8 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
   });
 
   const onSubmit = (data: InsertCategory) => {
+    console.log("Form submitted with data:", data);
+    console.log("Current form values:", form.getValues());
     if (isEditing) {
       updateCategory.mutate(data);
     } else {
