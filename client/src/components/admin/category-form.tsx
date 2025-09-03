@@ -148,9 +148,15 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Category Name</FormLabel>
+              <FormLabel htmlFor="category-name">Category Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter category name" {...field} />
+                <Input 
+                  id="category-name"
+                  name="name"
+                  placeholder="Enter category name" 
+                  autoComplete="off"
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -162,9 +168,15 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel htmlFor="category-description">Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="Enter category description" {...field} />
+                <Textarea 
+                  id="category-description"
+                  name="description"
+                  placeholder="Enter category description" 
+                  autoComplete="off"
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -176,9 +188,15 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
           name="icon"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Icon Class</FormLabel>
+              <FormLabel htmlFor="category-icon">Icon Class</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., fas fa-flask" {...field} />
+                <Input 
+                  id="category-icon"
+                  name="icon"
+                  placeholder="e.g., fas fa-flask" 
+                  autoComplete="off"
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
