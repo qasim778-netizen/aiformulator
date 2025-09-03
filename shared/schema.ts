@@ -49,6 +49,11 @@ export const formulations = pgTable("formulations", {
 export const insertCategorySchema = createInsertSchema(categories).omit({
   id: true,
   createdAt: true,
+}).partial({
+  image: true, // Make image optional for insert
+  slug: true,  // slug is auto-generated
+  metaDescription: true,
+  keywords: true,
 });
 
 export const insertFormulationSchema = createInsertSchema(formulations).omit({
