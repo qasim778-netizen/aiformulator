@@ -145,8 +145,6 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
   });
 
   const onSubmit = (data: InsertCategory) => {
-    console.log("Form submitted with data:", data);
-    console.log("Current form values:", form.getValues());
     if (isEditing) {
       updateCategory.mutate(data);
     } else {
