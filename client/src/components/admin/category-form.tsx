@@ -166,7 +166,6 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
               <FormControl>
                 <Input 
                   id="category-name"
-                  name="name"
                   placeholder="Enter category name" 
                   autoComplete="off"
                   {...field} 
@@ -186,7 +185,6 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
               <FormControl>
                 <Textarea 
                   id="category-description"
-                  name="description"
                   placeholder="Enter category description" 
                   autoComplete="off"
                   {...field} 
@@ -206,7 +204,6 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
               <FormControl>
                 <Input 
                   id="category-icon"
-                  name="icon"
                   placeholder="e.g., fas fa-flask" 
                   autoComplete="off"
                   {...field} 
