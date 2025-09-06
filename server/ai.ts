@@ -453,7 +453,7 @@ export async function generateFormulationWithKeywords(categoryName: string, prod
         console.log(`Generating image for: ${name}`);
         const imageResponse = await openai.images.generate({
           model: "dall-e-3",
-          prompt: `Professional cosmetic product bottle labeled "${name}". Clean white background, modern packaging design, high quality product photography, commercial style.`,
+          prompt: `Flat 2D digital illustration on a neutral beige background. Bold black text '${name}' at the top, simple black product-related icons in the center, and small centered text 'AIFormulator' at the bottom. Clean, minimal, modern style. No product bottles or packaging, just text and icons.`,
           n: 1,
           size: "1024x1024",
           quality: "standard"
