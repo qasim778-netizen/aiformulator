@@ -473,16 +473,42 @@ export default function AdminPage() {
           <div>
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-xl font-inter font-semibold text-gray-900">Categories Management</h2>
+                <h2 className="text-xl font-inter font-semibold text-gray-900">Manage Categories</h2>
                 <p className="text-sm text-gray-600 mt-1">Manage product categories and their properties</p>
               </div>
-              <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button data-testid="button-add-category-main">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Category
-                  </Button>
-                </DialogTrigger>
+              <div className="flex space-x-3">
+                <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" data-testid="button-add-category-manually">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Manually
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>
+                        {editingCategory ? "Edit Category" : "Create New Category"}
+                      </DialogTitle>
+                      <DialogDescription>
+                        {editingCategory ? "Update the category details" : "Add a new category to organize your formulations"}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <CategoryForm 
+                      category={editingCategory}
+                      onSuccess={() => {
+                        setCategoryDialogOpen(false);
+                        setEditingCategory(null);
+                      }} 
+                    />
+                  </DialogContent>
+                </Dialog>
+                <Dialog open={bulkGenerationDialogOpen} onOpenChange={setBulkGenerationDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-yellow-500 hover:bg-yellow-600 text-white" data-testid="button-generate-with-ai">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Generate with AI
+                    </Button>
+                  </DialogTrigger>
                 <DialogContent className="max-w-2xl">
                   <DialogHeader>
                     <DialogTitle>
@@ -510,10 +536,16 @@ export default function AdminPage() {
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Category
+                          Category Name
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Description
+                          Formulations
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Created
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Actions
@@ -521,51 +553,74 @@ export default function AdminPage() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {categoriesPaginated?.data?.map((category) => (
-                        <tr key={category.id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10">
-                                <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
-                                  <span className="text-white font-medium text-sm">
-                                    {category.name.charAt(0).toUpperCase()}
-                                  </span>
+                      {categoriesPaginated?.data?.map((category) => {
+                        // Count formulations for this category
+                        const formulationCount = formulationsPaginated?.data?.filter(f => f.categoryId === category.id)?.length || 0;
+                        
+                        return (
+                          <tr key={category.id}>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0 h-10 w-10">
+                                  {category.image ? (
+                                    <img
+                                      src={category.image}
+                                      alt={category.name}
+                                      className="h-10 w-10 rounded-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
+                                      <span className="text-white font-medium text-sm">
+                                        {category.name.charAt(0).toUpperCase()}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="ml-4">
+                                  <div className="text-sm font-medium text-gray-900">{category.name}</div>
+                                  <div className="text-sm text-gray-500">{category.description}</div>
                                 </div>
                               </div>
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">{category.name}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-900 font-medium">{formulationCount}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <Badge className="bg-green-100 text-green-800">Active</Badge>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-900">
+                                {category.createdAt ? new Date(category.createdAt).toLocaleDateString() : 'N/A'}
                               </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900">{category.description}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div className="flex space-x-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setEditingCategory(category);
-                                  setCategoryDialogOpen(true);
-                                }}
-                                data-testid={`button-edit-category-${category.id}`}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => deleteCategory.mutate(category.id)}
-                                className="text-red-600 hover:text-red-900"
-                                data-testid={`button-delete-category-${category.id}`}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <div className="flex space-x-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingCategory(category);
+                                    setCategoryDialogOpen(true);
+                                  }}
+                                  className="text-blue-600 hover:text-blue-900"
+                                  data-testid={`button-edit-category-${category.id}`}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => deleteCategory.mutate(category.id)}
+                                  className="text-red-600 hover:text-red-900"
+                                  data-testid={`button-delete-category-${category.id}`}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -673,8 +728,17 @@ export default function AdminPage() {
                         setEditingFormulation(null);
                       }} 
                     />
-                  </DialogContent>
-                </Dialog>
+                    <DialogContent className="max-w-4xl">
+                      <DialogHeader>
+                        <DialogTitle>AI Bulk Category Generation</DialogTitle>
+                        <DialogDescription>
+                          Generate multiple categories at once using AI
+                        </DialogDescription>
+                      </DialogHeader>
+                      <BulkGenerationForm onSuccess={() => setBulkGenerationDialogOpen(false)} />
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </div>
             </div>
 
