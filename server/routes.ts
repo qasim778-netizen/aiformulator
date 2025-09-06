@@ -405,7 +405,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin Image Generator endpoint
   app.post('/api/admin/generate-image', isAuthenticated, async (req, res) => {
     try {
-      const { name, brandName } = req.body;
+      const { name, brandName, referenceImageBase64 } = req.body;
       
       if (!name || typeof name !== 'string') {
         return res.status(400).json({ error: "Formulation name is required" });
@@ -414,11 +414,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const cleanName = name.trim();
       const cleanBrandName = (brandName || "AIFormulator").trim();
       
-      console.log(`🎨 Admin generating image for: ${cleanName}`);
+      console.log(`🎨 Admin generating image for: ${cleanName}${referenceImageBase64 ? ' (with reference image)' : ''}`);
 
       // Generate the image with exact specifications
-      const { generateFormulationImage } = await import('./ai');
-      const result = await generateFormulationImage(cleanName, cleanBrandName);
+      const { generateFormulationImageWithReference } = await import('./ai');
+      const result = await generateFormulationImageWithReference(cleanName, cleanBrandName, referenceImageBase64);
       
       if (!result.imageUrl) {
         throw new Error("Failed to generate image");
