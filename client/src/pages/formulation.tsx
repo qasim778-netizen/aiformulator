@@ -307,6 +307,29 @@ export default function FormulationPage() {
                 {formulation.isActive ? "Active Formula" : "Draft Formula"}
               </Badge>
             </div>
+
+            {/* Product Image Section */}
+            {formulation.image && (
+              <div className="mb-8">
+                <div className="relative w-full max-w-2xl mx-auto">
+                  <img
+                    src={formulation.image}
+                    alt={formulation.imageAlt || `${formulation.name} - Professional Chemical Formulation`}
+                    className="w-full h-64 sm:h-80 object-cover rounded-lg border-2 border-gray-200 shadow-md"
+                  />
+                  {formulation.imageFilename && (
+                    <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                      {formulation.imageFilename}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* Description */}
+            <div className="mb-8">
+              <p className="text-gray-600 leading-relaxed">{formulation.description}</p>
+            </div>
             
             {/* Product Specifications Section */}
             <div className="mb-8">
