@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Sparkles, Package, BarChart3, TrendingUp, Users, Globe, LogOut, Image } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Package, LogOut, Image } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,6 @@ import FormulaKeywordGenerator from "@/components/admin/formula-keyword-generato
 import LogoSettings from "@/components/admin/logo-settings";
 import ContentManagementTab from "@/components/admin/content-management-tab";
 import BlogManagementTab from "@/components/admin/blog-management-tab";
-import { ImageGenerator } from "@/components/admin/image-generator";
 import type { Category, Formulation } from "@shared/schema";
 
 export default function AdminPage() {
@@ -35,7 +34,6 @@ export default function AdminPage() {
     setSelectedCategory(value);
     setFormulationsPage(1);
   };
-  const [analyticsFilter, setAnalyticsFilter] = useState<'browse' | 'generation'>('generation');
   const [currentPage, setCurrentPage] = useState(1);
   const [categoriesPage, setCategoriesPage] = useState(1);
   const [formulationsPage, setFormulationsPage] = useState(1);
@@ -73,17 +71,17 @@ export default function AdminPage() {
     }
   }, [startGuidance, isCompleted]);
 
-  const { data: categories = [] } = useQuery<Category[]>({
+  const { data: categories } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
   });
-  
+
   const { data: categoriesPaginated } = useQuery<{
     data: Category[];
     pagination: { currentPage: number; totalPages: number; totalItems: number; itemsPerPage: number };
   }>({
     queryKey: ["/api/categories-paginated", categoriesPage],
     queryFn: async () => {
-      const response = await fetch(`/api/categories?paginated=true&page=${categoriesPage}&limit=10`);
+      const response = await fetch(`/api/categories-paginated?page=${categoriesPage}&limit=10`);
       if (!response.ok) {
         throw new Error('Failed to fetch categories');
       }
@@ -91,37 +89,20 @@ export default function AdminPage() {
     },
   });
 
-  const { data: formulations = [] } = useQuery<Formulation[]>({
-    queryKey: ["/api/formulations"],
-  });
-  
   const { data: formulationsPaginated } = useQuery<{
     data: Formulation[];
     pagination: { currentPage: number; totalPages: number; totalItems: number; itemsPerPage: number };
   }>({
     queryKey: ["/api/admin/formulations", formulationsPage, selectedCategory],
     queryFn: async () => {
-      const categoryParam = selectedCategory === "all" ? "" : `&categoryId=${selectedCategory}`;
+      const categoryParam = selectedCategory !== "all" ? `&categoryId=${selectedCategory}` : "";
       const response = await fetch(`/api/admin/formulations?page=${formulationsPage}&limit=10${categoryParam}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch admin formulations');
+        throw new Error('Failed to fetch formulations');
       }
       return response.json();
     },
   });
-
-  // Separate query for pending approvals
-  const { data: pendingFormulations = [] } = useQuery<Formulation[]>({
-    queryKey: ["/api/admin/formulations-all"],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/formulations');
-      if (!response.ok) throw new Error('Failed to fetch formulations');
-      const data = await response.json();
-      return data.data || [];
-    },
-  });
-  
-  const inactiveFormulations = pendingFormulations.filter(f => !f.isActive);
 
   const { data: stats } = useQuery<{
     totalCategories: number;
@@ -130,41 +111,6 @@ export default function AdminPage() {
     draftFormulations: number;
   }>({
     queryKey: ["/api/stats"],
-  });
-
-  const { data: aiAnalytics } = useQuery<{
-    totalAiGenerations: number;
-    dailyGenerations: number;
-    weeklyGenerations: number;
-    monthlyGenerations: number;
-    popularCategories: Array<{ category: string; count: number }>;
-    usageByCountry: Array<{ country: string; count: number }>;
-    recentGenerations: Array<{
-      id: string;
-      productName: string;
-      category: string;
-      timestamp: string;
-      sessionId: string;
-      country?: string;
-      city?: string;
-    }>;
-    generationsByHour: Array<{ hour: number; count: number }>;
-    avgResponseTime: number;
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalItems: number;
-      itemsPerPage: number;
-    };
-  }>({
-    queryKey: ["/api/ai-analytics", analyticsFilter, currentPage],
-    queryFn: async () => {
-      const response = await fetch(`/api/ai-analytics?type=${analyticsFilter}&page=${currentPage}&limit=10`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch analytics');
-      }
-      return response.json();
-    },
   });
 
   const deleteCategory = useMutation({
@@ -195,24 +141,6 @@ export default function AdminPage() {
     },
   });
 
-  const clearAiAnalytics = useMutation({
-    mutationFn: () => apiRequest("DELETE", "/api/ai-analytics"),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/ai-analytics"] });
-      toast({ 
-        title: "AI Analytics Cleared", 
-        description: "All dummy analytics data has been removed successfully" 
-      });
-    },
-    onError: () => {
-      toast({ 
-        title: "Failed to clear analytics", 
-        description: "There was an error clearing the analytics data",
-        variant: "destructive" 
-      });
-    },
-  });
-
   const updateFormulationStatus = useMutation({
     mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => 
       apiRequest("PATCH", `/api/admin/formulations/${id}/status`, { isActive }),
@@ -235,269 +163,161 @@ export default function AdminPage() {
     },
   });
 
-  const generateFormulationImage = useMutation({
-    mutationFn: async (data: { name: string; brandName: string }) => {
-      const response = await apiRequest("POST", "/api/admin/generate-image", data);
-      return response;
-    },
-    onSuccess: (data, variables) => {
-      toast({
-        title: "Image Generated Successfully!",
-        description: `Custom image for "${variables.name}" has been created with SEO optimization.`,
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/ai-analytics"] });
-    },
-    onError: (error, variables) => {
-      toast({
-        title: "Generation Failed",
-        description: `Failed to generate image for "${variables.name}". Please try again.`,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const filteredFormulations = selectedCategory === "all" 
-    ? formulations 
-    : formulations.filter(f => f.categoryId === selectedCategory);
-
-  const getCategoryName = (categoryId: string) => {
-    return categories.find(c => c.id === categoryId)?.name || "Unknown";
+  const getCategoryName = (categoryId: string): string => {
+    const category = categories?.find(cat => cat.id === categoryId);
+    return category?.name || "Unknown Category";
   };
 
-  const handleEditCategory = (category: Category) => {
-    setEditingCategory(category);
-    setCategoryDialogOpen(true);
+  // Handle logout
+  const handleLogout = () => {
+    window.location.href = "/api/logout";
   };
 
-  const handleEditFormulation = (formulation: Formulation) => {
-    setEditingFormulation(formulation);
-    setFormulationDialogOpen(true);
-  };
-
-  const handleCategoryDialogClose = () => {
-    setCategoryDialogOpen(false);
-    setEditingCategory(null);
-  };
-
-  const handleFormulationDialogClose = () => {
-    setFormulationDialogOpen(false);
-    setEditingFormulation(null);
-  };
-
-  // Show loading state while checking authentication
+  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="flex items-center space-x-2">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <span className="text-lg text-gray-600">Checking authentication...</span>
-        </div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
 
-  // Don't render admin content if not authenticated
+  // Not authenticated
   if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Restricted</h1>
-          <p className="text-gray-600 mb-6">You need to log in to access the admin dashboard.</p>
-          <a href="/api/login" className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-            Log In
-          </a>
-        </div>
-      </div>
-    );
+    return null; // Will be redirected by useEffect
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Admin Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+          <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <Link href="/">
-                <Button variant="ghost" className="text-primary hover:text-blue-700 mr-6">
+                <Button variant="ghost" className="text-primary hover:text-blue-700 mr-4">
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Website
+                  Back to Site
                 </Button>
               </Link>
-              <h1 className="text-2xl font-inter font-bold text-gray-900">Admin Dashboard</h1>
+              <h1 className="text-xl font-inter font-bold text-gray-900">Admin Dashboard</h1>
             </div>
+            
             <div className="flex items-center space-x-4">
-              <HelpButton flowId="admin-overview" />
-              <span className="text-sm text-gray-600">
-                Welcome, {user?.firstName || user?.email || 'Administrator'}
-              </span>
-              <div className="flex items-center space-x-2">
-                {user?.profileImageUrl ? (
-                  <img 
-                    src={user.profileImageUrl} 
-                    alt="Profile" 
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <User className="text-white text-sm h-4 w-4" />
-                  </div>
-                )}
-                <a 
-                  href="/api/logout"
-                  className="flex items-center text-sm text-gray-600 hover:text-gray-900 px-2 py-1 rounded hover:bg-gray-100"
-                  data-testid="logout-button"
-                >
-                  <LogOut className="h-4 w-4 mr-1" />
-                  Logout
-                </a>
+              <div className="flex items-center text-sm text-gray-600">
+                <User className="h-4 w-4 mr-2" />
+                {user?.email || 'Admin User'}
               </div>
+              <Button variant="outline" onClick={handleLogout} className="text-gray-600 hover:text-gray-800">
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Admin Navigation Tabs */}
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "overview"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setActiveTab("overview")}
-                data-testid="admin-overview-tab"
-              >
-                Overview
-              </button>
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "categories"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setActiveTab("categories")}
-                data-testid="admin-categories-tab"
-              >
-                Manage Categories
-              </button>
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "formulations"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setActiveTab("formulations")}
-                data-testid="admin-formulations-tab"
-              >
-                Manage Formulations
-              </button>
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm relative ${
-                  activeTab === "approvals"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setActiveTab("approvals")}
-                data-testid="admin-approvals-tab"
-              >
-                Pending Approvals
-                {inactiveFormulations.length > 0 && (
-                  <Badge className="ml-2 bg-red-500 text-white text-xs px-1 py-0">
-                    {inactiveFormulations.length}
-                  </Badge>
-                )}
-              </button>
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "bulk-generation"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setActiveTab("bulk-generation")}
-              >
-                Bulk Generation
-              </button>
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "bulk-formulations"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setActiveTab("bulk-formulations")}
-              >
-                Bulk Formulations
-              </button>
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "ai-analytics"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setActiveTab("ai-analytics")}
-                data-testid="admin-analytics-tab"
-              >
-                AI Analytics
-              </button>
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "image-generator"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setActiveTab("image-generator")}
-                data-testid="admin-image-generator-tab"
-              >
-                Image Generator
-              </button>
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "settings"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setActiveTab("settings")}
-                data-testid="admin-settings-tab"
-              >
-                Settings
-              </button>
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "content"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setActiveTab("content")}
-                data-testid="admin-content-tab"
-              >
-                Content Management
-              </button>
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "blog"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setActiveTab("blog")}
-                data-testid="admin-blog-tab"
-              >
-                Blog Management
-              </button>
-            </nav>
-          </div>
-        </div>
-      </div>
-
-      {/* Admin Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
+        {/* Navigation Tabs */}
+        <div className="border-b border-gray-200 mb-8">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${ 
+                activeTab === "overview" 
+                  ? "border-primary text-primary" 
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab("overview")}
+              data-testid="admin-overview-tab"
+            >
+              Overview
+            </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "categories"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab("categories")}
+              data-testid="admin-categories-tab"
+            >
+              Categories
+            </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "formulations"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab("formulations")}
+              data-testid="admin-formulations-tab"
+            >
+              Formulations
+            </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "ai-tools"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab("ai-tools")}
+              data-testid="admin-ai-tools-tab"
+            >
+              AI Tools
+            </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "bulk-formulations"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab("bulk-formulations")}
+              data-testid="admin-bulk-formulations-tab"
+            >
+              Bulk Formulations
+            </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "settings"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab("settings")}
+              data-testid="admin-settings-tab"
+            >
+              Settings
+            </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "content"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab("content")}
+              data-testid="admin-content-tab"
+            >
+              Content
+            </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "blog"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab("blog")}
+              data-testid="admin-blog-tab"
+            >
+              Blog
+            </button>
+          </nav>
+        </div>
+
         {/* Overview Tab */}
         {activeTab === "overview" && (
-          <div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="space-y-6">
+            {/* Stats Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card className="bg-white rounded-lg shadow-md">
                 <CardContent className="p-6">
                   <div className="flex items-center">
@@ -505,9 +325,7 @@ export default function AdminPage() {
                       <Ungroup className="text-white text-xl h-6 w-6" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-inter font-semibold text-gray-900">
-                        {stats?.totalCategories || 0}
-                      </h3>
+                      <h3 className="text-lg font-inter font-semibold text-gray-900">{stats?.totalCategories || 0}</h3>
                       <p className="text-sm text-gray-600">Total Categories</p>
                     </div>
                   </div>
@@ -517,13 +335,11 @@ export default function AdminPage() {
               <Card className="bg-white rounded-lg shadow-md">
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <div className="w-12 h-12 bg-success rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
                       <FlaskConical className="text-white text-xl h-6 w-6" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-inter font-semibold text-gray-900">
-                        {stats?.totalFormulations || 0}
-                      </h3>
+                      <h3 className="text-lg font-inter font-semibold text-gray-900">{stats?.totalFormulations || 0}</h3>
                       <p className="text-sm text-gray-600">Total Formulations</p>
                     </div>
                   </div>
@@ -533,13 +349,11 @@ export default function AdminPage() {
               <Card className="bg-white rounded-lg shadow-md">
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
                       <CheckCircle className="text-white text-xl h-6 w-6" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-inter font-semibold text-gray-900">
-                        {stats?.activeFormulations || 0}
-                      </h3>
+                      <h3 className="text-lg font-inter font-semibold text-gray-900">{stats?.activeFormulations || 0}</h3>
                       <p className="text-sm text-gray-600">Active Formulations</p>
                     </div>
                   </div>
@@ -549,13 +363,11 @@ export default function AdminPage() {
               <Card className="bg-white rounded-lg shadow-md">
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <div className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center">
                       <PauseCircle className="text-white text-xl h-6 w-6" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-inter font-semibold text-gray-900">
-                        {stats?.draftFormulations || 0}
-                      </h3>
+                      <h3 className="text-lg font-inter font-semibold text-gray-900">{stats?.draftFormulations || 0}</h3>
                       <p className="text-sm text-gray-600">Draft Formulations</p>
                     </div>
                   </div>
@@ -563,208 +375,239 @@ export default function AdminPage() {
               </Card>
             </div>
 
-            {/* Recent Activities */}
-            <Card className="bg-white rounded-lg shadow-md">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-inter font-semibold text-gray-900">Recent Activities</h3>
-              </div>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-success rounded-full mr-4"></div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-900">System initialized with sample data</p>
-                      <p className="text-xs text-gray-500">System startup</p>
-                    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Quick Actions */}
+              <Card className="bg-white rounded-lg shadow-md">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                  <div className="space-y-3">
+                    <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="w-full justify-start" data-testid="button-add-category">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add New Category
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>Create New Category</DialogTitle>
+                          <DialogDescription>
+                            Add a new category to organize your formulations
+                          </DialogDescription>
+                        </DialogHeader>
+                        <CategoryForm 
+                          onSuccess={() => setCategoryDialogOpen(false)} 
+                        />
+                      </DialogContent>
+                    </Dialog>
+
+                    <Dialog open={formulationDialogOpen} onOpenChange={setFormulationDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="w-full justify-start" data-testid="button-add-formulation">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add New Formulation
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Create New Formulation</DialogTitle>
+                          <DialogDescription>
+                            Add a new formulation with ingredients and instructions
+                          </DialogDescription>
+                        </DialogHeader>
+                        <FormulationForm 
+                          categories={categories || []} 
+                          onSuccess={() => setFormulationDialogOpen(false)} 
+                        />
+                      </DialogContent>
+                    </Dialog>
+
+                    <Dialog open={bulkGenerationDialogOpen} onOpenChange={setBulkGenerationDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="secondary" className="w-full justify-start" data-testid="button-bulk-generation">
+                          <Package className="h-4 w-4 mr-2" />
+                          Bulk Category Generation
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl">
+                        <DialogHeader>
+                          <DialogTitle>AI Bulk Category Generation</DialogTitle>
+                          <DialogDescription>
+                            Generate multiple categories at once using AI
+                          </DialogDescription>
+                        </DialogHeader>
+                        <BulkGenerationForm onSuccess={() => setBulkGenerationDialogOpen(false)} />
+                      </DialogContent>
+                    </Dialog>
                   </div>
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-primary rounded-full mr-4"></div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-900">Categories and formulations loaded</p>
-                      <p className="text-xs text-gray-500">Data initialization</p>
+                </CardContent>
+              </Card>
+
+              {/* Recent Activity */}
+              <Card className="bg-white rounded-lg shadow-md">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">Recent Categories</h3>
+                  {categories && categories.length > 0 ? (
+                    <div className="space-y-2">
+                      {categories.slice(0, 5).map((category) => (
+                        <div key={category.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                          <span className="text-sm text-gray-700">{category.name}</span>
+                          <Badge variant="outline">Active</Badge>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-accent rounded-full mr-4"></div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-900">Admin dashboard accessed</p>
-                      <p className="text-xs text-gray-500">Current session</p>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500">No categories yet. Start by creating your first category!</p>
                     </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
 
-        {/* Categories Management Tab */}
+        {/* Categories Tab */}
         {activeTab === "categories" && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-inter font-semibold text-gray-900">Manage Categories</h2>
-              <div className="flex gap-3">
-                <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="border-primary text-primary hover:bg-blue-50">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Manually
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>
-                        {editingCategory ? "Edit Category" : "Add New Category"}
-                      </DialogTitle>
-                      <DialogDescription>
-                        {editingCategory ? "Update the category details below" : "Create a new category for your chemical formulations"}
-                      </DialogDescription>
-                    </DialogHeader>
-                    <Tabs defaultValue="manual" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="manual">Manual Entry</TabsTrigger>
-                        <TabsTrigger value="ai">AI Generation</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="manual" className="mt-4">
-                        <CategoryForm
-                          category={editingCategory}
-                          onSuccess={handleCategoryDialogClose}
-                        />
-                      </TabsContent>
-                      <TabsContent value="ai" className="mt-4">
-                        <AiCategoryForm onSuccess={handleCategoryDialogClose} />
-                      </TabsContent>
-                    </Tabs>
-                  </DialogContent>
-                </Dialog>
-                <Button className="bg-accent text-white hover:bg-orange-600" onClick={() => setCategoryDialogOpen(true)}>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Generate with AI
-                </Button>
+              <div>
+                <h2 className="text-xl font-inter font-semibold text-gray-900">Categories Management</h2>
+                <p className="text-sm text-gray-600 mt-1">Manage product categories and their properties</p>
               </div>
+              <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button data-testid="button-add-category-main">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Category
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>
+                      {editingCategory ? "Edit Category" : "Create New Category"}
+                    </DialogTitle>
+                    <DialogDescription>
+                      {editingCategory ? "Update the category details" : "Add a new category to organize your formulations"}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <CategoryForm 
+                    category={editingCategory}
+                    onSuccess={() => {
+                      setCategoryDialogOpen(false);
+                      setEditingCategory(null);
+                    }} 
+                  />
+                </DialogContent>
+              </Dialog>
             </div>
 
-            <Card className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Category Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Formulations
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Created
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {categoriesPaginated?.data?.map((category) => {
-                      const formulationCount = formulations.filter(f => f.categoryId === category.id).length;
-                      return (
+            <Card className="bg-white rounded-lg shadow-md">
+              <CardContent className="p-6">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Category
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Description
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {categoriesPaginated?.data?.map((category) => (
                         <tr key={category.id}>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <div className="flex-shrink-0 h-10 w-10">
-                                <img
-                                  className="h-10 w-10 rounded-lg object-cover"
-                                  src={category.image}
-                                  alt={category.name}
-                                />
+                                <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
+                                  <span className="text-white font-medium text-sm">
+                                    {category.name.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
                               </div>
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-gray-900">{category.name}</div>
-                                <div className="text-sm text-gray-500">{category.description}</div>
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {formulationCount}
+                          <td className="px-6 py-4">
+                            <div className="text-sm text-gray-900">{category.description}</div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Badge className={category.isActive ? "bg-success text-white" : "bg-gray-500 text-white"}>
-                              {category.isActive ? "Active" : "Inactive"}
-                            </Badge>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(category.createdAt).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-primary hover:text-blue-700"
-                              onClick={() => handleEditCategory(category)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-red-600 hover:text-red-900"
-                              onClick={() => deleteCategory.mutate(category.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div className="flex space-x-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingCategory(category);
+                                  setCategoryDialogOpen(true);
+                                }}
+                                data-testid={`button-edit-category-${category.id}`}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => deleteCategory.mutate(category.id)}
+                                className="text-red-600 hover:text-red-900"
+                                data-testid={`button-delete-category-${category.id}`}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </td>
                         </tr>
-                      );
-                    }) || (
-                      <tr>
-                        <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                          <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                          <p>No categories found</p>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              
-              {/* Categories Pagination */}
-              {categoriesPaginated?.pagination && (
-                <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                  <div className="text-sm text-gray-600">
-                    Showing {((categoriesPaginated.pagination.currentPage - 1) * categoriesPaginated.pagination.itemsPerPage) + 1} to {Math.min(categoriesPaginated.pagination.currentPage * categoriesPaginated.pagination.itemsPerPage, categoriesPaginated.pagination.totalItems)} of {categoriesPaginated.pagination.totalItems} categories
-                  </div>
-                  {categoriesPaginated.pagination.totalPages > 1 && (
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                {categoriesPaginated?.pagination && categoriesPaginated.pagination.totalPages > 1 && (
+                  <div className="flex items-center justify-between mt-6">
+                    <div className="text-sm text-gray-600">
+                      Showing {((categoriesPaginated.pagination.currentPage - 1) * categoriesPaginated.pagination.itemsPerPage) + 1} to{' '}
+                      {Math.min(categoriesPaginated.pagination.currentPage * categoriesPaginated.pagination.itemsPerPage, categoriesPaginated.pagination.totalItems)} of{' '}
+                      {categoriesPaginated.pagination.totalItems} results
+                    </div>
                     <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCategoriesPage(prev => Math.max(prev - 1, 1))}
-                      disabled={categoriesPaginated.pagination.currentPage === 1}
-                    >
-                      Previous
-                    </Button>
-                    
-                    {Array.from({ length: Math.min(5, categoriesPaginated.pagination.totalPages) }, (_, i) => {
-                      const pageNum = Math.max(1, Math.min(
-                        categoriesPaginated.pagination.currentPage - 2 + i,
-                        categoriesPaginated.pagination.totalPages - 4 + i
-                      ));
-                      if (pageNum <= categoriesPaginated.pagination.totalPages) {
-                        return (
-                          <Button
-                            key={pageNum}
-                            variant={pageNum === categoriesPaginated.pagination.currentPage ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setCategoriesPage(pageNum)}
-                          >
-                            {pageNum}
-                          </Button>
-                        );
-                      }
-                      return null;
-                    })}
-                    
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCategoriesPage(prev => Math.max(prev - 1, 1))}
+                        disabled={categoriesPaginated.pagination.currentPage === 1}
+                      >
+                        Previous
+                      </Button>
+                      
+                      {Array.from({ length: categoriesPaginated.pagination.totalPages }, (_, i) => i + 1).map(pageNum => {
+                        if (
+                          pageNum === 1 ||
+                          pageNum === categoriesPaginated.pagination.totalPages ||
+                          (pageNum >= categoriesPaginated.pagination.currentPage - 1 && pageNum <= categoriesPaginated.pagination.currentPage + 1)
+                        ) {
+                          return (
+                            <Button
+                              key={pageNum}
+                              variant={pageNum === categoriesPaginated.pagination.currentPage ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setCategoriesPage(pageNum)}
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        }
+                        return null;
+                      })}
+                      
                       <Button
                         variant="outline"
                         size="sm"
@@ -774,238 +617,210 @@ export default function AdminPage() {
                         Next
                       </Button>
                     </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
+              </CardContent>
             </Card>
           </div>
         )}
 
-        {/* Formulations Management Tab */}
+        {/* Formulations Tab */}
         {activeTab === "formulations" && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-inter font-semibold text-gray-900">Manage Formulations</h2>
-              <div className="flex space-x-4">
-                <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Filter by category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div>
+                <h2 className="text-xl font-inter font-semibold text-gray-900">Formulations Management</h2>
+                <p className="text-sm text-gray-600 mt-1">Manage chemical formulations, approve drafts, and organize content</p>
+              </div>
+              <div className="flex space-x-4 items-center">
+                <div className="flex items-center space-x-2">
+                  <label htmlFor="category-filter" className="text-sm font-medium text-gray-700">Filter by category:</label>
+                  <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+                    <SelectTrigger className="w-48" id="category-filter">
+                      <SelectValue placeholder="All Categories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
+                      {categories?.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Dialog open={formulationDialogOpen} onOpenChange={setFormulationDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" className="border-primary text-primary hover:bg-blue-50">
+                    <Button data-testid="button-add-formulation-main">
                       <Plus className="h-4 w-4 mr-2" />
-                      Add Manually
+                      Add Formulation
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>
-                        {editingFormulation ? "Edit Formulation" : "Add New Formulation"}
+                        {editingFormulation ? "Edit Formulation" : "Create New Formulation"}
                       </DialogTitle>
+                      <DialogDescription>
+                        {editingFormulation ? "Update the formulation details" : "Add a new formulation with ingredients and instructions"}
+                      </DialogDescription>
                     </DialogHeader>
-                    <Tabs defaultValue="manual" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="manual">Manual Entry</TabsTrigger>
-                        <TabsTrigger value="ai">AI Generation</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="manual" className="mt-4">
-                        <FormulationForm
-                          formulation={editingFormulation}
-                          categories={categories}
-                          onSuccess={handleFormulationDialogClose}
-                        />
-                      </TabsContent>
-                      <TabsContent value="ai" className="mt-4">
-                        <AiFormulationForm 
-                          categories={categories}
-                          onSuccess={handleFormulationDialogClose}
-                        />
-                      </TabsContent>
-                    </Tabs>
+                    <FormulationForm 
+                      formulation={editingFormulation}
+                      categories={categories || []} 
+                      onSuccess={() => {
+                        setFormulationDialogOpen(false);
+                        setEditingFormulation(null);
+                      }} 
+                    />
                   </DialogContent>
                 </Dialog>
-                <Button className="bg-accent text-white hover:bg-orange-600" onClick={() => setFormulationDialogOpen(true)}>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Generate with AI
-                </Button>
               </div>
             </div>
 
-            <Card className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Image
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Formulation Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Category
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Ingredients
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Last Updated
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {formulationsPaginated?.data?.map((formulation) => {
-                      const ingredients = JSON.parse(formulation.ingredients);
-                      return (
-                        <tr key={formulation.id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="h-16 w-16 flex-shrink-0">
-                              {formulation.image ? (
-                                <img
-                                  src={formulation.image}
-                                  alt={formulation.imageAlt || `${formulation.name} formulation`}
-                                  className="h-16 w-16 rounded-lg object-cover border border-gray-200"
-                                />
-                              ) : (
-                                <div className="h-16 w-16 rounded-lg bg-gray-100 flex items-center justify-center border border-gray-200">
-                                  <Image className="h-6 w-6 text-gray-400" />
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">{formulation.name}</div>
-                              <div className="text-sm text-gray-500">{formulation.description.substring(0, 60)}...</div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                              {getCategoryName(formulation.categoryId)}
-                            </Badge>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {ingredients.length} components
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Badge className={formulation.isActive ? "bg-success text-white" : "bg-yellow-500 text-white"}>
-                              {formulation.isActive ? "Active" : "Draft"}
-                            </Badge>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(formulation.updatedAt).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-primary hover:text-blue-700"
-                              onClick={() => handleEditFormulation(formulation)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Link href={`/formulation/${formulation.id}`}>
-                              <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-900">
-                                View
-                              </Button>
-                            </Link>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-purple-600 hover:text-purple-900"
-                              onClick={() => {
-                                setActiveTab("image-generator");
-                                // Pre-fill the formulation name in the image generator
-                                setTimeout(() => {
-                                  const nameInput = document.querySelector('input[placeholder*="Advanced Hair Shampoo"]') as HTMLInputElement;
-                                  if (nameInput) {
-                                    nameInput.value = formulation.name;
-                                    nameInput.dispatchEvent(new Event('input', { bubbles: true }));
-                                  }
-                                }, 100);
-                              }}
-                              title="Generate AI Image"
-                            >
-                              <Image className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-red-600 hover:text-red-900"
-                              onClick={() => deleteFormulation.mutate(formulation.id)}
-                              disabled={deleteFormulation.isPending}
-                              data-testid={`delete-formulation-${formulation.id}`}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </td>
-                        </tr>
-                      );
-                    }) || (
+            <Card className="bg-white rounded-lg shadow-md">
+              <CardContent className="p-6">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
                       <tr>
-                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
-                          <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                          <p>No formulations found</p>
-                        </td>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Image
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Formulation
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Category
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              
-              {/* Formulations Pagination */}
-              {formulationsPaginated?.pagination && formulationsPaginated.pagination.totalItems > 0 && (
-                <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                  <div className="text-sm text-gray-600">
-                    Showing {((formulationsPaginated.pagination.currentPage - 1) * formulationsPaginated.pagination.itemsPerPage) + 1} to {Math.min(formulationsPaginated.pagination.currentPage * formulationsPaginated.pagination.itemsPerPage, formulationsPaginated.pagination.totalItems)} of {formulationsPaginated.pagination.totalItems} formulations
-                  </div>
-                  {formulationsPaginated.pagination.totalPages > 1 && (
-                    <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setFormulationsPage(prev => Math.max(prev - 1, 1))}
-                      disabled={formulationsPaginated.pagination.currentPage === 1}
-                    >
-                      Previous
-                    </Button>
-                    
-                    {Array.from({ length: Math.min(5, formulationsPaginated.pagination.totalPages) }, (_, i) => {
-                      const pageNum = Math.max(1, Math.min(
-                        formulationsPaginated.pagination.currentPage - 2 + i,
-                        formulationsPaginated.pagination.totalPages - 4 + i
-                      ));
-                      if (pageNum <= formulationsPaginated.pagination.totalPages) {
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {formulationsPaginated?.data?.map((formulation) => {
+                        const ingredients = JSON.parse(formulation.ingredients);
                         return (
-                          <Button
-                            key={pageNum}
-                            variant={pageNum === formulationsPaginated.pagination.currentPage ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setFormulationsPage(pageNum)}
-                          >
-                            {pageNum}
-                          </Button>
+                          <tr key={formulation.id}>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="h-16 w-16 flex-shrink-0">
+                                {formulation.image ? (
+                                  <img
+                                    src={formulation.image}
+                                    alt={formulation.imageAlt || `${formulation.name} formulation`}
+                                    className="h-16 w-16 rounded-lg object-cover border border-gray-200"
+                                  />
+                                ) : (
+                                  <div className="h-16 w-16 rounded-lg bg-gray-100 flex items-center justify-center border border-gray-200">
+                                    <Image className="h-6 w-6 text-gray-400" />
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">{formulation.name}</div>
+                                <div className="text-sm text-gray-500">{formulation.description.substring(0, 60)}...</div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <Badge variant="outline" className="bg-blue-100 text-blue-800">
+                                {getCategoryName(formulation.categoryId)}
+                              </Badge>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center space-x-2">
+                                <Badge className={formulation.isActive ? "bg-success text-white" : "bg-yellow-500 text-white"}>
+                                  {formulation.isActive ? "Active" : "Draft"}
+                                </Badge>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => updateFormulationStatus.mutate({ 
+                                    id: formulation.id, 
+                                    isActive: !formulation.isActive 
+                                  })}
+                                  className={formulation.isActive ? "text-yellow-600 hover:text-yellow-800" : "text-green-600 hover:text-green-800"}
+                                  title={formulation.isActive ? "Deactivate" : "Approve"}
+                                  data-testid={`button-toggle-status-${formulation.id}`}
+                                >
+                                  {formulation.isActive ? <PauseCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+                                </Button>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <div className="flex space-x-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingFormulation(formulation);
+                                    setFormulationDialogOpen(true);
+                                  }}
+                                  data-testid={`button-edit-formulation-${formulation.id}`}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => deleteFormulation.mutate(formulation.id)}
+                                  className="text-red-600 hover:text-red-900"
+                                  data-testid={`button-delete-formulation-${formulation.id}`}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
                         );
-                      }
-                      return null;
-                    })}
-                    
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                {formulationsPaginated?.pagination && formulationsPaginated.pagination.totalPages > 1 && (
+                  <div className="flex items-center justify-between mt-6">
+                    <div className="text-sm text-gray-600">
+                      Showing {((formulationsPaginated.pagination.currentPage - 1) * formulationsPaginated.pagination.itemsPerPage) + 1} to{' '}
+                      {Math.min(formulationsPaginated.pagination.currentPage * formulationsPaginated.pagination.itemsPerPage, formulationsPaginated.pagination.totalItems)} of{' '}
+                      {formulationsPaginated.pagination.totalItems} results
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setFormulationsPage(prev => Math.max(prev - 1, 1))}
+                        disabled={formulationsPaginated.pagination.currentPage === 1}
+                      >
+                        Previous
+                      </Button>
+                      
+                      {Array.from({ length: formulationsPaginated.pagination.totalPages }, (_, i) => i + 1).map(pageNum => {
+                        if (
+                          pageNum === 1 ||
+                          pageNum === formulationsPaginated.pagination.totalPages ||
+                          (pageNum >= formulationsPaginated.pagination.currentPage - 1 && pageNum <= formulationsPaginated.pagination.currentPage + 1)
+                        ) {
+                          return (
+                            <Button
+                              key={pageNum}
+                              variant={pageNum === formulationsPaginated.pagination.currentPage ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setFormulationsPage(pageNum)}
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        }
+                        return null;
+                      })}
+                      
                       <Button
                         variant="outline"
                         size="sm"
@@ -1015,260 +830,43 @@ export default function AdminPage() {
                         Next
                       </Button>
                     </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
+              </CardContent>
             </Card>
           </div>
         )}
 
-        {/* Pending Approvals Tab */}
-        {activeTab === "approvals" && (
+        {/* AI Tools Tab */}
+        {activeTab === "ai-tools" && (
           <div>
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-xl font-inter font-semibold text-gray-900">Pending Approvals</h2>
-                <p className="text-sm text-gray-600 mt-1">Review and approve custom formulations created by users</p>
-              </div>
+            <div className="mb-6">
+              <h2 className="text-xl font-inter font-semibold text-gray-900">AI-Powered Tools</h2>
+              <p className="text-sm text-gray-600 mt-1">Generate categories and formulations using artificial intelligence</p>
             </div>
 
-            {inactiveFormulations.length === 0 ? (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                  <h3 className="text-lg font-inter font-medium text-gray-900 mb-2">All Caught Up!</h3>
-                  <p className="text-gray-600">No formulations pending approval at this time.</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card>
-                <CardContent className="p-0">
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Product Name
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Category
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Created
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {inactiveFormulations.map((formulation) => (
-                          <tr key={formulation.id}>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900">{formulation.name}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="text-sm text-gray-500">{getCategoryName(formulation.categoryId)}</span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {new Date(formulation.createdAt).toLocaleDateString()}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <div className="flex space-x-2">
-                                <Button
-                                  size="sm"
-                                  onClick={() => updateFormulationStatus.mutate({ id: formulation.id, isActive: true })}
-                                  disabled={updateFormulationStatus.isPending}
-                                  data-testid={`approve-formulation-${formulation.id}`}
-                                >
-                                  <CheckCircle className="h-4 w-4 mr-1" />
-                                  Approve
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleEditFormulation(formulation)}
-                                  data-testid={`edit-formulation-${formulation.id}`}
-                                >
-                                  <Edit className="h-4 w-4 mr-1" />
-                                  View/Edit
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="text-red-600 hover:text-red-700 border-red-300 hover:border-red-400"
-                                  onClick={() => deleteFormulation.mutate(formulation.id)}
-                                  disabled={deleteFormulation.isPending}
-                                  data-testid={`reject-formulation-${formulation.id}`}
-                                >
-                                  <Trash2 className="h-4 w-4 mr-1" />
-                                  Reject
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        )}
-
-        {/* Bulk Generation Tab */}
-        {activeTab === "bulk-generation" && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-xl font-inter font-semibold text-gray-900">Bulk Category Generation</h2>
-                <p className="text-sm text-gray-600 mt-1">Create multiple new categories at once that don't already exist</p>
-              </div>
-              <Dialog open={bulkGenerationDialogOpen} onOpenChange={setBulkGenerationDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="bg-blue-600 text-white hover:bg-blue-700">
-                    <Package className="h-4 w-4 mr-2" />
-                    Generate Categories
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-3xl">
-                  <DialogHeader>
-                    <DialogTitle>Bulk Category Generator</DialogTitle>
-                  </DialogHeader>
-                  <BulkGenerationForm onSuccess={() => setBulkGenerationDialogOpen(false)} />
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            <div className="grid gap-6">
-              {/* Quick Actions */}
-              <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* AI Category Form */}
+              <Card className="bg-white rounded-lg shadow-md">
                 <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-inter font-semibold text-blue-900 mb-2">
-                        Automated Category Creation
-                      </h3>
-                      <p className="text-blue-700 mb-4">
-                        Generate multiple unique categories at once. AI will automatically avoid creating duplicates 
-                        and provide professional details for each category.
-                      </p>
-                      <div className="flex gap-4 text-sm text-blue-600">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                          AI-powered category creation
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                          Avoids duplicate categories
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                          Professional descriptions & images
-                        </div>
-                      </div>
-                    </div>
-                    <Button 
-                      onClick={() => setBulkGenerationDialogOpen(true)}
-                      className="bg-blue-600 text-white hover:bg-blue-700"
-                      data-testid="button-bulk-generation-card"
-                    >
-                      <Package className="h-4 w-4 mr-2" />
-                      Generate Categories
-                    </Button>
-                  </div>
+                  <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">AI Category Generator</h3>
+                  <AiCategoryForm />
                 </CardContent>
               </Card>
 
-              {/* Generation Statistics */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                        <Package className="text-white h-6 w-6" />
-                      </div>
-                      <div className="ml-4">
-                        <h3 className="text-lg font-inter font-semibold text-gray-900">
-                          {stats?.totalCategories || 0}
-                        </h3>
-                        <p className="text-sm text-gray-600">Total Categories</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-                        <FlaskConical className="text-white h-6 w-6" />
-                      </div>
-                      <div className="ml-4">
-                        <h3 className="text-lg font-inter font-semibold text-gray-900">
-                          {stats?.totalFormulations || 0}
-                        </h3>
-                        <p className="text-sm text-gray-600">Total Formulations</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
-                        <Sparkles className="text-white h-6 w-6" />
-                      </div>
-                      <div className="ml-4">
-                        <h3 className="text-lg font-inter font-semibold text-gray-900">
-                          AI-Powered
-                        </h3>
-                        <p className="text-sm text-gray-600">Generation System</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Recent Categories Preview */}
-              <Card>
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h3 className="text-lg font-inter font-semibold text-gray-900">Recent Categories</h3>
-                  <p className="text-sm text-gray-600">Latest categories in your system</p>
-                </div>
+              {/* AI Formulation Form */}
+              <Card className="bg-white rounded-lg shadow-md">
                 <CardContent className="p-6">
-                  {categories.length > 0 ? (
-                    <div className="grid gap-4">
-                      {categories.slice(0, 3).map((category) => {
-                        const formulationCount = formulations.filter(f => f.categoryId === category.id).length;
-                        return (
-                          <div key={category.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                            <div className="flex items-center">
-                              <img
-                                className="h-12 w-12 rounded-lg object-cover"
-                                src={category.image}
-                                alt={category.name}
-                              />
-                              <div className="ml-4">
-                                <h4 className="text-sm font-medium text-gray-900">{category.name}</h4>
-                                <p className="text-xs text-gray-500">{formulationCount} formulations</p>
-                              </div>
-                            </div>
-                            <Badge className="bg-green-100 text-green-800">
-                              Active
-                            </Badge>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500">No categories yet. Start by creating your first category with bulk generation!</p>
-                    </div>
-                  )}
+                  <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">AI Formulation Generator</h3>
+                  <AiFormulationForm categories={categories || []} />
+                </CardContent>
+              </Card>
+
+              {/* Formula Keyword Generator */}
+              <Card className="bg-white rounded-lg shadow-md md:col-span-2">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">SEO Keyword Generator</h3>
+                  <FormulaKeywordGenerator />
                 </CardContent>
               </Card>
             </div>
@@ -1284,422 +882,6 @@ export default function AdminPage() {
             </div>
             <BulkFormulationGenerator categories={categories} />
           </div>
-        )}
-
-        {/* AI Analytics Tab */}
-        {activeTab === "ai-analytics" && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-xl font-inter font-semibold text-gray-900">AI Analytics & Usage Statistics</h2>
-                <p className="text-sm text-gray-600 mt-1">Monitor AI formulator usage, user activity, and generation trends</p>
-              </div>
-              <Button 
-                onClick={() => clearAiAnalytics.mutate()}
-                disabled={clearAiAnalytics.isPending}
-                variant="destructive"
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2"
-                data-testid="button-clear-analytics"
-              >
-                {clearAiAnalytics.isPending ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Clearing...
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Clear Dummy Data
-                  </>
-                )}
-              </Button>
-            </div>
-
-            {/* Analytics Filter */}
-            <div className="mb-8">
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">Analytics Filter</h3>
-                <div className="flex space-x-4">
-                  <Button
-                    onClick={() => {
-                      setAnalyticsFilter('browse');
-                      setCurrentPage(1);
-                    }}
-                    className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                      analyticsFilter === 'browse'
-                        ? 'bg-blue-500 text-white shadow-md'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Package className="h-4 w-4 mr-2" />
-                    Analytics Browse Formulation
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setAnalyticsFilter('generation');
-                      setCurrentPage(1);
-                    }}
-                    className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                      analyticsFilter === 'generation'
-                        ? 'bg-purple-500 text-white shadow-md'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    AI Formulation Generation
-                  </Button>
-                </div>
-                <p className="text-sm text-gray-600 mt-3">
-                  {analyticsFilter === 'browse' 
-                    ? 'View analytics for users browsing and viewing existing formulations'
-                    : 'View analytics for users creating custom formulations with AI'
-                  }
-                </p>
-              </div>
-            </div>
-
-            {/* Analytics Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <Card className="bg-white rounded-lg shadow-md">
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
-                      <BarChart3 className="text-white text-xl h-6 w-6" />
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-inter font-semibold text-gray-900">
-                        {aiAnalytics?.totalAiGenerations || 0}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {analyticsFilter === 'browse' ? 'Total Browse Views' : 'Total AI Generations'}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-white rounded-lg shadow-md">
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                      <TrendingUp className="text-white text-xl h-6 w-6" />
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-inter font-semibold text-gray-900">
-                        {aiAnalytics?.dailyGenerations || 0}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {analyticsFilter === 'browse' ? 'Today\'s Views' : 'Today\'s Generations'}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-white rounded-lg shadow-md">
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-                      <Users className="text-white text-xl h-6 w-6" />
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-inter font-semibold text-gray-900">
-                        {aiAnalytics?.weeklyGenerations || 0}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {analyticsFilter === 'browse' ? 'This Week Views' : 'This Week'}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-white rounded-lg shadow-md">
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
-                      <Sparkles className="text-white text-xl h-6 w-6" />
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-inter font-semibold text-gray-900">
-                        {analyticsFilter === 'browse' 
-                          ? `${Math.round(((aiAnalytics?.totalAiGenerations || 0) / Math.max(aiAnalytics?.weeklyGenerations || 1, 1)) * 10) / 10}`
-                          : `${aiAnalytics?.avgResponseTime || 0}s`
-                        }
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {analyticsFilter === 'browse' ? 'Avg Views/User' : 'Avg Response Time'}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Analytics Charts and Tables */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-              {/* Popular Categories */}
-              <Card className="bg-white rounded-lg shadow-md">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h3 className="text-lg font-inter font-semibold text-gray-900">Popular Categories</h3>
-                  <p className="text-sm text-gray-600">
-                    {analyticsFilter === 'browse' ? 'Most viewed product categories' : 'Most requested product categories'}
-                  </p>
-                </div>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    {aiAnalytics?.popularCategories?.map((cat, index) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mr-3">
-                            <span className="text-white text-xs font-bold">{index + 1}</span>
-                          </div>
-                          <span className="text-sm font-medium text-gray-900">{cat.category}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <div className="w-20 bg-gray-200 rounded-full h-2 mr-3">
-                            <div 
-                              className="bg-primary h-2 rounded-full" 
-                              style={{ width: `${(cat.count / (aiAnalytics?.popularCategories?.[0]?.count || 1)) * 100}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm text-gray-600">{cat.count}</span>
-                        </div>
-                      </div>
-                    )) || (
-                      <div className="text-center text-gray-500 py-8">
-                        <BarChart3 className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                        <p>No data available yet</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Usage by Country */}
-              <Card className="bg-white rounded-lg shadow-md">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h3 className="text-lg font-inter font-semibold text-gray-900">Usage by Country</h3>
-                  <p className="text-sm text-gray-600">
-                    {analyticsFilter === 'browse' ? 'Geographic distribution of formulation views' : 'Geographic distribution of AI generations'}
-                  </p>
-                </div>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    {aiAnalytics?.usageByCountry?.map((country, index) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center mr-3">
-                            <span className="text-white text-xs font-bold">{index + 1}</span>
-                          </div>
-                          <span className="text-sm font-medium text-gray-900">{country.country}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <div className="w-20 bg-gray-200 rounded-full h-2 mr-3">
-                            <div 
-                              className="bg-emerald-500 h-2 rounded-full" 
-                              style={{ width: `${(country.count / (aiAnalytics?.usageByCountry?.[0]?.count || 1)) * 100}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm text-gray-600">{country.count}</span>
-                        </div>
-                      </div>
-                    )) || (
-                      <div className="text-center text-gray-500 py-8">
-                        <Globe className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                        <p>No geographic data available</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Usage by Hour */}
-              <Card className="bg-white rounded-lg shadow-md">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h3 className="text-lg font-inter font-semibold text-gray-900">Usage by Hour</h3>
-                  <p className="text-sm text-gray-600">
-                    {analyticsFilter === 'browse' ? 'Formulation views throughout the day' : 'AI generations throughout the day'}
-                  </p>
-                </div>
-                <CardContent className="p-6">
-                  <div className="space-y-3">
-                    {aiAnalytics?.generationsByHour?.map((hour) => (
-                      <div key={hour.hour} className="flex items-center">
-                        <span className="text-sm text-gray-600 w-16">{hour.hour}:00</span>
-                        <div className="flex-1 bg-gray-200 rounded-full h-2 mr-3">
-                          <div 
-                            className="bg-blue-500 h-2 rounded-full" 
-                            style={{ width: `${(hour.count / Math.max(...(aiAnalytics?.generationsByHour?.map(h => h.count) || [1]))) * 100}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm text-gray-900">{hour.count}</span>
-                      </div>
-                    )) || (
-                      <div className="text-center text-gray-500 py-8">
-                        <TrendingUp className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                        <p>No hourly data available</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Recent AI Generations */}
-            <Card className="bg-white rounded-lg shadow-md">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-inter font-semibold text-gray-900">
-                  {analyticsFilter === 'browse' ? 'Recent Formulation Views' : 'Recent AI Generations'}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {analyticsFilter === 'browse' 
-                    ? 'Latest formulations viewed by users' 
-                    : 'Latest custom formulations created by users'
-                  }
-                </p>
-              </div>
-              <CardContent className="p-0">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Product Name
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Category
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Location
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Session ID
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Generated At
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {aiAnalytics?.recentGenerations?.map((generation) => (
-                        <tr key={generation.id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
-                                <Sparkles className="text-white h-4 w-4" />
-                              </div>
-                              <div>
-                                <div className="text-sm font-medium text-gray-900">
-                                  {generation.productName || 'Untitled Product'}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Badge className="bg-blue-100 text-blue-800">
-                              {generation.category}
-                            </Badge>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <Globe className="h-4 w-4 text-gray-400 mr-2" />
-                              <div>
-                                <div className="text-sm font-medium text-gray-900">
-                                  {generation.country || 'Unknown'}
-                                </div>
-                                {generation.city && (
-                                  <div className="text-xs text-gray-500">
-                                    {generation.city}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {generation.sessionId.substring(0, 8)}...
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(generation.timestamp).toLocaleString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Badge className="bg-green-100 text-green-800">
-                              Generated
-                            </Badge>
-                          </td>
-                        </tr>
-                      )) || (
-                        <tr>
-                          <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
-                            <Sparkles className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                            <p>No AI generations yet</p>
-                            <p className="text-sm">Data will appear here as users create custom formulations</p>
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-                
-                {/* Pagination */}
-                {aiAnalytics?.pagination && aiAnalytics.pagination.totalPages > 1 && (
-                  <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                    <div className="text-sm text-gray-600">
-                      Showing {((aiAnalytics.pagination.currentPage - 1) * aiAnalytics.pagination.itemsPerPage) + 1} to {Math.min(aiAnalytics.pagination.currentPage * aiAnalytics.pagination.itemsPerPage, aiAnalytics.pagination.totalItems)} of {aiAnalytics.pagination.totalItems} entries
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                        disabled={aiAnalytics.pagination.currentPage === 1}
-                      >
-                        Previous
-                      </Button>
-                      
-                      {/* Page numbers */}
-                      {Array.from({ length: Math.min(5, aiAnalytics.pagination.totalPages) }, (_, i) => {
-                        const pageNum = Math.max(1, Math.min(
-                          aiAnalytics.pagination.currentPage - 2 + i,
-                          aiAnalytics.pagination.totalPages - 4 + i
-                        ));
-                        if (pageNum <= aiAnalytics.pagination.totalPages) {
-                          return (
-                            <Button
-                              key={pageNum}
-                              variant={pageNum === aiAnalytics.pagination.currentPage ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => setCurrentPage(pageNum)}
-                            >
-                              {pageNum}
-                            </Button>
-                          );
-                        }
-                        return null;
-                      })}
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, aiAnalytics.pagination.totalPages))}
-                        disabled={aiAnalytics.pagination.currentPage === aiAnalytics.pagination.totalPages}
-                      >
-                        Next
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
-        
-        {/* Image Generator Tab */}
-        {activeTab === "image-generator" && (
-          <ImageGenerator />
         )}
         
         {/* Settings Tab */}
