@@ -360,12 +360,17 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
   });
 
   const onSubmit = (data: InsertFormulation) => {
+    console.log("Form submitted with data:", data);
+    console.log("Form validation errors:", form.formState.errors);
+    
     // Convert ingredients and instructions arrays to JSON strings
     const processedData = {
       ...data,
       ingredients: JSON.stringify(existingIngredients),
       instructions: JSON.stringify(existingInstructions),
     };
+
+    console.log("Processed data:", processedData);
 
     if (isEditing) {
       updateFormulation.mutate(processedData);
@@ -765,7 +770,15 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
           <Button type="button" variant="outline" onClick={onSuccess}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
+          <Button 
+            type="submit" 
+            disabled={isLoading}
+            onClick={(e) => {
+              console.log("Button clicked!");
+              console.log("Form is valid:", form.formState.isValid);
+              console.log("Form errors:", form.formState.errors);
+            }}
+          >
             {isLoading ? "Saving..." : isEditing ? "Update Formulation" : "Create Formulation"}
           </Button>
         </div>
