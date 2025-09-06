@@ -24,7 +24,9 @@ export default function AICategorySuggestions() {
     mutationFn: () => apiRequest("POST", "/api/admin/suggest-categories"),
     onSuccess: (data: { suggestions: CategorySuggestion[] }) => {
       setSuggestions(data.suggestions || []);
-      setDialogOpen(true);
+      if (!dialogOpen) {
+        setDialogOpen(true);
+      }
     },
     onError: (error) => {
       toast({
@@ -64,7 +66,15 @@ export default function AICategorySuggestions() {
   return (
     <>
       <Button 
-        onClick={() => generateSuggestions.mutate()}
+        onClick={() => {
+          if (suggestions.length === 0) {
+            // If no suggestions yet, generate them and open dialog
+            generateSuggestions.mutate();
+          } else {
+            // If suggestions exist, just open dialog
+            setDialogOpen(true);
+          }
+        }}
         disabled={generateSuggestions.isPending}
         variant="outline"
         className="ml-2"
@@ -92,7 +102,15 @@ export default function AICategorySuggestions() {
           </DialogHeader>
           
           <div className="space-y-4">
-            {suggestions.length === 0 ? (
+            {generateSuggestions.isPending ? (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-500" />
+                  <p className="text-gray-600">Generating AI-powered category suggestions...</p>
+                  <p className="text-sm text-gray-500 mt-2">This may take a few seconds</p>
+                </CardContent>
+              </Card>
+            ) : suggestions.length === 0 ? (
               <Card>
                 <CardContent className="p-6 text-center text-gray-500">
                   No suggestions generated yet. Click "AI Suggest Categories" to get started.
