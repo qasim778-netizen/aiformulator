@@ -117,14 +117,27 @@ export default function CategoryPage() {
                     : 'border-gray-200'
                 }`}
               >
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-inter font-semibold text-gray-900">{formulation.name}</h3>
-                    <Badge className={formulation.isActive ? "bg-green-500 text-white" : "bg-yellow-500 text-white"}>
-                      {formulation.isActive ? "Active" : "Draft"}
-                    </Badge>
-                  </div>
-                  <p className="text-gray-600 mb-4 line-clamp-3">{formulation.description}</p>
+                <CardContent className="p-0">
+                  {/* AI-Generated Image Display */}
+                  {formulation.image && (
+                    <div className="w-full h-48 bg-gray-50 flex items-center justify-center overflow-hidden rounded-t-lg">
+                      <img 
+                        src={formulation.image} 
+                        alt={`${formulation.name} - AI Generated Product Image`}
+                        className="w-full h-full object-cover"
+                        data-testid={`img-formulation-card-${formulation.id}`}
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-inter font-semibold text-gray-900">{formulation.name}</h3>
+                      <Badge className={formulation.isActive ? "bg-green-500 text-white" : "bg-yellow-500 text-white"}>
+                        {formulation.isActive ? "Active" : "Draft"}
+                      </Badge>
+                    </div>
+                    <p className="text-gray-600 mb-4 line-clamp-3">{formulation.description}</p>
                   <div className="space-y-2 mb-4">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">pH Level:</span>
@@ -139,11 +152,12 @@ export default function CategoryPage() {
                       <span className="font-medium">{formulation.batchSize}</span>
                     </div>
                   </div>
-                  <Link href={`/formulation/${formulation.slug || formulation.id}`}>
-                    <Button className="w-full bg-primary text-white hover:bg-blue-700">
-                      View Details
-                    </Button>
-                  </Link>
+                    <Link href={`/formulation/${formulation.slug || formulation.id}`}>
+                      <Button className="w-full bg-primary text-white hover:bg-blue-700">
+                        View Details
+                      </Button>
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
             ))}

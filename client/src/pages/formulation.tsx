@@ -333,11 +333,24 @@ export default function FormulationPage() {
               </div>
             </div>
 
-            {/* Product Images for All Cleaning Products */}
-            {category?.name === "Cleaning Products" && (
+            {/* Product Images - AI Generated or Static */}
+            {(formulation.image || category?.name === "Cleaning Products") && (
               <div className="mb-8">
                 <h3 className="text-lg font-inter font-semibold mb-4">Product Formulation</h3>
                 <div className="bg-white p-6 rounded-lg border border-gray-200">
+                  {/* AI Generated Image has priority */}
+                  {formulation.image && (
+                    <img 
+                      src={formulation.image} 
+                      alt={`${formulation.name} - Professional Chemical Formulation`}
+                      className="w-full max-w-sm mx-auto rounded-lg"
+                      data-testid="img-formulation-ai-generated"
+                    />
+                  )}
+                  
+                  {/* Fallback to static images for Cleaning Products if no AI image */}
+                  {!formulation.image && category?.name === "Cleaning Products" && (
+                    <>
                   {formulation.name.includes("Wood Floor") && (
                     <img 
                       src={woodFloorCleaner} 
@@ -451,6 +464,8 @@ export default function FormulationPage() {
                     />
                   )}
                   {/* No fallback image for custom formulations */}
+                    </>
+                  )}
                 </div>
               </div>
             )}
