@@ -13,8 +13,6 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { insertFormulationSchema } from "@shared/schema";
 import type { Formulation, InsertFormulation, Category } from "@shared/schema";
-import { ObjectUploader } from "@/components/ObjectUploader";
-import type { UploadResult } from "@uppy/core";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 
@@ -96,52 +94,69 @@ function ImageUploadSection({ form, formulationName }: { form: any, formulationN
     }
   };
 
-  const handleGetUploadParameters = async () => {
-    const response = await apiRequest("POST", "/api/objects/upload");
-    const data = await response.json();
-    return {
-      method: 'PUT' as const,
-      url: data.uploadURL,
-    };
-  };
+  const handleFileSelection = async (file: File) => {
+    if (file.size > 10485760) { // 10MB limit
+      toast({
+        title: "File too large",
+        description: "Please select a file smaller than 10MB.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    if (result.successful && result.successful.length > 0) {
-      const uploadedFile = result.successful[0];
-      const uploadURL = uploadedFile.uploadURL;
+    try {
+      // Get upload parameters
+      const response = await apiRequest("POST", "/api/objects/upload");
+      const data = await response.json();
       
-      // Convert GCS upload URL to our object path format
-      const objectPath = `/objects/uploads/${uploadURL.split('/uploads/')[1]}`;
-      
-      try {
+      // Upload file directly
+      const uploadResponse = await fetch(data.uploadURL, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+
+      if (uploadResponse.ok) {
+        // Convert GCS upload URL to our object path format
+        const objectPath = `/objects/uploads/${data.uploadURL.split('/uploads/')[1]}`;
+        
         // Set ACL policy for the uploaded image
-        const data = await apiRequest("PUT", "/api/formulation-images", {
-          imageURL: uploadURL
-        });
-        
-        const finalObjectPath = data.objectPath || objectPath;
-        setPreviewUrl(finalObjectPath);
-        form.setValue("image", finalObjectPath);
-        form.setValue("imageFilename", uploadedFile.name);
-        
+        try {
+          const aclData = await apiRequest("PUT", "/api/formulation-images", {
+            imageURL: data.uploadURL
+          });
+          
+          const finalObjectPath = aclData.objectPath || objectPath;
+          setPreviewUrl(finalObjectPath);
+          form.setValue("image", finalObjectPath);
+          form.setValue("imageFilename", file.name);
+        } catch (aclError) {
+          console.error("Error setting image ACL:", aclError);
+          // Fallback to using the path directly
+          setPreviewUrl(objectPath);
+          form.setValue("image", objectPath);
+          form.setValue("imageFilename", file.name);
+        }
+
         toast({
           title: "Image uploaded successfully!",
           description: "Your formulation image has been uploaded to cloud storage.",
         });
-      } catch (error) {
-        console.error("Error setting image ACL:", error);
-        // Fallback to using the path directly
-        setPreviewUrl(objectPath);
-        form.setValue("image", objectPath);
-        form.setValue("imageFilename", uploadedFile.name);
-        
-        toast({
-          title: "Image uploaded successfully!",
-          description: "Your formulation image has been uploaded to cloud storage.",
-        });
+      } else {
+        throw new Error('Upload failed');
       }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast({
+        title: "Upload failed",
+        description: "There was an error uploading your image. Please try again.",
+        variant: "destructive",
+      });
     }
   };
+
 
   const removeUploadedImage = () => {
     setUploadedImage(null);
@@ -199,18 +214,29 @@ function ImageUploadSection({ form, formulationName }: { form: any, formulationN
             <div className="text-center">
               <Upload className="mx-auto h-12 w-12 text-gray-400" />
               <div className="mt-4">
-                <ObjectUploader
-                  maxNumberOfFiles={1}
-                  maxFileSize={10485760} // 10MB
-                  onGetUploadParameters={handleGetUploadParameters}
-                  onComplete={handleUploadComplete}
-                  buttonClassName="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+                <input
+                  type="file"
+                  accept="image/png,image/jpg,image/jpeg,image/webp"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleFileSelection(file);
+                    }
+                  }}
+                  style={{ display: 'none' }}
+                  id="formulation-image-input"
+                />
+                <Button
+                  type="button"
+                  onClick={() => document.getElementById('formulation-image-input')?.click()}
+                  className="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+                  data-testid="button-upload-image"
                 >
                   <div className="flex items-center">
                     <Upload className="h-4 w-4 mr-2" />
                     Upload Formulation Image
                   </div>
-                </ObjectUploader>
+                </Button>
                 <p className="mt-2 text-sm text-gray-500">
                   PNG, JPG, JPEG, WebP up to 10MB
                 </p>
