@@ -144,6 +144,7 @@ export default function CategoryPage() {
                         View Details
                       </Button>
                     </Link>
+                  </div>
                 </CardContent>
               </Card>
             ))}
