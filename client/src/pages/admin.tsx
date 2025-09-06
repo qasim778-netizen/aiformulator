@@ -26,7 +26,7 @@ import BlogManagementTab from "@/components/admin/blog-management-tab";
 import type { Category, Formulation } from "@shared/schema";
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "categories" | "formulations" | "ai-tools" | "bulk-formulations" | "settings" | "content" | "blog">("overview");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   
   // Reset page to 1 when category changes
@@ -728,17 +728,8 @@ export default function AdminPage() {
                         setEditingFormulation(null);
                       }} 
                     />
-                    <DialogContent className="max-w-4xl">
-                      <DialogHeader>
-                        <DialogTitle>AI Bulk Category Generation</DialogTitle>
-                        <DialogDescription>
-                          Generate multiple categories at once using AI
-                        </DialogDescription>
-                      </DialogHeader>
-                      <BulkGenerationForm onSuccess={() => setBulkGenerationDialogOpen(false)} />
-                    </DialogContent>
-                  </Dialog>
-                </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
 
@@ -914,7 +905,7 @@ export default function AdminPage() {
               <Card className="bg-white rounded-lg shadow-md">
                 <CardContent className="p-6">
                   <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">AI Category Generator</h3>
-                  <AiCategoryForm />
+                  <AiCategoryForm onSuccess={() => {}} />
                 </CardContent>
               </Card>
 
@@ -922,7 +913,7 @@ export default function AdminPage() {
               <Card className="bg-white rounded-lg shadow-md">
                 <CardContent className="p-6">
                   <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">AI Formulation Generator</h3>
-                  <AiFormulationForm categories={categories || []} />
+                  <AiFormulationForm categories={categories || []} onSuccess={() => {}} />
                 </CardContent>
               </Card>
 
@@ -930,7 +921,7 @@ export default function AdminPage() {
               <Card className="bg-white rounded-lg shadow-md md:col-span-2">
                 <CardContent className="p-6">
                   <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">SEO Keyword Generator</h3>
-                  <FormulaKeywordGenerator />
+                  <FormulaKeywordGenerator categories={categories || []} onSuccess={() => {}} />
                 </CardContent>
               </Card>
             </div>
@@ -944,7 +935,7 @@ export default function AdminPage() {
               <h2 className="text-xl font-inter font-semibold text-gray-900">Bulk Formulations Generator</h2>
               <p className="text-sm text-gray-600 mt-1">Select an existing category and generate multiple formulations automatically</p>
             </div>
-            <BulkFormulationGenerator categories={categories} />
+            <BulkFormulationGenerator categories={categories || []} />
           </div>
         )}
         
