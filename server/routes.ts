@@ -450,7 +450,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         type: 'image_generation',
         input: cleanName,
         output: result.fileName,
-        timestamp: new Date()
+        timestamp: new Date().toISOString()
       });
       
       console.log(`✅ Admin image generated successfully: ${result.fileName}`);
@@ -496,7 +496,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         type: 'alt_text_generation',
         input: cleanName,
         output: altText,
-        timestamp: new Date()
+        timestamp: new Date().toISOString()
       });
       
       console.log(`✅ Admin alt text generated successfully: ${altText}`);
