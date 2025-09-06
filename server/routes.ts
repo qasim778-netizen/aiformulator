@@ -368,7 +368,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const hourCounts = Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }));
       aiGenerations.forEach(gen => {
         const hour = new Date(gen.timestamp).getHours();
-        hourCounts[hour].count++;
+        if (hourCounts[hour]) {
+          hourCounts[hour].count++;
+        }
       });
 
       // Average response time
@@ -425,7 +427,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Track AI generation for analytics
-      await storage.trackAiGeneration();
+      await storage.trackAiGeneration({
+        type: 'image_generation',
+        input: cleanName,
+        output: result.fileName,
+        timestamp: new Date()
+      });
       
       console.log(`✅ Admin image generated successfully: ${result.fileName}`);
       
