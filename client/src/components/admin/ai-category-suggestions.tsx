@@ -25,7 +25,9 @@ export default function AICategorySuggestions() {
       return result;
     },
     onSuccess: (data: any) => {
+      console.log("Raw API response:", data);
       const suggestions = data?.suggestions || [];
+      console.log("Parsed suggestions:", suggestions);
       setSuggestions(suggestions);
       setShowSuggestions(true);
     },
@@ -123,6 +125,7 @@ export default function AICategorySuggestions() {
               </Card>
             ) : (
               <>
+                <div className="text-xs text-gray-500 mb-2">DEBUG: Found {suggestions.length} suggestions</div>
                 {suggestions.map((suggestion, index) => (
                   <Card key={index} className="border-l-4 border-l-blue-500">
                     <CardHeader className="pb-3">
