@@ -44,6 +44,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint for setting ACL policy on formulation images
+  app.put("/api/formulation-images", isAuthenticated, async (req, res) => {
+    if (!req.body.imageURL) {
+      return res.status(400).json({ error: "imageURL is required" });
+    }
+
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        req.body.imageURL,
+        {
+          owner: req.user?.claims?.sub || "system",
+          visibility: "public", // Formulation images should be publicly visible
+        }
+      );
+
+      res.status(200).json({
+        objectPath: objectPath,
+      });
+    } catch (error) {
+      console.error("Error setting formulation image ACL:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   app.put("/api/categories/:id/image", isAuthenticated, async (req, res) => {
     try {
       if (!req.body.imageURL) {
