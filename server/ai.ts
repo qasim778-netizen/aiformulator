@@ -458,7 +458,34 @@ export async function generateFormulationWithKeywords(categoryName: string, prod
           size: "1024x1024",
           quality: "standard"
         });
-        imageUrl = imageResponse.data?.[0]?.url || "";
+        const tempImageUrl = imageResponse.data?.[0]?.url;
+        if (tempImageUrl) {
+          // Download and save the image permanently
+          console.log(`Downloading and saving image for: ${name}`);
+          try {
+            const imageResponse = await fetch(tempImageUrl);
+            const imageBuffer = await imageResponse.arrayBuffer();
+            const fileName = `formulation-${generateSlug(name)}-${Date.now()}.png`;
+            const fs = await import('fs/promises');
+            const path = await import('path');
+            
+            // Create images directory if it doesn't exist
+            const imagesDir = path.join(process.cwd(), 'client', 'public', 'images', 'generated');
+            await fs.mkdir(imagesDir, { recursive: true });
+            
+            // Save the image
+            const filePath = path.join(imagesDir, fileName);
+            await fs.writeFile(filePath, Buffer.from(imageBuffer));
+            
+            // Set the permanent URL
+            imageUrl = `/images/generated/${fileName}`;
+            console.log(`Image saved successfully: ${imageUrl}`);
+          } catch (saveError) {
+            console.error("Failed to save image:", saveError);
+            // Fall back to temporary URL
+            imageUrl = tempImageUrl;
+          }
+        }
         console.log(`Image generated successfully: ${imageUrl ? 'Yes' : 'No'}`);
       } catch (error) {
         console.error("Failed to generate image for", name, ":", error);

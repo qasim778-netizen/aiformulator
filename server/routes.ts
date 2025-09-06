@@ -1,4 +1,6 @@
 import type { Express } from "express";
+import express from "express";
+import path from "path";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import crypto from "crypto";
@@ -1496,6 +1498,9 @@ Allow: /disclaimer`;
       res.status(500).json({ message: "Failed to send message" });
     }
   });
+
+  // Serve generated images statically
+  app.use('/images/generated', express.static(path.join(process.cwd(), 'client/public/images/generated')));
 
   const httpServer = createServer(app);
   
