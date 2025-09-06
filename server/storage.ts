@@ -2281,6 +2281,52 @@ export class MemStorage implements IStorage {
     this.chatMessages.get(messageData.sessionId)!.push(message);
     return message;
   }
+
+  // User Formulation Requests methods implementation (stub for MemStorage)
+  async getUserFormulationRequests(): Promise<UserFormulationRequest[]> {
+    return Array.from(this.userFormulationRequests.values()).sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
+  async getUserFormulationRequest(id: string): Promise<UserFormulationRequest | undefined> {
+    return this.userFormulationRequests.get(id);
+  }
+
+  async createUserFormulationRequest(requestData: InsertUserFormulationRequest): Promise<UserFormulationRequest> {
+    const request: UserFormulationRequest = {
+      id: randomUUID(),
+      ...requestData,
+      createdAt: new Date(),
+      reviewedAt: null,
+      reviewedBy: null,
+    };
+
+    this.userFormulationRequests.set(request.id, request);
+    return request;
+  }
+
+  async updateUserFormulationRequestStatus(id: string, status: string, adminNotes?: string, reviewedBy?: string): Promise<UserFormulationRequest | undefined> {
+    const existing = this.userFormulationRequests.get(id);
+    if (!existing) {
+      return undefined;
+    }
+
+    const updated: UserFormulationRequest = {
+      ...existing,
+      status,
+      adminNotes,
+      reviewedBy,
+      reviewedAt: new Date(),
+    };
+
+    this.userFormulationRequests.set(id, updated);
+    return updated;
+  }
+
+  async deleteUserFormulationRequest(id: string): Promise<boolean> {
+    return this.userFormulationRequests.delete(id);
+  }
 }
 
 import { DatabaseStorage } from "./database-storage";

@@ -642,6 +642,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User Formulation Requests management endpoints (admin only)
+  app.get("/api/admin/user-formulation-requests", isAuthenticated, async (req, res) => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const status = req.query.status as string;
+      
+      let requests = await storage.getUserFormulationRequests();
+      
+      // Filter by status if specified
+      if (status && status !== "all") {
+        requests = requests.filter(request => request.status === status);
+      }
+      
+      const totalItems = requests.length;
+      const totalPages = Math.ceil(totalItems / limit);
+      const offset = (page - 1) * limit;
+      const paginatedRequests = requests.slice(offset, offset + limit);
+      
+      res.json({
+        data: paginatedRequests,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems,
+          itemsPerPage: limit
+        }
+      });
+    } catch (error) {
+      console.error("Failed to fetch user formulation requests:", error);
+      res.status(500).json({ message: "Failed to fetch user formulation requests" });
+    }
+  });
+
+  app.get("/api/admin/user-formulation-requests/:id", isAuthenticated, async (req, res) => {
+    try {
+      const request = await storage.getUserFormulationRequest(req.params.id);
+      if (!request) {
+        return res.status(404).json({ message: "User formulation request not found" });
+      }
+      res.json(request);
+    } catch (error) {
+      console.error("Failed to fetch user formulation request:", error);
+      res.status(500).json({ message: "Failed to fetch user formulation request" });
+    }
+  });
+
+  app.patch("/api/admin/user-formulation-requests/:id/status", isAuthenticated, async (req, res) => {
+    try {
+      const { status, adminNotes } = req.body;
+      if (!status || !["pending", "reviewed", "approved", "rejected"].includes(status)) {
+        return res.status(400).json({ message: "Valid status is required (pending, reviewed, approved, rejected)" });
+      }
+
+      // TODO: Get admin user from req.user when authentication is fully implemented
+      const reviewedBy = "admin"; // In future, get from req.user
+
+      const updatedRequest = await storage.updateUserFormulationRequestStatus(
+        req.params.id,
+        status,
+        adminNotes,
+        reviewedBy
+      );
+
+      if (!updatedRequest) {
+        return res.status(404).json({ message: "User formulation request not found" });
+      }
+
+      res.json({
+        message: `User formulation request status updated to ${status}`,
+        request: updatedRequest
+      });
+    } catch (error) {
+      console.error("Failed to update user formulation request status:", error);
+      res.status(500).json({ message: "Failed to update user formulation request status" });
+    }
+  });
+
+  app.delete("/api/admin/user-formulation-requests/:id", isAuthenticated, async (req, res) => {
+    try {
+      const deleted = await storage.deleteUserFormulationRequest(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ message: "User formulation request not found" });
+      }
+      res.json({ message: "User formulation request deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete user formulation request:", error);
+      res.status(500).json({ message: "Failed to delete user formulation request" });
+    }
+  });
+
   // AI Generation endpoints (protected admin routes)
   app.post("/api/ai/generate-category", isAuthenticated, async (req, res) => {
     try {

@@ -21,6 +21,7 @@ import FormulaKeywordGenerator from "@/components/admin/formula-keyword-generato
 import LogoSettings from "@/components/admin/logo-settings";
 import ContentManagementTab from "@/components/admin/content-management-tab";
 import BlogManagementTab from "@/components/admin/blog-management-tab";
+import UserFormulationRequests from "@/components/admin/user-formulation-requests";
 import type { Category, Formulation } from "@shared/schema";
 
 export default function AdminPage() {
@@ -263,6 +264,17 @@ export default function AdminPage() {
               data-testid="admin-bulk-formulations-tab"
             >
               Bulk Formulations
+            </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "user-requests"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab("user-requests")}
+              data-testid="admin-user-requests-tab"
+            >
+              User Requests
             </button>
             <button
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
@@ -844,6 +856,17 @@ export default function AdminPage() {
               <p className="text-sm text-gray-600 mt-1">Select an existing category and generate multiple formulations automatically</p>
             </div>
             <BulkFormulationGenerator categories={categories} />
+          </div>
+        )}
+
+        {/* User Formulation Requests Tab */}
+        {activeTab === "user-requests" && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-inter font-semibold text-gray-900">User Formulation Requests</h2>
+              <p className="text-sm text-gray-600 mt-1">Review and manage custom formulation requests from users</p>
+            </div>
+            <UserFormulationRequests />
           </div>
         )}
         
