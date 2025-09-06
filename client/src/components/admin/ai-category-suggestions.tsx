@@ -21,20 +21,26 @@ export default function AICategorySuggestions() {
   const { toast } = useToast();
 
   const generateSuggestions = useMutation({
-    mutationFn: () => apiRequest("POST", "/api/admin/suggest-categories"),
+    mutationFn: async () => {
+      console.log("Making API request to /api/admin/suggest-categories");
+      const result = await apiRequest("POST", "/api/admin/suggest-categories");
+      console.log("API response:", result);
+      return result;
+    },
     onSuccess: (data: { suggestions: CategorySuggestion[] }) => {
+      console.log("Success callback, data:", data);
       setSuggestions(data.suggestions || []);
       if (!dialogOpen) {
         setDialogOpen(true);
       }
     },
     onError: (error) => {
+      console.error("Error callback:", error);
       toast({
         title: "Error",
         description: "Failed to generate category suggestions. Please try again.",
         variant: "destructive",
       });
-      console.error("Failed to generate suggestions:", error);
     },
   });
 
