@@ -8,6 +8,7 @@ import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema, insertUserNoteSchema, insertPageSchema, insertBlogPostSchema } from "@shared/schema";
 import type { ChatMessage, InsertChatMessage } from "@shared/schema";
 import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateBulkFormulationsWithKeywords, generateProductTypes, generateCustomFormulation } from "./ai";
+import { generateCategorySuggestions } from "./services/openai";
 import { generateFormulationPDF } from "./pdf-generator";
 import { optimizeFormulationsForSEO } from "./seo-optimizer";
 import { generateFormulationImages, addImageFieldToFormulations } from "./image-generator";
@@ -730,6 +731,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to delete user formulation request:", error);
       res.status(500).json({ message: "Failed to delete user formulation request" });
+    }
+  });
+
+  // AI Category Suggestion endpoints
+  app.post("/api/admin/suggest-categories", async (req, res) => {
+    try {
+      // Get existing categories
+      const existingCategories = await storage.getCategories();
+      const categoryNames = existingCategories.map(cat => cat.name);
+      
+      // Generate AI suggestions
+      const suggestions = await generateCategorySuggestions(categoryNames);
+      
+      res.json({ suggestions });
+    } catch (error) {
+      console.error("Failed to generate category suggestions:", error);
+      res.status(500).json({ message: "Failed to generate category suggestions" });
+    }
+  });
+
+  app.post("/api/admin/categories", async (req, res) => {
+    try {
+      const validatedData = insertCategorySchema.parse(req.body);
+      
+      // Check if category with same name already exists
+      const existingCategories = await storage.getCategories();
+      const existingNames = existingCategories.map(cat => cat.name.toLowerCase());
+      
+      if (existingNames.includes(validatedData.name.toLowerCase())) {
+        return res.status(400).json({ message: "Category with this name already exists" });
+      }
+
+      const category = await storage.createCategory(validatedData);
+      res.status(201).json({
+        message: "Category created successfully",
+        category
+      });
+    } catch (error) {
+      console.error("Failed to create category:", error);
+      if (error instanceof Error && error.message.includes('validation')) {
+        res.status(400).json({ message: "Invalid category data provided" });
+      } else {
+        res.status(500).json({ message: "Failed to create category" });
+      }
     }
   });
 
