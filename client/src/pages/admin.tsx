@@ -15,8 +15,6 @@ import { useGuidance } from "@/hooks/use-guidance";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import CategoryForm from "@/components/admin/category-form";
 import FormulationForm from "@/components/admin/formulation-form";
-import AiCategoryForm from "@/components/admin/ai-category-form";
-import AiFormulationForm from "@/components/admin/ai-formulation-form";
 import BulkGenerationForm from "@/components/admin/bulk-generation-form";
 import BulkFormulationGenerator from "@/components/admin/bulk-formulation-generator";
 import FormulaKeywordGenerator from "@/components/admin/formula-keyword-generator";
@@ -254,17 +252,6 @@ export default function AdminPage() {
               data-testid="admin-formulations-tab"
             >
               Formulations
-            </button>
-            <button
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === "ai-tools"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab("ai-tools")}
-              data-testid="admin-ai-tools-tab"
-            >
-              AI Tools
             </button>
             <button
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
@@ -848,41 +835,6 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* AI Tools Tab */}
-        {activeTab === "ai-tools" && (
-          <div>
-            <div className="mb-6">
-              <h2 className="text-xl font-inter font-semibold text-gray-900">AI-Powered Tools</h2>
-              <p className="text-sm text-gray-600 mt-1">Generate categories and formulations using artificial intelligence</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* AI Category Form */}
-              <Card className="bg-white rounded-lg shadow-md">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">AI Category Generator</h3>
-                  <AiCategoryForm />
-                </CardContent>
-              </Card>
-
-              {/* AI Formulation Form */}
-              <Card className="bg-white rounded-lg shadow-md">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">AI Formulation Generator</h3>
-                  <AiFormulationForm categories={categories || []} />
-                </CardContent>
-              </Card>
-
-              {/* Formula Keyword Generator */}
-              <Card className="bg-white rounded-lg shadow-md md:col-span-2">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">SEO Keyword Generator</h3>
-                  <FormulaKeywordGenerator />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        )}
 
         {/* Bulk Formulations Tab */}
         {activeTab === "bulk-formulations" && (
