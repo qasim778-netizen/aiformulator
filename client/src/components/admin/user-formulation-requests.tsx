@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Eye, User, Clock, ChevronRight, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,11 @@ export default function UserFormulationRequests() {
   const [adminNotes, setAdminNotes] = useState("");
   const { toast } = useToast();
 
+  // Force cache invalidation on component mount
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ["/api/admin/user-formulation-requests"] });
+  }, []);
+
   const { data: requestsData, isLoading, error } = useQuery<{
     data: UserFormulationRequest[];
     pagination: { currentPage: number; totalPages: number; totalItems: number; itemsPerPage: number };
@@ -27,19 +32,20 @@ export default function UserFormulationRequests() {
     queryKey: ["/api/admin/user-formulation-requests", currentPage, statusFilter],
     queryFn: async () => {
       const statusParam = statusFilter !== "all" ? `&status=${statusFilter}` : "";
-      const response = await fetch(`/api/admin/user-formulation-requests?page=${currentPage}&limit=10${statusParam}`);
+      const response = await fetch(`/api/admin/user-formulation-requests?page=${currentPage}&limit=10${statusParam}`, {
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      });
       if (!response.ok) {
-        console.error('API Error:', response.status, response.statusText);
         throw new Error(`Failed to fetch user formulation requests: ${response.status}`);
       }
-      const data = await response.json();
-      console.log('User requests data:', data);
-      return data;
+      return response.json();
     },
+    staleTime: 0, // Always refetch
+    gcTime: 0, // Don't cache
   });
-
-  // Debug logging
-  console.log('Query state:', { isLoading, error, data: requestsData });
 
   const updateStatus = useMutation({
     mutationFn: ({ id, status, adminNotes }: { id: string; status: string; adminNotes?: string }) =>
@@ -135,12 +141,6 @@ export default function UserFormulationRequests() {
 
   return (
     <div className="space-y-6">
-      {/* Debug Info */}
-      <div className="bg-blue-50 p-2 text-xs text-blue-800 rounded">
-        Debug: Loading={String(isLoading)}, Error={error?.message || 'none'}, 
-        Requests={requests.length}, Data={requestsData ? 'loaded' : 'null'}
-      </div>
-      
       {/* Filters */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
