@@ -376,6 +376,119 @@ export async function generateBulkFormulationsWithKeywords(categoryName: string,
   return formulations;
 }
 
+export async function generateFormulationImageWithReference(formulationName: string, brandName: string = "AIFormulator", referenceImageBase64?: string) {
+  try {
+    console.log(`🎨 Generating standalone image for: ${formulationName}${referenceImageBase64 ? ' with reference image' : ''}`);
+    
+    let imageResponse;
+    
+    if (referenceImageBase64) {
+      // Generate with reference image using vision API
+      const visionResponse = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `Create a DALL-E 3 prompt for generating a formulation image inspired by this reference image. The final image should be a flat 2D digital illustration on a neutral beige background with bold black text '${formulationName} Formulation' at the top, simple black product-related icons in the center, and small centered text '${brandName}' at the bottom. Use the style, color scheme, or design elements from the reference image while maintaining the clean, minimal, modern aesthetic. Return only the DALL-E prompt, nothing else.`
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/jpeg;base64,${referenceImageBase64}`
+                }
+              }
+            ]
+          }
+        ],
+        max_tokens: 500,
+      });
+
+      const customPrompt = visionResponse.choices[0]?.message?.content || 
+        `Flat 2D digital illustration on a neutral beige background. Bold black text '${formulationName} Formulation' at the top, simple black product-related icons in the center, and small centered text '${brandName}' at the bottom. Clean, minimal, modern style inspired by uploaded reference image.`;
+      
+      console.log(`Generated custom prompt: ${customPrompt}`);
+      
+      imageResponse = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: customPrompt,
+        n: 1,
+        size: "1024x1024",
+        quality: "standard"
+      });
+    } else {
+      // Generate with default specifications
+      imageResponse = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: `Flat 2D digital illustration on a neutral beige background. Bold black text '${formulationName} Formulation' at the top, simple black product-related icons in the center, and small centered text '${brandName}' at the bottom. Clean, minimal, modern style. No product bottles or packaging, just text and icons.`,
+        n: 1,
+        size: "1024x1024",
+        quality: "standard"
+      });
+    }
+
+    const tempImageUrl = imageResponse.data?.[0]?.url;
+    if (!tempImageUrl) {
+      throw new Error("No image URL received from OpenAI");
+    }
+
+    // Download and save the image permanently
+    console.log(`📥 Downloading and saving image for: ${formulationName}`);
+    try {
+      const fetchResponse = await fetch(tempImageUrl);
+      const imageBuffer = await fetchResponse.arrayBuffer();
+      const fileName = `formulation-${generateSlug(formulationName)}-${Date.now()}.png`;
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      
+      // Create images directory if it doesn't exist
+      const imagesDir = path.join(process.cwd(), 'client', 'public', 'images', 'generated');
+      await fs.mkdir(imagesDir, { recursive: true });
+      
+      // Save the image
+      const filePath = path.join(imagesDir, fileName);
+      await fs.writeFile(filePath, Buffer.from(imageBuffer));
+      
+      // Set the permanent URL
+      const imageUrl = `/images/generated/${fileName}`;
+      console.log(`💾 Image saved successfully: ${imageUrl}`);
+
+      // Generate SEO metadata
+      const seoData = {
+        altText: `${formulationName} Formulation - Professional Chemical Formula by ${brandName}${referenceImageBase64 ? ' (Reference Style)' : ''}`,
+        title: `${formulationName} Formulation | Professional Chemical Manufacturing`,
+        description: `Professional ${formulationName.toLowerCase()} formulation design featuring clean, minimal flat illustration${referenceImageBase64 ? ' inspired by custom reference style' : ''}. Perfect for chemical manufacturing, product development, and professional documentation by ${brandName}.`,
+        keywords: `${formulationName.toLowerCase()}, formulation, chemical formula, professional manufacturing, ${brandName.toLowerCase()}, product development, industrial chemistry`
+      };
+
+      return {
+        imageUrl,
+        fileName,
+        seoData
+      };
+    } catch (saveError) {
+      console.error("Failed to save image:", saveError);
+      // Fall back to temporary URL with SEO data
+      const seoData = {
+        altText: `${formulationName} Formulation - Professional Chemical Formula by ${brandName}${referenceImageBase64 ? ' (Reference Style)' : ''}`,
+        title: `${formulationName} Formulation | Professional Chemical Manufacturing`,
+        description: `Professional ${formulationName.toLowerCase()} formulation design featuring clean, minimal flat illustration${referenceImageBase64 ? ' inspired by custom reference style' : ''}. Perfect for chemical manufacturing, product development, and professional documentation by ${brandName}.`,
+        keywords: `${formulationName.toLowerCase()}, formulation, chemical formula, professional manufacturing, ${brandName.toLowerCase()}, product development, industrial chemistry`
+      };
+
+      return {
+        imageUrl: tempImageUrl,
+        fileName: `temp-${generateSlug(formulationName)}.png`,
+        seoData
+      };
+    }
+  } catch (error) {
+    throw new Error(`Failed to generate formulation image with reference: ${(error as Error).message}`);
+  }
+}
+
 export async function generateFormulationImage(formulationName: string, brandName: string = "AIFormulator") {
   try {
     console.log(`🎨 Generating standalone image for: ${formulationName}`);
