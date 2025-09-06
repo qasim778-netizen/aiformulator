@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Download, Copy, Check, Image, Wand2 } from "lucide-react";
+import { Loader2, Download, Copy, Check, Image, Wand2, Upload, X } from "lucide-react";
 
 interface GeneratedImage {
   imageUrl: string;
@@ -24,12 +24,14 @@ interface GeneratedImage {
 export function ImageGenerator() {
   const [formulationName, setFormulationName] = useState("");
   const [brandName, setBrandName] = useState("AIFormulator");
+  const [referenceImage, setReferenceImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const { toast } = useToast();
 
   const generateImageMutation = useMutation({
-    mutationFn: async (data: { name: string; brandName: string }) => {
+    mutationFn: async (data: { name: string; brandName: string; referenceImageBase64?: string }) => {
       const response = await apiRequest("POST", "/api/admin/generate-image", data);
       return await response.json();
     },
@@ -60,9 +62,23 @@ export function ImageGenerator() {
       return;
     }
 
+    // Convert reference image to base64 if provided
+    let referenceImageBase64: string | undefined;
+    if (referenceImage) {
+      const reader = new FileReader();
+      referenceImageBase64 = await new Promise((resolve) => {
+        reader.onload = () => {
+          const base64 = reader.result as string;
+          resolve(base64.split(',')[1]); // Remove data:image/... prefix
+        };
+        reader.readAsDataURL(referenceImage);
+      });
+    }
+
     generateImageMutation.mutate({
       name: formulationName.trim(),
-      brandName: brandName.trim() || "AIFormulator"
+      brandName: brandName.trim() || "AIFormulator",
+      referenceImageBase64
     });
   };
 
@@ -81,6 +97,31 @@ export function ImageGenerator() {
         description: "Unable to copy to clipboard.",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type.startsWith('image/')) {
+        setReferenceImage(file);
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+      } else {
+        toast({
+          title: "Invalid File Type",
+          description: "Please select an image file (PNG, JPG, JPEG, WebP).",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const removeReferenceImage = () => {
+    setReferenceImage(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
     }
   };
 
@@ -147,6 +188,61 @@ export function ImageGenerator() {
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   This will appear at the bottom of the image
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="reference-image">Reference Image (Optional)</Label>
+                <div className="mt-1">
+                  {!referenceImage ? (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                      <input
+                        id="reference-image"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={generateImageMutation.isPending}
+                        className="hidden"
+                        data-testid="input-reference-image"
+                      />
+                      <label
+                        htmlFor="reference-image"
+                        className="cursor-pointer flex flex-col items-center space-y-2"
+                      >
+                        <Upload className="h-8 w-8 text-gray-400" />
+                        <span className="text-sm text-gray-600">
+                          Upload a reference image
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          PNG, JPG, JPEG, WebP up to 10MB
+                        </span>
+                      </label>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <img
+                        src={previewUrl!}
+                        alt="Reference image"
+                        className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                      />
+                      <Button
+                        type="button"
+                        onClick={removeReferenceImage}
+                        disabled={generateImageMutation.isPending}
+                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white"
+                        size="sm"
+                        data-testid="button-remove-reference"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                      <div className="mt-2 text-xs text-gray-600">
+                        <strong>File:</strong> {referenceImage.name}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Upload an image to guide the AI generation style and appearance
                 </p>
               </div>
 
