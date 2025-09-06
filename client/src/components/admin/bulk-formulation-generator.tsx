@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Sparkles, Loader2, FlaskConical, Package, Image, Star } from "lucide-react";
+import { Sparkles, Loader2, FlaskConical, Package, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { Category } from "@shared/schema";
@@ -18,12 +17,11 @@ interface BulkFormulationGeneratorProps {
 export default function BulkFormulationGenerator({ categories }: BulkFormulationGeneratorProps) {
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [formulationCount, setFormulationCount] = useState("5");
-  const [includeAiImages, setIncludeAiImages] = useState(false);
   const { toast } = useToast();
 
   const generateBulkFormulations = useMutation({
-    mutationFn: ({ categoryId, count, includeImages }: { categoryId: string; count: number; includeImages: boolean }) => 
-      apiRequest("POST", "/api/ai/generate-bulk-formulations-with-keywords", { categoryId, count, includeImages }),
+    mutationFn: ({ categoryId, count }: { categoryId: string; count: number }) => 
+      apiRequest("POST", "/api/ai/generate-bulk-formulations-with-keywords", { categoryId, count }),
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
@@ -34,7 +32,6 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
       // Reset form
       setSelectedCategoryId("");
       setFormulationCount("5");
-      setIncludeAiImages(false);
     },
     onError: (error: any) => {
       toast({ 
@@ -67,7 +64,7 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
       return;
     }
 
-    generateBulkFormulations.mutate({ categoryId: selectedCategoryId, count, includeImages: includeAiImages });
+    generateBulkFormulations.mutate({ categoryId: selectedCategoryId, count });
   };
 
   const selectedCategory = categories.find(c => c.id === selectedCategoryId);
@@ -98,10 +95,6 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
             <div className="flex items-center gap-2">
               <Package className="w-4 h-4 text-green-500" />
               Complete manufacturing instructions and specifications
-            </div>
-            <div className="flex items-center gap-2">
-              <Image className="w-4 h-4 text-green-500" />
-              Optional AI-generated product images for marketing
             </div>
           </div>
         </CardContent>
@@ -155,46 +148,6 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
               </div>
             )}
 
-            {/* AI Product Photography - PROMINENT SECTION */}
-            <div className={`p-6 rounded-xl border-2 transition-all ${
-              includeAiImages 
-                ? 'bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-400 shadow-lg' 
-                : 'bg-gray-50 border-gray-300 hover:border-blue-300'
-            }`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-full ${includeAiImages ? 'bg-blue-500' : 'bg-gray-400'}`}>
-                    <Image className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className={`text-lg font-bold ${includeAiImages ? 'text-blue-900' : 'text-gray-700'}`}>
-                      🎨 AI Product Photography
-                    </h3>
-                    <p className={`text-sm ${includeAiImages ? 'text-blue-700' : 'text-gray-600'}`}>
-                      Generate professional product images with DALL-E AI
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-sm font-medium ${includeAiImages ? 'text-blue-700' : 'text-gray-500'}`}>
-                    {includeAiImages ? 'ENABLED' : 'DISABLED'}
-                  </span>
-                  <Switch
-                    checked={includeAiImages}
-                    onCheckedChange={setIncludeAiImages}
-                    disabled={generateBulkFormulations.isPending}
-                    data-testid="switch-include-ai-images"
-                    className="scale-125"
-                  />
-                </div>
-              </div>
-              {includeAiImages && (
-                <div className="mt-4 p-3 bg-blue-100 rounded-lg border border-blue-200">
-                  <p className="text-sm font-medium text-blue-800">✅ Images will be generated for each formulation</p>
-                  <p className="text-xs text-blue-600 mt-1">Professional product photography with clean backgrounds</p>
-                </div>
-              )}
-            </div>
 
             <div>
               <label htmlFor="formulationCount" className="block text-sm font-medium mb-2">
@@ -227,7 +180,6 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
                 <div>• Product names will include "Formula" or "Formulation" keywords</div>
                 <div>• Professional chemical formulations with INCI ingredients</div>
                 <div>• Complete manufacturing instructions and specifications</div>
-                <div>• {includeAiImages ? "✅ AI-generated" : "❌ No"} product images for marketing use</div>
                 <div>• SEO-optimized content for better discoverability</div>
               </div>
             </div>
@@ -244,11 +196,6 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
                     {formulationCount} Formula Formulations
                   </Badge>
                   <span className="text-purple-700 text-sm">for {selectedCategory.name}</span>
-                  {includeAiImages && (
-                    <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                      + AI Images
-                    </Badge>
-                  )}
                 </div>
               </div>
             )}
@@ -262,12 +209,12 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
               {generateBulkFormulations.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Generating {formulationCount} formula formulations{includeAiImages ? " with images" : ""}...
+                  Generating {formulationCount} formula formulations...
                 </>
               ) : (
                 <>
                   <Star className="h-4 w-4 mr-2" />
-                  Generate {formulationCount} Formula Formulations{includeAiImages ? " + Images" : ""}
+                  Generate {formulationCount} Formula Formulations
                 </>
               )}
             </Button>
