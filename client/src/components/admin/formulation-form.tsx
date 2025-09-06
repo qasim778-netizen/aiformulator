@@ -15,6 +15,7 @@ import { insertFormulationSchema } from "@shared/schema";
 import type { Formulation, InsertFormulation, Category } from "@shared/schema";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
+import { useState } from "react";
 
 interface FormulationFormProps {
   formulation?: Formulation | null;
@@ -38,14 +39,18 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
   const { toast } = useToast();
   const isEditing = !!formulation;
 
-  // Parse existing data if editing
-  const existingIngredients: Ingredient[] = formulation 
-    ? JSON.parse(formulation.ingredients) 
-    : [{ name: "", inci: "", percentage: "", function: "" }];
+  // Parse existing data if editing - use state to manage these arrays
+  const [existingIngredients, setExistingIngredients] = useState<Ingredient[]>(() => 
+    formulation 
+      ? JSON.parse(formulation.ingredients) 
+      : [{ name: "", inci: "", percentage: "", function: "" }]
+  );
   
-  const existingInstructions: InstructionPhase[] = formulation 
-    ? JSON.parse(formulation.instructions)
-    : [{ phase: "", steps: [""] }];
+  const [existingInstructions, setExistingInstructions] = useState<InstructionPhase[]>(() =>
+    formulation 
+      ? JSON.parse(formulation.instructions)
+      : [{ phase: "", steps: [""] }]
+  );
 
   const form = useForm<InsertFormulation>({
     resolver: zodResolver(insertFormulationSchema),
@@ -519,7 +524,7 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => existingIngredients.push({ name: "", inci: "", percentage: "", function: "" })}
+                onClick={() => setExistingIngredients([...existingIngredients, { name: "", inci: "", percentage: "", function: "" }])}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Ingredient
@@ -533,21 +538,27 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
                   placeholder="Ingredient name"
                   value={existingIngredients[index]?.name || ""}
                   onChange={(e) => {
-                    existingIngredients[index] = { ...existingIngredients[index], name: e.target.value };
+                    const updatedIngredients = [...existingIngredients];
+                    updatedIngredients[index] = { ...updatedIngredients[index], name: e.target.value };
+                    setExistingIngredients(updatedIngredients);
                   }}
                 />
                 <Input
                   placeholder="INCI name"
                   value={existingIngredients[index]?.inci || ""}
                   onChange={(e) => {
-                    existingIngredients[index] = { ...existingIngredients[index], inci: e.target.value };
+                    const updatedIngredients = [...existingIngredients];
+                    updatedIngredients[index] = { ...updatedIngredients[index], inci: e.target.value };
+                    setExistingIngredients(updatedIngredients);
                   }}
                 />
                 <Input
                   placeholder="Percentage"
                   value={existingIngredients[index]?.percentage || ""}
                   onChange={(e) => {
-                    existingIngredients[index] = { ...existingIngredients[index], percentage: e.target.value };
+                    const updatedIngredients = [...existingIngredients];
+                    updatedIngredients[index] = { ...updatedIngredients[index], percentage: e.target.value };
+                    setExistingIngredients(updatedIngredients);
                   }}
                 />
                 <div className="flex gap-2">
@@ -555,7 +566,9 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
                     placeholder="Function"
                     value={existingIngredients[index]?.function || ""}
                     onChange={(e) => {
-                      existingIngredients[index] = { ...existingIngredients[index], function: e.target.value };
+                      const updatedIngredients = [...existingIngredients];
+                      updatedIngredients[index] = { ...updatedIngredients[index], function: e.target.value };
+                      setExistingIngredients(updatedIngredients);
                     }}
                   />
                   {existingIngredients.length > 1 && (
@@ -563,7 +576,10 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => existingIngredients.splice(index, 1)}
+                      onClick={() => {
+                        const updatedIngredients = existingIngredients.filter((_, i) => i !== index);
+                        setExistingIngredients(updatedIngredients);
+                      }}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
