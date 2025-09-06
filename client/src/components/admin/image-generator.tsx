@@ -10,6 +10,51 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Download, Copy, Check, Image, Wand2, Upload, X } from "lucide-react";
 
+// Image compression utility function
+const compressImage = (file: File, maxWidth: number, quality: number): Promise<File> => {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    const img = new Image();
+    
+    img.onload = () => {
+      // Calculate new dimensions
+      let { width, height } = img;
+      if (width > height) {
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+      } else {
+        if (height > maxWidth) {
+          width = (width * maxWidth) / height;
+          height = maxWidth;
+        }
+      }
+      
+      // Set canvas dimensions
+      canvas.width = width;
+      canvas.height = height;
+      
+      // Draw and compress
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const compressedFile = new File([blob], file.name, {
+            type: 'image/jpeg', // Always convert to JPEG for better compression
+            lastModified: Date.now(),
+          });
+          resolve(compressedFile);
+        } else {
+          resolve(file); // Fallback to original if compression fails
+        }
+      }, 'image/jpeg', quality);
+    };
+    
+    img.src = URL.createObjectURL(file);
+  });
+};
+
 interface GeneratedImage {
   imageUrl: string;
   fileName: string;
@@ -65,13 +110,15 @@ export function ImageGenerator() {
     // Convert reference image to base64 if provided
     let referenceImageBase64: string | undefined;
     if (referenceImage) {
+      // Compress and resize image before converting to base64
+      const compressedImage = await compressImage(referenceImage, 800, 0.7); // Max 800px, 70% quality
       const reader = new FileReader();
       referenceImageBase64 = await new Promise((resolve) => {
         reader.onload = () => {
           const base64 = reader.result as string;
           resolve(base64.split(',')[1]); // Remove data:image/... prefix
         };
-        reader.readAsDataURL(referenceImage);
+        reader.readAsDataURL(compressedImage);
       });
     }
 
