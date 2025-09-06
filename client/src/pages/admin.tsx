@@ -847,6 +847,9 @@ export default function AdminPage() {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Image
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Formulation Name
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -871,6 +874,21 @@ export default function AdminPage() {
                       const ingredients = JSON.parse(formulation.ingredients);
                       return (
                         <tr key={formulation.id}>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="h-16 w-16 flex-shrink-0">
+                              {formulation.image ? (
+                                <img
+                                  src={formulation.image}
+                                  alt={formulation.imageAlt || `${formulation.name} formulation`}
+                                  className="h-16 w-16 rounded-lg object-cover border border-gray-200"
+                                />
+                              ) : (
+                                <div className="h-16 w-16 rounded-lg bg-gray-100 flex items-center justify-center border border-gray-200">
+                                  <Image className="h-6 w-6 text-gray-400" />
+                                </div>
+                              )}
+                            </div>
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div>
                               <div className="text-sm font-medium text-gray-900">{formulation.name}</div>
