@@ -402,6 +402,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Image Generator endpoint
+  app.post('/api/admin/generate-image', isAuthenticated, async (req, res) => {
+    try {
+      const { name, brandName } = req.body;
+      
+      if (!name || typeof name !== 'string') {
+        return res.status(400).json({ error: "Formulation name is required" });
+      }
+
+      const cleanName = name.trim();
+      const cleanBrandName = (brandName || "AIFormulator").trim();
+      
+      console.log(`🎨 Admin generating image for: ${cleanName}`);
+
+      // Generate the image with exact specifications
+      const { generateFormulationImage } = await import('./ai');
+      const result = await generateFormulationImage(cleanName, cleanBrandName);
+      
+      if (!result.imageUrl) {
+        throw new Error("Failed to generate image");
+      }
+
+      // Track AI generation for analytics
+      await storage.trackAiGeneration();
+      
+      console.log(`✅ Admin image generated successfully: ${result.fileName}`);
+      
+      res.json({
+        imageUrl: result.imageUrl,
+        fileName: result.fileName,
+        seoData: result.seoData
+      });
+
+    } catch (error) {
+      console.error("Error generating admin image:", error);
+      res.status(500).json({ 
+        error: "Failed to generate image", 
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Clear AI analytics data (admin only)
   app.delete("/api/ai-analytics", isAuthenticated, async (req, res) => {
     try {

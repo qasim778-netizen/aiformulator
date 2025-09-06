@@ -376,6 +376,79 @@ export async function generateBulkFormulationsWithKeywords(categoryName: string,
   return formulations;
 }
 
+export async function generateFormulationImage(formulationName: string, brandName: string = "AIFormulator") {
+  try {
+    console.log(`🎨 Generating standalone image for: ${formulationName}`);
+    
+    // Generate the image with exact specifications
+    const imageResponse = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: `Flat 2D digital illustration on a neutral beige background. Bold black text '${formulationName} Formulation' at the top, simple black product-related icons in the center, and small centered text '${brandName}' at the bottom. Clean, minimal, modern style. No product bottles or packaging, just text and icons.`,
+      n: 1,
+      size: "1024x1024",
+      quality: "standard"
+    });
+
+    const tempImageUrl = imageResponse.data?.[0]?.url;
+    if (!tempImageUrl) {
+      throw new Error("No image URL received from OpenAI");
+    }
+
+    // Download and save the image permanently
+    console.log(`📥 Downloading and saving image for: ${formulationName}`);
+    try {
+      const imageResponse = await fetch(tempImageUrl);
+      const imageBuffer = await imageResponse.arrayBuffer();
+      const fileName = `formulation-${generateSlug(formulationName)}-${Date.now()}.png`;
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      
+      // Create images directory if it doesn't exist
+      const imagesDir = path.join(process.cwd(), 'client', 'public', 'images', 'generated');
+      await fs.mkdir(imagesDir, { recursive: true });
+      
+      // Save the image
+      const filePath = path.join(imagesDir, fileName);
+      await fs.writeFile(filePath, Buffer.from(imageBuffer));
+      
+      // Set the permanent URL
+      const imageUrl = `/images/generated/${fileName}`;
+      console.log(`💾 Image saved successfully: ${imageUrl}`);
+
+      // Generate SEO metadata
+      const seoData = {
+        altText: `${formulationName} Formulation - Professional Chemical Formula by ${brandName}`,
+        title: `${formulationName} Formulation | Professional Chemical Manufacturing`,
+        description: `Professional ${formulationName.toLowerCase()} formulation design featuring clean, minimal flat illustration. Perfect for chemical manufacturing, product development, and professional documentation by ${brandName}.`,
+        keywords: `${formulationName.toLowerCase()}, formulation, chemical formula, professional manufacturing, ${brandName.toLowerCase()}, product development, industrial chemistry`
+      };
+
+      return {
+        imageUrl,
+        fileName,
+        seoData
+      };
+    } catch (saveError) {
+      console.error("Failed to save image:", saveError);
+      // Fall back to temporary URL with SEO data
+      const seoData = {
+        altText: `${formulationName} Formulation - Professional Chemical Formula by ${brandName}`,
+        title: `${formulationName} Formulation | Professional Chemical Manufacturing`,
+        description: `Professional ${formulationName.toLowerCase()} formulation design featuring clean, minimal flat illustration. Perfect for chemical manufacturing, product development, and professional documentation by ${brandName}.`,
+        keywords: `${formulationName.toLowerCase()}, formulation, chemical formula, professional manufacturing, ${brandName.toLowerCase()}, product development, industrial chemistry`
+      };
+
+      return {
+        imageUrl: tempImageUrl,
+        fileName: `temp-${generateSlug(formulationName)}.png`,
+        seoData
+      };
+    }
+  } catch (error) {
+    throw new Error(`Failed to generate formulation image: ${(error as Error).message}`);
+  }
+}
+
 export async function generateFormulationWithKeywords(categoryName: string, productDescription: string, includeImage: boolean = false): Promise<Omit<InsertFormulation, 'categoryId'>> {
   console.log(`=== generateFormulationWithKeywords ===`);
   console.log(`Category: ${categoryName}`);
