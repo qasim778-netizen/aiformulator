@@ -23,6 +23,7 @@ import ContentManagementTab from "@/components/admin/content-management-tab";
 import BlogManagementTab from "@/components/admin/blog-management-tab";
 import UserFormulationRequests from "@/components/admin/user-formulation-requests";
 import UserAnalytics from "@/components/admin/user-analytics";
+import AICategorySuggestions from "@/components/admin/ai-category-suggestions";
 import type { Category, Formulation } from "@shared/schema";
 
 export default function AdminPage() {
@@ -487,31 +488,34 @@ export default function AdminPage() {
                 <h2 className="text-xl font-inter font-semibold text-gray-900">Categories Management</h2>
                 <p className="text-sm text-gray-600 mt-1">Manage product categories and their properties</p>
               </div>
-              <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button data-testid="button-add-category-main">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Category
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>
-                      {editingCategory ? "Edit Category" : "Create New Category"}
-                    </DialogTitle>
-                    <DialogDescription>
-                      {editingCategory ? "Update the category details" : "Add a new category to organize your formulations"}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <CategoryForm 
-                    category={editingCategory}
-                    onSuccess={() => {
-                      setCategoryDialogOpen(false);
-                      setEditingCategory(null);
-                    }} 
-                  />
-                </DialogContent>
+              <div className="flex gap-2">
+                <AICategorySuggestions />
+                <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button data-testid="button-add-category-main">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Category
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>
+                        {editingCategory ? "Edit Category" : "Create New Category"}
+                      </DialogTitle>
+                      <DialogDescription>
+                        {editingCategory ? "Update the category details" : "Add a new category to organize your formulations"}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <CategoryForm 
+                      category={editingCategory}
+                      onSuccess={() => {
+                        setCategoryDialogOpen(false);
+                        setEditingCategory(null);
+                      }} 
+                    />
+                  </DialogContent>
               </Dialog>
+              </div>
             </div>
 
             <Card className="bg-white rounded-lg shadow-md">
