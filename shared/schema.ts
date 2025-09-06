@@ -24,6 +24,7 @@ export const formulations = pgTable("formulations", {
   name: text("name").notNull(),
   slug: text("slug").notNull(), // SEO-friendly URL slug
   description: text("description").notNull(),
+  seoTitle: text("seo_title"), // SEO page title (max 60 chars)
   metaDescription: text("meta_description"), // SEO meta description (max 160 chars)
   keywords: text("keywords"), // SEO keywords (comma-separated)
   image: text("image"), // Optional AI-generated product image URL
