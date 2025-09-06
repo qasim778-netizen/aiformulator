@@ -1234,6 +1234,31 @@ Allow: /disclaimer`;
         const savedFormulation = await storage.createFormulation(formulationToSave);
         console.log('✅ Formulation saved to database for approval:', savedFormulation.id);
 
+        // Save user formulation request for admin review
+        try {
+          const userRequest: any = {
+            sessionId: req.sessionID || 'anonymous',
+            productName,
+            productCategory,
+            productDescription,
+            productType,
+            consistencyType: viscosity || undefined,
+            phLevel: phLevel?.toString() || undefined,
+            viscosity: viscosity || undefined,
+            budgetCategory: costLevel || undefined,
+            specialProperties: specialRequirements ? [specialRequirements] : undefined,
+            additionalNotes: `Color: ${color || 'Not specified'}, Fragrance: ${fragrance || 'Not specified'}`,
+            status: 'pending',
+            formulationId: savedFormulation.id
+          };
+
+          await storage.createUserFormulationRequest(userRequest);
+          console.log('✅ User formulation request saved for admin review');
+        } catch (requestError) {
+          console.error('Failed to save user formulation request:', requestError);
+          // Continue - this is not critical to the user experience
+        }
+
         // Track AI generation for analytics
         const endTime = Date.now();
         const responseTime = endTime - startTime;
