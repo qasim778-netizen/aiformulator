@@ -30,11 +30,8 @@ export function ImageGenerator() {
 
   const generateImageMutation = useMutation({
     mutationFn: async (data: { name: string; brandName: string }) => {
-      const response = await apiRequest("/api/admin/generate-image", {
-        method: "POST",
-        body: JSON.stringify(data)
-      });
-      return response;
+      const response = await apiRequest("POST", "/api/admin/generate-image", data);
+      return await response.json();
     },
     onSuccess: (data) => {
       setGeneratedImage(data);
