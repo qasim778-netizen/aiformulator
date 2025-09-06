@@ -131,7 +131,7 @@ export default function Browse() {
             </section>
 
             {/* Features Section */}
-            <section className="py-8 bg-white rounded-lg mb-8">
+            <section className="py-4 bg-white rounded-lg mb-4">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div className="text-center p-6">
@@ -172,7 +172,7 @@ export default function Browse() {
             </section>
 
             {/* Categories Overview */}
-            <section id="categories" className="py-8 bg-gray-50 rounded-lg mb-8">
+            <section id="categories" className="py-6 bg-gray-50 rounded-lg mb-8">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-6">
                   <h2 className="text-2xl font-inter font-bold text-gray-900 mb-3">
@@ -214,7 +214,7 @@ export default function Browse() {
             </section>
 
             {/* Custom Formulation Card */}
-            <section id="custom-formulation" className="py-8">
+            <section id="custom-formulation" className="py-4">
               <div className="flex justify-center mb-4 sm:mb-6">
                 <Card className="max-w-md w-full cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] touch-target ring-2 ring-primary bg-primary/5 border-primary">
                   <CardContent className="p-4 sm:p-5 lg:p-6 text-center">
