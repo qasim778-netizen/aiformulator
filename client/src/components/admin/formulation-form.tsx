@@ -1,7 +1,7 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Plus, Trash2, Upload, X } from "lucide-react";
+import { Plus, Trash2, Upload, X, Wand2, Copy, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +16,7 @@ import type { Formulation, InsertFormulation, Category } from "@shared/schema";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
 import { useState } from "react";
+import { Label } from "@/components/ui/label";
 
 interface FormulationFormProps {
   formulation?: Formulation | null;
@@ -33,6 +34,239 @@ interface Ingredient {
 interface InstructionPhase {
   phase: string;
   steps: string[];
+}
+
+// Image Upload Section Component
+function ImageUploadSection({ form, formulationName }: { form: any, formulationName: string }) {
+  const { toast } = useToast();
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    form.getValues("image") ? form.getValues("image") : null
+  );
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const generateAltTextMutation = useMutation({
+    mutationFn: async (data: { name: string }) => {
+      const response = await apiRequest("POST", "/api/admin/generate-alt-text", data);
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      form.setValue("imageAlt", data.altText);
+      toast({
+        title: "Alt Text Generated Successfully!",
+        description: "SEO-optimized alt text has been created for your formulation.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Generation Failed",
+        description: error.message || "Failed to generate alt text. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleGenerateAltText = async () => {
+    if (!formulationName?.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter a formulation name first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await generateAltTextMutation.mutateAsync({
+        name: formulationName,
+      });
+    } catch (error) {
+      console.error("Error generating alt text:", error);
+    }
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type.startsWith('image/')) {
+        setUploadedImage(file);
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+        form.setValue("image", url);
+        form.setValue("imageFilename", file.name);
+      } else {
+        toast({
+          title: "Invalid File Type",
+          description: "Please select an image file (PNG, JPG, JPEG, WebP).",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const removeUploadedImage = () => {
+    setUploadedImage(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+    form.setValue("image", "");
+    form.setValue("imageFilename", "");
+  };
+
+  const copyToClipboard = async (text: string, field: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
+      toast({
+        title: "Copied!",
+        description: `${field} copied to clipboard.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Copy Failed",
+        description: "Unable to copy to clipboard.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Image Upload */}
+      <div>
+        <Label className="text-base font-medium">Product Image</Label>
+        <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6">
+          {previewUrl ? (
+            <div className="relative">
+              <img
+                src={previewUrl}
+                alt="Uploaded image preview"
+                className="w-full h-48 object-cover rounded-lg"
+              />
+              <Button
+                size="sm"
+                variant="destructive"
+                className="absolute top-2 right-2"
+                onClick={removeUploadedImage}
+                type="button"
+                data-testid="button-remove-image"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="text-center">
+              <Upload className="mx-auto h-12 w-12 text-gray-400" />
+              <div className="mt-4">
+                <Label htmlFor="image-upload" className="cursor-pointer">
+                  <span className="mt-2 block text-sm font-medium text-gray-900">
+                    Upload a formulation image
+                  </span>
+                  <span className="mt-1 block text-sm text-gray-500">
+                    PNG, JPG, JPEG, WebP up to 10MB
+                  </span>
+                </Label>
+                <Input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="sr-only"
+                  data-testid="input-image-upload"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Alt Text Generation */}
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <Label htmlFor="imageAlt" className="text-base font-medium">Image Alt Text</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleGenerateAltText}
+              disabled={generateAltTextMutation.isPending || !formulationName?.trim()}
+              data-testid="button-generate-alt-text"
+            >
+              {generateAltTextMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="w-4 h-4 mr-2" />
+                  Generate Alt Text
+                </>
+              )}
+            </Button>
+          </div>
+          <FormField
+            control={form.control}
+            name="imageAlt"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <div className="flex">
+                    <Textarea
+                      placeholder="AI-generated SEO alt text will appear here..."
+                      rows={3}
+                      {...field}
+                      data-testid="textarea-image-alt"
+                    />
+                    {field.value && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => copyToClipboard(field.value, "Alt Text")}
+                        className="ml-2"
+                        data-testid="button-copy-alt-text"
+                      >
+                        {copiedField === "Alt Text" ? (
+                          <Check className="h-4 w-4" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="imageFilename" className="text-base font-medium">Image Filename</Label>
+          <FormField
+            control={form.control}
+            name="imageFilename"
+            render={({ field }) => (
+              <FormItem className="mt-2">
+                <FormControl>
+                  <Input
+                    placeholder="e.g., advanced-hair-shampoo.jpg"
+                    {...field}
+                    data-testid="input-image-filename"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function FormulationForm({ formulation, categories, onSuccess }: FormulationFormProps) {
@@ -271,15 +505,16 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
           </CardContent>
         </Card>
 
-        {/* Image Upload Section - Temporarily disabled to fix form submission */}
+        {/* Image Upload Section */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Product Image (Coming Soon)</CardTitle>
+            <CardTitle className="text-lg">Product Image & SEO</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-gray-500">
-              Image upload functionality will be available in the next update.
-            </p>
+            <ImageUploadSection 
+              form={form}
+              formulationName={form.watch("name")}
+            />
           </CardContent>
         </Card>
 
