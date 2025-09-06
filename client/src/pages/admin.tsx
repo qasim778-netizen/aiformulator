@@ -23,6 +23,7 @@ import FormulaKeywordGenerator from "@/components/admin/formula-keyword-generato
 import LogoSettings from "@/components/admin/logo-settings";
 import ContentManagementTab from "@/components/admin/content-management-tab";
 import BlogManagementTab from "@/components/admin/blog-management-tab";
+import { ImageGenerator } from "@/components/admin/image-generator";
 import type { Category, Formulation } from "@shared/schema";
 
 export default function AdminPage() {
@@ -419,6 +420,17 @@ export default function AdminPage() {
                 data-testid="admin-analytics-tab"
               >
                 AI Analytics
+              </button>
+              <button
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "image-generator"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+                onClick={() => setActiveTab("image-generator")}
+                data-testid="admin-image-generator-tab"
+              >
+                Image Generator
               </button>
               <button
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
@@ -1625,6 +1637,11 @@ export default function AdminPage() {
               </CardContent>
             </Card>
           </div>
+        )}
+        
+        {/* Image Generator Tab */}
+        {activeTab === "image-generator" && (
+          <ImageGenerator />
         )}
         
         {/* Settings Tab */}
