@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Sparkles, Package, BarChart3, TrendingUp, Users, Globe, LogOut } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Sparkles, Package, BarChart3, TrendingUp, Users, Globe, LogOut, Image } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -231,6 +231,27 @@ export default function AdminPage() {
       toast({ 
         title: "Failed to update formulation status", 
         variant: "destructive" 
+      });
+    },
+  });
+
+  const generateFormulationImage = useMutation({
+    mutationFn: async (data: { name: string; brandName: string }) => {
+      const response = await apiRequest("POST", "/api/admin/generate-image", data);
+      return response;
+    },
+    onSuccess: (data, variables) => {
+      toast({
+        title: "Image Generated Successfully!",
+        description: `Custom image for "${variables.name}" has been created with SEO optimization.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/ai-analytics"] });
+    },
+    onError: (error, variables) => {
+      toast({
+        title: "Generation Failed",
+        description: `Failed to generate image for "${variables.name}". Please try again.`,
+        variant: "destructive",
       });
     },
   });
@@ -886,6 +907,19 @@ export default function AdminPage() {
                                 View
                               </Button>
                             </Link>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-purple-600 hover:text-purple-900"
+                              onClick={() => generateFormulationImage.mutate({ 
+                                name: formulation.name, 
+                                brandName: "AIFormulator" 
+                              })}
+                              disabled={generateFormulationImage.isPending}
+                              title="Generate AI Image"
+                            >
+                              <Image className="h-4 w-4" />
+                            </Button>
                             <Button
                               variant="ghost"
                               size="sm"
