@@ -470,6 +470,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Alt Text Generator endpoint
+  app.post('/api/admin/generate-alt-text', isAuthenticated, async (req, res) => {
+    try {
+      const { name } = req.body;
+      
+      if (!name || typeof name !== 'string') {
+        return res.status(400).json({ error: "Formulation name is required" });
+      }
+
+      const cleanName = name.trim();
+      
+      console.log(`📝 Admin generating alt text for: ${cleanName}`);
+
+      // Generate alt text using AI
+      const { generateAltText } = await import('./ai');
+      const altText = await generateAltText(cleanName);
+      
+      if (!altText) {
+        throw new Error("Failed to generate alt text");
+      }
+
+      // Track AI generation for analytics
+      await storage.trackAiGeneration({
+        type: 'alt_text_generation',
+        input: cleanName,
+        output: altText,
+        timestamp: new Date()
+      });
+      
+      console.log(`✅ Admin alt text generated successfully: ${altText}`);
+      
+      res.json({
+        altText: altText
+      });
+
+    } catch (error) {
+      console.error("Error generating alt text:", error);
+      res.status(500).json({ 
+        error: "Failed to generate alt text", 
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Clear AI analytics data (admin only)
   app.delete("/api/ai-analytics", isAuthenticated, async (req, res) => {
     try {

@@ -59,6 +59,45 @@ export async function generateCategory(description: string, existingCategoryName
   }
 }
 
+export async function generateAltText(formulationName: string): Promise<string> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an SEO expert specializing in chemical formulations and product descriptions. Generate professional, SEO-optimized alt text for formulation images. The alt text should be:
+          
+          - Descriptive and specific
+          - Include the formulation name
+          - Mention it's a chemical formulation
+          - Professional and industry-appropriate
+          - Between 10-20 words
+          - Suitable for search engines
+          
+          Return only the alt text string, no additional formatting or quotes.`
+        },
+        {
+          role: "user",
+          content: `Generate SEO-optimized alt text for a chemical formulation image of: ${formulationName}`
+        }
+      ],
+      max_tokens: 100,
+      temperature: 0.7
+    });
+
+    const altText = response.choices[0].message.content?.trim() || "";
+    
+    if (!altText) {
+      throw new Error("No alt text generated");
+    }
+    
+    return altText;
+  } catch (error) {
+    throw new Error("Failed to generate alt text: " + (error as Error).message);
+  }
+}
+
 export async function generateProductTypes(categoryName: string, categoryDescription: string, count: number): Promise<string[]> {
   try {
     const response = await openai.chat.completions.create({
