@@ -51,6 +51,69 @@ export default function FormulationPage() {
     }
   }, [formulationId]);
 
+  // Update SEO metadata when formulation loads
+  useEffect(() => {
+    if (formulation && category) {
+      // Update page title
+      const seoTitle = formulation.seoTitle || `${formulation.name} - ${category.name} Formulation | AIFormulator`;
+      document.title = seoTitle;
+
+      // Update or create meta description
+      const metaDescription = formulation.metaDescription || 
+        `Professional ${formulation.name} formulation in the ${category.name} category. Get detailed ingredients, instructions, and specifications.`;
+      
+      let metaDescElement = document.querySelector('meta[name="description"]');
+      if (!metaDescElement) {
+        metaDescElement = document.createElement('meta');
+        metaDescElement.setAttribute('name', 'description');
+        document.head.appendChild(metaDescElement);
+      }
+      metaDescElement.setAttribute('content', metaDescription);
+
+      // Update or create meta keywords
+      if (formulation.keywords) {
+        let metaKeywordsElement = document.querySelector('meta[name="keywords"]');
+        if (!metaKeywordsElement) {
+          metaKeywordsElement = document.createElement('meta');
+          metaKeywordsElement.setAttribute('name', 'keywords');
+          document.head.appendChild(metaKeywordsElement);
+        }
+        metaKeywordsElement.setAttribute('content', formulation.keywords);
+      }
+
+      // Update Open Graph tags for social sharing
+      const ogTitle = formulation.seoTitle || formulation.name;
+      const ogDescription = formulation.metaDescription || metaDescription;
+      
+      // Update or create og:title
+      let ogTitleElement = document.querySelector('meta[property="og:title"]');
+      if (!ogTitleElement) {
+        ogTitleElement = document.createElement('meta');
+        ogTitleElement.setAttribute('property', 'og:title');
+        document.head.appendChild(ogTitleElement);
+      }
+      ogTitleElement.setAttribute('content', ogTitle);
+
+      // Update or create og:description
+      let ogDescElement = document.querySelector('meta[property="og:description"]');
+      if (!ogDescElement) {
+        ogDescElement = document.createElement('meta');
+        ogDescElement.setAttribute('property', 'og:description');
+        document.head.appendChild(ogDescElement);
+      }
+      ogDescElement.setAttribute('content', ogDescription);
+
+      // Update or create og:type
+      let ogTypeElement = document.querySelector('meta[property="og:type"]');
+      if (!ogTypeElement) {
+        ogTypeElement = document.createElement('meta');
+        ogTypeElement.setAttribute('property', 'og:type');
+        document.head.appendChild(ogTypeElement);
+      }
+      ogTypeElement.setAttribute('content', 'article');
+    }
+  }, [formulation, category]);
+
   // PDF Generation function
   const generatePDF = useCallback(async () => {
     if (!formulation) return;
