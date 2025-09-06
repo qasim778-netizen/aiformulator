@@ -83,6 +83,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/formulation-images", async (req, res) => {
+    try {
+      const { imageURL } = req.body;
+      if (!imageURL) {
+        return res.status(400).json({ error: "imageURL is required" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = objectStorageService.normalizeObjectEntityPath(imageURL);
+
+      res.status(200).json({
+        objectPath: objectPath,
+      });
+    } catch (error) {
+      console.error("Error setting formulation image:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // Serve uploaded objects
   app.get("/objects/:objectPath(*)", async (req, res) => {
     try {

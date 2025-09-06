@@ -1,7 +1,7 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { insertFormulationSchema } from "@shared/schema";
 import type { Formulation, InsertFormulation, Category } from "@shared/schema";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from "@uppy/core";
 
 interface FormulationFormProps {
   formulation?: Formulation | null;
@@ -54,6 +56,9 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
       seoTitle: formulation?.seoTitle || "",
       metaDescription: formulation?.metaDescription || "",
       keywords: formulation?.keywords || "",
+      image: formulation?.image || "",
+      imageAlt: formulation?.imageAlt || "",
+      imageFilename: formulation?.imageFilename || "",
       ingredients: formulation?.ingredients || JSON.stringify(existingIngredients),
       instructions: formulation?.instructions || JSON.stringify(existingInstructions),
       usageInstructions: formulation?.usageInstructions || "",
@@ -252,6 +257,103 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
                   </FormControl>
                   <p className="text-sm text-gray-500">
                     Use commas to separate keywords (e.g., "skincare, formulation, organic")
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Image Upload Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Product Image</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Current Image Display */}
+            {form.watch("image") && (
+              <div className="relative">
+                <img 
+                  src={form.watch("image") || ""} 
+                  alt={form.watch("imageAlt") || "Product image"} 
+                  className="w-full max-w-md h-48 object-cover rounded-lg border"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2"
+                  onClick={() => {
+                    form.setValue("image", "");
+                    form.setValue("imageAlt", "");
+                    form.setValue("imageFilename", "");
+                  }}
+                  data-testid="button-remove-image"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+
+            {/* Image Upload Button */}
+            <ObjectUploader
+              maxNumberOfFiles={1}
+              maxFileSize={5242880} // 5MB
+              onGetUploadParameters={async () => {
+                const response = await fetch('/api/objects/upload', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                });
+                const data = await response.json();
+                return {
+                  method: 'PUT' as const,
+                  url: data.uploadURL,
+                };
+              }}
+              onComplete={(result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+                if (result.successful && result.successful.length > 0) {
+                  const uploadedFile = result.successful[0];
+                  const uploadURL = uploadedFile.uploadURL;
+                  
+                  // Set the image URL in the form
+                  form.setValue("image", uploadURL);
+                  form.setValue("imageFilename", uploadedFile.name);
+                  
+                  // Make a call to set the image ACL policy
+                  fetch('/api/formulation-images', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imageURL: uploadURL }),
+                  }).then(() => {
+                    toast({ title: "Image uploaded successfully" });
+                  }).catch(() => {
+                    toast({ title: "Image uploaded but failed to set permissions", variant: "destructive" });
+                  });
+                }
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <Upload className="h-4 w-4" />
+                <span>{form.watch("image") ? "Replace Image" : "Upload Image"}</span>
+              </div>
+            </ObjectUploader>
+
+            {/* Image Alt Text */}
+            <FormField
+              control={form.control}
+              name="imageAlt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Image Alt Text (SEO)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Describe the image for screen readers and SEO"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <p className="text-sm text-gray-500">
+                    Alt text helps with accessibility and SEO. Describe what's in the image.
                   </p>
                   <FormMessage />
                 </FormItem>
