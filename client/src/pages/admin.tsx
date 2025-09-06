@@ -684,7 +684,7 @@ export default function AdminPage() {
           {/* Formulations Tab */}
           {activeTab === "formulations" && (
             <div>
-            <div className="flex justify-between items-center mb-6">
+              <div className="flex justify-between items-center mb-6">
               <div>
                 <h2 className="text-xl font-inter font-semibold text-gray-900">Formulations Management</h2>
                 <p className="text-sm text-gray-600 mt-1">Manage chemical formulations, approve drafts, and organize content</p>
@@ -892,6 +892,7 @@ export default function AdminPage() {
               </CardContent>
             </Card>
           </div>
+            </div>
           )}
 
           {/* AI Tools Tab */}
