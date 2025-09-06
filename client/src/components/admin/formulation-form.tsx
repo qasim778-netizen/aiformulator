@@ -51,6 +51,9 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
       categoryId: formulation?.categoryId || "",
       name: formulation?.name || "",
       description: formulation?.description || "",
+      seoTitle: formulation?.seoTitle || "",
+      metaDescription: formulation?.metaDescription || "",
+      keywords: formulation?.keywords || "",
       ingredients: formulation?.ingredients || JSON.stringify(existingIngredients),
       instructions: formulation?.instructions || JSON.stringify(existingInstructions),
       usageInstructions: formulation?.usageInstructions || "",
@@ -185,6 +188,77 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
             </FormItem>
           )}
         />
+
+        {/* SEO Fields Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">SEO Optimization</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="seoTitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>SEO Title (Optional)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Custom page title for search engines (max 60 characters)" 
+                      maxLength={60}
+                      {...field} 
+                    />
+                  </FormControl>
+                  <p className="text-sm text-gray-500">
+                    {field.value?.length || 0}/60 characters
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="metaDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Meta Description (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Brief description for search engine results (max 160 characters)"
+                      maxLength={160}
+                      rows={3}
+                      {...field} 
+                    />
+                  </FormControl>
+                  <p className="text-sm text-gray-500">
+                    {field.value?.length || 0}/160 characters
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="keywords"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>SEO Keywords (Optional)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="comma, separated, keywords, for, search, engines"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <p className="text-sm text-gray-500">
+                    Use commas to separate keywords (e.g., "skincare, formulation, organic")
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
