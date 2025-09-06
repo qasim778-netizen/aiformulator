@@ -313,6 +313,8 @@ export default function AdminPage() {
           </nav>
         </div>
 
+        {/* Tab Content */}
+        <div>
         {/* Overview Tab */}
         {activeTab === "overview" && (
           <div className="space-y-6">
@@ -959,8 +961,9 @@ export default function AdminPage() {
         {activeTab === "blog" && (
           <BlogManagementTab />
         )}
+        </div>
       </div>
-      </div>
+    </div>
     </div>
   );
 }
