@@ -117,20 +117,7 @@ export default function CategoryPage() {
                     : 'border-gray-200'
                 }`}
               >
-                <CardContent className="p-0">
-                  {/* AI-Generated Image Display */}
-                  {formulation.image && (
-                    <div className="w-full h-48 bg-gray-50 flex items-center justify-center overflow-hidden rounded-t-lg">
-                      <img 
-                        src={formulation.image} 
-                        alt={`${formulation.name} - AI Generated Product Image`}
-                        className="w-full h-full object-cover"
-                        data-testid={`img-formulation-card-${formulation.id}`}
-                      />
-                    </div>
-                  )}
-                  
-                  <div className="p-6">
+                <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-inter font-semibold text-gray-900">{formulation.name}</h3>
                       <Badge className={formulation.isActive ? "bg-green-500 text-white" : "bg-yellow-500 text-white"}>
