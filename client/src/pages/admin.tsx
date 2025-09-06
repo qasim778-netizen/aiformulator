@@ -79,9 +79,9 @@ export default function AdminPage() {
     data: Category[];
     pagination: { currentPage: number; totalPages: number; totalItems: number; itemsPerPage: number };
   }>({
-    queryKey: ["/api/categories-paginated", categoriesPage],
+    queryKey: ["/api/categories", "paginated", categoriesPage],
     queryFn: async () => {
-      const response = await fetch(`/api/categories-paginated?page=${categoriesPage}&limit=10`);
+      const response = await fetch(`/api/categories?page=${categoriesPage}&limit=10&paginated=true`);
       if (!response.ok) {
         throw new Error('Failed to fetch categories');
       }
@@ -117,7 +117,7 @@ export default function AdminPage() {
     mutationFn: (id: string) => apiRequest("DELETE", `/api/categories/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/categories-paginated"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/categories", "paginated"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       toast({ title: "Category deleted successfully" });
     },
