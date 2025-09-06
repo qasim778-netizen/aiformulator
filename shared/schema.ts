@@ -63,14 +63,26 @@ export const insertFormulationSchema = createInsertSchema(formulations).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+  slug: true, // slug is auto-generated
 }).extend({
   seoTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   keywords: z.string().optional(),
+  image: z.string().optional(),
   imageAlt: z.string().optional(),
   imageFilename: z.string().optional(),
   viscosity: z.string().optional(),
   certification: z.string().optional(),
+}).partial({
+  // Make these fields optional for form submission
+  viscosity: true,
+  certification: true,
+  image: true,
+  imageAlt: true,
+  imageFilename: true,
+  seoTitle: true,
+  metaDescription: true,
+  keywords: true,
 });
 
 // Product special properties table for dynamic properties based on product type
