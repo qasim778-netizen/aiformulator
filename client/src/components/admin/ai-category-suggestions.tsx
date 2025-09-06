@@ -21,13 +21,12 @@ export default function AICategorySuggestions() {
 
   const generateSuggestions = useMutation({
     mutationFn: async () => {
-      const result = await apiRequest("POST", "/api/admin/suggest-categories");
+      const response = await apiRequest("POST", "/api/admin/suggest-categories");
+      const result = await response.json();
       return result;
     },
     onSuccess: (data: any) => {
-      console.log("Raw API response:", data);
       const suggestions = data?.suggestions || [];
-      console.log("Parsed suggestions:", suggestions);
       setSuggestions(suggestions);
       setShowSuggestions(true);
     },
@@ -41,12 +40,14 @@ export default function AICategorySuggestions() {
   });
 
   const createCategory = useMutation({
-    mutationFn: (suggestion: CategorySuggestion) =>
-      apiRequest("POST", "/api/admin/categories", {
+    mutationFn: async (suggestion: CategorySuggestion) => {
+      const response = await apiRequest("POST", "/api/admin/categories", {
         name: suggestion.name,
         description: suggestion.description,
         icon: suggestion.icon,
-      }),
+      });
+      return await response.json();
+    },
     onSuccess: (data: { category: { name: string; id: string } }) => {
       toast({
         title: "Success",
@@ -125,7 +126,6 @@ export default function AICategorySuggestions() {
               </Card>
             ) : (
               <>
-                <div className="text-xs text-gray-500 mb-2">DEBUG: Found {suggestions.length} suggestions</div>
                 {suggestions.map((suggestion, index) => (
                   <Card key={index} className="border-l-4 border-l-blue-500">
                     <CardHeader className="pb-3">

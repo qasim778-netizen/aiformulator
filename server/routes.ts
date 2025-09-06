@@ -735,7 +735,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Category Suggestion endpoints
-  app.post("/api/admin/suggest-categories", async (req, res) => {
+  app.post("/api/admin/suggest-categories", isAuthenticated, async (req, res) => {
     try {
       // Get existing categories
       const existingCategories = await storage.getCategories();
@@ -751,7 +751,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/categories", async (req, res) => {
+  app.post("/api/admin/categories", isAuthenticated, async (req, res) => {
     try {
       const validatedData = insertCategorySchema.parse(req.body);
       
