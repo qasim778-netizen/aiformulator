@@ -753,7 +753,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/admin/categories", isAuthenticated, async (req, res) => {
     try {
-      const validatedData = insertCategorySchema.parse(req.body);
+      const validatedData = insertCategorySchema.parse({
+        ...req.body,
+        // Provide default image if not specified
+        image: req.body.image || "/placeholder-category.jpg"
+      });
       
       // Check if category with same name already exists
       const existingCategories = await storage.getCategories();
