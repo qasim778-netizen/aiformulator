@@ -315,8 +315,8 @@ export default function AdminPage() {
 
         {/* Tab Content */}
         <div>
-        {/* Overview Tab */}
-        {activeTab === "overview" && (
+          {/* Overview Tab */}
+          {activeTab === "overview" && (
           <div className="space-y-6">
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -468,11 +468,11 @@ export default function AdminPage() {
               </Card>
             </div>
           </div>
-        )}
+          )}
 
-        {/* Categories Tab */}
-        {activeTab === "categories" && (
-          <div>
+          {/* Categories Tab */}
+          {activeTab === "categories" && (
+            <div>
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h2 className="text-xl font-inter font-semibold text-gray-900">Manage Categories</h2>
@@ -679,11 +679,11 @@ export default function AdminPage() {
               </CardContent>
             </Card>
           </div>
-        )}
+          )}
 
-        {/* Formulations Tab */}
-        {activeTab === "formulations" && (
-          <div>
+          {/* Formulations Tab */}
+          {activeTab === "formulations" && (
+            <div>
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h2 className="text-xl font-inter font-semibold text-gray-900">Formulations Management</h2>
@@ -892,11 +892,11 @@ export default function AdminPage() {
               </CardContent>
             </Card>
           </div>
-        )}
+          )}
 
-        {/* AI Tools Tab */}
-        {activeTab === "ai-tools" && (
-          <div>
+          {/* AI Tools Tab */}
+          {activeTab === "ai-tools" && (
+            <div>
             <div className="mb-6">
               <h2 className="text-xl font-inter font-semibold text-gray-900">AI-Powered Tools</h2>
               <p className="text-sm text-gray-600 mt-1">Generate categories and formulations using artificial intelligence</p>
@@ -928,39 +928,39 @@ export default function AdminPage() {
               </Card>
             </div>
           </div>
-        )}
+          )}
 
-        {/* Bulk Formulations Tab */}
-        {activeTab === "bulk-formulations" && (
-          <div>
+          {/* Bulk Formulations Tab */}
+          {activeTab === "bulk-formulations" && (
+            <div>
             <div className="mb-6">
               <h2 className="text-xl font-inter font-semibold text-gray-900">Bulk Formulations Generator</h2>
               <p className="text-sm text-gray-600 mt-1">Select an existing category and generate multiple formulations automatically</p>
             </div>
             <BulkFormulationGenerator categories={categories || []} />
           </div>
-        )}
-        
-        {/* Settings Tab */}
-        {activeTab === "settings" && (
-          <div>
+          )}
+
+          {/* Settings Tab */}
+          {activeTab === "settings" && (
+            <div>
             <div className="mb-6">
               <h2 className="text-xl font-inter font-semibold text-gray-900">Application Settings</h2>
               <p className="text-sm text-gray-600 mt-1">Customize the appearance and branding of your application</p>
             </div>
             <LogoSettings />
           </div>
-        )}
-        
-        {/* Content Management Tab */}
-        {activeTab === "content" && (
-          <div><ContentManagementTab /></div>
-        )}
-        
-        {/* Blog Management Tab */}
-        {activeTab === "blog" && (
-          <div><BlogManagementTab /></div>
-        )}
+          )}
+
+          {/* Content Management Tab */}
+          {activeTab === "content" && (
+            <div><ContentManagementTab /></div>
+          )}
+
+          {/* Blog Management Tab */}
+          {activeTab === "blog" && (
+            <div><BlogManagementTab /></div>
+          )}
         </div>
       </div>
     </div>
