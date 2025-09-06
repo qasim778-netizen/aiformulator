@@ -643,7 +643,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Formulation Requests management endpoints (admin only)
-  app.get("/api/admin/user-formulation-requests", isAuthenticated, async (req, res) => {
+  app.get("/api/admin/user-formulation-requests", async (req, res) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 50;
@@ -676,7 +676,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/user-formulation-requests/:id", isAuthenticated, async (req, res) => {
+  app.get("/api/admin/user-formulation-requests/:id", async (req, res) => {
     try {
       const request = await storage.getUserFormulationRequest(req.params.id);
       if (!request) {
@@ -689,7 +689,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/admin/user-formulation-requests/:id/status", isAuthenticated, async (req, res) => {
+  app.patch("/api/admin/user-formulation-requests/:id/status", async (req, res) => {
     try {
       const { status, adminNotes } = req.body;
       if (!status || !["pending", "reviewed", "approved", "rejected"].includes(status)) {
@@ -720,7 +720,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/admin/user-formulation-requests/:id", isAuthenticated, async (req, res) => {
+  app.delete("/api/admin/user-formulation-requests/:id", async (req, res) => {
     try {
       const deleted = await storage.deleteUserFormulationRequest(req.params.id);
       if (!deleted) {
