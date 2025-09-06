@@ -28,6 +28,8 @@ export const formulations = pgTable("formulations", {
   metaDescription: text("meta_description"), // SEO meta description (max 160 chars)
   keywords: text("keywords"), // SEO keywords (comma-separated)
   image: text("image"), // Optional AI-generated product image URL
+  imageAlt: text("image_alt"), // SEO alt text for the image
+  imageFilename: text("image_filename"), // Original filename of uploaded image
   ingredients: text("ingredients").notNull(), // JSON string of ingredients array
   instructions: text("instructions").notNull(), // JSON string of instruction steps
   usageInstructions: text("usage_instructions").notNull(),
