@@ -20,7 +20,7 @@ export default function UserFormulationRequests() {
   const [adminNotes, setAdminNotes] = useState("");
   const { toast } = useToast();
 
-  const { data: requestsData, isLoading } = useQuery<{
+  const { data: requestsData, isLoading, error } = useQuery<{
     data: UserFormulationRequest[];
     pagination: { currentPage: number; totalPages: number; totalItems: number; itemsPerPage: number };
   }>({
@@ -29,11 +29,17 @@ export default function UserFormulationRequests() {
       const statusParam = statusFilter !== "all" ? `&status=${statusFilter}` : "";
       const response = await fetch(`/api/admin/user-formulation-requests?page=${currentPage}&limit=10${statusParam}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch user formulation requests');
+        console.error('API Error:', response.status, response.statusText);
+        throw new Error(`Failed to fetch user formulation requests: ${response.status}`);
       }
-      return response.json();
+      const data = await response.json();
+      console.log('User requests data:', data);
+      return data;
     },
   });
+
+  // Debug logging
+  console.log('Query state:', { isLoading, error, data: requestsData });
 
   const updateStatus = useMutation({
     mutationFn: ({ id, status, adminNotes }: { id: string; status: string; adminNotes?: string }) =>
@@ -106,11 +112,35 @@ export default function UserFormulationRequests() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="text-center">
+          <h3 className="text-lg font-medium text-red-600 mb-2">Error Loading Requests</h3>
+          <p className="text-gray-500">{error.message}</p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="mt-4"
+            variant="outline"
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   const requests = requestsData?.data || [];
   const pagination = requestsData?.pagination;
 
   return (
     <div className="space-y-6">
+      {/* Debug Info */}
+      <div className="bg-blue-50 p-2 text-xs text-blue-800 rounded">
+        Debug: Loading={String(isLoading)}, Error={error?.message || 'none'}, 
+        Requests={requests.length}, Data={requestsData ? 'loaded' : 'null'}
+      </div>
+      
       {/* Filters */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
