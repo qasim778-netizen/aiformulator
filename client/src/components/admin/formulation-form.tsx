@@ -114,28 +114,34 @@ function ImageUploadSection({ form, formulationName }: { form: any, formulationN
       const objectPath = `/objects/uploads/${uploadURL.split('/uploads/')[1]}`;
       
       try {
+        console.log("Setting ACL for image:", { uploadURL, objectPath });
+        
         // Set ACL policy for the uploaded image
-        const response = await apiRequest("PUT", "/api/formulation-images", {
+        const data = await apiRequest("PUT", "/api/formulation-images", {
           imageURL: uploadURL
         });
         
-        if (response.ok) {
-          const data = await response.json();
-          setPreviewUrl(data.objectPath || objectPath);
-          form.setValue("image", data.objectPath || objectPath);
-          form.setValue("imageFilename", uploadedFile.name);
-          
-          toast({
-            title: "Image uploaded successfully!",
-            description: "Your formulation image has been uploaded to cloud storage.",
-          });
-        }
+        console.log("ACL response:", data);
+        
+        const finalObjectPath = data.objectPath || objectPath;
+        setPreviewUrl(finalObjectPath);
+        form.setValue("image", finalObjectPath);
+        form.setValue("imageFilename", uploadedFile.name);
+        
+        console.log("Image set in form:", { finalObjectPath, filename: uploadedFile.name });
+        
+        toast({
+          title: "Image uploaded successfully!",
+          description: "Your formulation image has been uploaded to cloud storage.",
+        });
       } catch (error) {
         console.error("Error setting image ACL:", error);
         // Fallback to using the path directly
         setPreviewUrl(objectPath);
         form.setValue("image", objectPath);
         form.setValue("imageFilename", uploadedFile.name);
+        
+        console.log("Fallback image set:", { objectPath, filename: uploadedFile.name });
         
         toast({
           title: "Image uploaded successfully!",
@@ -406,6 +412,13 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
       ingredients: JSON.stringify(existingIngredients),
       instructions: JSON.stringify(existingInstructions),
     };
+
+    // Debug logging
+    console.log("Form submission data:", {
+      image: processedData.image,
+      imageFilename: processedData.imageFilename,
+      name: processedData.name
+    });
 
     if (isEditing) {
       updateFormulation.mutate(processedData);
