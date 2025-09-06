@@ -165,6 +165,47 @@ export const chatMessages = pgTable("chat_messages", {
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = typeof chatMessages.$inferInsert;
 
+// User formulation requests table - tracks user interests and custom formulation requests
+export const userFormulationRequests = pgTable("user_formulation_requests", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  sessionId: varchar("session_id").notNull(), // Session ID to group requests from same user
+  productName: text("product_name").notNull(),
+  productCategory: text("product_category").notNull(),
+  consistencyType: text("consistency_type"),
+  viscosity: text("viscosity"),
+  phLevel: text("ph_level"),
+  shelfLife: text("shelf_life"),
+  specialProperties: jsonb("special_properties"), // Array of selected special properties
+  budgetCategory: text("budget_category"),
+  productionVolume: text("production_volume"),
+  regulatoryRequirements: jsonb("regulatory_requirements"), // Array of regulatory requirements
+  additionalNotes: text("additional_notes"),
+  formData: jsonb("form_data").notNull(), // Complete form data for reference
+  formulationId: uuid("formulation_id").references(() => formulations.id), // Link to generated formulation if created
+  status: text("status").notNull().default("pending"), // pending, reviewed, approved, rejected
+  adminNotes: text("admin_notes"), // Admin comments/notes about this request
+  ipAddress: text("ip_address"), // For analytics and spam prevention
+  userAgent: text("user_agent"), // Browser info for analytics
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  reviewedAt: timestamp("reviewed_at"), // When admin reviewed this request
+  reviewedBy: varchar("reviewed_by"), // Admin who reviewed this
+}, (table) => ({
+  sessionIndex: index("user_requests_session_idx").on(table.sessionId),
+  categoryIndex: index("user_requests_category_idx").on(table.productCategory),
+  statusIndex: index("user_requests_status_idx").on(table.status),
+  createdAtIndex: index("user_requests_created_idx").on(table.createdAt),
+}));
+
+export const insertUserFormulationRequestSchema = createInsertSchema(userFormulationRequests).omit({
+  id: true,
+  createdAt: true,
+  reviewedAt: true,
+  reviewedBy: true,
+});
+
+export type InsertUserFormulationRequest = z.infer<typeof insertUserFormulationRequestSchema>;
+export type UserFormulationRequest = typeof userFormulationRequests.$inferSelect;
+
 // Pages content management table
 export const pages = pgTable("pages", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
