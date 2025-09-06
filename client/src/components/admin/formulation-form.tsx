@@ -53,45 +53,46 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
       categoryId: formulation?.categoryId || "",
       name: formulation?.name || "",
       description: formulation?.description || "",
-      seoTitle: formulation?.seoTitle || "",
-      metaDescription: formulation?.metaDescription || "",
-      keywords: formulation?.keywords || "",
-      image: formulation?.image || "",
-      imageAlt: formulation?.imageAlt || "",
-      imageFilename: formulation?.imageFilename || "",
+      seoTitle: formulation?.seoTitle ?? "",
+      metaDescription: formulation?.metaDescription ?? "",
+      keywords: formulation?.keywords ?? "",
+      image: formulation?.image ?? "",
+      imageAlt: formulation?.imageAlt ?? "",
+      imageFilename: formulation?.imageFilename ?? "",
       ingredients: formulation?.ingredients || JSON.stringify(existingIngredients),
       instructions: formulation?.instructions || JSON.stringify(existingInstructions),
       usageInstructions: formulation?.usageInstructions || "",
       phLevel: formulation?.phLevel || "",
       shelfLife: formulation?.shelfLife || "",
-      viscosity: formulation?.viscosity || "",
+      viscosity: formulation?.viscosity ?? "",
       storageConditions: formulation?.storageConditions || "",
       batchSize: formulation?.batchSize || "",
       processingTime: formulation?.processingTime || "",
       temperature: formulation?.temperature || "",
       equipment: formulation?.equipment || "",
-      certification: formulation?.certification || "",
+      certification: formulation?.certification ?? "",
       isActive: formulation?.isActive ?? true,
     },
   });
 
-  const {
-    fields: ingredientFields,
-    append: appendIngredient,
-    remove: removeIngredient,
-  } = useFieldArray({
-    control: form.control,
-    name: "ingredients" as any,
-  });
+  // Don't use useFieldArray for now since ingredients are stored as JSON strings
+  // const {
+  //   fields: ingredientFields,
+  //   append: appendIngredient,
+  //   remove: removeIngredient,
+  // } = useFieldArray({
+  //   control: form.control,
+  //   name: "ingredients" as any,
+  // });
 
-  const {
-    fields: instructionFields,
-    append: appendInstruction,
-    remove: removeInstruction,
-  } = useFieldArray({
-    control: form.control,
-    name: "instructions" as any,
-  });
+  // const {
+  //   fields: instructionFields,
+  //   append: appendInstruction,
+  //   remove: removeInstruction,
+  // } = useFieldArray({
+  //   control: form.control,
+  //   name: "instructions" as any,
+  // });
 
   const createFormulation = useMutation({
     mutationFn: (data: InsertFormulation) => apiRequest("POST", "/api/formulations", data),

@@ -63,6 +63,14 @@ export const insertFormulationSchema = createInsertSchema(formulations).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  seoTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+  keywords: z.string().optional(),
+  imageAlt: z.string().optional(),
+  imageFilename: z.string().optional(),
+  viscosity: z.string().optional(),
+  certification: z.string().optional(),
 });
 
 // Product special properties table for dynamic properties based on product type
