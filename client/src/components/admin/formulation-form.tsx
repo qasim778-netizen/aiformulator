@@ -114,21 +114,15 @@ function ImageUploadSection({ form, formulationName }: { form: any, formulationN
       const objectPath = `/objects/uploads/${uploadURL.split('/uploads/')[1]}`;
       
       try {
-        console.log("Setting ACL for image:", { uploadURL, objectPath });
-        
         // Set ACL policy for the uploaded image
         const data = await apiRequest("PUT", "/api/formulation-images", {
           imageURL: uploadURL
         });
         
-        console.log("ACL response:", data);
-        
         const finalObjectPath = data.objectPath || objectPath;
         setPreviewUrl(finalObjectPath);
         form.setValue("image", finalObjectPath);
         form.setValue("imageFilename", uploadedFile.name);
-        
-        console.log("Image set in form:", { finalObjectPath, filename: uploadedFile.name });
         
         toast({
           title: "Image uploaded successfully!",
@@ -140,8 +134,6 @@ function ImageUploadSection({ form, formulationName }: { form: any, formulationN
         setPreviewUrl(objectPath);
         form.setValue("image", objectPath);
         form.setValue("imageFilename", uploadedFile.name);
-        
-        console.log("Fallback image set:", { objectPath, filename: uploadedFile.name });
         
         toast({
           title: "Image uploaded successfully!",
@@ -413,12 +405,16 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
       instructions: JSON.stringify(existingInstructions),
     };
 
-    // Debug logging
-    console.log("Form submission data:", {
-      image: processedData.image,
-      imageFilename: processedData.imageFilename,
-      name: processedData.name
-    });
+    // Ensure image field is properly included even if empty
+    if (!processedData.image) {
+      processedData.image = "";
+    }
+    if (!processedData.imageAlt) {
+      processedData.imageAlt = "";
+    }
+    if (!processedData.imageFilename) {
+      processedData.imageFilename = "";
+    }
 
     if (isEditing) {
       updateFormulation.mutate(processedData);
@@ -568,6 +564,31 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
               form={form}
               formulationName={form.watch("name")}
             />
+
+            {/* Hidden fields to ensure image data is submitted */}
+            <div style={{ display: 'none' }}>
+              <FormField
+                control={form.control}
+                name="image"
+                render={({ field }) => (
+                  <Input type="hidden" {...field} />
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="imageAlt"
+                render={({ field }) => (
+                  <Input type="hidden" {...field} />
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="imageFilename"
+                render={({ field }) => (
+                  <Input type="hidden" {...field} />
+                )}
+              />
+            </div>
           </CardContent>
         </Card>
 
