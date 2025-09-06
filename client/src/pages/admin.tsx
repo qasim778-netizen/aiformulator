@@ -911,11 +911,17 @@ export default function AdminPage() {
                               variant="ghost"
                               size="sm"
                               className="text-purple-600 hover:text-purple-900"
-                              onClick={() => generateFormulationImage.mutate({ 
-                                name: formulation.name, 
-                                brandName: "AIFormulator" 
-                              })}
-                              disabled={generateFormulationImage.isPending}
+                              onClick={() => {
+                                setActiveTab("image-generator");
+                                // Pre-fill the formulation name in the image generator
+                                setTimeout(() => {
+                                  const nameInput = document.querySelector('input[placeholder*="Advanced Hair Shampoo"]') as HTMLInputElement;
+                                  if (nameInput) {
+                                    nameInput.value = formulation.name;
+                                    nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+                                  }
+                                }, 100);
+                              }}
                               title="Generate AI Image"
                             >
                               <Image className="h-4 w-4" />
