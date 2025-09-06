@@ -1,6 +1,6 @@
 import { eq, desc } from "drizzle-orm";
-import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable } from "./db";
-import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage } from "@shared/schema";
+import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable } from "./db";
+import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage, UserFormulationRequest, InsertUserFormulationRequest } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
 import crypto from "crypto";
 
@@ -560,6 +560,65 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error("Failed to create chat message:", error);
       throw new Error("Failed to create chat message");
+    }
+  }
+
+  // User Formulation Requests methods
+  async getUserFormulationRequests(): Promise<UserFormulationRequest[]> {
+    try {
+      return await db.select().from(userFormulationRequestsTable).orderBy(desc(userFormulationRequestsTable.createdAt));
+    } catch (error) {
+      console.log("User formulation requests table not yet available, returning empty array");
+      return [];
+    }
+  }
+
+  async getUserFormulationRequest(id: string): Promise<UserFormulationRequest | undefined> {
+    try {
+      const [request] = await db.select().from(userFormulationRequestsTable).where(eq(userFormulationRequestsTable.id, id));
+      return request;
+    } catch (error) {
+      console.error("Failed to get user formulation request:", error);
+      return undefined;
+    }
+  }
+
+  async createUserFormulationRequest(requestData: InsertUserFormulationRequest): Promise<UserFormulationRequest> {
+    try {
+      const [request] = await db.insert(userFormulationRequestsTable).values(requestData).returning();
+      return request;
+    } catch (error) {
+      console.error("Failed to create user formulation request:", error);
+      throw new Error("Failed to create user formulation request");
+    }
+  }
+
+  async updateUserFormulationRequestStatus(id: string, status: string, adminNotes?: string, reviewedBy?: string): Promise<UserFormulationRequest | undefined> {
+    try {
+      const [updated] = await db
+        .update(userFormulationRequestsTable)
+        .set({ 
+          status,
+          adminNotes,
+          reviewedBy,
+          reviewedAt: new Date()
+        })
+        .where(eq(userFormulationRequestsTable.id, id))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error("Failed to update user formulation request status:", error);
+      return undefined;
+    }
+  }
+
+  async deleteUserFormulationRequest(id: string): Promise<boolean> {
+    try {
+      const result = await db.delete(userFormulationRequestsTable).where(eq(userFormulationRequestsTable.id, id));
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error("Failed to delete user formulation request:", error);
+      return false;
     }
   }
 }

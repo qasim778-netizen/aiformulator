@@ -1,4 +1,4 @@
-import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser, type Page, type InsertPage, type BlogPost, type InsertBlogPost, type ChatMessage, type InsertChatMessage } from "@shared/schema";
+import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser, type Page, type InsertPage, type BlogPost, type InsertBlogPost, type ChatMessage, type InsertChatMessage, type UserFormulationRequest, type InsertUserFormulationRequest } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IAiGeneration {
@@ -69,6 +69,13 @@ export interface IStorage {
   // Chat methods
   getChatMessages(sessionId: string): Promise<ChatMessage[]>;
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
+
+  // User Formulation Requests
+  getUserFormulationRequests(): Promise<UserFormulationRequest[]>;
+  getUserFormulationRequest(id: string): Promise<UserFormulationRequest | undefined>;
+  createUserFormulationRequest(request: InsertUserFormulationRequest): Promise<UserFormulationRequest>;
+  updateUserFormulationRequestStatus(id: string, status: string, adminNotes?: string, reviewedBy?: string): Promise<UserFormulationRequest | undefined>;
+  deleteUserFormulationRequest(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -81,6 +88,7 @@ export class MemStorage implements IStorage {
   private pages: Map<string, Page>;
   private blogPosts: Map<string, BlogPost>;
   private chatMessages: Map<string, ChatMessage[]>;
+  private userFormulationRequests: Map<string, UserFormulationRequest>;
 
   constructor() {
     this.categories = new Map();
@@ -92,6 +100,7 @@ export class MemStorage implements IStorage {
     this.pages = new Map();
     this.blogPosts = new Map();
     this.chatMessages = new Map();
+    this.userFormulationRequests = new Map();
     // Only seed data if no data exists (first run)
     this.seedInitialData();
     this.seedPages();

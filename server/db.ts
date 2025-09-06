@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
-import { pgTable, text, boolean, timestamp, uuid, jsonb, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, boolean, timestamp, uuid, jsonb, integer, varchar } from "drizzle-orm/pg-core";
 
 // Database connection
 const sql = neon(process.env.DATABASE_URL!);
@@ -93,15 +93,43 @@ export const blogPostsTable = pgTable("blog_posts", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// User formulation requests table - tracks user interests and custom formulation requests
+export const userFormulationRequestsTable = pgTable("user_formulation_requests", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  sessionId: varchar("session_id", { length: 255 }).notNull(),
+  productName: text("product_name").notNull(),
+  productCategory: text("product_category").notNull(),
+  consistencyType: text("consistency_type"),
+  viscosity: text("viscosity"),
+  phLevel: text("ph_level"),
+  shelfLife: text("shelf_life"),
+  specialProperties: jsonb("special_properties"),
+  budgetCategory: text("budget_category"),
+  productionVolume: text("production_volume"),
+  regulatoryRequirements: jsonb("regulatory_requirements"),
+  additionalNotes: text("additional_notes"),
+  formData: jsonb("form_data").notNull(),
+  formulationId: uuid("formulation_id").references(() => formulationsTable.id),
+  status: text("status").notNull().default("pending"),
+  adminNotes: text("admin_notes"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewedBy: varchar("reviewed_by", { length: 255 }),
+});
+
 export type DbCategory = typeof categoriesTable.$inferSelect;
 export type DbFormulation = typeof formulationsTable.$inferSelect;
 export type DbProductProperties = typeof productPropertiesTable.$inferSelect;
 export type DbUserNote = typeof userNotesTable.$inferSelect;
 export type DbPage = typeof pagesTable.$inferSelect;
 export type DbBlogPost = typeof blogPostsTable.$inferSelect;
+export type DbUserFormulationRequest = typeof userFormulationRequestsTable.$inferSelect;
 export type InsertDbCategory = typeof categoriesTable.$inferInsert;
 export type InsertDbFormulation = typeof formulationsTable.$inferInsert;
 export type InsertDbProductProperties = typeof productPropertiesTable.$inferInsert;
 export type InsertDbUserNote = typeof userNotesTable.$inferInsert;
 export type InsertDbPage = typeof pagesTable.$inferInsert;
 export type InsertDbBlogPost = typeof blogPostsTable.$inferInsert;
+export type InsertDbUserFormulationRequest = typeof userFormulationRequestsTable.$inferInsert;
