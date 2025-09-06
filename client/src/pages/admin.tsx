@@ -954,16 +954,15 @@ export default function AdminPage() {
         
         {/* Content Management Tab */}
         {activeTab === "content" && (
-          <ContentManagementTab />
+          <div><ContentManagementTab /></div>
         )}
         
         {/* Blog Management Tab */}
         {activeTab === "blog" && (
-          <BlogManagementTab />
+          <div><BlogManagementTab /></div>
         )}
         </div>
       </div>
-    </div>
     </div>
   );
 }
