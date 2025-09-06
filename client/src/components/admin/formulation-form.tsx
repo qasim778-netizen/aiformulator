@@ -85,22 +85,31 @@ function ImageUploadSection({ form, formulationName }: { form: any, formulationN
     }
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.type.startsWith('image/')) {
-        setUploadedImage(file);
-        const url = URL.createObjectURL(file);
-        setPreviewUrl(url);
-        form.setValue("image", url);
-        form.setValue("imageFilename", file.name);
-      } else {
-        toast({
-          title: "Invalid File Type",
-          description: "Please select an image file (PNG, JPG, JPEG, WebP).",
-          variant: "destructive",
-        });
-      }
+  const handleGetUploadParameters = async () => {
+    const response = await apiRequest("POST", "/api/objects/upload");
+    const data = await response.json();
+    return {
+      method: 'PUT' as const,
+      url: data.uploadURL,
+    };
+  };
+
+  const handleUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful && result.successful.length > 0) {
+      const uploadedFile = result.successful[0];
+      const uploadURL = uploadedFile.uploadURL;
+      
+      // Convert GCS upload URL to our object path format
+      const objectPath = `/objects/uploads/${uploadURL.split('/uploads/')[1]}`;
+      
+      setPreviewUrl(uploadURL);
+      form.setValue("image", objectPath);
+      form.setValue("imageFilename", uploadedFile.name);
+      
+      toast({
+        title: "Image uploaded successfully!",
+        description: "Your formulation image has been uploaded to cloud storage.",
+      });
     }
   };
 
@@ -160,22 +169,21 @@ function ImageUploadSection({ form, formulationName }: { form: any, formulationN
             <div className="text-center">
               <Upload className="mx-auto h-12 w-12 text-gray-400" />
               <div className="mt-4">
-                <Label htmlFor="image-upload" className="cursor-pointer">
-                  <span className="mt-2 block text-sm font-medium text-gray-900">
-                    Upload a formulation image
-                  </span>
-                  <span className="mt-1 block text-sm text-gray-500">
-                    PNG, JPG, JPEG, WebP up to 10MB
-                  </span>
-                </Label>
-                <Input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="sr-only"
-                  data-testid="input-image-upload"
-                />
+                <ObjectUploader
+                  maxNumberOfFiles={1}
+                  maxFileSize={10485760} // 10MB
+                  onGetUploadParameters={handleGetUploadParameters}
+                  onComplete={handleUploadComplete}
+                  buttonClassName="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+                >
+                  <div className="flex items-center">
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Formulation Image
+                  </div>
+                </ObjectUploader>
+                <p className="mt-2 text-sm text-gray-500">
+                  PNG, JPG, JPEG, WebP up to 10MB
+                </p>
               </div>
             </div>
           )}
