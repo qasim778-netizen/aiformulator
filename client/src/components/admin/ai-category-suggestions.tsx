@@ -27,9 +27,10 @@ export default function AICategorySuggestions() {
       console.log("API response:", result);
       return result;
     },
-    onSuccess: (data: { suggestions: CategorySuggestion[] }) => {
+    onSuccess: (data: any) => {
       console.log("Success callback, data:", data);
-      setSuggestions(data.suggestions || []);
+      const suggestions = data?.suggestions || [];
+      setSuggestions(suggestions);
       if (!dialogOpen) {
         setDialogOpen(true);
       }
