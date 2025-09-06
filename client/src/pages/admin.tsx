@@ -960,6 +960,7 @@ export default function AdminPage() {
           <BlogManagementTab />
         )}
       </div>
+      </div>
     </div>
   );
 }
