@@ -392,7 +392,21 @@ export async function generateFormulationImageWithReference(formulationName: str
             content: [
               {
                 type: "text",
-                text: `Create a DALL-E 3 prompt for generating a formulation image inspired by this reference image. The final image should be a flat 2D digital illustration on a neutral beige background with bold black text '${formulationName} Formulation' at the top, simple black product-related icons in the center, and small centered text '${brandName}' at the bottom. Use the style, color scheme, or design elements from the reference image while maintaining the clean, minimal, modern aesthetic. Return only the DALL-E prompt, nothing else.`
+                text: `Analyze this reference image carefully and create a DALL-E 3 prompt that incorporates specific visual elements from it. 
+
+REQUIREMENTS for the generated image:
+- Must have bold black text "${formulationName} Formulation" at the top
+- Must have small text "${brandName}" at the bottom center
+- Must have product-related icons in the center
+- Must be flat 2D illustration style
+
+REFERENCE IMAGE ANALYSIS NEEDED:
+1. What specific colors, patterns, or design elements can be incorporated?
+2. What is the composition style (geometric, organic, minimal, detailed)?
+3. What visual elements (shapes, layouts, decorative elements) should be adapted?
+4. What overall aesthetic mood should be maintained?
+
+Create a detailed DALL-E prompt that specifically incorporates these visual elements from the reference image while maintaining the required text layout. Be very specific about colors, shapes, patterns, and design elements you see in the reference. Return only the DALL-E prompt.`
               },
               {
                 type: "image_url",
