@@ -115,8 +115,6 @@ export default function TermsOfService() {
                 </p>
                 <ul className="list-none mb-6">
                   <li><strong>Email:</strong> legal@aiformulator.com</li>
-                  <li><strong>Phone:</strong> +1 (555) 123-4567</li>
-                  <li><strong>Address:</strong> 123 Innovation Drive, Chemical Valley, CA 94000</li>
                 </ul>
 
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-8">
