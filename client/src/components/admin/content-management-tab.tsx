@@ -29,6 +29,11 @@ export default function ContentManagementTab() {
     queryFn: async () => {
       const response = await fetch("/api/pages", {
         credentials: "include",
+        cache: "no-cache",
+        headers: {
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache",
+        },
       });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -37,6 +42,7 @@ export default function ContentManagementTab() {
     },
     retry: 1,
     staleTime: 0,
+    cacheTime: 0,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
   });
