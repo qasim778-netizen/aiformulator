@@ -170,7 +170,7 @@ export default function Disclaimer() {
                   For legal inquiries or concerns about this disclaimer:
                 </p>
                 <ul className="list-none mb-6">
-                  <li><strong>Legal Email:</strong> legal@aiformulator.com</li>
+                  <li><strong>Legal Email:</strong> legal@aiformulator.net</li>
                 </ul>
 
                 <div className="bg-red-50 border border-red-200 rounded-lg p-6 mt-8">

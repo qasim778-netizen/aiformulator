@@ -77,7 +77,7 @@ export default function Footer() {
           <div>
             <h4 className="font-medium mb-4">Follow Us</h4>
             <div className="space-y-2 text-sm text-gray-300 mb-4">
-              <p><i className="fas fa-envelope mr-2"></i>info@aiformulator.com</p>
+              <p><i className="fas fa-envelope mr-2"></i>info@aiformulator.net</p>
             </div>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-300 hover:text-white transition-colors duration-200" aria-label="YouTube">

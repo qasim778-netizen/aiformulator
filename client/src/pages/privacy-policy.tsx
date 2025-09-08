@@ -162,8 +162,8 @@ export default function PrivacyPolicy() {
                   For privacy-related questions or requests, contact us:
                 </p>
                 <ul className="list-none mb-6">
-                  <li><strong>Privacy Email:</strong> privacy@aiformulator.com</li>
-                  <li><strong>General Contact:</strong> support@aiformulator.com</li>
+                  <li><strong>Privacy Email:</strong> privacy@aiformulator.net</li>
+                  <li><strong>General Contact:</strong> support@aiformulator.net</li>
                 </ul>
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-8">

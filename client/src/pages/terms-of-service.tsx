@@ -114,7 +114,7 @@ export default function TermsOfService() {
                   For questions about these Terms & Conditions, please contact us:
                 </p>
                 <ul className="list-none mb-6">
-                  <li><strong>Email:</strong> legal@aiformulator.com</li>
+                  <li><strong>Email:</strong> legal@aiformulator.net</li>
                 </ul>
 
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-8">

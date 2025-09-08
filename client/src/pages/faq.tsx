@@ -139,7 +139,7 @@ export default function FAQ() {
                 Contact Support
               </a>
               <a 
-                href="mailto:support@aiformulator.com" 
+                href="mailto:support@aiformulator.net" 
                 className="inline-block border border-primary text-primary px-6 py-3 rounded-md hover:bg-primary/5 transition-colors"
                 data-testid="link-email-from-faq"
               >
