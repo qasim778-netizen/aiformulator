@@ -915,7 +915,7 @@ export default function AdminPage() {
               <h2 className="text-xl font-inter font-semibold text-gray-900">Bulk Formulations Generator</h2>
               <p className="text-sm text-gray-600 mt-1">Select an existing category and generate multiple formulations automatically</p>
             </div>
-            <BulkFormulationGenerator categories={categories} />
+            <BulkFormulationGenerator categories={categories || []} />
           </div>
         )}
 
