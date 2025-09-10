@@ -43,6 +43,8 @@ export default function AdminPage() {
   const [bulkGenerationDialogOpen, setBulkGenerationDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [editingFormulation, setEditingFormulation] = useState<Formulation | null>(null);
+  const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const { toast } = useToast();
   const { startGuidance, isCompleted } = useGuidance();
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -114,18 +116,60 @@ export default function AdminPage() {
     queryKey: ["/api/stats"],
   });
 
+  // Check if category has formulations
+  const checkCategoryFormulations = async (categoryId: string) => {
+    try {
+      const response = await fetch(`/api/formulations?categoryId=${categoryId}&limit=1`);
+      if (!response.ok) throw new Error('Failed to check formulations');
+      const data = await response.json();
+      return data.length > 0;
+    } catch {
+      return false;
+    }
+  };
+
   const deleteCategory = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/categories/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
       queryClient.invalidateQueries({ queryKey: ["/api/categories", "paginated"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      setDeleteConfirmOpen(false);
+      setDeletingCategory(null);
       toast({ title: "Category deleted successfully" });
     },
-    onError: () => {
-      toast({ title: "Failed to delete category", variant: "destructive" });
+    onError: (error: any) => {
+      setDeleteConfirmOpen(false);
+      setDeletingCategory(null);
+      toast({ 
+        title: "Failed to delete category", 
+        description: error?.message || "An error occurred while deleting the category",
+        variant: "destructive" 
+      });
     },
   });
+
+  const handleDeleteCategory = async (category: Category) => {
+    const hasFormulations = await checkCategoryFormulations(category.id);
+    
+    if (hasFormulations) {
+      toast({
+        title: "Cannot Delete Category",
+        description: "This category contains formulations. Please remove or move all formulations before deleting the category.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setDeletingCategory(category);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteCategory = () => {
+    if (deletingCategory) {
+      deleteCategory.mutate(deletingCategory.id);
+    }
+  };
 
   const deleteFormulation = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/formulations/${id}`),
@@ -571,7 +615,7 @@ export default function AdminPage() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => deleteCategory.mutate(category.id)}
+                                onClick={() => handleDeleteCategory(category)}
                                 className="text-red-600 hover:text-red-900"
                                 data-testid={`button-delete-category-${category.id}`}
                               >
@@ -918,6 +962,37 @@ export default function AdminPage() {
           <BlogManagementTab />
         )}
       </div>
+
+      {/* Delete Category Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">Delete Category</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete the category "{deletingCategory?.name}"? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end space-x-2 mt-6">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setDeleteConfirmOpen(false);
+                setDeletingCategory(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={confirmDeleteCategory}
+              disabled={deleteCategory.isPending}
+              data-testid="button-confirm-delete-category"
+            >
+              {deleteCategory.isPending ? "Deleting..." : "Delete Category"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
