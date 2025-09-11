@@ -1146,112 +1146,113 @@ Allow: /disclaimer`;
         });
       }
 
-      // Create a simple formulation without AI for now to test the functionality
-      const formulation = {
-        name: productName,
-        description: `Professional ${productType} formulation for ${productDescription}`,
-        ingredients: JSON.stringify([
-          {
-            "name": "Deionized Water",
-            "inci": "Aqua",
-            "percentage": "60.0%",
-            "function": "Solvent"
-          },
-          {
-            "name": "Glycerin",
-            "inci": "Glycerin",
-            "percentage": "15.0%",
-            "function": "Humectant and viscosity modifier"
-          },
-          {
-            "name": "Carbomer",
-            "inci": "Carbomer",
-            "percentage": "2.0%",
-            "function": "Thickening agent"
-          },
-          {
-            "name": "Sodium Hydroxide",
-            "inci": "Sodium Hydroxide",
-            "percentage": "0.5%",
-            "function": "pH adjuster"
-          },
-          {
-            "name": "Preservative System",
-            "inci": "Phenoxyethanol, Ethylhexylglycerin",
-            "percentage": "1.0%",
-            "function": "Preservative"
-          },
-          {
-            "name": "Active Ingredients",
-            "inci": "Various",
-            "percentage": "20.0%",
-            "function": "Primary active components"
-          },
-          {
-            "name": "Fragrance",
-            "inci": "Parfum",
-            "percentage": "1.0%",
-            "function": "Scenting agent"
-          },
-          {
-            "name": "Colorant",
-            "inci": "CI 19140",
-            "percentage": "0.5%",
-            "function": "Coloring agent"
-          }
-        ]),
-        instructions: JSON.stringify([
-          {
-            "phase": "Phase A",
-            "steps": [
-              "Combine Deionized Water and Glycerin in main vessel",
-              "Heat mixture to 70°C while stirring",
-              "Maintain temperature until uniform"
-            ]
-          },
-          {
-            "phase": "Phase B",
-            "steps": [
-              "Slowly add Carbomer to Phase A under continuous mixing",
-              "Mix until fully dispersed and hydrated",
-              "Avoid creating excessive foam"
-            ]
-          },
-          {
-            "phase": "Phase C",
-            "steps": [
-              `Adjust pH to ${phLevel} using diluted Sodium Hydroxide solution`,
-              "Add dropwise while monitoring pH continuously",
-              "Mix thoroughly after each addition"
-            ]
-          },
-          {
-            "phase": "Phase D",
-            "steps": [
-              "Cool mixture to below 40°C",
-              "Add preservative system and mix well",
-              "Add active ingredients gradually while mixing"
-            ]
-          },
-          {
-            "phase": "Phase E",
-            "steps": [
-              "Add fragrance and colorant if specified",
-              "Mix until evenly distributed",
-              "Perform final quality checks and package"
-            ]
-          }
-        ]),
-        usageInstructions: 'Apply as needed according to product instructions',
-        phLevel: phLevel.toString(),
-        shelfLife: "24 months when stored properly",
-        viscosity: viscosity || 'Medium',
-        storageConditions: "Store in cool, dry place away from direct sunlight",
-        batchSize: "1000ml",
-        processingTime: "2-3 hours",
-        temperature: "Room temperature (20-25°C)",
-        equipment: "Standard mixing equipment, pH meter, thermometer",
-        certification: "Meets industry standards"
+      // Use the improved category-specific AI system
+      console.log(`🧠 Generating AI formulation for category: ${productCategory}`);
+      
+      let formulation;
+      try {
+        // Import the category-specific generator
+        const { generateCategorySpecificFormulation, validateFormulation } = await import('./ai-category-specific');
+        
+        // Create descriptive input for AI
+        const aiDescription = `${productDescription} - ${productType} with ${viscosity} viscosity, pH ${phLevel}, ${costLevel} cost level${specialRequirements ? `, special requirements: ${specialRequirements}` : ''}`;
+        
+        // Generate using category-specific AI
+        const aiFormulation = await generateCategorySpecificFormulation(productCategory.toLowerCase(), aiDescription);
+        
+        // Validate the formulation
+        const validation = validateFormulation(aiFormulation, productCategory.toLowerCase());
+        
+        if (!validation.isValid) {
+          console.warn(`⚠️ Generated formulation has validation issues:`, validation.errors);
+        }
+        
+        formulation = {
+          name: productName,
+          description: aiFormulation.description || `Professional ${productType} formulation for ${productDescription}`,
+          ingredients: aiFormulation.ingredients,
+          instructions: aiFormulation.instructions,
+          usageInstructions: aiFormulation.usageInstructions || 'Apply as needed according to product instructions',
+          phLevel: aiFormulation.phLevel || phLevel.toString(),
+          shelfLife: aiFormulation.shelfLife || "24 months when stored properly",
+          viscosity: aiFormulation.viscosity || viscosity || 'Medium',
+          storageConditions: aiFormulation.storageConditions || "Store in cool, dry place away from direct sunlight",
+          batchSize: aiFormulation.batchSize || "1000ml",
+          processingTime: aiFormulation.processingTime || "2-3 hours",
+          temperature: aiFormulation.temperature || "Room temperature (20-25°C)",
+          equipment: aiFormulation.equipment || "Standard mixing equipment, pH meter, thermometer",
+          certification: aiFormulation.certification || "Meets industry standards",
+          isActive: false // This will make it appear in pending approval
+        };
+        
+      } catch (aiError) {
+        console.error("AI generation failed, using fallback:", aiError);
+        // Fallback to basic template if AI fails
+        formulation = {
+          name: productName,
+          description: `Professional ${productType} formulation for ${productDescription}`,
+          ingredients: JSON.stringify([
+            {
+              "name": "Water",
+              "inci": "Aqua",
+              "percentage": "80.0%",
+              "function": "Base solvent"
+            },
+            {
+              "name": "Active Complex",
+              "inci": "Active Ingredients",
+              "percentage": "15.0%",
+              "function": "Primary active"
+            },
+            {
+              "name": "Stabilizer",
+              "inci": "Stabilizer System",
+              "percentage": "3.0%",
+              "function": "Stabilization"
+            },
+            {
+              "name": "Preservative",
+              "inci": "Preservative System",
+              "percentage": "2.0%",
+              "function": "Preservation"
+            }
+          ]),
+          instructions: JSON.stringify([
+            {
+              "phase": "Phase A",
+              "steps": [
+                "Combine base ingredients in main vessel",
+                "Mix until uniform at room temperature"
+              ]
+            },
+            {
+              "phase": "Phase B",
+              "steps": [
+                "Add active complex gradually while stirring",
+                "Ensure complete dissolution"
+              ]
+            },
+            {
+              "phase": "Phase C",
+              "steps": [
+                "Add stabilizer system and mix well",
+                "Add preservative system last",
+                "Perform final quality checks"
+              ]
+            }
+          ]),
+          usageInstructions: 'Apply as needed according to product instructions',
+          phLevel: phLevel.toString(),
+          shelfLife: "24 months when stored properly",
+          viscosity: viscosity || 'Medium',
+          storageConditions: "Store in cool, dry place away from direct sunlight",
+          batchSize: "1000ml",
+          processingTime: "2-3 hours",
+          temperature: "Room temperature (20-25°C)",
+          equipment: "Standard mixing equipment, pH meter, thermometer",
+          certification: "Meets industry standards",
+          isActive: false
+        }
       };
 
       // Get category ID for the selected product category
