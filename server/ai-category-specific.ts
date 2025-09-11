@@ -43,6 +43,130 @@ export const categorySpecs = {
     processingTime: '1-3 hours',
     temperature: '60-75°C heating phase',
     formType: 'various'
+  },
+  'baby-care': {
+    name: 'Baby Care',
+    requiredIngredients: ['gentle-preservative', 'mild-surfactant'],
+    prohibitedIngredients: ['sulfates', 'parabens', 'strong-acids', 'essential-oils', 'alcohol'],
+    phRange: { min: 5.5, max: 7.0 },
+    processingTime: '2-4 hours',
+    temperature: '60-70°C heating phase',
+    formType: 'cream/lotion',
+    specialRequirements: ['hypoallergenic', 'tear-free', 'dermatologist-tested']
+  },
+  'beauty-products': {
+    name: 'Beauty Products',
+    requiredIngredients: ['preservative', 'pigment-stabilizer'],
+    prohibitedIngredients: ['harsh-chemicals'],
+    phRange: { min: 4.0, max: 8.5 },
+    processingTime: '1-3 hours',
+    temperature: '50-75°C heating phase',
+    formType: 'various'
+  },
+  'detergent-formulation': {
+    name: 'Detergent Formulation',
+    requiredIngredients: ['surfactant', 'builder', 'enzyme'],
+    prohibitedIngredients: ['cosmetic-emulsifiers', 'glycerin'],
+    phRange: { min: 8, max: 11 },
+    processingTime: '30-90 minutes',
+    temperature: 'Room temperature (20-25°C)',
+    formType: 'liquid/powder'
+  },
+  'electronic-chemicals': {
+    name: 'Electronic Chemicals',
+    requiredIngredients: ['flux', 'anti-corrosive'],
+    prohibitedIngredients: ['water-based', 'conductive-salts'],
+    phRange: { min: 6, max: 8 },
+    processingTime: '1-2 hours',
+    temperature: 'Controlled environment (15-25°C)',
+    formType: 'specialized',
+    specialRequirements: ['anti-static', 'precision-cleaning', 'residue-free']
+  },
+  'food-beverage-additives': {
+    name: 'Food & Beverage Additives',
+    requiredIngredients: ['food-grade-preservative'],
+    prohibitedIngredients: ['industrial-chemicals', 'toxic-compounds'],
+    phRange: { min: 3, max: 9 },
+    processingTime: '30 minutes - 2 hours',
+    temperature: 'Food-safe processing (varies)',
+    formType: 'various',
+    specialRequirements: ['FDA-approved', 'food-grade', 'GRAS-status']
+  },
+  'leather-products': {
+    name: 'Leather Products',
+    requiredIngredients: ['conditioning-agent', 'protective-coating'],
+    prohibitedIngredients: ['water-soluble-salts', 'strong-acids'],
+    phRange: { min: 4, max: 7 },
+    processingTime: '1-3 hours',
+    temperature: 'Room temperature (20-25°C)',
+    formType: 'cream/liquid'
+  },
+  'men-care': {
+    name: 'Men Care',
+    requiredIngredients: ['preservative', 'emulsifier'],
+    prohibitedIngredients: ['harsh-sulfates'],
+    phRange: { min: 5, max: 8 },
+    processingTime: '2-4 hours',
+    temperature: '65-75°C heating phase',
+    formType: 'various'
+  },
+  'oral-care': {
+    name: 'Oral Care',
+    requiredIngredients: ['fluoride', 'abrasive', 'antimicrobial'],
+    prohibitedIngredients: ['toxic-compounds', 'industrial-solvents'],
+    phRange: { min: 6, max: 9 },
+    processingTime: '1-2 hours',
+    temperature: 'Room temperature (20-25°C)',
+    formType: 'paste/liquid',
+    specialRequirements: ['safe-if-swallowed', 'enamel-safe']
+  },
+  'organic-care': {
+    name: 'Organic Care',
+    requiredIngredients: ['natural-preservative', 'organic-emulsifier'],
+    prohibitedIngredients: ['synthetic-chemicals', 'sulfates', 'parabens', 'artificial-colors'],
+    phRange: { min: 5, max: 7.5 },
+    processingTime: '2-5 hours',
+    temperature: '50-70°C heating phase',
+    formType: 'various',
+    specialRequirements: ['organic-certified', 'natural-ingredients', 'eco-friendly']
+  },
+  'shoe-care': {
+    name: 'Shoe Care',
+    requiredIngredients: ['protective-wax', 'conditioning-agent'],
+    prohibitedIngredients: ['water-damage-agents'],
+    phRange: { min: 6, max: 8 },
+    processingTime: '30 minutes - 2 hours',
+    temperature: 'Room temperature (20-25°C)',
+    formType: 'cream/liquid'
+  },
+  'skin-care': {
+    name: 'Skin Care',
+    requiredIngredients: ['preservative', 'emulsifier', 'humectant'],
+    prohibitedIngredients: ['ammonia', 'strong-alkaline'],
+    phRange: { min: 4.5, max: 7.5 },
+    processingTime: '2-4 hours',
+    temperature: '70-80°C heating phase',
+    formType: 'cream/lotion'
+  },
+  'construction-material': {
+    name: 'Construction Material',
+    requiredIngredients: ['binder', 'additive'],
+    prohibitedIngredients: ['cosmetic-ingredients'],
+    phRange: { min: 8, max: 13 },
+    processingTime: '1-6 hours',
+    temperature: 'Ambient to high heat (varies)',
+    formType: 'paste/liquid',
+    specialRequirements: ['structural-integrity', 'weather-resistant']
+  },
+  'pet-care': {
+    name: 'Pet Care',
+    requiredIngredients: ['gentle-preservative', 'mild-surfactant'],
+    prohibitedIngredients: ['toxic-to-animals', 'essential-oils', 'xylitol'],
+    phRange: { min: 6, max: 8 },
+    processingTime: '1-3 hours',
+    temperature: '60-70°C heating phase',
+    formType: 'various',
+    specialRequirements: ['pet-safe', 'non-toxic', 'veterinarian-approved']
   }
 };
 
@@ -59,6 +183,65 @@ export const ingredientDatabase = {
     preservatives: ['Phenoxyethanol', 'Benzyl Alcohol', 'Potassium Sorbate'],
     humectants: ['Glycerin', 'Hyaluronic Acid', 'Propylene Glycol'],
     thickeners: ['Carbomer', 'Xanthan Gum', 'Cetyl Alcohol']
+  },
+  baby: {
+    gentlePreservatives: ['Benzyl Alcohol', 'Potassium Sorbate', 'Sodium Benzoate'],
+    mildSurfactants: ['Cocamidopropyl Betaine', 'Decyl Glucoside', 'Coco Glucoside'],
+    soothing: ['Chamomile Extract', 'Aloe Vera', 'Calendula Extract'],
+    moisturizers: ['Shea Butter', 'Coconut Oil', 'Jojoba Oil']
+  },
+  detergent: {
+    surfactants: ['Linear Alkylbenzene Sulfonate', 'Sodium Laureth Sulfate', 'Alpha Olefin Sulfonate'],
+    builders: ['Sodium Carbonate', 'Sodium Silicate', 'Zeolite A'],
+    enzymes: ['Protease', 'Amylase', 'Lipase', 'Cellulase'],
+    brighteners: ['Optical Brightening Agents', 'Fluorescent Whitening Agents']
+  },
+  electronic: {
+    flux: ['Rosin Flux', 'No-Clean Flux', 'Water-Soluble Flux'],
+    solvents: ['Isopropyl Alcohol', 'Acetone', 'Methanol'],
+    antiCorrosive: ['Benzotriazole', 'Corrosion Inhibitor A', 'Protective Coating'],
+    antiStatic: ['Conductive Polymers', 'Ionic Liquids']
+  },
+  food: {
+    preservatives: ['Sodium Benzoate', 'Potassium Sorbate', 'Citric Acid'],
+    emulsifiers: ['Lecithin', 'Mono- and Diglycerides', 'Polysorbate 80'],
+    stabilizers: ['Guar Gum', 'Xanthan Gum', 'Carrageenan'],
+    antioxidants: ['Vitamin E', 'BHT', 'BHA', 'Ascorbic Acid']
+  },
+  leather: {
+    conditioners: ['Lanolin', 'Neatsfoot Oil', 'Mink Oil'],
+    protectants: ['Carnauba Wax', 'Beeswax', 'Silicone Polymers'],
+    cleaners: ['Saddle Soap', 'Mild Detergents', 'Glycerin Soap']
+  },
+  oral: {
+    abrasives: ['Hydrated Silica', 'Calcium Carbonate', 'Aluminum Hydroxide'],
+    fluoride: ['Sodium Fluoride', 'Stannous Fluoride', 'Sodium Monofluorophosphate'],
+    antimicrobials: ['Triclosan', 'Cetylpyridinium Chloride', 'Zinc Citrate'],
+    thickeners: ['Carrageenan', 'Xanthan Gum', 'Cellulose Gum']
+  },
+  organic: {
+    naturalPreservatives: ['Rosemary Extract', 'Vitamin E', 'Grapefruit Seed Extract'],
+    organicEmulsifiers: ['Lecithin', 'Cetyl Alcohol (plant-derived)', 'Glyceryl Stearate'],
+    plantExtracts: ['Aloe Vera', 'Green Tea Extract', 'Chamomile Extract'],
+    naturalOils: ['Jojoba Oil', 'Argan Oil', 'Sweet Almond Oil']
+  },
+  shoe: {
+    waxes: ['Carnauba Wax', 'Beeswax', 'Candelilla Wax'],
+    conditioners: ['Lanolin', 'Mink Oil', 'Leather Conditioner'],
+    protectants: ['Silicone Water Repellent', 'Fluoropolymer Coating'],
+    pigments: ['Iron Oxide', 'Carbon Black', 'Leather Dyes']
+  },
+  construction: {
+    binders: ['Portland Cement', 'Epoxy Resin', 'Polyurethane'],
+    additives: ['Plasticizers', 'Accelerators', 'Retarders'],
+    reinforcements: ['Fiber Mesh', 'Steel Fibers', 'Polymer Fibers'],
+    fillers: ['Silica Sand', 'Limestone', 'Fly Ash']
+  },
+  pet: {
+    gentlePreservatives: ['Potassium Sorbate', 'Sodium Benzoate', 'Vitamin E'],
+    mildSurfactants: ['Cocamidopropyl Betaine', 'Decyl Glucoside'],
+    naturalExtracts: ['Oatmeal Extract', 'Aloe Vera', 'Chamomile'],
+    conditioners: ['Coconut Oil', 'Shea Butter', 'Jojoba Oil']
   }
 };
 
