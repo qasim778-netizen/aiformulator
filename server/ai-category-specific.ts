@@ -296,9 +296,9 @@ export function validateFormulation(formulation: any, categoryKey: string): { is
   const errors: string[] = [];
   const specs = categorySpecs[categoryKey as keyof typeof categorySpecs];
   
+  // If category specs not found, use generic validation (don't fail)
   if (!specs) {
-    errors.push(`Unknown category: ${categoryKey}`);
-    return { isValid: false, errors };
+    console.log(`⚠️ Using generic validation for category: ${categoryKey}`);
   }
 
   // Parse ingredients
@@ -325,8 +325,8 @@ export function validateFormulation(formulation: any, categoryKey: string): { is
     errors.push(`Ingredients must add up to 100%, got ${totalPercentage.toFixed(1)}%`);
   }
 
-  // Check required ingredients for category
-  if (categoryKey === 'glass-cleaners') {
+  // Check required ingredients for category (only if specs available)
+  if (specs && categoryKey === 'glass-cleaners') {
     const hasAlcohol = ingredients.some(ing => 
       ing.name.toLowerCase().includes('alcohol') || 
       ing.name.toLowerCase().includes('ethanol') ||
@@ -345,8 +345,8 @@ export function validateFormulation(formulation: any, categoryKey: string): { is
     }
   }
 
-  // Check prohibited ingredients for category
-  if (categoryKey === 'glass-cleaners' || categoryKey === 'cleaning-products') {
+  // Check prohibited ingredients for category (only if specs available)
+  if (specs && (categoryKey === 'glass-cleaners' || categoryKey === 'cleaning-products')) {
     const hasProhibited = ingredients.some(ing => {
       const name = ing.name.toLowerCase();
       return name.includes('carbomer') || 
