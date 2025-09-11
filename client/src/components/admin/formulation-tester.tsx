@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -20,6 +21,19 @@ interface FormulationResult {
   category: string;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+}
+
+interface TestCategory {
+  value: string;
+  label: string;
+  description: string;
+}
+
 export default function FormulationTester() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [productDescription, setProductDescription] = useState<string>("");
@@ -27,18 +41,34 @@ export default function FormulationTester() {
   const [result, setResult] = useState<FormulationResult | null>(null);
   const { toast } = useToast();
 
-  const testCategories = [
-    { value: "glass-cleaners", label: "Glass Cleaners", description: "Window and glass surface cleaners" },
-    { value: "cleaning-products", label: "General Cleaning Products", description: "All-purpose cleaners" },
-    { value: "skincare", label: "Skincare Products", description: "Cosmetic and skincare formulations" },
-    { value: "cosmetics", label: "Cosmetic Products", description: "Makeup and beauty products" }
-  ];
+  // Fetch categories from API instead of hardcoded list
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
+    queryKey: ['/api/categories'],
+  });
 
-  const testExamples = {
-    "glass-cleaners": "Professional glass cleaner for streak-free cleaning",
-    "cleaning-products": "Multi-surface kitchen cleaner",
-    "skincare": "Anti-aging moisturizing cream",
-    "cosmetics": "Long-lasting liquid foundation"
+  // Map API categories to test format using the API-provided slug
+  const testCategories: TestCategory[] = categories.map((cat) => ({
+    value: cat.slug,  // Use the slug from the API instead of generating it
+    label: cat.name,
+    description: cat.description
+  }));
+
+  // Generate examples for all categories using API slugs
+  const testExamples: Record<string, string> = {
+    "baby-care": "gentle baby shampoo",
+    "beauty-products": "anti-aging serum", 
+    "cleaning-products": "multi-surface kitchen cleaner",
+    "detergent-formulation": "heavy duty laundry detergent",
+    "electronic-chemicals": "circuit board cleaner",
+    "food-beverage-additives": "natural food preservative",
+    "leather-products": "leather conditioner cream",
+    "men-care": "moisturizing aftershave balm",
+    "oral-care": "whitening toothpaste",
+    "organic-care": "organic moisturizing lotion",
+    "shoe-care": "waterproof shoe spray",
+    "skin-care": "anti-aging moisturizing cream",
+    "construction-material": "concrete additive",
+    "pet-care": "gentle pet shampoo"
   };
 
   const handleGenerateTest = async () => {
@@ -103,7 +133,7 @@ export default function FormulationTester() {
 
   const setExample = (category: string) => {
     setSelectedCategory(category);
-    setProductDescription(testExamples[category as keyof typeof testExamples] || "");
+    setProductDescription(testExamples[category] || `Professional ${category.replace(/-/g, ' ')} formulation`);
   };
 
   const parseIngredients = (ingredientsJson: string) => {
@@ -137,9 +167,9 @@ export default function FormulationTester() {
           {/* Category Selection */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Category</label>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory} disabled={categoriesLoading}>
               <SelectTrigger>
-                <SelectValue placeholder="Select a category to test" />
+                <SelectValue placeholder={categoriesLoading ? "Loading categories..." : "Select a category to test"} />
               </SelectTrigger>
               <SelectContent>
                 {testCategories.map((category) => (
