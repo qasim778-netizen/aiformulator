@@ -19,9 +19,38 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
   const [formulationCount, setFormulationCount] = useState("5");
   const { toast } = useToast();
 
+  // All 23 categories for bulk generation (database + additional interface categories)
+  const allBulkCategories = [
+    // Database categories
+    ...categories.map(cat => ({ 
+      id: cat.id, 
+      name: cat.name, 
+      image: cat.image,
+      description: cat.description,
+      isDatabase: true 
+    })),
+    // Additional interface categories (9 categories to reach total of 23)
+    { id: "3d-printing-materials", name: "3D Printing Materials", image: "/placeholder-category.jpg", description: "Advanced materials for 3D printing applications", isDatabase: false },
+    { id: "advanced-agricultural-chemicals-formulations", name: "Advanced Agricultural Chemicals Formulations", image: "/placeholder-category.jpg", description: "Professional agricultural chemical solutions", isDatabase: false },
+    { id: "aromatherapy-innovations", name: "Aromatherapy Innovations", image: "/placeholder-category.jpg", description: "Essential oil blends and aromatherapy products", isDatabase: false },
+    { id: "automotive-coating-solutions", name: "Automotive Coating Solutions", image: "/placeholder-category.jpg", description: "Protective coatings for automotive applications", isDatabase: false },
+    { id: "biodegradable-packaging-solutions", name: "Biodegradable Packaging Solutions", image: "/placeholder-category.jpg", description: "Eco-friendly packaging materials", isDatabase: false },
+    { id: "hair-enrichment-solutions", name: "Hair Enrichment Solutions", image: "/placeholder-category.jpg", description: "Advanced hair care and treatment products", isDatabase: false },
+    { id: "professional-grooming-essentials", name: "Professional Grooming Essentials", image: "/placeholder-category.jpg", description: "Professional grooming and styling products", isDatabase: false },
+    { id: "smart-textile-coatings", name: "Smart Textile Coatings", image: "/placeholder-category.jpg", description: "Advanced textile coating technologies", isDatabase: false },
+    { id: "water-treatment-solutions", name: "Water Treatment Solutions", image: "/placeholder-category.jpg", description: "Water purification and treatment chemicals", isDatabase: false }
+  ];
+
   const generateBulkFormulations = useMutation({
-    mutationFn: ({ categoryId, count }: { categoryId: string; count: number }) => 
-      apiRequest("POST", "/api/ai/generate-bulk-formulations-with-keywords", { categoryId, count }),
+    mutationFn: ({ categoryId, count }: { categoryId: string; count: number }) => {
+      // Check if this is a database category or additional interface category
+      const selectedCat = allBulkCategories.find(c => c.id === categoryId);
+      const requestData = selectedCat?.isDatabase 
+        ? { categoryId, count } // Database category - use categoryId
+        : { categorySlug: categoryId, count }; // Interface category - use categorySlug
+      
+      return apiRequest("POST", "/api/ai/generate-bulk-formulations-with-keywords", requestData);
+    },
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
@@ -67,7 +96,7 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
     generateBulkFormulations.mutate({ categoryId: selectedCategoryId, count });
   };
 
-  const selectedCategory = categories.find(c => c.id === selectedCategoryId);
+  const selectedCategory = allBulkCategories.find(c => c.id === selectedCategoryId);
 
   return (
     <div className="space-y-6">
@@ -123,9 +152,9 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
                   <SelectValue placeholder="Choose a category for bulk generation" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((category) => (
+                  {allBulkCategories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
-                      {category.name}
+                      {category.name} {!category.isDatabase && <span className="text-blue-600 text-xs">(New)</span>}
                     </SelectItem>
                   ))}
                 </SelectContent>

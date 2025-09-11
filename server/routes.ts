@@ -912,24 +912,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Bulk AI Generation with Keywords & Images endpoint (protected admin route)
   app.post("/api/ai/generate-bulk-formulations-with-keywords", isAuthenticated, async (req, res) => {
     try {
-      const { categoryId, count, includeImages = false } = req.body;
+      const { categoryId, categorySlug, count, includeImages = false } = req.body;
       console.log(`=== BULK API ENDPOINT ===`);
       console.log(`Request body:`, req.body);
       console.log(`includeImages value:`, includeImages);
       console.log(`includeImages type:`, typeof includeImages);
       
-      if (!categoryId || !count) {
-        return res.status(400).json({ message: "Category ID and count are required" });
+      if ((!categoryId && !categorySlug) || !count) {
+        return res.status(400).json({ message: "Category ID or category slug and count are required" });
       }
 
-      const category = await storage.getCategory(categoryId);
-      if (!category) {
-        return res.status(404).json({ message: "Category not found" });
+      let category = null;
+      let categoryName = "";
+      let categoryDescription = "";
+      let finalCategoryId = "";
+
+      if (categoryId) {
+        // Database category
+        category = await storage.getCategory(categoryId);
+        if (!category) {
+          return res.status(404).json({ message: "Database category not found" });
+        }
+        categoryName = category.name;
+        categoryDescription = category.description;
+        finalCategoryId = categoryId;
+      } else if (categorySlug) {
+        // Additional interface category
+        const additionalCategories: Record<string, { name: string; description: string }> = {
+          "3d-printing-materials": { name: "3D Printing Materials", description: "Advanced materials for 3D printing applications" },
+          "advanced-agricultural-chemicals-formulations": { name: "Advanced Agricultural Chemicals Formulations", description: "Professional agricultural chemical solutions" },
+          "aromatherapy-innovations": { name: "Aromatherapy Innovations", description: "Essential oil blends and aromatherapy products" },
+          "automotive-coating-solutions": { name: "Automotive Coating Solutions", description: "Protective coatings for automotive applications" },
+          "biodegradable-packaging-solutions": { name: "Biodegradable Packaging Solutions", description: "Eco-friendly packaging materials" },
+          "hair-enrichment-solutions": { name: "Hair Enrichment Solutions", description: "Advanced hair care and treatment products" },
+          "professional-grooming-essentials": { name: "Professional Grooming Essentials", description: "Professional grooming and styling products" },
+          "smart-textile-coatings": { name: "Smart Textile Coatings", description: "Advanced textile coating technologies" },
+          "water-treatment-solutions": { name: "Water Treatment Solutions", description: "Water purification and treatment chemicals" }
+        };
+
+        const additionalCategory = additionalCategories[categorySlug];
+        if (!additionalCategory) {
+          return res.status(404).json({ message: "Additional category not found" });
+        }
+        categoryName = additionalCategory.name;
+        categoryDescription = additionalCategory.description;
+        // For interface categories, store under a default database category or create a special handling
+        const defaultCategories = await storage.getCategories();
+        finalCategoryId = defaultCategories[0]?.id || categorySlug; // Use first available or slug as fallback
       }
 
       // Generate product types based on the category
-      const productTypes = await generateProductTypes(category.name, category.description, count);
-      const formulations = await generateBulkFormulationsWithKeywords(category.name, count, productTypes, includeImages);
+      const productTypes = await generateProductTypes(categoryName, categoryDescription, count);
+      const formulations = await generateBulkFormulationsWithKeywords(categoryName, count, productTypes, includeImages);
       
       // Create all formulations in the database
       const createdFormulations = [];
@@ -938,8 +972,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Add SEO fields to formulation data
           const formulationWithSEO = addSEOFields({
             ...formulationData,
-            categoryId
-          }, category.name);
+            categoryId: finalCategoryId
+          }, categoryName);
           
           const formulation = await storage.createFormulation(formulationWithSEO);
           createdFormulations.push(formulation);
@@ -947,11 +981,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Track each AI generation for analytics
           await storage.trackAiGeneration({
             productName: formulation.name,
-            category: categoryId,
+            category: finalCategoryId,
             sessionId: req.sessionID || 'admin-bulk',
             timestamp: new Date().toISOString(),
             responseTime: undefined,
-            formData: { categoryId, count, includeImages, bulkGeneration: true },
+            formData: { categoryId: categoryId || null, categorySlug: categorySlug || null, count, includeImages, bulkGeneration: true },
             country: undefined,
             city: undefined
           });
