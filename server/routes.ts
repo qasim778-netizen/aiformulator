@@ -1572,6 +1572,40 @@ Allow: /disclaimer`;
     }
   });
 
+  // Public demo endpoint for the improved formulation system
+  app.post('/api/demo-formulation', async (req, res) => {
+    try {
+      const { category, description } = req.body;
+      
+      if (!category || !description) {
+        return res.status(400).json({ 
+          message: "Category and description are required" 
+        });
+      }
+
+      console.log(`🧪 Demo generating formulation for ${category}: ${description}`);
+      
+      // Import the category-specific generator
+      const { generateCategorySpecificFormulation, validateFormulation } = await import('./ai-category-specific');
+      
+      const formulation = await generateCategorySpecificFormulation(category, description);
+      const validation = validateFormulation(formulation, category);
+      
+      res.json({
+        formulation,
+        validation,
+        category,
+        generatedAt: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Demo formulation failed:", error);
+      res.status(500).json({ 
+        message: "Failed to generate demo formulation",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Blog Posts API
   // Get all blog posts
   app.get("/api/blog", async (req, res) => {

@@ -18,6 +18,7 @@ import PrivacyPolicy from "@/pages/privacy-policy";
 import Disclaimer from "@/pages/disclaimer";
 import Blog from "@/pages/blog";
 import BlogPost from "@/pages/blog-post";
+import Demo from "@/pages/demo";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 
@@ -33,6 +34,7 @@ function Router() {
       <Route path="/faq" component={FAQ} />
       <Route path="/blog" component={Blog} />
       <Route path="/blog/:slug" component={BlogPost} />
+      <Route path="/demo" component={Demo} />
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/disclaimer" component={Disclaimer} />

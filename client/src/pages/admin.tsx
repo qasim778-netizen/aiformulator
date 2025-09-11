@@ -24,6 +24,7 @@ import BlogManagementTab from "@/components/admin/blog-management-tab";
 import UserFormulationRequests from "@/components/admin/user-formulation-requests";
 import UserAnalytics from "@/components/admin/user-analytics";
 import AICategorySuggestions from "@/components/admin/ai-category-suggestions";
+import FormulationTester from "@/components/admin/formulation-tester";
 import type { Category, Formulation } from "@shared/schema";
 
 export default function AdminPage() {
@@ -365,6 +366,17 @@ export default function AdminPage() {
               data-testid="admin-blog-tab"
             >
               Blog
+            </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "test-formulation"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab("test-formulation")}
+              data-testid="admin-test-formulation-tab"
+            >
+              🧪 Test AI System
             </button>
           </nav>
         </div>
@@ -960,6 +972,17 @@ export default function AdminPage() {
         {/* Blog Management Tab */}
         {activeTab === "blog" && (
           <BlogManagementTab />
+        )}
+        
+        {/* Test Formulation System Tab */}
+        {activeTab === "test-formulation" && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-inter font-semibold text-gray-900">AI Formulation System Tester</h2>
+              <p className="text-sm text-gray-600 mt-1">Test the improved category-specific AI formulation generation with validation</p>
+            </div>
+            <FormulationTester />
+          </div>
         )}
       </div>
 

@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import type { InsertCategory, InsertFormulation } from "@shared/schema";
+import { generateCategorySpecificFormulation } from "./ai-category-specific";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -205,7 +206,6 @@ Guidelines:
         for (const formulation of result.formulations) {
           formulations.push({
             name: formulation.name,
-            slug: generateSlug(formulation.name || "formulation"),
             description: formulation.description,
             ingredients: JSON.stringify(formulation.ingredients || []),
             instructions: JSON.stringify(formulation.instructions || []),
@@ -240,7 +240,6 @@ Guidelines:
         const fallbackName = `Professional ${productType}`;
         formulations.push({
           name: fallbackName,
-          slug: generateSlug(fallbackName),
           description: `High-quality ${productType.toLowerCase()} formulated for commercial use`,
           ingredients: JSON.stringify([
             {
@@ -343,7 +342,6 @@ export async function generateBulkFormulationsWithKeywords(categoryName: string,
       const fallbackName = `Professional ${productType}`;
       formulations.push({
         name: fallbackName,
-        slug: generateSlug(fallbackName),
         description: `High-quality ${productType.toLowerCase()} formulated for commercial use`,
         image: includeImages ? "" : undefined,
         ingredients: JSON.stringify([
@@ -616,6 +614,65 @@ export async function generateFormulationImage(formulationName: string, brandNam
 }
 
 export async function generateFormulationWithKeywords(categoryName: string, productDescription: string, includeImage: boolean = false): Promise<Omit<InsertFormulation, 'categoryId'>> {
+  // Use category-specific generation for better results
+  if (categoryName.toLowerCase().includes('glass') || 
+      categoryName.toLowerCase().includes('clean') ||
+      categoryName.toLowerCase().includes('cosmetic') ||
+      categoryName.toLowerCase().includes('skincare')) {
+    try {
+      const formulation = await generateCategorySpecificFormulation(categoryName, productDescription);
+      
+      // Add image generation if requested
+      if (includeImage) {
+        try {
+          console.log(`Generating image for: ${formulation.name}`);
+          const imageResponse = await openai.images.generate({
+            model: "dall-e-3",
+            prompt: `Flat 2D digital illustration on a neutral beige background. Bold black text '${formulation.name}' at the top, simple black product-related icons in the center, and small centered text 'AIFormulator' at the bottom. Clean, minimal, modern style. No product bottles or packaging, just text and icons.`,
+            n: 1,
+            size: "1024x1024",
+            quality: "standard"
+          });
+          
+          const tempImageUrl = imageResponse.data?.[0]?.url;
+          if (tempImageUrl) {
+            // Download and save the image permanently
+            try {
+              const imageResponse = await fetch(tempImageUrl);
+              const imageBuffer = await imageResponse.arrayBuffer();
+              const fileName = `formulation-${generateSlug(formulation.name)}-${Date.now()}.png`;
+              const fs = await import('fs/promises');
+              const path = await import('path');
+              
+              // Create images directory if it doesn't exist
+              const imagesDir = path.join(process.cwd(), 'client', 'public', 'images', 'generated');
+              await fs.mkdir(imagesDir, { recursive: true });
+              
+              // Save the image
+              const filePath = path.join(imagesDir, fileName);
+              await fs.writeFile(filePath, Buffer.from(imageBuffer));
+              
+              // Set the permanent URL
+              formulation.image = `/images/generated/${fileName}`;
+              console.log(`Image saved successfully: ${formulation.image}`);
+            } catch (saveError) {
+              console.error("Failed to save image:", saveError);
+              formulation.image = tempImageUrl;
+            }
+          }
+        } catch (error) {
+          console.error("Failed to generate image:", error);
+        }
+      }
+      
+      return formulation;
+    } catch (error) {
+      console.error("Category-specific generation failed, falling back to generic:", error);
+      // Fall back to original system if category-specific fails
+    }
+  }
+  
+  // Original generic generation code below
   console.log(`=== generateFormulationWithKeywords ===`);
   console.log(`Category: ${categoryName}`);
   console.log(`Product: ${productDescription}`);
@@ -734,7 +791,6 @@ export async function generateFormulationWithKeywords(categoryName: string, prod
     
     return {
       name: name,
-      slug: generateSlug(name),
       description: result.description,
       image: imageUrl,
       ingredients: JSON.stringify(result.ingredients || []),
@@ -808,7 +864,6 @@ export async function generateFormulation(categoryName: string, productDescripti
     
     return {
       name: result.name,
-      slug: generateSlug(result.name || "formulation"),
       description: result.description,
       ingredients: JSON.stringify(result.ingredients || []),
       instructions: JSON.stringify(result.instructions || []),
@@ -927,7 +982,6 @@ Please create a professional formulation that meets all these requirements exact
     const finalName = result.name || request.productName;
     return {
       name: finalName,
-      slug: generateSlug(finalName),
       description: result.description || request.productDescription,
       ingredients: JSON.stringify(result.ingredients || []),
       instructions: JSON.stringify(result.instructions || []),
