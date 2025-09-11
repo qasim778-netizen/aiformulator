@@ -576,7 +576,11 @@ export async function generateCategorySpecificFormulation(
         temperature: 0.3 // Lower temperature for more consistent results
       });
 
-      const result = JSON.parse(response.choices[0].message.content || "{}");
+      const rawContent = response.choices[0].message.content || "{}";
+      console.log(`🔍 Raw AI response (attempt ${attempts}):`, rawContent);
+      
+      const result = JSON.parse(rawContent);
+      console.log(`🔍 Parsed AI result:`, JSON.stringify(result, null, 2));
       
       const formulation = {
         name: result.name || `Professional ${productDescription}`,
@@ -596,8 +600,15 @@ export async function generateCategorySpecificFormulation(
         isActive: result.isActive ?? true
       };
 
+      // Debug the formulation before validation
+      console.log(`🔍 Generated formulation for ${categoryName}:`, JSON.stringify(formulation, null, 2));
+      
       // Validate the formulation
-      const validation = validateFormulation(formulation, categoryName.toLowerCase().replace(/\s+/g, '-'));
+      const categoryKey = categoryName.toLowerCase().replace(/\s+/g, '-');
+      console.log(`🔍 Using category key for validation: ${categoryKey}`);
+      const validation = validateFormulation(formulation, categoryKey);
+      
+      console.log(`🔍 Validation result:`, validation);
       
       if (validation.isValid) {
         console.log(`✅ Generated valid ${categoryName} formulation on attempt ${attempts}`);
