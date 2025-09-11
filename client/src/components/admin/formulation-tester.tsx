@@ -53,8 +53,9 @@ export default function FormulationTester() {
     description: cat.description
   }));
 
-  // Generate examples for all categories using API slugs
+  // All 23 categories with example descriptions
   const testExamples: Record<string, string> = {
+    // Database categories
     "baby-care": "gentle baby shampoo",
     "beauty-products": "anti-aging serum", 
     "cleaning-products": "multi-surface kitchen cleaner",
@@ -68,8 +69,51 @@ export default function FormulationTester() {
     "shoe-care": "waterproof shoe spray",
     "skin-care": "anti-aging moisturizing cream",
     "construction-material": "concrete additive",
-    "pet-care": "gentle pet shampoo"
+    "pet-care": "gentle pet shampoo",
+    // Additional interface categories
+    "3d-printing-materials": "3D printing resin",
+    "advanced-agricultural-chemicals-formulations": "organic pesticide formulation",
+    "aromatherapy-innovations": "essential oil blend",
+    "automotive-coating-solutions": "car protective coating",
+    "biodegradable-packaging-solutions": "eco-friendly packaging material",
+    "hair-enrichment-solutions": "hair growth serum",
+    "professional-grooming-essentials": "professional beard oil",
+    "salon-base-innovations": "salon hair treatment base",
+    "saloon-hair-treatment": "salon hair conditioning treatment",
+    "smart-textile-coatings": "water-resistant fabric coating",
+    "water-treatment-solutions": "water purification chemical"
   };
+
+  // All 23 category buttons for Quick Test Examples
+  const allCategories = [
+    // Database categories
+    { value: "baby-care", label: "Baby Care" },
+    { value: "beauty-products", label: "Beauty Products" },
+    { value: "cleaning-products", label: "Cleaning Products" },
+    { value: "detergent-formulation", label: "Detergent" },
+    { value: "electronic-chemicals", label: "Electronic Chemicals" },
+    { value: "food-beverage-additives", label: "Food & Beverage Additives" },
+    { value: "leather-products", label: "Leather Products" },
+    { value: "men-care", label: "Men's Care & Style" },
+    { value: "oral-care", label: "Oral Care" },
+    { value: "organic-care", label: "Organic Care Products" },
+    { value: "shoe-care", label: "Shoe Care" },
+    { value: "skin-care", label: "Skin Care" },
+    { value: "construction-material", label: "construction material" },
+    { value: "pet-care", label: "pet care" },
+    // Additional interface categories
+    { value: "3d-printing-materials", label: "3D Printing Materials" },
+    { value: "advanced-agricultural-chemicals-formulations", label: "Advanced Agricultural Chemicals Formulations" },
+    { value: "aromatherapy-innovations", label: "Aromatherapy Innovations" },
+    { value: "automotive-coating-solutions", label: "Automotive Coating Solutions" },
+    { value: "biodegradable-packaging-solutions", label: "Biodegradable Packaging Solutions" },
+    { value: "hair-enrichment-solutions", label: "Hair Enrichment Solutions" },
+    { value: "professional-grooming-essentials", label: "Professional Grooming Essentials" },
+    { value: "salon-base-innovations", label: "Salon Base Innovations" },
+    { value: "saloon-hair-treatment", label: "Saloon Hair Treatment" },
+    { value: "smart-textile-coatings", label: "Smart Textile Coatings" },
+    { value: "water-treatment-solutions", label: "Water Treatment Solutions" }
+  ];
 
   const handleGenerateTest = async () => {
     if (!selectedCategory || !productDescription) {
@@ -188,7 +232,7 @@ export default function FormulationTester() {
           <div className="space-y-2">
             <label className="text-sm font-medium">Quick Test Examples</label>
             <div className="flex flex-wrap gap-2">
-              {testCategories.map((category) => (
+              {allCategories.map((category) => (
                 <Button
                   key={category.value}
                   variant="outline"

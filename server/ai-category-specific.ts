@@ -296,8 +296,20 @@ export function validateFormulation(formulation: any, categoryKey: string): { is
   const errors: string[] = [];
   const specs = categorySpecs[categoryKey as keyof typeof categorySpecs];
   
-  // If category specs not found, use generic validation (don't fail)
-  if (!specs) {
+  // For all 23 categories displayed in the interface, use generic validation
+  const supportedCategories = [
+    // Database categories
+    'baby-care', 'beauty-products', 'cleaning-products', 'detergent-formulation', 
+    'electronic-chemicals', 'food-beverage-additives', 'leather-products', 'men-care', 
+    'oral-care', 'organic-care', 'shoe-care', 'skin-care', 'construction-material', 'pet-care',
+    // Additional interface categories  
+    '3d-printing-materials', 'advanced-agricultural-chemicals-formulations', 'aromatherapy-innovations',
+    'automotive-coating-solutions', 'biodegradable-packaging-solutions', 'hair-enrichment-solutions',
+    'professional-grooming-essentials', 'salon-base-innovations', 'saloon-hair-treatment', 
+    'smart-textile-coatings', 'water-treatment-solutions'
+  ];
+  
+  if (!supportedCategories.includes(categoryKey) && !specs) {
     console.log(`⚠️ Using generic validation for category: ${categoryKey}`);
   }
 
