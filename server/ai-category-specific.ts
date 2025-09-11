@@ -319,8 +319,20 @@ export function getCategoryPrompt(categoryName: string, productDescription: stri
   
   if (category.includes('glass') || category.includes('cleaning')) {
     return getCleaningProductPrompt(categoryName, productDescription);
-  } else if (category.includes('cosmetic') || category.includes('skincare')) {
+  } else if (category.includes('cosmetic') || category.includes('skincare') || category.includes('beauty')) {
     return getCosmeticPrompt(categoryName, productDescription);
+  } else if (category.includes('baby') || category.includes('pet')) {
+    return getGentleFormulationPrompt(categoryName, productDescription);
+  } else if (category.includes('detergent') || category.includes('laundry')) {
+    return getDetergentPrompt(categoryName, productDescription);
+  } else if (category.includes('oral') || category.includes('dental')) {
+    return getOralCarePrompt(categoryName, productDescription);
+  } else if (category.includes('organic') || category.includes('natural')) {
+    return getOrganicPrompt(categoryName, productDescription);
+  } else if (category.includes('electronic') || category.includes('industrial')) {
+    return getIndustrialPrompt(categoryName, productDescription);
+  } else if (category.includes('food') || category.includes('beverage')) {
+    return getFoodGradePrompt(categoryName, productDescription);
   } else {
     return getGenericPrompt(categoryName, productDescription);
   }
@@ -401,12 +413,137 @@ function getCosmeticPrompt(categoryName: string, productDescription: string): st
 function getGenericPrompt(categoryName: string, productDescription: string): string {
   return `You are a professional chemical formulation expert. Generate a complete formulation for ${categoryName}.
   
-  REQUIREMENTS:
+  CRITICAL REQUIREMENTS:
   - All percentages MUST add up to exactly 100%
   - Use appropriate ingredients for the category
   - Include realistic processing parameters
+  - Include proper pH, shelf life, and storage conditions
   
-  Return JSON with complete formulation details.`;
+  Return JSON in this exact format:
+  {
+    "name": "Product Name",
+    "description": "Professional product description", 
+    "ingredients": [
+      {
+        "name": "Ingredient Name",
+        "inci": "INCI Name",
+        "percentage": "X.X%", 
+        "function": "Function in formulation"
+      }
+    ],
+    "instructions": [
+      {
+        "phase": "Phase Name",
+        "steps": ["Step 1", "Step 2"]
+      }
+    ],
+    "usageInstructions": "Application instructions",
+    "phLevel": "X.X",
+    "shelfLife": "XX months", 
+    "viscosity": "Viscosity type",
+    "storageConditions": "Storage conditions",
+    "batchSize": "XXX kg",
+    "processingTime": "X hours",
+    "temperature": "Temperature range",
+    "equipment": "Required equipment",
+    "certification": "Industry standards"
+  }`;
+}
+
+function getGentleFormulationPrompt(categoryName: string, productDescription: string): string {
+  return `You are a professional gentle formulation expert specializing in ${categoryName}. Generate a complete, gentle formulation for small business manufacturers.
+
+  CRITICAL REQUIREMENTS for ${categoryName}:
+  - MUST use only gentle, mild ingredients (no sulfates, parabens, harsh chemicals)
+  - MUST contain mild preservative system (0.5-1%)  
+  - MUST include gentle surfactants if cleansing product
+  - pH must be 5.5-7.0 for gentle, non-irritating formula
+  - Processing: Gentle heating to 60-70°C maximum
+  - All percentages MUST add up to exactly 100%
+  - Must be hypoallergenic and dermatologist-tested safe
+
+  PROHIBITED ingredients:
+  - NO sulfates (SLS, SLES)
+  - NO parabens 
+  - NO harsh alcohols
+  - NO essential oils (can cause reactions)
+  - NO strong fragrances
+
+  Return JSON with complete gentle formulation including soothing ingredients like aloe vera, chamomile, etc.`;
+}
+
+function getDetergentPrompt(categoryName: string, productDescription: string): string {
+  return `You are a professional detergent formulation expert. Generate a complete detergent formulation for ${categoryName}.
+
+  CRITICAL REQUIREMENTS:
+  - MUST contain effective surfactant system (15-25%)
+  - MUST include builders for water hardness (5-15%) 
+  - MUST contain enzymes for stain removal (1-3%)
+  - pH must be 8-11 for effective cleaning
+  - Processing: Room temperature mixing
+  - All percentages MUST add up to exactly 100%
+
+  Return JSON with complete detergent formulation including brighteners, anti-redeposition agents, etc.`;
+}
+
+function getOralCarePrompt(categoryName: string, productDescription: string): string {
+  return `You are a professional oral care formulation expert. Generate a complete oral care formulation for ${categoryName}.
+
+  CRITICAL REQUIREMENTS:
+  - MUST contain fluoride compound (0.1-0.3%)
+  - MUST include mild abrasive system (20-40%)
+  - MUST contain antimicrobial agents (0.1-1%)
+  - pH must be 6-9 for oral safety
+  - Processing: Room temperature mixing
+  - All percentages MUST add up to exactly 100%
+  - Must be safe if accidentally swallowed
+
+  Return JSON with complete oral care formulation.`;
+}
+
+function getOrganicPrompt(categoryName: string, productDescription: string): string {
+  return `You are a professional organic formulation expert. Generate a complete organic/natural formulation for ${categoryName}.
+
+  CRITICAL REQUIREMENTS:
+  - MUST use only natural, organic ingredients
+  - MUST contain natural preservative system (1-2%)
+  - MUST use plant-derived emulsifiers and surfactants
+  - pH must be 5-7.5 for natural skin compatibility
+  - Processing: Gentle, minimal heat processing
+  - All percentages MUST add up to exactly 100%
+  - Must be certified organic compliant
+
+  Return JSON with complete organic formulation using natural oils, extracts, and botanicals.`;
+}
+
+function getIndustrialPrompt(categoryName: string, productDescription: string): string {
+  return `You are a professional industrial chemical formulation expert. Generate a complete industrial formulation for ${categoryName}.
+
+  CRITICAL REQUIREMENTS:
+  - MUST use appropriate industrial-grade solvents and chemicals
+  - MUST include anti-corrosive agents for metal protection
+  - MUST contain precision cleaning agents
+  - pH must be 6-8 for material compatibility
+  - Processing: Controlled environment, precise mixing
+  - All percentages MUST add up to exactly 100%
+  - Must meet industrial safety standards
+
+  Return JSON with complete industrial formulation.`;
+}
+
+function getFoodGradePrompt(categoryName: string, productDescription: string): string {
+  return `You are a professional food-grade formulation expert. Generate a complete food-grade formulation for ${categoryName}.
+
+  CRITICAL REQUIREMENTS:
+  - MUST use only FDA-approved, food-grade ingredients
+  - MUST contain GRAS (Generally Recognized as Safe) compounds only
+  - MUST include appropriate food preservatives
+  - pH must be 3-9 depending on application
+  - Processing: Food-safe processing temperatures and conditions
+  - All percentages MUST add up to exactly 100%
+  - Must meet FDA food additive regulations
+
+  Return JSON with complete food-grade formulation.`;
 }
 
 // Enhanced generation function with category-specific logic
