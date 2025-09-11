@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,6 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle, XCircle, Beaker, AlertTriangle, Info, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import type { Category } from "@shared/schema";
 
 interface ValidationResult {
   isValid: boolean;
@@ -28,18 +30,37 @@ export default function DemoPage() {
   const [result, setResult] = useState<FormulationResult | null>(null);
   const { toast } = useToast();
 
-  const testCategories = [
-    { value: "glass-cleaners", label: "Glass Cleaners", description: "Window and glass surface cleaners" },
-    { value: "cleaning-products", label: "General Cleaning Products", description: "All-purpose cleaners" },
-    { value: "skincare", label: "Skincare Products", description: "Cosmetic and skincare formulations" },
-    { value: "cosmetics", label: "Cosmetic Products", description: "Makeup and beauty products" }
-  ];
+  // Fetch all categories from the API
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
+  });
 
-  const testExamples = {
+  // Convert categories to the format needed for the dropdown
+  const testCategories = categories.map(category => ({
+    value: category.slug,
+    label: category.name.trim(),
+    description: category.description
+  }));
+
+  // Updated examples to cover more categories
+  const testExamples: Record<string, string> = {
     "glass-cleaners": "Professional glass cleaner for streak-free cleaning",
     "cleaning-products": "Multi-surface kitchen cleaner",
-    "skincare": "Anti-aging moisturizing cream",
-    "cosmetics": "Long-lasting liquid foundation"
+    "skincare": "Anti-aging moisturizing cream", 
+    "skin-care": "Anti-aging moisturizing cream",
+    "cosmetics": "Long-lasting liquid foundation",
+    "beauty-products": "Long-lasting liquid foundation",
+    "baby-care": "Gentle baby shampoo",
+    "detergent-formulation": "Heavy duty laundry detergent",
+    "electronic-chemicals": "Circuit board cleaner",
+    "food-beverage-additives": "Natural food preservative",
+    "leather-products": "Leather conditioner and protector",
+    "men-care": "Men's aftershave balm",
+    "oral-care": "Whitening toothpaste",
+    "organic-care": "Organic moisturizing lotion",
+    "shoe-care": "Shoe polish and protector",
+    "construction-material": "High-strength concrete additive",
+    "pet-care": "Gentle pet shampoo"
   };
 
   const handleGenerateDemo = async () => {
@@ -153,9 +174,9 @@ export default function DemoPage() {
               {/* Category Selection */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Category</label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory} disabled={categoriesLoading}>
                   <SelectTrigger data-testid="select-category">
-                    <SelectValue placeholder="Select a category to test" />
+                    <SelectValue placeholder={categoriesLoading ? "Loading categories..." : "Select a category to test"} />
                   </SelectTrigger>
                   <SelectContent>
                     {testCategories.map((category) => (
