@@ -8,13 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { Category } from "@shared/schema";
+import { FORMULATION_CATEGORIES } from "@/constants/categories";
 
 interface AiFormulationFormProps {
-  categories: Category[];
+  categories?: Category[]; // Optional since we now use shared categories
   onSuccess: () => void;
 }
 
 export default function AiFormulationForm({ categories, onSuccess }: AiFormulationFormProps) {
+  // Use shared formulation categories for consistency
+  const formulationCategories = FORMULATION_CATEGORIES;
   const [categoryId, setCategoryId] = useState("");
   const [productDescription, setProductDescription] = useState("");
   const { toast } = useToast();
@@ -63,7 +66,7 @@ export default function AiFormulationForm({ categories, onSuccess }: AiFormulati
     generateFormulation.mutate({ categoryId, productDescription });
   };
 
-  const selectedCategory = categories.find(c => c.id === categoryId);
+  const selectedCategory = formulationCategories.find(c => c.id === categoryId);
 
   return (
     <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-accent/20">
@@ -87,7 +90,7 @@ export default function AiFormulationForm({ categories, onSuccess }: AiFormulati
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((category) => (
+                {formulationCategories.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}
                   </SelectItem>

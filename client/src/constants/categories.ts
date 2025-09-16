@@ -1,0 +1,25 @@
+// Shared formulation categories for consistency across all components
+export const FORMULATION_CATEGORIES = [
+  { id: "3d-printing-materials-formulations", name: "3D Printing Materials Formulations", description: "Advanced materials for 3D printing applications" },
+  { id: "advanced-agricultural-chemicals-formulations", name: "Advanced Agricultural Chemicals Formulations", description: "Professional agricultural chemical solutions" },
+  { id: "automotive-coating-solutions-formulations", name: "Automotive Coating Solutions Formulations", description: "Protective coatings for automotive applications" },
+  { id: "baby-care-formulations", name: "Baby Care Formulations", description: "Safe and gentle baby care products" },
+  { id: "beauty-products-formulations", name: "Beauty Products Formulations", description: "Beauty and cosmetic formulations" },
+  { id: "biodegradable-packaging-solutions-formulations", name: "Biodegradable Packaging Solutions Formulations", description: "Eco-friendly packaging materials" },
+  { id: "cleaning-products-formulations", name: "Cleaning Products Formulations", description: "Household and industrial cleaning solutions" },
+  { id: "detergent-formulations", name: "Detergent Formulations", description: "Laundry and dishwashing detergent formulations" },
+  { id: "hair-enrichment-solutions-formulations", name: "Hair Enrichment Solutions Formulations", description: "Advanced hair care and treatment products" },
+  { id: "leather-products-formulations", name: "Leather Products Formulations", description: "Leather care and treatment formulations" },
+  { id: "mens-care-style-formulations", name: "Men's Care & Style Formulations", description: "Men's grooming and styling products" },
+  { id: "oral-care-formulations", name: "Oral Care Formulations", description: "Dental and oral hygiene products" },
+  { id: "organic-care-products-formulations", name: "Organic Care Products Formulations", description: "Natural and organic care formulations" },
+  { id: "professional-grooming-essentials-formulations", name: "Professional Grooming Essentials Formulations", description: "Professional grooming and styling products" },
+  { id: "salon-base-innovations-formulations", name: "Salon Base Innovations Formulations", description: "Innovative salon treatment bases" },
+  { id: "saloon-hair-treatment-formulations", name: "Saloon Hair Treatment Formulations", description: "Professional salon hair treatments" },
+  { id: "shoe-care-formulations", name: "Shoe Care Formulations", description: "Footwear care and maintenance products" },
+  { id: "skin-care-formulations", name: "Skin Care Formulations", description: "Skincare and dermatological formulations" },
+  { id: "smart-textile-coatings-formulations", name: "Smart Textile Coatings Formulations", description: "Advanced textile coating technologies" },
+  { id: "water-treatment-solutions-formulations", name: "Water Treatment Solutions Formulations", description: "Water purification and treatment chemicals" },
+  { id: "construction-material-formulations", name: "Construction Material Formulations", description: "Building and construction material formulations" },
+  { id: "pet-care-formulations", name: "Pet Care Formulations", description: "Pet care and veterinary formulations" }
+];

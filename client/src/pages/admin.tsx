@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HelpButton } from "@/components/ui/help-button";
 import { useGuidance } from "@/hooks/use-guidance";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { FORMULATION_CATEGORIES } from "@/constants/categories";
 import CategoryForm from "@/components/admin/category-form";
 import FormulationForm from "@/components/admin/formulation-form";
 import BulkGenerationForm from "@/components/admin/bulk-generation-form";
@@ -688,7 +689,7 @@ export default function AdminPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Categories</SelectItem>
-                      {categories?.map((category) => (
+                      {FORMULATION_CATEGORIES.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}
                         </SelectItem>

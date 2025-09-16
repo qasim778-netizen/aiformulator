@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { Category } from "@shared/schema";
+import { FORMULATION_CATEGORIES } from "@/constants/categories";
 
 interface BulkFormulationGeneratorProps {
   categories: Category[];
@@ -19,31 +20,12 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
   const [formulationCount, setFormulationCount] = useState("5");
   const { toast } = useToast();
 
-  // Complete list of formulation categories (22 unique categories)
-  const allBulkCategories = [
-    { id: "3d-printing-materials-formulations", name: "3D Printing Materials Formulations", image: "/placeholder-category.jpg", description: "Advanced materials for 3D printing applications", isDatabase: false },
-    { id: "advanced-agricultural-chemicals-formulations", name: "Advanced Agricultural Chemicals Formulations", image: "/placeholder-category.jpg", description: "Professional agricultural chemical solutions", isDatabase: false },
-    { id: "automotive-coating-solutions-formulations", name: "Automotive Coating Solutions Formulations", image: "/placeholder-category.jpg", description: "Protective coatings for automotive applications", isDatabase: false },
-    { id: "baby-care-formulations", name: "Baby Care Formulations", image: "/placeholder-category.jpg", description: "Safe and gentle baby care products", isDatabase: false },
-    { id: "beauty-products-formulations", name: "Beauty Products Formulations", image: "/placeholder-category.jpg", description: "Beauty and cosmetic formulations", isDatabase: false },
-    { id: "biodegradable-packaging-solutions-formulations", name: "Biodegradable Packaging Solutions Formulations", image: "/placeholder-category.jpg", description: "Eco-friendly packaging materials", isDatabase: false },
-    { id: "cleaning-products-formulations", name: "Cleaning Products Formulations", image: "/placeholder-category.jpg", description: "Household and industrial cleaning solutions", isDatabase: false },
-    { id: "detergent-formulations", name: "Detergent Formulations", image: "/placeholder-category.jpg", description: "Laundry and dishwashing detergent formulations", isDatabase: false },
-    { id: "hair-enrichment-solutions-formulations", name: "Hair Enrichment Solutions Formulations", image: "/placeholder-category.jpg", description: "Advanced hair care and treatment products", isDatabase: false },
-    { id: "leather-products-formulations", name: "Leather Products Formulations", image: "/placeholder-category.jpg", description: "Leather care and treatment formulations", isDatabase: false },
-    { id: "mens-care-style-formulations", name: "Men's Care & Style Formulations", image: "/placeholder-category.jpg", description: "Men's grooming and styling products", isDatabase: false },
-    { id: "oral-care-formulations", name: "Oral Care Formulations", image: "/placeholder-category.jpg", description: "Dental and oral hygiene products", isDatabase: false },
-    { id: "organic-care-products-formulations", name: "Organic Care Products Formulations", image: "/placeholder-category.jpg", description: "Natural and organic care formulations", isDatabase: false },
-    { id: "professional-grooming-essentials-formulations", name: "Professional Grooming Essentials Formulations", image: "/placeholder-category.jpg", description: "Professional grooming and styling products", isDatabase: false },
-    { id: "salon-base-innovations-formulations", name: "Salon Base Innovations Formulations", image: "/placeholder-category.jpg", description: "Innovative salon treatment bases", isDatabase: false },
-    { id: "saloon-hair-treatment-formulations", name: "Saloon Hair Treatment Formulations", image: "/placeholder-category.jpg", description: "Professional salon hair treatments", isDatabase: false },
-    { id: "shoe-care-formulations", name: "Shoe Care Formulations", image: "/placeholder-category.jpg", description: "Footwear care and maintenance products", isDatabase: false },
-    { id: "skin-care-formulations", name: "Skin Care Formulations", image: "/placeholder-category.jpg", description: "Skincare and dermatological formulations", isDatabase: false },
-    { id: "smart-textile-coatings-formulations", name: "Smart Textile Coatings Formulations", image: "/placeholder-category.jpg", description: "Advanced textile coating technologies", isDatabase: false },
-    { id: "water-treatment-solutions-formulations", name: "Water Treatment Solutions Formulations", image: "/placeholder-category.jpg", description: "Water purification and treatment chemicals", isDatabase: false },
-    { id: "construction-material-formulations", name: "Construction Material Formulations", image: "/placeholder-category.jpg", description: "Building and construction material formulations", isDatabase: false },
-    { id: "pet-care-formulations", name: "Pet Care Formulations", image: "/placeholder-category.jpg", description: "Pet care and veterinary formulations", isDatabase: false }
-  ];
+  // Use shared formulation categories for consistency
+  const allBulkCategories = FORMULATION_CATEGORIES.map(cat => ({
+    ...cat,
+    image: "/placeholder-category.jpg",
+    isDatabase: false
+  }));
 
   const generateBulkFormulations = useMutation({
     mutationFn: ({ categoryId, count }: { categoryId: string; count: number }) => {
