@@ -4,6 +4,7 @@ import { useLocation } from "wouter";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import type { Category, Formulation } from "@shared/schema";
+import { FORMULATION_CATEGORIES } from "@/constants/categories";
 
 interface SearchSuggestion {
   id: string;
@@ -34,10 +35,8 @@ export default function SearchBar({
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Fetch categories and formulations for suggestions
-  const { data: categories = [] } = useQuery<Category[]>({
-    queryKey: ["/api/categories"],
-  });
+  // Use the new 22 formulation categories for suggestions
+  const categories = FORMULATION_CATEGORIES;
 
   const { data: formulations = [] } = useQuery<Formulation[]>({
     queryKey: ["/api/formulations"],
