@@ -1052,7 +1052,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const targetCategoryName = categoryMapping[categorySlug];
       const categories = await storage.getCategories();
-      const targetCategory = categories.find(c => c.name === targetCategoryName);
+      const targetCategory = categories.find(c => c.name.trim() === targetCategoryName);
       finalCategoryId = targetCategory?.id || categories[0]?.id || categorySlug;
 
       // Generate product types based on the category
