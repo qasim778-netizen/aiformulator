@@ -810,80 +810,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Category ID and product description are required" });
       }
 
-      let categoryName = "";
-      let finalCategoryId = "";
+      // Only handle new formulation categories (22 categories)
+      const formulation_categories: Record<string, { name: string; description: string }> = {
+        "3d-printing-materials-formulations": { name: "3D Printing Materials Formulations", description: "Advanced materials for 3D printing applications" },
+        "advanced-agricultural-chemicals-formulations": { name: "Advanced Agricultural Chemicals Formulations", description: "Professional agricultural chemical solutions" },
+        "automotive-coating-solutions-formulations": { name: "Automotive Coating Solutions Formulations", description: "Protective coatings for automotive applications" },
+        "baby-care-formulations": { name: "Baby Care Formulations", description: "Safe and gentle baby care products" },
+        "beauty-products-formulations": { name: "Beauty Products Formulations", description: "Beauty and cosmetic formulations" },
+        "biodegradable-packaging-solutions-formulations": { name: "Biodegradable Packaging Solutions Formulations", description: "Eco-friendly packaging materials" },
+        "cleaning-products-formulations": { name: "Cleaning Products Formulations", description: "Household and industrial cleaning solutions" },
+        "detergent-formulations": { name: "Detergent Formulations", description: "Laundry and dishwashing detergent formulations" },
+        "hair-enrichment-solutions-formulations": { name: "Hair Enrichment Solutions Formulations", description: "Advanced hair care and treatment products" },
+        "leather-products-formulations": { name: "Leather Products Formulations", description: "Leather care and treatment formulations" },
+        "mens-care-style-formulations": { name: "Men's Care & Style Formulations", description: "Men's grooming and styling products" },
+        "oral-care-formulations": { name: "Oral Care Formulations", description: "Dental and oral hygiene products" },
+        "organic-care-products-formulations": { name: "Organic Care Products Formulations", description: "Natural and organic care formulations" },
+        "professional-grooming-essentials-formulations": { name: "Professional Grooming Essentials Formulations", description: "Professional grooming and styling products" },
+        "salon-base-innovations-formulations": { name: "Salon Base Innovations Formulations", description: "Innovative salon treatment bases" },
+        "saloon-hair-treatment-formulations": { name: "Saloon Hair Treatment Formulations", description: "Professional salon hair treatments" },
+        "shoe-care-formulations": { name: "Shoe Care Formulations", description: "Footwear care and maintenance products" },
+        "skin-care-formulations": { name: "Skin Care Formulations", description: "Skincare and dermatological formulations" },
+        "smart-textile-coatings-formulations": { name: "Smart Textile Coatings Formulations", description: "Advanced textile coating technologies" },
+        "water-treatment-solutions-formulations": { name: "Water Treatment Solutions Formulations", description: "Water purification and treatment chemicals" },
+        "construction-material-formulations": { name: "Construction Material Formulations", description: "Building and construction material formulations" },
+        "pet-care-formulations": { name: "Pet Care Formulations", description: "Pet care and veterinary formulations" }
+      };
 
-      // Check if it's a database category first
-      const category = await storage.getCategory(categoryId);
-      if (category) {
-        // Database category
-        categoryName = category.name;
-        finalCategoryId = categoryId;
-      } else {
-        // Check if it's one of the new formulation categories
-        const additionalCategories: Record<string, { name: string; description: string }> = {
-          "3d-printing-materials-formulations": { name: "3D Printing Materials Formulations", description: "Advanced materials for 3D printing applications" },
-          "advanced-agricultural-chemicals-formulations": { name: "Advanced Agricultural Chemicals Formulations", description: "Professional agricultural chemical solutions" },
-          "automotive-coating-solutions-formulations": { name: "Automotive Coating Solutions Formulations", description: "Protective coatings for automotive applications" },
-          "baby-care-formulations": { name: "Baby Care Formulations", description: "Safe and gentle baby care products" },
-          "beauty-products-formulations": { name: "Beauty Products Formulations", description: "Beauty and cosmetic formulations" },
-          "biodegradable-packaging-solutions-formulations": { name: "Biodegradable Packaging Solutions Formulations", description: "Eco-friendly packaging materials" },
-          "cleaning-products-formulations": { name: "Cleaning Products Formulations", description: "Household and industrial cleaning solutions" },
-          "detergent-formulations": { name: "Detergent Formulations", description: "Laundry and dishwashing detergent formulations" },
-          "hair-enrichment-solutions-formulations": { name: "Hair Enrichment Solutions Formulations", description: "Advanced hair care and treatment products" },
-          "leather-products-formulations": { name: "Leather Products Formulations", description: "Leather care and treatment formulations" },
-          "mens-care-style-formulations": { name: "Men's Care & Style Formulations", description: "Men's grooming and styling products" },
-          "oral-care-formulations": { name: "Oral Care Formulations", description: "Dental and oral hygiene products" },
-          "organic-care-products-formulations": { name: "Organic Care Products Formulations", description: "Natural and organic care formulations" },
-          "professional-grooming-essentials-formulations": { name: "Professional Grooming Essentials Formulations", description: "Professional grooming and styling products" },
-          "salon-base-innovations-formulations": { name: "Salon Base Innovations Formulations", description: "Innovative salon treatment bases" },
-          "saloon-hair-treatment-formulations": { name: "Saloon Hair Treatment Formulations", description: "Professional salon hair treatments" },
-          "shoe-care-formulations": { name: "Shoe Care Formulations", description: "Footwear care and maintenance products" },
-          "skin-care-formulations": { name: "Skin Care Formulations", description: "Skincare and dermatological formulations" },
-          "smart-textile-coatings-formulations": { name: "Smart Textile Coatings Formulations", description: "Advanced textile coating technologies" },
-          "water-treatment-solutions-formulations": { name: "Water Treatment Solutions Formulations", description: "Water purification and treatment chemicals" },
-          "construction-material-formulations": { name: "Construction Material Formulations", description: "Building and construction material formulations" },
-          "pet-care-formulations": { name: "Pet Care Formulations", description: "Pet care and veterinary formulations" }
-        };
-
-        const additionalCategory = additionalCategories[categoryId];
-        if (!additionalCategory) {
-          return res.status(404).json({ message: "Category not found" });
-        }
-
-        categoryName = additionalCategory.name;
-        
-        // Map to appropriate database category
-        const categoryMapping: Record<string, string> = {
-          "3d-printing-materials-formulations": "construction material",
-          "advanced-agricultural-chemicals-formulations": "Electronic Chemicals", 
-          "automotive-coating-solutions-formulations": "Cleaning Products",
-          "baby-care-formulations": "Baby Care",
-          "beauty-products-formulations": "Beauty Products",
-          "biodegradable-packaging-solutions-formulations": "construction material",
-          "cleaning-products-formulations": "Cleaning Products",
-          "detergent-formulations": "Detergent formulation",
-          "hair-enrichment-solutions-formulations": "Beauty Products",
-          "leather-products-formulations": "Leather Products",
-          "mens-care-style-formulations": "Men Care",
-          "oral-care-formulations": "Oral Care",
-          "organic-care-products-formulations": "Organic Care",
-          "professional-grooming-essentials-formulations": "Men Care",
-          "salon-base-innovations-formulations": "Beauty Products",
-          "saloon-hair-treatment-formulations": "Beauty Products",
-          "shoe-care-formulations": "Shoe Care",
-          "skin-care-formulations": "Skin Care",
-          "smart-textile-coatings-formulations": "Cleaning Products",
-          "water-treatment-solutions-formulations": "Cleaning Products",
-          "construction-material-formulations": "construction material",
-          "pet-care-formulations": "pet care"
-        };
-
-        const targetCategoryName = categoryMapping[categoryId];
-        const categories = await storage.getCategories();
-        const targetCategory = categories.find(c => c.name === targetCategoryName);
-        finalCategoryId = targetCategory?.id || categories[0]?.id || categoryId;
+      const selectedCategory = formulation_categories[categoryId];
+      if (!selectedCategory) {
+        return res.status(404).json({ message: "Category not found" });
       }
+
+      const categoryName = selectedCategory.name;
+      
+      // Map to appropriate database category for storage
+      const categoryMapping: Record<string, string> = {
+        "3d-printing-materials-formulations": "construction material",
+        "advanced-agricultural-chemicals-formulations": "Electronic Chemicals", 
+        "automotive-coating-solutions-formulations": "Cleaning Products",
+        "baby-care-formulations": "Baby Care",
+        "beauty-products-formulations": "Beauty Products",
+        "biodegradable-packaging-solutions-formulations": "construction material",
+        "cleaning-products-formulations": "Cleaning Products",
+        "detergent-formulations": "Detergent formulation",
+        "hair-enrichment-solutions-formulations": "Beauty Products",
+        "leather-products-formulations": "Leather Products",
+        "mens-care-style-formulations": "Men Care",
+        "oral-care-formulations": "Oral Care",
+        "organic-care-products-formulations": "Organic Care",
+        "professional-grooming-essentials-formulations": "Men Care",
+        "salon-base-innovations-formulations": "Beauty Products",
+        "saloon-hair-treatment-formulations": "Beauty Products",
+        "shoe-care-formulations": "Shoe Care",
+        "skin-care-formulations": "Skin Care",
+        "smart-textile-coatings-formulations": "Cleaning Products",
+        "water-treatment-solutions-formulations": "Cleaning Products",
+        "construction-material-formulations": "construction material",
+        "pet-care-formulations": "pet care"
+      };
+
+      const targetCategoryName = categoryMapping[categoryId];
+      const categories = await storage.getCategories();
+      const targetCategory = categories.find(c => c.name === targetCategoryName);
+      const finalCategoryId = targetCategory?.id || categories[0]?.id || categoryId;
 
       const formulationData = await generateFormulation(categoryName, productDescription);
       const formulation = await storage.createFormulation({
@@ -988,8 +977,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`includeImages value:`, includeImages);
       console.log(`includeImages type:`, typeof includeImages);
       
-      if ((!categoryId && !categorySlug) || !count) {
-        return res.status(400).json({ message: "Category ID or category slug and count are required" });
+      if (!categorySlug || !count) {
+        return res.status(400).json({ message: "Category slug and count are required" });
       }
 
       let category = null;
@@ -997,80 +986,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let categoryDescription = "";
       let finalCategoryId = "";
 
-      if (categoryId) {
-        // Database category
-        category = await storage.getCategory(categoryId);
-        if (!category) {
-          return res.status(404).json({ message: "Database category not found" });
-        }
-        categoryName = category.name;
-        categoryDescription = category.description;
-        finalCategoryId = categoryId;
-      } else if (categorySlug) {
-        // Additional interface category
-        const additionalCategories: Record<string, { name: string; description: string }> = {
-          "3d-printing-materials-formulations": { name: "3D Printing Materials Formulations", description: "Advanced materials for 3D printing applications" },
-          "advanced-agricultural-chemicals-formulations": { name: "Advanced Agricultural Chemicals Formulations", description: "Professional agricultural chemical solutions" },
-          "automotive-coating-solutions-formulations": { name: "Automotive Coating Solutions Formulations", description: "Protective coatings for automotive applications" },
-          "baby-care-formulations": { name: "Baby Care Formulations", description: "Safe and gentle baby care products" },
-          "beauty-products-formulations": { name: "Beauty Products Formulations", description: "Beauty and cosmetic formulations" },
-          "biodegradable-packaging-solutions-formulations": { name: "Biodegradable Packaging Solutions Formulations", description: "Eco-friendly packaging materials" },
-          "cleaning-products-formulations": { name: "Cleaning Products Formulations", description: "Household and industrial cleaning solutions" },
-          "detergent-formulations": { name: "Detergent Formulations", description: "Laundry and dishwashing detergent formulations" },
-          "hair-enrichment-solutions-formulations": { name: "Hair Enrichment Solutions Formulations", description: "Advanced hair care and treatment products" },
-          "leather-products-formulations": { name: "Leather Products Formulations", description: "Leather care and treatment formulations" },
-          "mens-care-style-formulations": { name: "Men's Care & Style Formulations", description: "Men's grooming and styling products" },
-          "oral-care-formulations": { name: "Oral Care Formulations", description: "Dental and oral hygiene products" },
-          "organic-care-products-formulations": { name: "Organic Care Products Formulations", description: "Natural and organic care formulations" },
-          "professional-grooming-essentials-formulations": { name: "Professional Grooming Essentials Formulations", description: "Professional grooming and styling products" },
-          "salon-base-innovations-formulations": { name: "Salon Base Innovations Formulations", description: "Innovative salon treatment bases" },
-          "saloon-hair-treatment-formulations": { name: "Saloon Hair Treatment Formulations", description: "Professional salon hair treatments" },
-          "shoe-care-formulations": { name: "Shoe Care Formulations", description: "Footwear care and maintenance products" },
-          "skin-care-formulations": { name: "Skin Care Formulations", description: "Skincare and dermatological formulations" },
-          "smart-textile-coatings-formulations": { name: "Smart Textile Coatings Formulations", description: "Advanced textile coating technologies" },
-          "water-treatment-solutions-formulations": { name: "Water Treatment Solutions Formulations", description: "Water purification and treatment chemicals" },
-          "construction-material-formulations": { name: "Construction Material Formulations", description: "Building and construction material formulations" },
-          "pet-care-formulations": { name: "Pet Care Formulations", description: "Pet care and veterinary formulations" }
-        };
-
-        const additionalCategory = additionalCategories[categorySlug];
-        if (!additionalCategory) {
-          return res.status(404).json({ message: "Additional category not found" });
-        }
-        categoryName = additionalCategory.name;
-        categoryDescription = additionalCategory.description;
-        
-        // Map interface categories to appropriate database categories
-        const categoryMapping: Record<string, string> = {
-          "3d-printing-materials-formulations": "construction material",
-          "advanced-agricultural-chemicals-formulations": "Electronic Chemicals", 
-          "automotive-coating-solutions-formulations": "Cleaning Products",
-          "baby-care-formulations": "Baby Care",
-          "beauty-products-formulations": "Beauty Products",
-          "biodegradable-packaging-solutions-formulations": "construction material",
-          "cleaning-products-formulations": "Cleaning Products",
-          "detergent-formulations": "Detergent formulation",
-          "hair-enrichment-solutions-formulations": "Beauty Products",
-          "leather-products-formulations": "Leather Products",
-          "mens-care-style-formulations": "Men Care",
-          "oral-care-formulations": "Oral Care",
-          "organic-care-products-formulations": "Organic Care",
-          "professional-grooming-essentials-formulations": "Men Care",
-          "salon-base-innovations-formulations": "Beauty Products",
-          "saloon-hair-treatment-formulations": "Beauty Products",
-          "shoe-care-formulations": "Shoe Care",
-          "skin-care-formulations": "Skin Care",
-          "smart-textile-coatings-formulations": "Cleaning Products",
-          "water-treatment-solutions-formulations": "Cleaning Products",
-          "construction-material-formulations": "construction material",
-          "pet-care-formulations": "pet care"
-        };
-        
-        const targetCategoryName = categoryMapping[categorySlug];
-        const categories = await storage.getCategories();
-        const targetCategory = categories.find(c => c.name === targetCategoryName);
-        finalCategoryId = targetCategory?.id || categories[0]?.id || categorySlug;
+      // Only handle new formulation categories via categorySlug
+      if (!categorySlug) {
+        return res.status(400).json({ message: "Category slug is required" });
       }
+
+      const formulation_categories: Record<string, { name: string; description: string }> = {
+        "3d-printing-materials-formulations": { name: "3D Printing Materials Formulations", description: "Advanced materials for 3D printing applications" },
+        "advanced-agricultural-chemicals-formulations": { name: "Advanced Agricultural Chemicals Formulations", description: "Professional agricultural chemical solutions" },
+        "automotive-coating-solutions-formulations": { name: "Automotive Coating Solutions Formulations", description: "Protective coatings for automotive applications" },
+        "baby-care-formulations": { name: "Baby Care Formulations", description: "Safe and gentle baby care products" },
+        "beauty-products-formulations": { name: "Beauty Products Formulations", description: "Beauty and cosmetic formulations" },
+        "biodegradable-packaging-solutions-formulations": { name: "Biodegradable Packaging Solutions Formulations", description: "Eco-friendly packaging materials" },
+        "cleaning-products-formulations": { name: "Cleaning Products Formulations", description: "Household and industrial cleaning solutions" },
+        "detergent-formulations": { name: "Detergent Formulations", description: "Laundry and dishwashing detergent formulations" },
+        "hair-enrichment-solutions-formulations": { name: "Hair Enrichment Solutions Formulations", description: "Advanced hair care and treatment products" },
+        "leather-products-formulations": { name: "Leather Products Formulations", description: "Leather care and treatment formulations" },
+        "mens-care-style-formulations": { name: "Men's Care & Style Formulations", description: "Men's grooming and styling products" },
+        "oral-care-formulations": { name: "Oral Care Formulations", description: "Dental and oral hygiene products" },
+        "organic-care-products-formulations": { name: "Organic Care Products Formulations", description: "Natural and organic care formulations" },
+        "professional-grooming-essentials-formulations": { name: "Professional Grooming Essentials Formulations", description: "Professional grooming and styling products" },
+        "salon-base-innovations-formulations": { name: "Salon Base Innovations Formulations", description: "Innovative salon treatment bases" },
+        "saloon-hair-treatment-formulations": { name: "Saloon Hair Treatment Formulations", description: "Professional salon hair treatments" },
+        "shoe-care-formulations": { name: "Shoe Care Formulations", description: "Footwear care and maintenance products" },
+        "skin-care-formulations": { name: "Skin Care Formulations", description: "Skincare and dermatological formulations" },
+        "smart-textile-coatings-formulations": { name: "Smart Textile Coatings Formulations", description: "Advanced textile coating technologies" },
+        "water-treatment-solutions-formulations": { name: "Water Treatment Solutions Formulations", description: "Water purification and treatment chemicals" },
+        "construction-material-formulations": { name: "Construction Material Formulations", description: "Building and construction material formulations" },
+        "pet-care-formulations": { name: "Pet Care Formulations", description: "Pet care and veterinary formulations" }
+      };
+
+      const selectedCategory = formulation_categories[categorySlug];
+      if (!selectedCategory) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      
+      categoryName = selectedCategory.name;
+      categoryDescription = selectedCategory.description;
+      
+      // Map formulation categories to appropriate database categories for storage
+      const categoryMapping: Record<string, string> = {
+        "3d-printing-materials-formulations": "construction material",
+        "advanced-agricultural-chemicals-formulations": "Electronic Chemicals", 
+        "automotive-coating-solutions-formulations": "Cleaning Products",
+        "baby-care-formulations": "Baby Care",
+        "beauty-products-formulations": "Beauty Products",
+        "biodegradable-packaging-solutions-formulations": "construction material",
+        "cleaning-products-formulations": "Cleaning Products",
+        "detergent-formulations": "Detergent formulation",
+        "hair-enrichment-solutions-formulations": "Beauty Products",
+        "leather-products-formulations": "Leather Products",
+        "mens-care-style-formulations": "Men Care",
+        "oral-care-formulations": "Oral Care",
+        "organic-care-products-formulations": "Organic Care",
+        "professional-grooming-essentials-formulations": "Men Care",
+        "salon-base-innovations-formulations": "Beauty Products",
+        "saloon-hair-treatment-formulations": "Beauty Products",
+        "shoe-care-formulations": "Shoe Care",
+        "skin-care-formulations": "Skin Care",
+        "smart-textile-coatings-formulations": "Cleaning Products",
+        "water-treatment-solutions-formulations": "Cleaning Products",
+        "construction-material-formulations": "construction material",
+        "pet-care-formulations": "pet care"
+      };
+      
+      const targetCategoryName = categoryMapping[categorySlug];
+      const categories = await storage.getCategories();
+      const targetCategory = categories.find(c => c.name === targetCategoryName);
+      finalCategoryId = targetCategory?.id || categories[0]?.id || categorySlug;
 
       // Generate product types based on the category
       const productTypes = await generateProductTypes(categoryName, categoryDescription, count);
