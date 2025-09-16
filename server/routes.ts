@@ -939,15 +939,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else if (categorySlug) {
         // Additional interface category
         const additionalCategories: Record<string, { name: string; description: string }> = {
-          "3d-printing-materials": { name: "3D Printing Materials", description: "Advanced materials for 3D printing applications" },
+          "3d-printing-materials-formulations": { name: "3D Printing Materials Formulations", description: "Advanced materials for 3D printing applications" },
           "advanced-agricultural-chemicals-formulations": { name: "Advanced Agricultural Chemicals Formulations", description: "Professional agricultural chemical solutions" },
-          "aromatherapy-innovations": { name: "Aromatherapy Innovations", description: "Essential oil blends and aromatherapy products" },
-          "automotive-coating-solutions": { name: "Automotive Coating Solutions", description: "Protective coatings for automotive applications" },
-          "biodegradable-packaging-solutions": { name: "Biodegradable Packaging Solutions", description: "Eco-friendly packaging materials" },
-          "hair-enrichment-solutions": { name: "Hair Enrichment Solutions", description: "Advanced hair care and treatment products" },
-          "professional-grooming-essentials": { name: "Professional Grooming Essentials", description: "Professional grooming and styling products" },
-          "smart-textile-coatings": { name: "Smart Textile Coatings", description: "Advanced textile coating technologies" },
-          "water-treatment-solutions": { name: "Water Treatment Solutions", description: "Water purification and treatment chemicals" }
+          "automotive-coating-solutions-formulations": { name: "Automotive Coating Solutions Formulations", description: "Protective coatings for automotive applications" },
+          "baby-care-formulations": { name: "Baby Care Formulations", description: "Safe and gentle baby care products" },
+          "beauty-products-formulations": { name: "Beauty Products Formulations", description: "Beauty and cosmetic formulations" },
+          "biodegradable-packaging-solutions-formulations": { name: "Biodegradable Packaging Solutions Formulations", description: "Eco-friendly packaging materials" },
+          "cleaning-products-formulations": { name: "Cleaning Products Formulations", description: "Household and industrial cleaning solutions" },
+          "detergent-formulations": { name: "Detergent Formulations", description: "Laundry and dishwashing detergent formulations" },
+          "hair-enrichment-solutions-formulations": { name: "Hair Enrichment Solutions Formulations", description: "Advanced hair care and treatment products" },
+          "leather-products-formulations": { name: "Leather Products Formulations", description: "Leather care and treatment formulations" },
+          "mens-care-style-formulations": { name: "Men's Care & Style Formulations", description: "Men's grooming and styling products" },
+          "oral-care-formulations": { name: "Oral Care Formulations", description: "Dental and oral hygiene products" },
+          "organic-care-products-formulations": { name: "Organic Care Products Formulations", description: "Natural and organic care formulations" },
+          "professional-grooming-essentials-formulations": { name: "Professional Grooming Essentials Formulations", description: "Professional grooming and styling products" },
+          "salon-base-innovations-formulations": { name: "Salon Base Innovations Formulations", description: "Innovative salon treatment bases" },
+          "saloon-hair-treatment-formulations": { name: "Saloon Hair Treatment Formulations", description: "Professional salon hair treatments" },
+          "shoe-care-formulations": { name: "Shoe Care Formulations", description: "Footwear care and maintenance products" },
+          "skin-care-formulations": { name: "Skin Care Formulations", description: "Skincare and dermatological formulations" },
+          "smart-textile-coatings-formulations": { name: "Smart Textile Coatings Formulations", description: "Advanced textile coating technologies" },
+          "water-treatment-solutions-formulations": { name: "Water Treatment Solutions Formulations", description: "Water purification and treatment chemicals" },
+          "construction-material-formulations": { name: "Construction Material Formulations", description: "Building and construction material formulations" },
+          "pet-care-formulations": { name: "Pet Care Formulations", description: "Pet care and veterinary formulations" }
         };
 
         const additionalCategory = additionalCategories[categorySlug];
@@ -959,15 +972,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Map interface categories to appropriate database categories
         const categoryMapping: Record<string, string> = {
-          "3d-printing-materials": "construction material",
+          "3d-printing-materials-formulations": "construction material",
           "advanced-agricultural-chemicals-formulations": "Electronic Chemicals", 
-          "aromatherapy-innovations": "Beauty Products",
-          "automotive-coating-solutions": "Cleaning Products",
-          "biodegradable-packaging-solutions": "construction material",
-          "hair-enrichment-solutions": "Beauty Products",
-          "professional-grooming-essentials": "Men Care",
-          "smart-textile-coatings": "Cleaning Products",
-          "water-treatment-solutions": "Cleaning Products"
+          "automotive-coating-solutions-formulations": "Cleaning Products",
+          "baby-care-formulations": "Baby Care",
+          "beauty-products-formulations": "Beauty Products",
+          "biodegradable-packaging-solutions-formulations": "construction material",
+          "cleaning-products-formulations": "Cleaning Products",
+          "detergent-formulations": "Detergent formulation",
+          "hair-enrichment-solutions-formulations": "Beauty Products",
+          "leather-products-formulations": "Leather Products",
+          "mens-care-style-formulations": "Men Care",
+          "oral-care-formulations": "Oral Care",
+          "organic-care-products-formulations": "Organic Care",
+          "professional-grooming-essentials-formulations": "Men Care",
+          "salon-base-innovations-formulations": "Beauty Products",
+          "saloon-hair-treatment-formulations": "Beauty Products",
+          "shoe-care-formulations": "Shoe Care",
+          "skin-care-formulations": "Skin Care",
+          "smart-textile-coatings-formulations": "Cleaning Products",
+          "water-treatment-solutions-formulations": "Cleaning Products",
+          "construction-material-formulations": "construction material",
+          "pet-care-formulations": "pet care"
         };
         
         const targetCategoryName = categoryMapping[categorySlug];
