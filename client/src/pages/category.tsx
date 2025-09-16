@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Category, Formulation } from "@shared/schema";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { FORMULATION_CATEGORIES } from "@/constants/categories";
 
 export default function CategoryPage() {
   const params = useParams();
@@ -17,20 +18,25 @@ export default function CategoryPage() {
   const highlightId = urlParams.get('highlight');
   const searchTerm = urlParams.get('search');
 
-  const { data: category, isLoading: categoryLoading } = useQuery<Category>({
-    queryKey: ["/api/categories", categoryId],
-  });
+  // Find the formulation category from our constants
+  const category = useMemo(() => {
+    return FORMULATION_CATEGORIES.find(cat => cat.id === categoryId);
+  }, [categoryId]);
+  const categoryLoading = false;
 
   const { data: formulations = [], isLoading: formulationsLoading } = useQuery<Formulation[]>({
     queryKey: ["/api/formulations", { categoryId }],
     queryFn: async () => {
-      const response = await fetch(`/api/formulations?categoryId=${categoryId}`);
+      if (!category?.dbCategoryId) {
+        return [];
+      }
+      const response = await fetch(`/api/formulations?categoryId=${category.dbCategoryId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch formulations');
       }
       return response.json();
     },
-    enabled: !!categoryId,
+    enabled: !!categoryId && !!category?.dbCategoryId,
   });
 
   // Scroll to highlighted formulation when page loads
