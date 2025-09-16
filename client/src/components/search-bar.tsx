@@ -76,7 +76,7 @@ export default function SearchBar({
     formulations.forEach(formulation => {
       if (formulation.name.toLowerCase().includes(lowerQuery) || 
           formulation.description.toLowerCase().includes(lowerQuery)) {
-        const category = categories.find(c => c.dbCategoryId === formulation.categoryId);
+        const category = categories.find(c => c.dbCategoryId === formulation.categoryId || c.id === formulation.categoryId);
         allSuggestions.push({
           id: formulation.id,
           title: formulation.name,
@@ -181,7 +181,7 @@ export default function SearchBar({
     if (matchingFormulations.length > 0) {
       // Find the category of the first matching formulation
       const firstMatch = matchingFormulations[0];
-      const matchCategory = categories.find(c => c.dbCategoryId === firstMatch.categoryId);
+      const matchCategory = categories.find(c => c.dbCategoryId === firstMatch.categoryId || c.id === firstMatch.categoryId);
       
       if (matchCategory) {
         console.log('Found formulation matches, showing category with highlight:', matchCategory.name);

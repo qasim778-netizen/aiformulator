@@ -1024,36 +1024,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       categoryName = selectedCategory.name;
       categoryDescription = selectedCategory.description;
       
-      // Map formulation categories to appropriate database categories for storage
-      const categoryMapping: Record<string, string> = {
-        "3d-printing-materials-formulations": "construction material",
-        "advanced-agricultural-chemicals-formulations": "Electronic Chemicals", 
-        "automotive-coating-solutions-formulations": "Cleaning Products",
-        "baby-care-formulations": "Baby Care",
-        "beauty-products-formulations": "Beauty Products",
-        "biodegradable-packaging-solutions-formulations": "construction material",
-        "cleaning-products-formulations": "Cleaning Products",
-        "detergent-formulations": "Detergent formulation",
-        "hair-enrichment-solutions-formulations": "Beauty Products",
-        "leather-products-formulations": "Leather Products",
-        "mens-care-style-formulations": "Men Care",
-        "oral-care-formulations": "Oral Care",
-        "organic-care-products-formulations": "Organic Care",
-        "professional-grooming-essentials-formulations": "Men Care",
-        "salon-base-innovations-formulations": "Beauty Products",
-        "saloon-hair-treatment-formulations": "Beauty Products",
-        "shoe-care-formulations": "Shoe Care",
-        "skin-care-formulations": "Skin Care",
-        "smart-textile-coatings-formulations": "Cleaning Products",
-        "water-treatment-solutions-formulations": "Cleaning Products",
-        "construction-material-formulations": "construction material",
-        "pet-care-formulations": "pet care"
-      };
-      
-      const targetCategoryName = categoryMapping[categorySlug];
-      const categories = await storage.getCategories();
-      const targetCategory = categories.find(c => c.name.trim() === targetCategoryName);
-      finalCategoryId = targetCategory?.id || categories[0]?.id || categorySlug;
+      // Use the new formulation category slug directly as the category ID
+      // This ensures formulations are stored in the NEW formulation categories
+      finalCategoryId = categorySlug;
 
       // Generate product types based on the category
       const productTypes = await generateProductTypes(categoryName, categoryDescription, count);

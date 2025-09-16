@@ -55,7 +55,7 @@ export default function Browse() {
 
   const getFormulationCount = (categoryId: string) => {
     const category = categories.find(c => c.id === categoryId);
-    return formulations.filter(f => f.categoryId === category?.dbCategoryId).length
+    return formulations.filter(f => f.categoryId === category?.dbCategoryId || f.categoryId === categoryId).length
   }
 
   // Filter categories and formulations based on search query
@@ -64,7 +64,7 @@ export default function Browse() {
         category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         category.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         formulations.some(f => 
-          f.categoryId === category.dbCategoryId && 
+          (f.categoryId === category.dbCategoryId || f.categoryId === category.id) && 
           (f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
            f.description.toLowerCase().includes(searchQuery.toLowerCase()))
         )
@@ -77,7 +77,7 @@ export default function Browse() {
     }
     const category = categories.find(c => c.id === categoryId);
     return formulations.filter(f => 
-      f.categoryId === category?.dbCategoryId && 
+      (f.categoryId === category?.dbCategoryId || f.categoryId === categoryId) && 
       (f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
        f.description.toLowerCase().includes(searchQuery.toLowerCase()))
     ).length
