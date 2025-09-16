@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import SignInDialog from "@/components/signin-dialog";
 import { Captcha } from "@/components/ui/captcha";
+import { FORMULATION_CATEGORIES } from "@/constants/categories";
 
 const formulatorSchema = z.object({
   productName: z.string().min(1, "Product name is required"),
@@ -38,11 +39,8 @@ export default function AIFormulator() {
   const [captchaKey, setCaptchaKey] = useState(0);
   const { toast } = useToast();
 
-  // Fetch categories for dropdown
-  const { data: categoriesData } = useQuery({
-    queryKey: ['/api/categories'],
-    enabled: true
-  });
+  // Use the new 22 formulation categories
+  const categoriesData = FORMULATION_CATEGORIES;
 
   const form = useForm<FormulatorData>({
     resolver: zodResolver(formulatorSchema),

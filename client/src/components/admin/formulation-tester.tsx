@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle, XCircle, Beaker, AlertTriangle, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { FORMULATION_CATEGORIES } from "@/constants/categories";
 
 interface ValidationResult {
   isValid: boolean;
@@ -41,14 +42,13 @@ export default function FormulationTester() {
   const [result, setResult] = useState<FormulationResult | null>(null);
   const { toast } = useToast();
 
-  // Fetch categories from API instead of hardcoded list
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
-    queryKey: ['/api/categories'],
-  });
+  // Use the new 22 formulation categories instead of old database categories
+  const categories = FORMULATION_CATEGORIES;
+  const categoriesLoading = false;
 
-  // Map API categories to test format using the API-provided slug
+  // Map formulation categories to test format
   const testCategories: TestCategory[] = categories.map((cat) => ({
-    value: cat.slug,  // Use the slug from the API instead of generating it
+    value: cat.id,
     label: cat.name,
     description: cat.description
   }));
