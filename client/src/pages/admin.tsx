@@ -25,6 +25,7 @@ import BlogManagementTab from "@/components/admin/blog-management-tab";
 import AICategorySuggestions from "@/components/admin/ai-category-suggestions";
 import FormulationTester from "@/components/admin/formulation-tester";
 import type { Category, Formulation } from "@shared/schema";
+type FormulationCategory = typeof FORMULATION_CATEGORIES[0];
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -41,9 +42,9 @@ export default function AdminPage() {
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [formulationDialogOpen, setFormulationDialogOpen] = useState(false);
   const [bulkGenerationDialogOpen, setBulkGenerationDialogOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editingCategory, setEditingCategory] = useState<FormulationCategory | null>(null);
   const [editingFormulation, setEditingFormulation] = useState<Formulation | null>(null);
-  const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
+  const [deletingCategory, setDeletingCategory] = useState<FormulationCategory | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const { toast } = useToast();
   const { startGuidance, isCompleted } = useGuidance();
@@ -74,23 +75,24 @@ export default function AdminPage() {
     }
   }, [startGuidance, isCompleted]);
 
-  const { data: categories } = useQuery<Category[]>({
-    queryKey: ["/api/categories"],
-  });
+  // Use the new formulation categories instead of database categories
+  const categories = FORMULATION_CATEGORIES;
 
-  const { data: categoriesPaginated } = useQuery<{
-    data: Category[];
-    pagination: { currentPage: number; totalPages: number; totalItems: number; itemsPerPage: number };
-  }>({
-    queryKey: ["/api/categories", "paginated", categoriesPage],
-    queryFn: async () => {
-      const response = await fetch(`/api/categories?page=${categoriesPage}&limit=10&paginated=true`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch categories');
-      }
-      return response.json();
-    },
-  });
+  // Paginate the formulation categories locally
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(FORMULATION_CATEGORIES.length / itemsPerPage);
+  const startIndex = (categoriesPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  
+  const categoriesPaginated = {
+    data: FORMULATION_CATEGORIES.slice(startIndex, endIndex),
+    pagination: {
+      currentPage: categoriesPage,
+      totalPages: totalPages,
+      totalItems: FORMULATION_CATEGORIES.length,
+      itemsPerPage: itemsPerPage
+    }
+  };
 
   const { data: formulationsPaginated } = useQuery<{
     data: Formulation[];
@@ -107,14 +109,17 @@ export default function AdminPage() {
     },
   });
 
-  const { data: stats } = useQuery<{
-    totalCategories: number;
-    totalFormulations: number;
-    activeFormulations: number;
-    draftFormulations: number;
-  }>({
-    queryKey: ["/api/stats"],
+  const { data: formulationsData } = useQuery<Formulation[]>({
+    queryKey: ["/api/formulations"],
   });
+
+  // Calculate stats based on formulation categories
+  const stats = {
+    totalCategories: FORMULATION_CATEGORIES.length,
+    totalFormulations: formulationsData?.length || 0,
+    activeFormulations: formulationsData?.filter(f => f.isActive !== false).length || 0,
+    draftFormulations: formulationsData?.filter(f => f.isActive === false).length || 0,
+  };
 
   // Check if category has formulations
   const checkCategoryFormulations = async (categoryId: string) => {
@@ -128,28 +133,30 @@ export default function AdminPage() {
     }
   };
 
+  // Note: New formulation categories are constants and cannot be deleted
+  // This mutation is kept for backwards compatibility with any old database categories
   const deleteCategory = useMutation({
-    mutationFn: (id: string) => apiRequest("DELETE", `/api/categories/${id}`),
+    mutationFn: (id: string) => {
+      // Since we're now using formulation categories constants, 
+      // we'll just show a message that they can't be deleted
+      throw new Error("Formulation categories cannot be deleted as they are system-defined categories.");
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/categories", "paginated"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       setDeleteConfirmOpen(false);
       setDeletingCategory(null);
-      toast({ title: "Category deleted successfully" });
     },
     onError: (error: any) => {
       setDeleteConfirmOpen(false);
       setDeletingCategory(null);
       toast({ 
-        title: "Failed to delete category", 
-        description: error?.message || "An error occurred while deleting the category",
+        title: "Cannot delete formulation category", 
+        description: error?.message || "Formulation categories are system-defined and cannot be deleted",
         variant: "destructive" 
       });
     },
   });
 
-  const handleDeleteCategory = async (category: Category) => {
+  const handleDeleteCategory = async (category: FormulationCategory) => {
     const hasFormulations = await checkCategoryFormulations(category.id);
     
     if (hasFormulations) {
@@ -440,9 +447,10 @@ export default function AdminPage() {
                             Add a new category to organize your formulations
                           </DialogDescription>
                         </DialogHeader>
-                        <CategoryForm 
-                          onSuccess={() => setCategoryDialogOpen(false)} 
-                        />
+                        <div className="p-6 text-center">
+                          <p className="text-gray-600 mb-4">Formulation categories are system-defined and cannot be added.</p>
+                          <p className="text-sm text-gray-500">The 22 formulation categories provide comprehensive coverage for all chemical formulation types.</p>
+                        </div>
                       </DialogContent>
                     </Dialog>
 
@@ -525,7 +533,7 @@ export default function AdminPage() {
                 <AICategorySuggestions />
                 <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button data-testid="button-add-category-main">
+                    <Button disabled title="Formulation categories are system-defined" data-testid="button-add-category-main">
                       <Plus className="h-4 w-4 mr-2" />
                       Add Category
                     </Button>
@@ -539,13 +547,10 @@ export default function AdminPage() {
                         {editingCategory ? "Update the category details" : "Add a new category to organize your formulations"}
                       </DialogDescription>
                     </DialogHeader>
-                    <CategoryForm 
-                      category={editingCategory}
-                      onSuccess={() => {
-                        setCategoryDialogOpen(false);
-                        setEditingCategory(null);
-                      }} 
-                    />
+                    <div className="p-6 text-center">
+                      <p className="text-gray-600 mb-4">Formulation categories are system-defined and cannot be edited.</p>
+                      <p className="text-sm text-gray-500">These categories are designed specifically for chemical formulation management.</p>
+                    </div>
                   </DialogContent>
               </Dialog>
               </div>
@@ -593,19 +598,18 @@ export default function AdminPage() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => {
-                                  setEditingCategory(category);
-                                  setCategoryDialogOpen(true);
-                                }}
+                                disabled
+                                title="System categories cannot be edited"
                                 data-testid={`button-edit-category-${category.id}`}
                               >
-                                <Edit className="h-4 w-4" />
+                                <Edit className="h-4 w-4 text-gray-300" />
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleDeleteCategory(category)}
-                                className="text-red-600 hover:text-red-900"
+                                disabled
+                                title="System categories cannot be deleted"
+                                className="text-gray-300"
                                 data-testid={`button-delete-category-${category.id}`}
                               >
                                 <Trash2 className="h-4 w-4" />
