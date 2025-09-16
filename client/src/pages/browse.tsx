@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Sparkles } from 'lucide-react'
 import AIFormulatorWizard from '@/components/ai-formulator-wizard'
 import type { Category } from "@shared/schema"
+import { FORMULATION_CATEGORIES } from "@/constants/categories"
 
 interface Formulation {
   id: string
@@ -44,9 +45,9 @@ export default function Browse() {
     }
   }, [startGuidance, isCompleted])
 
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
-    queryKey: ['/api/categories'],
-  })
+  // Use the new 22 formulation categories for browse page
+  const categories = FORMULATION_CATEGORIES;
+  const categoriesLoading = false;
 
   const { data: formulations = [] } = useQuery<Formulation[]>({
     queryKey: ['/api/formulations'],
