@@ -19,17 +19,8 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
   const [formulationCount, setFormulationCount] = useState("5");
   const { toast } = useToast();
 
-  // All 23 categories for bulk generation (database + additional interface categories)
+  // New categories only - replacing old database categories
   const allBulkCategories = [
-    // Database categories
-    ...categories.map(cat => ({ 
-      id: cat.id, 
-      name: cat.name, 
-      image: cat.image,
-      description: cat.description,
-      isDatabase: true 
-    })),
-    // Additional interface categories (9 categories to reach total of 23)
     { id: "3d-printing-materials", name: "3D Printing Materials", image: "/placeholder-category.jpg", description: "Advanced materials for 3D printing applications", isDatabase: false },
     { id: "advanced-agricultural-chemicals-formulations", name: "Advanced Agricultural Chemicals Formulations", image: "/placeholder-category.jpg", description: "Professional agricultural chemical solutions", isDatabase: false },
     { id: "aromatherapy-innovations", name: "Aromatherapy Innovations", image: "/placeholder-category.jpg", description: "Essential oil blends and aromatherapy products", isDatabase: false },
@@ -43,13 +34,11 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
 
   const generateBulkFormulations = useMutation({
     mutationFn: ({ categoryId, count }: { categoryId: string; count: number }) => {
-      // Check if this is a database category or additional interface category
-      const selectedCat = allBulkCategories.find(c => c.id === categoryId);
-      const requestData = selectedCat?.isDatabase 
-        ? { categoryId, count } // Database category - use categoryId
-        : { categorySlug: categoryId, count }; // Interface category - use categorySlug
-      
-      return apiRequest("POST", "/api/ai/generate-bulk-formulations-with-keywords", requestData);
+      // All categories are now interface categories (use categorySlug)
+      return apiRequest("POST", "/api/ai/generate-bulk-formulations-with-keywords", { 
+        categorySlug: categoryId, 
+        count 
+      });
     },
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
@@ -154,7 +143,7 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
                 <SelectContent>
                   {allBulkCategories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
-                      {category.name} {!category.isDatabase && <span className="text-blue-600 text-xs">(New)</span>}
+                      {category.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
