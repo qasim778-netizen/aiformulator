@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Hand, Droplets, Waves, Circle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { Formulation } from "@shared/schema";
+import { FORMULATION_CATEGORIES } from "@/constants/categories";
 
 interface FormData {
   productName: string;
@@ -98,24 +99,8 @@ const consistencyTypes = [
 ];
 
 export default function ProductTypeStep({ formData, updateFormData }: Props) {
-  // Fetch categories from API instead of hardcoded list
-  const { data: categoriesData } = useQuery({
-    queryKey: ['/api/categories'],
-    enabled: true
-  });
-
-  const productCategories = (categoriesData as any)?.map((cat: any) => cat.name) || [
-    "Skincare & Cosmetics",
-    "Hair Care Products",
-    "Body Care & Personal Hygiene",
-    "Oral Care Products",
-    "Cleaning & Household",
-    "Industrial & Specialty",
-    "Organic & Natural Products",
-    "Baby & Child Care",
-    "Pet Care Products",
-    "Pharmaceutical & Medical"
-  ];
+  // Use the new 22 formulation categories
+  const productCategories = FORMULATION_CATEGORIES.map(cat => cat.name);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
