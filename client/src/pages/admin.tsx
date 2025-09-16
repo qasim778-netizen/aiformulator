@@ -216,7 +216,14 @@ export default function AdminPage() {
   });
 
   const getCategoryName = (categoryId: string): string => {
-    const category = categories?.find(cat => cat.id === categoryId);
+    // First try to find by the new formulation category ID (slug)
+    let category = categories?.find(cat => cat.id === categoryId);
+    
+    // If not found, try to find by the old database category ID mapping
+    if (!category && categories) {
+      category = categories.find(cat => cat.dbCategoryId === categoryId);
+    }
+    
     return category?.name || "Unknown Category";
   };
 
