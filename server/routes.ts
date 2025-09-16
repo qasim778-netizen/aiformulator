@@ -956,9 +956,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         categoryName = additionalCategory.name;
         categoryDescription = additionalCategory.description;
-        // For interface categories, store under a default database category or create a special handling
-        const defaultCategories = await storage.getCategories();
-        finalCategoryId = defaultCategories[0]?.id || categorySlug; // Use first available or slug as fallback
+        
+        // Map interface categories to appropriate database categories
+        const categoryMapping: Record<string, string> = {
+          "3d-printing-materials": "construction material",
+          "advanced-agricultural-chemicals-formulations": "Electronic Chemicals", 
+          "aromatherapy-innovations": "Beauty Products",
+          "automotive-coating-solutions": "Cleaning Products",
+          "biodegradable-packaging-solutions": "construction material",
+          "hair-enrichment-solutions": "Beauty Products",
+          "professional-grooming-essentials": "Men Care",
+          "smart-textile-coatings": "Cleaning Products",
+          "water-treatment-solutions": "Cleaning Products"
+        };
+        
+        const targetCategoryName = categoryMapping[categorySlug];
+        const categories = await storage.getCategories();
+        const targetCategory = categories.find(c => c.name === targetCategoryName);
+        finalCategoryId = targetCategory?.id || categories[0]?.id || categorySlug;
       }
 
       // Generate product types based on the category
