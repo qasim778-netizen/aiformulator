@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import type { Category } from "@shared/schema";
+import { FORMULATION_CATEGORIES } from "@/constants/categories";
 
 interface ValidationResult {
   isValid: boolean;
@@ -30,37 +31,41 @@ export default function DemoPage() {
   const [result, setResult] = useState<FormulationResult | null>(null);
   const { toast } = useToast();
 
-  // Fetch all categories from the API
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
-    queryKey: ["/api/categories"],
-  });
+  // Use the new 22 formulation categories  
+  const categories = FORMULATION_CATEGORIES;
+  const categoriesLoading = false;
 
   // Convert categories to the format needed for the dropdown
   const testCategories = categories.map(category => ({
-    value: category.slug,
+    value: category.id,
     label: category.name.trim(),
     description: category.description
   }));
 
-  // Updated examples to cover more categories
+  // Updated examples to match the new 22 formulation categories
   const testExamples: Record<string, string> = {
-    "glass-cleaners": "Professional glass cleaner for streak-free cleaning",
-    "cleaning-products": "Multi-surface kitchen cleaner",
-    "skincare": "Anti-aging moisturizing cream", 
-    "skin-care": "Anti-aging moisturizing cream",
-    "cosmetics": "Long-lasting liquid foundation",
-    "beauty-products": "Long-lasting liquid foundation",
-    "baby-care": "Gentle baby shampoo",
-    "detergent-formulation": "Heavy duty laundry detergent",
-    "electronic-chemicals": "Circuit board cleaner",
-    "food-beverage-additives": "Natural food preservative",
-    "leather-products": "Leather conditioner and protector",
-    "men-care": "Men's aftershave balm",
-    "oral-care": "Whitening toothpaste",
-    "organic-care": "Organic moisturizing lotion",
-    "shoe-care": "Shoe polish and protector",
-    "construction-material": "High-strength concrete additive",
-    "pet-care": "Gentle pet shampoo"
+    "3d-printing-materials-formulations": "3D printing resin",
+    "advanced-agricultural-chemicals-formulations": "organic pesticide formulation",
+    "automotive-coating-solutions-formulations": "car protective coating",
+    "baby-care-formulations": "gentle baby shampoo",
+    "beauty-products-formulations": "anti-aging serum",
+    "biodegradable-packaging-solutions-formulations": "eco-friendly packaging material",
+    "cleaning-products-formulations": "multi-surface kitchen cleaner",
+    "detergent-formulations": "heavy duty laundry detergent",
+    "hair-enrichment-solutions-formulations": "hair growth serum",
+    "leather-products-formulations": "leather conditioner cream",
+    "mens-care-style-formulations": "moisturizing aftershave balm",
+    "oral-care-formulations": "whitening toothpaste",
+    "organic-care-products-formulations": "organic moisturizing lotion",
+    "professional-grooming-essentials-formulations": "professional beard oil",
+    "salon-base-innovations-formulations": "salon hair treatment base",
+    "saloon-hair-treatment-formulations": "salon hair conditioning treatment",
+    "shoe-care-formulations": "waterproof shoe spray",
+    "skin-care-formulations": "anti-aging moisturizing cream",
+    "smart-textile-coatings-formulations": "water-resistant fabric coating",
+    "water-treatment-solutions-formulations": "water purification chemical",
+    "construction-material-formulations": "concrete additive",
+    "pet-care-formulations": "gentle pet shampoo"
   };
 
   const handleGenerateDemo = async () => {
