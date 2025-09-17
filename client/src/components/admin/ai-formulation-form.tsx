@@ -22,8 +22,8 @@ export default function AiFormulationForm({ categories, onSuccess }: AiFormulati
   const { toast } = useToast();
 
   const generateFormulation = useMutation({
-    mutationFn: ({ categoryId, productDescription }: { categoryId: string; productDescription: string }) => 
-      apiRequest("POST", "/api/ai/generate-formulation", { categoryId, productDescription }),
+    mutationFn: ({ categorySlug, productDescription }: { categorySlug: string; productDescription: string }) => 
+      apiRequest("POST", "/api/ai/generate-formulation", { categorySlug, productDescription }),
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
@@ -62,10 +62,10 @@ export default function AiFormulationForm({ categories, onSuccess }: AiFormulati
       });
       return;
     }
-    generateFormulation.mutate({ categoryId, productDescription });
+    generateFormulation.mutate({ categorySlug: categoryId, productDescription });
   };
 
-  const selectedCategory = formulationCategories.find(c => c.id === categoryId);
+  const selectedCategory = formulationCategories.find(c => c.slug === categoryId);
 
   return (
     <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-accent/20">
@@ -90,7 +90,7 @@ export default function AiFormulationForm({ categories, onSuccess }: AiFormulati
               </SelectTrigger>
               <SelectContent>
                 {formulationCategories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
+                  <SelectItem key={category.id} value={category.slug}>
                     {category.name}
                   </SelectItem>
                 ))}

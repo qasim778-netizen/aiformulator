@@ -75,7 +75,7 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
     generateBulkFormulations.mutate({ categoryId: selectedCategoryId, count });
   };
 
-  const selectedCategory = allBulkCategories.find(c => c.id === selectedCategoryId);
+  const selectedCategory = allBulkCategories.find(c => c.slug === selectedCategoryId);
 
   return (
     <div className="space-y-6">
@@ -132,7 +132,7 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
                 </SelectTrigger>
                 <SelectContent>
                   {allBulkCategories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
+                    <SelectItem key={category.id} value={category.slug}>
                       {category.name}
                     </SelectItem>
                   ))}
