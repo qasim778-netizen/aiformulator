@@ -22,8 +22,8 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
   const { toast } = useToast();
   const isEditing = !!category;
   
-  // Check if this is a constant category (from FORMULATION_CATEGORIES) vs database category
-  const isConstantCategory = category && 'dbCategoryId' in category;
+  // All categories are now database categories and can be edited
+  const isConstantCategory = false;
 
   const form = useForm<InsertCategory>({
     resolver: zodResolver(insertCategorySchema),

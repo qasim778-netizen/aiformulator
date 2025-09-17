@@ -1,6 +1,7 @@
 import { db, categoriesTable, formulationsTable } from "./db";
 import { count } from "drizzle-orm";
 import { MemStorage } from "./storage";
+import { FORMULATION_CATEGORIES } from "../client/src/constants/categories";
 
 export async function runMigrations() {
   try {
@@ -15,58 +16,29 @@ export async function runMigrations() {
 
     console.log(`Found ${categoryCount.count} categories and ${formulationCount.count} formulations`);
 
-    // Only seed data if database is empty
-    if (categoryCount.count === 0 && formulationCount.count === 0) {
-      console.log("Database is empty, seeding initial data...");
+    // Seed the 22 formulation categories if database is empty or missing our categories
+    if (categoryCount.count === 0) {
+      console.log("Database has no categories, seeding the 22 formulation categories...");
 
-      // Create temporary in-memory storage to get demo data
-      const tempStorage = new MemStorage();
-      const tempCategories = await tempStorage.getCategories();
-      const tempFormulations = await tempStorage.getFormulations();
-
-      // Insert categories
-      console.log(`Inserting ${tempCategories.length} categories...`);
-      for (const category of tempCategories) {
+      // Insert the 22 FORMULATION_CATEGORIES
+      console.log(`Inserting ${FORMULATION_CATEGORIES.length} formulation categories...`);
+      for (const category of FORMULATION_CATEGORIES) {
+        const slug = category.id; // Use the id as slug since it's already URL-friendly
         await db.insert(categoriesTable).values({
           name: category.name,
           description: category.description,
-          icon: category.icon,
-          image: category.image,
-          isActive: category.isActive,
+          icon: "fas fa-flask", // Default icon for all categories
+          image: "/placeholder-category.jpg", // Default placeholder image
+          isActive: true,
         });
       }
-
-      // Insert formulations
-      console.log(`Inserting ${tempFormulations.length} formulations...`);
-      for (const formulation of tempFormulations) {
-        await db.insert(formulationsTable).values({
-          categoryId: formulation.categoryId,
-          name: formulation.name,
-          slug: formulation.slug || formulation.name.toLowerCase().replace(/\s+/g, '-'),
-          description: formulation.description,
-          metaDescription: formulation.metaDescription || formulation.description?.slice(0, 160),
-          keywords: formulation.keywords,
-          image: formulation.image,
-          phLevel: formulation.phLevel,
-          shelfLife: formulation.shelfLife,
-          viscosity: formulation.viscosity,
-          storageConditions: formulation.storageConditions,
-          batchSize: formulation.batchSize,
-          processingTime: formulation.processingTime,
-          temperature: formulation.temperature,
-          equipment: formulation.equipment,
-          certification: formulation.certification,
-          ingredients: formulation.ingredients,
-          instructions: formulation.instructions,
-          usageInstructions: formulation.usageInstructions,
-          isActive: formulation.isActive,
-        });
-      }
-
-      console.log("Database seeding completed successfully!");
+      console.log("Formulation categories seeded successfully!");
     } else {
-      console.log("Database already contains data, skipping seeding.");
+      console.log("Categories already exist, skipping category seeding.");
     }
+
+    // Skip demo formulation seeding for now - the 22 categories are ready for use
+    console.log("Categories are ready! Admin can now create formulations through the interface.");
 
     console.log("Migrations completed successfully!");
   } catch (error) {

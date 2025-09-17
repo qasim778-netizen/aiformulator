@@ -42,9 +42,9 @@ export default function AdminPage() {
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [formulationDialogOpen, setFormulationDialogOpen] = useState(false);
   const [bulkGenerationDialogOpen, setBulkGenerationDialogOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<FormulationCategory | null>(null);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [editingFormulation, setEditingFormulation] = useState<Formulation | null>(null);
-  const [deletingCategory, setDeletingCategory] = useState<FormulationCategory | null>(null);
+  const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const { toast } = useToast();
   const { startGuidance, isCompleted } = useGuidance();
@@ -75,21 +75,23 @@ export default function AdminPage() {
     }
   }, [startGuidance, isCompleted]);
 
-  // Use the new formulation categories instead of database categories
-  const categories = FORMULATION_CATEGORIES;
+  // Fetch categories from database
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
+  });
 
-  // Paginate the formulation categories locally
+  // Paginate the database categories locally
   const itemsPerPage = 10;
-  const totalPages = Math.ceil(FORMULATION_CATEGORIES.length / itemsPerPage);
+  const totalPages = Math.ceil((categories?.length || 0) / itemsPerPage);
   const startIndex = (categoriesPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   
   const categoriesPaginated = {
-    data: FORMULATION_CATEGORIES.slice(startIndex, endIndex),
+    data: categories?.slice(startIndex, endIndex) || [],
     pagination: {
       currentPage: categoriesPage,
       totalPages: totalPages,
-      totalItems: FORMULATION_CATEGORIES.length,
+      totalItems: categories?.length || 0,
       itemsPerPage: itemsPerPage
     }
   };
@@ -113,9 +115,9 @@ export default function AdminPage() {
     queryKey: ["/api/formulations"],
   });
 
-  // Calculate stats based on formulation categories
+  // Calculate stats based on database categories
   const stats = {
-    totalCategories: FORMULATION_CATEGORIES.length,
+    totalCategories: categories?.length || 0,
     totalFormulations: formulationsData?.length || 0,
     activeFormulations: formulationsData?.filter(f => f.isActive !== false).length || 0,
     draftFormulations: formulationsData?.filter(f => f.isActive === false).length || 0,
@@ -156,7 +158,7 @@ export default function AdminPage() {
     },
   });
 
-  const handleDeleteCategory = async (category: FormulationCategory) => {
+  const handleDeleteCategory = async (category: Category) => {
     const hasFormulations = await checkCategoryFormulations(category.id);
     
     if (hasFormulations) {
@@ -216,14 +218,8 @@ export default function AdminPage() {
   });
 
   const getCategoryName = (categoryId: string): string => {
-    // First try to find by the new formulation category ID (slug)
-    let category = categories?.find(cat => cat.id === categoryId);
-    
-    // If not found, try to find by the old database category ID mapping
-    if (!category && categories) {
-      category = categories.find(cat => cat.dbCategoryId === categoryId);
-    }
-    
+    // Find category by ID (database categories now use direct ID matching)
+    const category = categories?.find(cat => cat.id === categoryId);
     return category?.name || "Unknown Category";
   };
 
@@ -476,7 +472,7 @@ export default function AdminPage() {
                           </DialogDescription>
                         </DialogHeader>
                         <FormulationForm 
-                          categories={categories as any || []} 
+                          categories={categories || []} 
                           onSuccess={() => setFormulationDialogOpen(false)} 
                         />
                       </DialogContent>
@@ -589,7 +585,7 @@ export default function AdminPage() {
                       </DialogDescription>
                     </DialogHeader>
                     <CategoryForm 
-                      category={editingCategory as any}
+                      category={editingCategory}
                       onSuccess={() => {
                         setCategoryDialogOpen(false);
                         setEditingCategory(null);
@@ -751,7 +747,7 @@ export default function AdminPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Categories</SelectItem>
-                      {FORMULATION_CATEGORIES.map((category) => (
+                      {categories?.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}
                         </SelectItem>
@@ -777,7 +773,7 @@ export default function AdminPage() {
                     </DialogHeader>
                     <FormulationForm 
                       formulation={editingFormulation}
-                      categories={categories as any || []} 
+                      categories={categories || []} 
                       onSuccess={() => {
                         setFormulationDialogOpen(false);
                         setEditingFormulation(null);
@@ -966,7 +962,7 @@ export default function AdminPage() {
               <h2 className="text-xl font-inter font-semibold text-gray-900">Bulk Formulations Generator</h2>
               <p className="text-sm text-gray-600 mt-1">Select an existing category and generate multiple formulations automatically</p>
             </div>
-            <BulkFormulationGenerator categories={categories as any || []} />
+            <BulkFormulationGenerator categories={categories || []} />
           </div>
         )}
 
