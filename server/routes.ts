@@ -991,32 +991,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Category slug is required" });
       }
 
-      const formulation_categories: Record<string, { name: string; description: string }> = {
-        "3d-printing-materials-formulations": { name: "3D Printing Materials Formulations", description: "Advanced materials for 3D printing applications" },
-        "advanced-agricultural-chemicals-formulations": { name: "Advanced Agricultural Chemicals Formulations", description: "Professional agricultural chemical solutions" },
-        "automotive-coating-solutions-formulations": { name: "Automotive Coating Solutions Formulations", description: "Protective coatings for automotive applications" },
-        "baby-care-formulations": { name: "Baby Care Formulations", description: "Safe and gentle baby care products" },
-        "beauty-products-formulations": { name: "Beauty Products Formulations", description: "Beauty and cosmetic formulations" },
-        "biodegradable-packaging-solutions-formulations": { name: "Biodegradable Packaging Solutions Formulations", description: "Eco-friendly packaging materials" },
-        "cleaning-products-formulations": { name: "Cleaning Products Formulations", description: "Household and industrial cleaning solutions" },
-        "detergent-formulations": { name: "Detergent Formulations", description: "Laundry and dishwashing detergent formulations" },
-        "hair-enrichment-solutions-formulations": { name: "Hair Enrichment Solutions Formulations", description: "Advanced hair care and treatment products" },
-        "leather-products-formulations": { name: "Leather Products Formulations", description: "Leather care and treatment formulations" },
-        "mens-care-style-formulations": { name: "Men's Care & Style Formulations", description: "Men's grooming and styling products" },
-        "oral-care-formulations": { name: "Oral Care Formulations", description: "Dental and oral hygiene products" },
-        "organic-care-products-formulations": { name: "Organic Care Products Formulations", description: "Natural and organic care formulations" },
-        "professional-grooming-essentials-formulations": { name: "Professional Grooming Essentials Formulations", description: "Professional grooming and styling products" },
-        "salon-base-innovations-formulations": { name: "Salon Base Innovations Formulations", description: "Innovative salon treatment bases" },
-        "saloon-hair-treatment-formulations": { name: "Saloon Hair Treatment Formulations", description: "Professional salon hair treatments" },
-        "shoe-care-formulations": { name: "Shoe Care Formulations", description: "Footwear care and maintenance products" },
-        "skin-care-formulations": { name: "Skin Care Formulations", description: "Skincare and dermatological formulations" },
-        "smart-textile-coatings-formulations": { name: "Smart Textile Coatings Formulations", description: "Advanced textile coating technologies" },
-        "water-treatment-solutions-formulations": { name: "Water Treatment Solutions Formulations", description: "Water purification and treatment chemicals" },
-        "construction-material-formulations": { name: "Construction Material Formulations", description: "Building and construction material formulations" },
-        "pet-care-formulations": { name: "Pet Care Formulations", description: "Pet care and veterinary formulations" }
-      };
-
-      const selectedCategory = formulation_categories[categorySlug];
+      // Look up category from database by slug
+      const selectedCategory = await storage.getCategoryBySlug(categorySlug);
       if (!selectedCategory) {
         return res.status(404).json({ message: "Category not found" });
       }
@@ -1024,9 +1000,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       categoryName = selectedCategory.name;
       categoryDescription = selectedCategory.description;
       
-      // Use the new formulation category slug directly as the category ID
-      // This ensures formulations are stored in the NEW formulation categories
-      finalCategoryId = categorySlug;
+      // Use the database category ID for formulations
+      finalCategoryId = selectedCategory.id;
 
       // Generate product types based on the category
       const productTypes = await generateProductTypes(categoryName, categoryDescription, count);
