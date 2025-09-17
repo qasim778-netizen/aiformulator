@@ -27,16 +27,23 @@ export default function CategoryPage() {
   const { data: formulations = [], isLoading: formulationsLoading } = useQuery<Formulation[]>({
     queryKey: ["/api/formulations", { categoryId }],
     queryFn: async () => {
-      if (!category?.dbCategoryId) {
+      if (!category) {
         return [];
       }
-      const response = await fetch(`/api/formulations?categoryId=${category.dbCategoryId}`);
+      
+      // Get all formulations and filter them client-side to handle both new and old categoryId formats
+      const response = await fetch(`/api/formulations`);
       if (!response.ok) {
         throw new Error('Failed to fetch formulations');
       }
-      return response.json();
+      const allFormulations = await response.json();
+      
+      // Filter formulations by both new category ID (slug) and old database category ID
+      return allFormulations.filter((formulation: Formulation) => 
+        formulation.categoryId === category.id || formulation.categoryId === category.dbCategoryId
+      );
     },
-    enabled: !!categoryId && !!category?.dbCategoryId,
+    enabled: !!categoryId && !!category,
   });
 
   // Scroll to highlighted formulation when page loads
