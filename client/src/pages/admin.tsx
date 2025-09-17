@@ -13,7 +13,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HelpButton } from "@/components/ui/help-button";
 import { useGuidance } from "@/hooks/use-guidance";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { FORMULATION_CATEGORIES } from "@/constants/categories";
 import CategoryForm from "@/components/admin/category-form";
 import FormulationForm from "@/components/admin/formulation-form";
 import BulkGenerationForm from "@/components/admin/bulk-generation-form";
@@ -25,7 +24,6 @@ import BlogManagementTab from "@/components/admin/blog-management-tab";
 import AICategorySuggestions from "@/components/admin/ai-category-suggestions";
 import FormulationTester from "@/components/admin/formulation-tester";
 import type { Category, Formulation } from "@shared/schema";
-type FormulationCategory = typeof FORMULATION_CATEGORIES[0];
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -135,24 +133,23 @@ export default function AdminPage() {
     }
   };
 
-  // Note: New formulation categories are constants and cannot be deleted
-  // This mutation is kept for backwards compatibility with any old database categories
   const deleteCategory = useMutation({
-    mutationFn: (id: string) => {
-      // Since we're now using formulation categories constants, 
-      // we'll just show a message that they can't be deleted
-      throw new Error("Formulation categories cannot be deleted as they are system-defined categories.");
-    },
+    mutationFn: (id: string) => apiRequest("DELETE", `/api/categories/${id}`),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
       setDeleteConfirmOpen(false);
       setDeletingCategory(null);
+      toast({
+        title: "Success",
+        description: "Category deleted successfully",
+      });
     },
     onError: (error: any) => {
       setDeleteConfirmOpen(false);
       setDeletingCategory(null);
       toast({ 
-        title: "Cannot delete formulation category", 
-        description: error?.message || "Formulation categories are system-defined and cannot be deleted",
+        title: "Delete failed", 
+        description: error?.message || "Failed to delete category",
         variant: "destructive" 
       });
     },

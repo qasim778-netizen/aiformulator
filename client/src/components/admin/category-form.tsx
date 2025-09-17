@@ -79,7 +79,7 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
     setIsImageUploading(true);
     
     if (isConstantCategory) {
-      // For constant categories (FORMULATION_CATEGORIES), we can't upload to database
+      // For system categories, we can't upload images
       toast({ 
         title: "Image upload not available", 
         description: "System-defined categories cannot have custom images uploaded.",

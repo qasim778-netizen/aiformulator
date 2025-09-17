@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { Category } from "@shared/schema";
-import { FORMULATION_CATEGORIES } from "@/constants/categories";
 
 interface BulkFormulationGeneratorProps {
   categories: Category[];
@@ -20,12 +19,8 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
   const [formulationCount, setFormulationCount] = useState("5");
   const { toast } = useToast();
 
-  // Use shared formulation categories for consistency
-  const allBulkCategories = FORMULATION_CATEGORIES.map(cat => ({
-    ...cat,
-    image: "/placeholder-category.jpg",
-    isDatabase: false
-  }));
+  // Use database categories
+  const allBulkCategories = categories;
 
   const generateBulkFormulations = useMutation({
     mutationFn: ({ categoryId, count }: { categoryId: string; count: number }) => {

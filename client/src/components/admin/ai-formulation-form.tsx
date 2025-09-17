@@ -8,16 +8,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { Category } from "@shared/schema";
-import { FORMULATION_CATEGORIES } from "@/constants/categories";
 
 interface AiFormulationFormProps {
-  categories?: Category[]; // Optional since we now use shared categories
+  categories: Category[]; // Required database categories
   onSuccess: () => void;
 }
 
 export default function AiFormulationForm({ categories, onSuccess }: AiFormulationFormProps) {
-  // Use shared formulation categories for consistency
-  const formulationCategories = FORMULATION_CATEGORIES;
+  // Use database categories passed as props
+  const formulationCategories = categories;
   const [categoryId, setCategoryId] = useState("");
   const [productDescription, setProductDescription] = useState("");
   const { toast } = useToast();
