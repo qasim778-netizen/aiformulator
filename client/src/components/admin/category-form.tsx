@@ -14,13 +14,16 @@ import type { Category, InsertCategory } from "@shared/schema";
 import { SimpleImageUploader } from "@/components/SimpleImageUploader";
 
 interface CategoryFormProps {
-  category?: Category | null;
+  category?: Category | any | null;
   onSuccess: () => void;
 }
 
 export default function CategoryForm({ category, onSuccess }: CategoryFormProps) {
   const { toast } = useToast();
   const isEditing = !!category;
+  
+  // Check if this is a constant category (from FORMULATION_CATEGORIES) vs database category
+  const isConstantCategory = category && 'dbCategoryId' in category;
 
   const form = useForm<InsertCategory>({
     resolver: zodResolver(insertCategorySchema),
@@ -74,8 +77,20 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
 
   const handleImageUpload = async (imageURL: string) => {
     setIsImageUploading(true);
+    
+    if (isConstantCategory) {
+      // For constant categories (FORMULATION_CATEGORIES), we can't upload to database
+      toast({ 
+        title: "Image upload not available", 
+        description: "System-defined categories cannot have custom images uploaded.",
+        variant: "destructive" 
+      });
+      setIsImageUploading(false);
+      return;
+    }
+    
     if (isEditing && category?.id) {
-      // For existing categories, upload immediately and set ACL
+      // For existing database categories, upload immediately and set ACL
       uploadImageMutation.mutate(imageURL);
     } else {
       // For new categories, just set the URL to be saved with the category
@@ -145,6 +160,15 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
   });
 
   const onSubmit = (data: InsertCategory) => {
+    if (isConstantCategory) {
+      toast({ 
+        title: "Cannot edit system category", 
+        description: "System-defined categories cannot be modified. These are built-in formulation categories.",
+        variant: "destructive" 
+      });
+      return;
+    }
+    
     if (isEditing) {
       updateCategory.mutate(data);
     } else {
@@ -157,6 +181,25 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {isConstantCategory && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-yellow-800">
+                  System-Defined Category
+                </h3>
+                <p className="mt-1 text-sm text-yellow-700">
+                  This is a built-in formulation category. You can view the details but cannot modify the category or upload custom images.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         <FormField
           control={form.control}
           name="name"
@@ -168,6 +211,7 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
                   id="category-name"
                   placeholder="Enter category name" 
                   autoComplete="off"
+                  disabled={isConstantCategory}
                   {...field} 
                 />
               </FormControl>
@@ -187,6 +231,7 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
                   id="category-description"
                   placeholder="Enter category description" 
                   autoComplete="off"
+                  disabled={isConstantCategory}
                   {...field} 
                 />
               </FormControl>
@@ -206,6 +251,7 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
                   id="category-icon"
                   placeholder="e.g., fas fa-flask" 
                   autoComplete="off"
+                  disabled={isConstantCategory}
                   {...field} 
                 />
               </FormControl>
@@ -249,6 +295,7 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
                 <Switch
                   checked={field.value}
                   onCheckedChange={field.onChange}
+                  disabled={isConstantCategory}
                 />
               </FormControl>
             </FormItem>
@@ -261,10 +308,11 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
           </Button>
           <Button 
             type="submit" 
-            disabled={isLoading || isImageUploading}
+            disabled={isLoading || isImageUploading || isConstantCategory}
             data-testid="button-save-category"
           >
-            {isLoading ? "Saving..." : isEditing ? "Update Category" : "Create Category"}
+            {isConstantCategory ? "System Category (Read-Only)" : 
+             isLoading ? "Saving..." : isEditing ? "Update Category" : "Create Category"}
           </Button>
         </div>
       </form>
