@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Category, Formulation } from "@shared/schema";
-import { useEffect, useMemo } from "react";
-import { FORMULATION_CATEGORIES } from "@/constants/categories";
+import { useEffect } from "react";
 
 export default function CategoryPage() {
   const params = useParams();
@@ -18,11 +17,18 @@ export default function CategoryPage() {
   const highlightId = urlParams.get('highlight');
   const searchTerm = urlParams.get('search');
 
-  // Find the formulation category from our constants
-  const category = useMemo(() => {
-    return FORMULATION_CATEGORIES.find(cat => cat.id === categoryId);
-  }, [categoryId]);
-  const categoryLoading = false;
+  // Fetch the category from database
+  const { data: category, isLoading: categoryLoading } = useQuery<Category>({ 
+    queryKey: ["/api/categories", categoryId],
+    queryFn: async () => {
+      const response = await fetch(`/api/categories/${categoryId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch category');
+      }
+      return response.json();
+    },
+    enabled: !!categoryId,
+  });
 
   const { data: formulations = [], isLoading: formulationsLoading } = useQuery<Formulation[]>({
     queryKey: ["/api/formulations", { categoryId }],
@@ -38,9 +44,9 @@ export default function CategoryPage() {
       }
       const allFormulations = await response.json();
       
-      // Filter formulations by both new category ID (slug) and old database category ID
+      // Filter formulations by category ID
       return allFormulations.filter((formulation: Formulation) => 
-        formulation.categoryId === category.id || formulation.categoryId === category.dbCategoryId
+        formulation.categoryId === category.id
       );
     },
     enabled: !!categoryId && !!category,

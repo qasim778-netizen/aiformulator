@@ -9,7 +9,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Sparkles } from 'lucide-react'
 import AIFormulatorWizard from '@/components/ai-formulator-wizard'
 import type { Category } from "@shared/schema"
-import { FORMULATION_CATEGORIES } from "@/constants/categories"
 
 interface Formulation {
   id: string
@@ -45,17 +44,17 @@ export default function Browse() {
     }
   }, [startGuidance, isCompleted])
 
-  // Use the new 22 formulation categories for browse page
-  const categories = FORMULATION_CATEGORIES;
-  const categoriesLoading = false;
+  // Fetch categories from database
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
+    queryKey: ['/api/categories'],
+  })
 
   const { data: formulations = [] } = useQuery<Formulation[]>({
     queryKey: ['/api/formulations'],
   })
 
   const getFormulationCount = (categoryId: string) => {
-    const category = categories.find(c => c.id === categoryId);
-    return formulations.filter(f => f.categoryId === category?.dbCategoryId || f.categoryId === categoryId).length
+    return formulations.filter(f => f.categoryId === categoryId).length
   }
 
   // Filter categories and formulations based on search query
@@ -64,7 +63,7 @@ export default function Browse() {
         category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         category.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         formulations.some(f => 
-          (f.categoryId === category.dbCategoryId || f.categoryId === category.id) && 
+          f.categoryId === category.id && 
           (f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
            f.description.toLowerCase().includes(searchQuery.toLowerCase()))
         )
