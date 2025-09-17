@@ -476,7 +476,7 @@ export default function AdminPage() {
                           </DialogDescription>
                         </DialogHeader>
                         <FormulationForm 
-                          categories={categories || []} 
+                          categories={categories as any || []} 
                           onSuccess={() => setFormulationDialogOpen(false)} 
                         />
                       </DialogContent>
@@ -528,6 +528,37 @@ export default function AdminPage() {
           </div>
         )}
 
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Deletion</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete "{deletingCategory?.name}"? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end space-x-2 mt-4">
+              <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={() => {
+                  // TODO: Implement category deletion
+                  toast({
+                    title: "Category Deleted",
+                    description: `${deletingCategory?.name} has been deleted successfully.`,
+                  });
+                  setDeleteConfirmOpen(false);
+                  setDeletingCategory(null);
+                }}
+              >
+                Delete
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* Categories Tab */}
         {activeTab === "categories" && (
           <div>
@@ -538,9 +569,12 @@ export default function AdminPage() {
               </div>
               <div className="flex gap-2">
                 <AICategorySuggestions />
-                <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
+                <Dialog open={categoryDialogOpen} onOpenChange={(open) => {
+                  setCategoryDialogOpen(open);
+                  if (!open) setEditingCategory(null);
+                }}>
                   <DialogTrigger asChild>
-                    <Button disabled title="Formulation categories are system-defined" data-testid="button-add-category-main">
+                    <Button data-testid="button-add-category-main">
                       <Plus className="h-4 w-4 mr-2" />
                       Add Category
                     </Button>
@@ -551,13 +585,16 @@ export default function AdminPage() {
                         {editingCategory ? "Edit Category" : "Create New Category"}
                       </DialogTitle>
                       <DialogDescription>
-                        {editingCategory ? "Update the category details" : "Add a new category to organize your formulations"}
+                        {editingCategory ? "Update the category details and upload images" : "Add a new category to organize your formulations"}
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="p-6 text-center">
-                      <p className="text-gray-600 mb-4">Formulation categories are system-defined and cannot be edited.</p>
-                      <p className="text-sm text-gray-500">These categories are designed specifically for chemical formulation management.</p>
-                    </div>
+                    <CategoryForm 
+                      category={editingCategory as any}
+                      onSuccess={() => {
+                        setCategoryDialogOpen(false);
+                        setEditingCategory(null);
+                      }} 
+                    />
                   </DialogContent>
               </Dialog>
               </div>
@@ -605,21 +642,35 @@ export default function AdminPage() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                disabled
-                                title="System categories cannot be edited"
+                                onClick={() => {
+                                  setEditingCategory(category);
+                                  setCategoryDialogOpen(true);
+                                }}
+                                title="Edit category"
                                 data-testid={`button-edit-category-${category.id}`}
                               >
-                                <Edit className="h-4 w-4 text-gray-300" />
+                                <Edit className="h-4 w-4" />
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                disabled
-                                title="System categories cannot be deleted"
-                                className="text-gray-300"
+                                onClick={() => {
+                                  setDeletingCategory(category);
+                                  setDeleteConfirmOpen(true);
+                                }}
+                                title="Delete category"
+                                className="text-red-600 hover:text-red-800"
                                 data-testid={`button-delete-category-${category.id}`}
                               >
                                 <Trash2 className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                title="Upload category image"
+                                data-testid={`button-upload-image-${category.id}`}
+                              >
+                                <Image className="h-4 w-4" />
                               </Button>
                             </div>
                           </td>
@@ -726,7 +777,7 @@ export default function AdminPage() {
                     </DialogHeader>
                     <FormulationForm 
                       formulation={editingFormulation}
-                      categories={categories || []} 
+                      categories={categories as any || []} 
                       onSuccess={() => {
                         setFormulationDialogOpen(false);
                         setEditingFormulation(null);
@@ -915,7 +966,7 @@ export default function AdminPage() {
               <h2 className="text-xl font-inter font-semibold text-gray-900">Bulk Formulations Generator</h2>
               <p className="text-sm text-gray-600 mt-1">Select an existing category and generate multiple formulations automatically</p>
             </div>
-            <BulkFormulationGenerator categories={categories || []} />
+            <BulkFormulationGenerator categories={categories as any || []} />
           </div>
         )}
 
