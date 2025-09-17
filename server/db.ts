@@ -10,7 +10,10 @@ export const db = drizzle(sql);
 export const categoriesTable = pgTable("categories", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
+  slug: text("slug").notNull(), // SEO-friendly URL slug
   description: text("description").notNull(),
+  metaDescription: text("meta_description"), // SEO meta description
+  keywords: text("keywords"), // SEO keywords
   icon: text("icon").notNull(),
   image: text("image").notNull(),
   isActive: boolean("is_active").notNull().default(true),

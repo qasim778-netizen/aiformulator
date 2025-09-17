@@ -28,9 +28,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createCategory(category: InsertCategory): Promise<Category> {
+    const slug = category.slug || this.generateCategorySlugFromName(category.name);
     const [created] = await db.insert(categoriesTable).values({
       name: category.name,
+      slug: slug,
       description: category.description,
+      metaDescription: category.metaDescription || `Explore professional ${category.name.toLowerCase()} formulations with complete manufacturing guides.`,
+      keywords: category.keywords || `${category.name.toLowerCase()}, formulations, manufacturing, chemical recipes`,
       icon: category.icon,
       image: category.image,
       isActive: category.isActive ?? true,
@@ -98,10 +102,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createFormulation(formulation: InsertFormulation): Promise<Formulation> {
+    const slug = formulation.slug || this.generateSlugFromNameWithCategory(formulation.name, formulation.categoryId);
     const [created] = await db.insert(formulationsTable).values({
       categoryId: formulation.categoryId,
       name: formulation.name,
+      slug: slug,
       description: formulation.description,
+      metaDescription: formulation.metaDescription || `Professional ${formulation.name} formulation with complete manufacturing guide and ingredients.`,
+      keywords: formulation.keywords || `${formulation.name}, chemical formulation, manufacturing guide`,
+      image: formulation.image,
       phLevel: formulation.phLevel,
       shelfLife: formulation.shelfLife,
       viscosity: formulation.viscosity,
