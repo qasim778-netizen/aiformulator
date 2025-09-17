@@ -76,7 +76,10 @@ export default function SearchBar({
     formulations.forEach(formulation => {
       if (formulation.name.toLowerCase().includes(lowerQuery) || 
           formulation.description.toLowerCase().includes(lowerQuery)) {
-        const category = categories.find(c => c.dbCategoryId === formulation.categoryId || c.id === formulation.categoryId);
+        // Find category by either new ID (slug) or old database UUID
+        const category = categories.find(c => 
+          c.id === formulation.categoryId || c.dbCategoryId === formulation.categoryId
+        );
         allSuggestions.push({
           id: formulation.id,
           title: formulation.name,
