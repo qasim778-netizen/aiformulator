@@ -23,9 +23,10 @@ export async function runMigrations() {
       // Insert the 22 FORMULATION_CATEGORIES
       console.log(`Inserting ${FORMULATION_CATEGORIES.length} formulation categories...`);
       for (const category of FORMULATION_CATEGORIES) {
-        const slug = category.id; // Use the id as slug since it's already URL-friendly
+        const slug = generateCategorySlugFromName(category.name);
         await db.insert(categoriesTable).values({
           name: category.name,
+          slug: slug,
           description: category.description,
           icon: "fas fa-flask", // Default icon for all categories
           image: "/placeholder-category.jpg", // Default placeholder image
@@ -52,12 +53,15 @@ async function createTables() {
   try {
     console.log("Creating database tables...");
 
-    // Create categories table
+    // Create categories table with all required fields
     await db.execute(/* sql */ `
       CREATE TABLE IF NOT EXISTS categories (
         id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
         name text NOT NULL,
+        slug text,
         description text NOT NULL,
+        meta_description text,
+        keywords text,
         icon text NOT NULL,
         image text NOT NULL,
         is_active boolean NOT NULL DEFAULT true,
@@ -65,13 +69,20 @@ async function createTables() {
       )
     `);
 
-    // Create formulations table
+    // Create formulations table with all required fields
     await db.execute(/* sql */ `
       CREATE TABLE IF NOT EXISTS formulations (
         id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
         category_id uuid NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
         name text NOT NULL,
+        slug text,
         description text NOT NULL,
+        seo_title text,
+        meta_description text,
+        keywords text,
+        image text,
+        image_alt text,
+        image_filename text,
         ph_level text NOT NULL,
         shelf_life text NOT NULL,
         viscosity text,
@@ -126,37 +137,86 @@ const CATEGORY_NAME_UPDATES = [
 
 async function updateCategoryNames() {
   try {
-    console.log("Starting category name update...");
+    console.log("Starting comprehensive category name and slug reconciliation...");
 
     // Get all current categories
     const allCategories = await db.select().from(categoriesTable);
     console.log(`Found ${allCategories.length} existing categories`);
 
-    let updatedCount = 0;
+    let nameUpdatedCount = 0;
+    let slugUpdatedCount = 0;
 
-    // Update each category name if it matches our mapping
+    // Step 1: Update category names by exact name match
+    console.log("\n=== Step 1: Updating category names by exact match ===");
     for (const update of CATEGORY_NAME_UPDATES) {
       const categoryToUpdate = allCategories.find(cat => cat.name === update.old);
       
       if (categoryToUpdate) {
-        console.log(`Updating: "${update.old}" → "${update.new}"`);
+        console.log(`Updating name: "${update.old}" → "${update.new}"`);
+        
+        const newSlug = generateCategorySlugFromName(update.new);
+        console.log(`  Updating slug: "${categoryToUpdate.slug || 'null'}" → "${newSlug}"`);
         
         await db
           .update(categoriesTable)
-          .set({ name: update.new })
+          .set({ 
+            name: update.new,
+            slug: newSlug 
+          })
           .where(eq(categoriesTable.id, categoryToUpdate.id));
         
-        updatedCount++;
-      } else {
-        console.log(`Category "${update.old}" not found (may already be updated)`);
+        nameUpdatedCount++;
       }
     }
 
-    // Also ensure descriptions are updated to match FORMULATION_CATEGORIES
-    console.log("\nUpdating category descriptions...");
-    const updatedCategories = await db.select().from(categoriesTable);
+    // Step 2: Fallback - find categories by old slug if name lookup failed
+    console.log("\n=== Step 2: Fallback lookup by old slug patterns ===");
+    for (const update of CATEGORY_NAME_UPDATES) {
+      const oldSlug = generateCategorySlugFromName(update.old);
+      const categoryBySlug = allCategories.find(cat => cat.slug === oldSlug && cat.name !== update.new);
+      
+      if (categoryBySlug) {
+        console.log(`Found by old slug "${oldSlug}": updating "${categoryBySlug.name}" → "${update.new}"`);
+        
+        const newSlug = generateCategorySlugFromName(update.new);
+        console.log(`  Updating slug: "${categoryBySlug.slug}" → "${newSlug}"`);
+        
+        await db
+          .update(categoriesTable)
+          .set({ 
+            name: update.new,
+            slug: newSlug 
+          })
+          .where(eq(categoriesTable.id, categoryBySlug.id));
+        
+        nameUpdatedCount++;
+      }
+    }
+
+    // Step 3: General slug reconciliation - fix any mismatched slugs
+    console.log("\n=== Step 3: General slug reconciliation ===");
+    const finalCategories = await db.select().from(categoriesTable);
     
-    for (const category of updatedCategories) {
+    for (const category of finalCategories) {
+      const expectedSlug = generateCategorySlugFromName(category.name);
+      
+      if (!category.slug || category.slug !== expectedSlug) {
+        console.log(`Reconciling slug for "${category.name}": "${category.slug || 'null'}" → "${expectedSlug}"`);
+        
+        await db
+          .update(categoriesTable)
+          .set({ slug: expectedSlug })
+          .where(eq(categoriesTable.id, category.id));
+        
+        slugUpdatedCount++;
+      }
+    }
+
+    // Step 4: Update descriptions to match FORMULATION_CATEGORIES
+    console.log("\n=== Step 4: Updating category descriptions ===");
+    const reconciledCategories = await db.select().from(categoriesTable);
+    
+    for (const category of reconciledCategories) {
       const formCategory = FORMULATION_CATEGORIES.find(fc => fc.name === category.name);
       if (formCategory && category.description !== formCategory.description) {
         console.log(`Updating description for: "${category.name}"`);
@@ -167,11 +227,33 @@ async function updateCategoryNames() {
       }
     }
 
-    console.log(`\nCategory update completed! Updated ${updatedCount} category names.`);
+    console.log(`\n✅ Category reconciliation completed!`);
+    console.log(`   Names updated: ${nameUpdatedCount}`);
+    console.log(`   Slugs reconciled: ${slugUpdatedCount}`);
     
-    return { success: true, updatedCount };
+    // Show final state for verification
+    console.log("\n=== Final category state ===");
+    const finalState = await db.select({
+      name: categoriesTable.name,
+      slug: categoriesTable.slug
+    }).from(categoriesTable);
+    
+    finalState.forEach((cat, index) => {
+      console.log(`${index + 1}. "${cat.name}" → slug: "${cat.slug}"`);
+    });
+    
+    return { success: true, nameUpdatedCount, slugUpdatedCount };
   } catch (error) {
-    console.error("Error updating category names:", error);
+    console.error("Error updating category names and slugs:", error);
     throw error;
   }
+}
+
+function generateCategorySlugFromName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
 }
