@@ -330,9 +330,9 @@ export async function generateBulkFormulationsWithKeywords(categoryName: string,
       
       console.log(`✅ Generated formulation ${i + 1}/${count}: ${formulation.name}`);
       
-      // Add a delay between generations to respect rate limits
+      // Add a small delay between generations to respect rate limits (reduced from 1500ms to 300ms)
       if (i < count - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
       
     } catch (error) {

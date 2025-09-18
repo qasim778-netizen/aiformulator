@@ -32,10 +32,6 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
       return await response.json();
     },
     onSuccess: (data: any) => {
-      console.log("Bulk generation response data:", data);
-      console.log("Response count:", data.count);
-      console.log("Response type:", typeof data);
-      
       // Invalidate all formulation-related queries to ensure fresh data appears immediately
       queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
       queryClient.invalidateQueries({ queryKey: ["/api/formulations-paginated"] });
@@ -43,7 +39,7 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
       queryClient.invalidateQueries({ queryKey: ["/api/admin/formulations-all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       
-      const count = data?.count || data?.formulations?.length || 'unknown';
+      const count = data?.count || data?.formulations?.length || 0;
       
       toast({ 
         title: "Bulk generation completed!", 
