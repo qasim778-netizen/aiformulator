@@ -113,29 +113,46 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   yPosition = addWrappedText(formulation.description || 'Professional chemical formulation designed for optimal performance and safety.', margin, yPosition, contentWidth);
   yPosition += 15;
   
-  // 3. Technical Overview Section
-  yPosition = checkNewPage(60);
+  // 3. Technical Specifications Section
+  yPosition = checkNewPage(100);
   
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
   doc.setFont('helvetica', 'bold');
-  doc.text('Technical Overview', margin, yPosition);
+  doc.text('Technical Specifications', margin, yPosition);
   yPosition += 10;
   
   doc.setLineWidth(0.5);
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
-  yPosition += 10;
+  yPosition += 15;
   
-  doc.setFontSize(11);
+  doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'normal');
   
-  const technicalOverview = `Key Features: High-performance formulation with optimal stability and effectiveness.
-Performance Claims: Meets industry standards for pH balance, viscosity, and shelf life.
-Benefits: ${formulation.usageInstructions ? 'Enhanced performance with proven results.' : 'Designed for professional applications with consistent quality.'}`;
+  // Technical specifications in structured format
+  const specifications = [
+    { label: 'pH Level:', value: formulation.phLevel || '6.0-7.0' },
+    { label: 'Viscosity:', value: formulation.viscosity || '2,000-3,000 cps' },
+    { label: 'Shelf Life:', value: formulation.shelfLife || '24 months' },
+    { label: 'Batch Size:', value: formulation.batchSize || '10-100 liters' },
+    { label: 'Processing Time:', value: formulation.processingTime || '2-3 hours' },
+    { label: 'Temperature:', value: formulation.temperature || 'Room temperature (20-25°C)' },
+    { label: 'Storage Conditions:', value: formulation.storageConditions || 'Store in a cool, dry place away from direct sunlight' },
+    { label: 'Equipment:', value: formulation.equipment || 'Mixing vessel, stirrer, heating source, pH meter' },
+    { label: 'Certification:', value: formulation.certification || 'Meets industry standards' }
+  ];
   
-  yPosition = addWrappedText(technicalOverview, margin, yPosition, contentWidth, 11);
-  yPosition += 15;
+  specifications.forEach((spec) => {
+    yPosition = checkNewPage(15);
+    doc.setFont('helvetica', 'bold');
+    doc.text(spec.label, margin, yPosition);
+    doc.setFont('helvetica', 'normal');
+    yPosition = addWrappedText(spec.value, margin + 80, yPosition, contentWidth - 80, 12);
+    yPosition += 8;
+  });
+  
+  yPosition += 10;
   
   // 4. Formulation Table Section
   yPosition = checkNewPage(40);
@@ -202,25 +219,63 @@ Benefits: ${formulation.usageInstructions ? 'Enhanced performance with proven re
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
   
-  instructions.forEach((phase: any, phaseIndex: number) => {
-    yPosition = checkNewPage(30);
-    
-    doc.setFont('helvetica', 'bold');
-    doc.text(`Phase ${phaseIndex + 1}: ${phase.phase || 'Manufacturing Phase'}`, margin, yPosition);
-    yPosition += 8;
-    
+  if (instructions && instructions.length > 0) {
+    instructions.forEach((phase: any, phaseIndex: number) => {
+      yPosition = checkNewPage(30);
+      
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Phase ${phaseIndex + 1}: ${phase.phase || 'Manufacturing Phase'}`, margin, yPosition);
+      yPosition += 8;
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      
+      if (phase.steps && Array.isArray(phase.steps)) {
+        phase.steps.forEach((step: string, stepIndex: number) => {
+          yPosition = checkNewPage(15);
+          yPosition = addWrappedText(`${stepIndex + 1}. ${step}`, margin + 5, yPosition, contentWidth - 5, 11);
+          yPosition += 4;
+        });
+      }
+      yPosition += 10;
+    });
+  } else {
+    // Fallback if no instructions provided
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
+    const defaultProcess = [
+      'Phase 1: Preparation',
+      '• Weigh all ingredients according to the formulation table',
+      '• Ensure all equipment is clean and sanitized',
+      '• Set up mixing equipment at appropriate temperature',
+      '',
+      'Phase 2: Main Processing',
+      '• Add water phase ingredients to mixing vessel',
+      '• Begin stirring at medium speed',
+      '• Gradually add active ingredients while maintaining constant mixing',
+      '• Monitor temperature and pH throughout the process',
+      '',
+      'Phase 3: Final Processing',
+      '• Add preservatives and adjust pH if necessary',
+      '• Continue mixing until homogeneous',
+      '• Perform quality control checks',
+      '• Package in appropriate containers'
+    ];
     
-    if (phase.steps && Array.isArray(phase.steps)) {
-      phase.steps.forEach((step: string, stepIndex: number) => {
-        yPosition = checkNewPage(15);
-        doc.text(`${stepIndex + 1}. ${step}`, margin + 5, yPosition);
-        yPosition += 6;
-      });
-    }
-    yPosition += 10;
-  });
+    defaultProcess.forEach((line) => {
+      yPosition = checkNewPage(15);
+      if (line.startsWith('Phase')) {
+        doc.setFont('helvetica', 'bold');
+        yPosition = addWrappedText(line, margin, yPosition, contentWidth, 11);
+      } else if (line === '') {
+        yPosition += 5;
+      } else {
+        doc.setFont('helvetica', 'normal');
+        yPosition = addWrappedText(line, margin + 5, yPosition, contentWidth - 5, 11);
+      }
+      yPosition += 4;
+    });
+  }
   
   // 6. Required Equipment Section
   yPosition = checkNewPage(40);

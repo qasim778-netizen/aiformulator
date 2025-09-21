@@ -43,11 +43,17 @@ ${formulation.name || 'Professional Formulation Document'}
 ===================
 ${formulation.description || 'Professional chemical formulation designed for optimal performance and safety.'}
 
-3. TECHNICAL OVERVIEW
-====================
-Key Features: High-performance formulation with optimal stability and effectiveness.
-Performance Claims: Meets industry standards for pH balance, viscosity, and shelf life.
-Benefits: ${formulation.usageInstructions ? 'Enhanced performance with proven results.' : 'Designed for professional applications with consistent quality.'}
+3. TECHNICAL SPECIFICATIONS
+==========================
+pH Level:              ${formulation.phLevel || '6.0-7.0'}
+Viscosity:             ${formulation.viscosity || '2,000-3,000 cps'}
+Shelf Life:            ${formulation.shelfLife || '24 months'}
+Batch Size:            ${formulation.batchSize || '10-100 liters'}
+Processing Time:       ${formulation.processingTime || '2-3 hours'}
+Temperature:           ${formulation.temperature || 'Room temperature (20-25°C)'}
+Storage Conditions:    ${formulation.storageConditions || 'Store in a cool, dry place away from direct sunlight'}
+Equipment:             ${formulation.equipment || 'Mixing vessel, stirrer, heating source, pH meter'}
+Certification:         ${formulation.certification || 'Meets industry standards'}
 
 4. FORMULATION TABLE
 ===================
@@ -59,11 +65,29 @@ ${ingredients.map((ingredient: any, index: number) =>
 5. MANUFACTURING PROCESS
 =======================
 Step-by-step preparation guidelines:
-${instructions.map((phase: any, phaseIndex: number) => 
-  `Phase ${phaseIndex + 1}: ${phase.phase || 'Manufacturing Phase'}\n${(phase.steps && Array.isArray(phase.steps)) ? phase.steps.map((step: string, stepIndex: number) => 
-    `   ${stepIndex + 1}. ${step}`
-  ).join('\n') : ''}`
-).join('\n\n')}
+${instructions && instructions.length > 0 ? 
+  instructions.map((phase: any, phaseIndex: number) => 
+    `Phase ${phaseIndex + 1}: ${phase.phase || 'Manufacturing Phase'}\n${(phase.steps && Array.isArray(phase.steps)) ? phase.steps.map((step: string, stepIndex: number) => 
+      `   ${stepIndex + 1}. ${step}`
+    ).join('\n') : ''}`
+  ).join('\n\n') :
+  `Phase 1: Preparation
+   1. Weigh all ingredients according to the formulation table
+   2. Ensure all equipment is clean and sanitized
+   3. Set up mixing equipment at appropriate temperature
+
+Phase 2: Main Processing
+   1. Add water phase ingredients to mixing vessel
+   2. Begin stirring at medium speed
+   3. Gradually add active ingredients while maintaining constant mixing
+   4. Monitor temperature and pH throughout the process
+
+Phase 3: Final Processing
+   1. Add preservatives and adjust pH if necessary
+   2. Continue mixing until homogeneous
+   3. Perform quality control checks
+   4. Package in appropriate containers`
+}
 
 6. REQUIRED EQUIPMENT
 ====================
