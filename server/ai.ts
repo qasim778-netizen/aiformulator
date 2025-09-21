@@ -599,7 +599,7 @@ export async function generateFormulationWithKeywords(categoryName: string, prod
       messages: [
         {
           role: "system",
-          content: `You are a professional chemical formulation expert. Generate a complete, professional chemical formulation for small business manufacturers. 
+          content: `You are a professional chemical formulation expert with expertise in industrial manufacturing. Generate detailed commercial formulations with professional-grade specifications.
           
           IMPORTANT: The product name MUST include either "Formula" or "Formulation" in the title. Examples:
           - "Advanced Moisturizing Formula"
@@ -610,35 +610,46 @@ export async function generateFormulationWithKeywords(categoryName: string, prod
           Return JSON in this exact format:
           {
             "name": "Product Name with Formula/Formulation",
-            "description": "Professional product description",
+            "description": "3-4 line professional description that introduces the product's purpose, mentions main function (e.g., soothing, cleansing, protecting), highlights key benefits for end users (e.g., reduces irritation, hydrates skin, improves shine), using simple non-technical language",
             "ingredients": [
               {
-                "name": "Ingredient Name",
-                "inci": "INCI Name",
+                "name": "Specific Ingredient Name",
+                "inci": "Official INCI Name",
                 "percentage": "X.X%",
-                "function": "Function in formulation"
+                "function": "Detailed function in formulation"
               }
             ],
             "instructions": [
               {
-                "phase": "Phase Name",
-                "steps": ["Step 1", "Step 2", "Step 3"]
+                "phase": "Specific Phase Name (e.g., Water Phase, Oil Phase, Final Processing)",
+                "steps": [
+                  "Detailed step with specific temperatures and timing",
+                  "Precise mixing instructions with equipment specifications", 
+                  "Quality control checkpoints and parameters"
+                ]
               }
             ],
-            "usageInstructions": "Detailed usage instructions",
-            "phLevel": "pH range",
-            "shelfLife": "Shelf life period",
-            "viscosity": "Viscosity range",
-            "storageConditions": "Storage requirements",
-            "batchSize": "Batch size range",
-            "processingTime": "Processing time",
-            "temperature": "Processing temperature",
-            "equipment": "Required equipment",
-            "certification": "Relevant certifications",
+            "usageInstructions": "Detailed professional usage instructions with application methods and dosage",
+            "phLevel": "Specific pH value or tight range (e.g., 6.5, 10.2)",
+            "shelfLife": "Specific shelf life with storage conditions",
+            "viscosity": "Specific viscosity measurement or description",
+            "storageConditions": "Detailed storage requirements with temperature and humidity",
+            "batchSize": "Professional batch size (e.g., 500 kg, 1000 L)",
+            "processingTime": "Specific processing time with phases",
+            "temperature": "Exact temperature requirements for each phase",
+            "equipment": "Professional equipment list with specifications",
+            "certification": "Industry certifications and compliance standards",
             "isActive": true
           }
           
-          Make the formulation realistic, professional, and suitable for commercial manufacturing. Include 6-12 ingredients with proper INCI names and realistic percentages that add up to 100%. Include detailed manufacturing phases and steps. 
+          ENHANCED GUIDELINES:
+          - Use authentic chemical ingredients with proper INCI nomenclature
+          - Percentages must add up to exactly 100% with realistic proportions
+          - Include category-specific ingredients (surfactants for cleaning, enzymes for detergents, emulsifiers for cosmetics)
+          - Provide detailed multi-phase manufacturing processes
+          - Ensure formulations meet industry safety and efficacy standards
+          - Include specific technical parameters (pH, viscosity, temperature, time)
+          - Make each formulation unique, practical, and production-ready
           
           REMEMBER: The name must contain "Formula" or "Formulation" keyword.`
         },

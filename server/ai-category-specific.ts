@@ -458,7 +458,7 @@ export function getCategoryPrompt(categoryName: string, productDescription: stri
 }
 
 function getCleaningProductPrompt(categoryName: string, productDescription: string): string {
-  return `You are a professional cleaning product formulation expert. Generate a complete, professional cleaning formulation for small business manufacturers.
+  return `You are a professional cleaning product formulation expert with expertise in industrial manufacturing. Generate detailed commercial cleaning formulations with professional-grade specifications.
 
   CRITICAL REQUIREMENTS for ${categoryName}:
   - MUST contain alcohol-based solvent (isopropyl alcohol 20-40% OR ethanol 15-30%)
@@ -479,33 +479,46 @@ function getCleaningProductPrompt(categoryName: string, productDescription: stri
   Return JSON in this exact format:
   {
     "name": "Product Name",
-    "description": "Professional product description",
+    "description": "3-4 line professional description that introduces the product's purpose, mentions main function (e.g., removes grease, cuts through grime, provides streak-free cleaning), highlights key benefits for end users (e.g., safe for surfaces, quick-drying, antimicrobial action), using simple non-technical language",
     "ingredients": [
       {
-        "name": "Ingredient Name",
-        "inci": "INCI Name", 
+        "name": "Specific Ingredient Name",
+        "inci": "Official INCI Name", 
         "percentage": "X.X%",
-        "function": "Function in formulation"
+        "function": "Detailed function in formulation"
       }
     ],
     "instructions": [
       {
-        "phase": "Phase Name",
-        "steps": ["Step 1", "Step 2", "Step 3"]
+        "phase": "Specific Phase Name (e.g., Main Mixing Phase, Quality Control)",
+        "steps": [
+          "Detailed step with specific temperatures and timing",
+          "Precise mixing instructions with equipment specifications", 
+          "Quality control checkpoints and parameters"
+        ]
       }
     ],
-    "usageInstructions": "Application instructions for cleaning",
-    "phLevel": "8.0-11.0",
-    "shelfLife": "24 months",
-    "viscosity": "Low/water-like",
-    "storageConditions": "Cool, dry place away from direct sunlight",
-    "batchSize": "100-1000L",
-    "processingTime": "15-30 minutes",
-    "temperature": "Room temperature (20-25°C)",
-    "equipment": "Standard mixing tank with agitation",
-    "certification": "Meets cleaning industry standards",
+    "usageInstructions": "Detailed professional usage instructions with application methods and dosage",
+    "phLevel": "Specific pH value or tight range (e.g., 9.2, 10.5)",
+    "shelfLife": "Specific shelf life with storage conditions",
+    "viscosity": "Specific viscosity measurement or description",
+    "storageConditions": "Detailed storage requirements with temperature and humidity",
+    "batchSize": "Professional batch size (e.g., 500 L, 1000 L)",
+    "processingTime": "Specific processing time with phases",
+    "temperature": "Exact temperature requirements for each phase",
+    "equipment": "Professional equipment list with specifications",
+    "certification": "Industry certifications and compliance standards",
     "isActive": true
   }
+
+  ENHANCED GUIDELINES:
+  - Use authentic chemical ingredients with proper INCI nomenclature
+  - Percentages must add up to exactly 100% with realistic proportions
+  - Include cleaning-specific ingredients (surfactants, solvents, pH adjusters)
+  - Provide detailed manufacturing processes with quality control
+  - Ensure formulations meet industry safety and efficacy standards
+  - Include specific technical parameters (pH, viscosity, temperature, time)
+  - Make each formulation unique, practical, and production-ready
 
   Example proper glass cleaner ingredients:
   - Isopropyl Alcohol (25-35%) - Primary cleaning solvent
@@ -517,7 +530,7 @@ function getCleaningProductPrompt(categoryName: string, productDescription: stri
 }
 
 function getCosmeticPrompt(categoryName: string, productDescription: string): string {
-  return `You are a professional cosmetic formulation expert. Generate a complete, professional cosmetic formulation for small business manufacturers.
+  return `You are a professional cosmetic formulation expert with expertise in industrial manufacturing. Generate detailed commercial cosmetic formulations with professional-grade specifications.
 
   REQUIREMENTS for ${categoryName}:
   - MUST contain appropriate preservative system (0.5-1%)
@@ -526,11 +539,97 @@ function getCosmeticPrompt(categoryName: string, productDescription: string): st
   - Processing: Heat and hold phase at 70-75°C
   - All percentages MUST add up to exactly 100%
 
-  Return JSON with proper cosmetic formulation structure including heating phases, emulsification, and cooling phases.`;
+  Return JSON in this exact format:
+  {
+    "name": "Product Name",
+    "description": "3-4 line professional description that introduces the product's purpose, mentions main function (e.g., hydrates skin, reduces wrinkles, protects barrier), highlights key benefits for end users (e.g., smoother skin, anti-aging effects, suitable for sensitive skin), using simple non-technical language",
+    "ingredients": [
+      {
+        "name": "Specific Ingredient Name",
+        "inci": "Official INCI Name",
+        "percentage": "X.X%",
+        "function": "Detailed function in formulation"
+      }
+    ],
+    "instructions": [
+      {
+        "phase": "Specific Phase Name (e.g., Water Phase, Oil Phase, Cool Down)",
+        "steps": [
+          "Detailed step with specific temperatures and timing",
+          "Precise mixing instructions with equipment specifications", 
+          "Quality control checkpoints and parameters"
+        ]
+      }
+    ],
+    "usageInstructions": "Detailed professional usage instructions with application methods and dosage",
+    "phLevel": "Specific pH value or tight range (e.g., 5.5, 6.2)",
+    "shelfLife": "Specific shelf life with storage conditions",
+    "viscosity": "Specific viscosity measurement or description",
+    "storageConditions": "Detailed storage requirements with temperature and humidity",
+    "batchSize": "Professional batch size (e.g., 500 kg, 1000 L)",
+    "processingTime": "Specific processing time with phases",
+    "temperature": "Exact temperature requirements for each phase",
+    "equipment": "Professional equipment list with specifications",
+    "certification": "Industry certifications and compliance standards",
+    "isActive": true
+  }
+
+  ENHANCED GUIDELINES:
+  - Use authentic cosmetic ingredients with proper INCI nomenclature
+  - Percentages must add up to exactly 100% with realistic proportions
+  - Include cosmetic-specific ingredients (emulsifiers, preservatives, actives)
+  - Provide detailed multi-phase manufacturing processes
+  - Ensure formulations meet cosmetic safety and efficacy standards
+  - Include specific technical parameters (pH, viscosity, temperature, time)
+  - Make each formulation unique, practical, and production-ready`;
 }
 
 function getGenericPrompt(categoryName: string, productDescription: string): string {
-  return `You are a professional chemical formulation expert. Generate a complete formulation for ${categoryName}.
+  return `You are a professional chemical formulation expert with expertise in industrial manufacturing. Generate detailed commercial formulations for ${categoryName} with professional-grade specifications.
+
+  Return JSON in this exact format:
+  {
+    "name": "Product Name",
+    "description": "3-4 line professional description that introduces the product's purpose, mentions main function, highlights key benefits for end users, using simple non-technical language",
+    "ingredients": [
+      {
+        "name": "Specific Ingredient Name",
+        "inci": "Official INCI Name",
+        "percentage": "X.X%",
+        "function": "Detailed function in formulation"
+      }
+    ],
+    "instructions": [
+      {
+        "phase": "Specific Phase Name (e.g., Preparation Phase, Processing Phase)",
+        "steps": [
+          "Detailed step with specific temperatures and timing",
+          "Precise mixing instructions with equipment specifications", 
+          "Quality control checkpoints and parameters"
+        ]
+      }
+    ],
+    "usageInstructions": "Detailed professional usage instructions with application methods and dosage",
+    "phLevel": "Specific pH value or tight range",
+    "shelfLife": "Specific shelf life with storage conditions",
+    "viscosity": "Specific viscosity measurement or description",
+    "storageConditions": "Detailed storage requirements with temperature and humidity",
+    "batchSize": "Professional batch size (e.g., 500 kg, 1000 L)",
+    "processingTime": "Specific processing time with phases",
+    "temperature": "Exact temperature requirements for each phase",
+    "equipment": "Professional equipment list with specifications",
+    "certification": "Industry certifications and compliance standards",
+    "isActive": true
+  }
+
+  ENHANCED GUIDELINES:
+  - Use authentic chemical ingredients with proper INCI nomenclature
+  - Percentages must add up to exactly 100% with realistic proportions
+  - Include category-specific ingredients appropriate for ${categoryName}
+  - Provide detailed multi-phase manufacturing processes
+  - Ensure formulations meet industry safety and efficacy standards
+  - Include specific technical parameters (pH, viscosity, temperature, time)
+  - Make each formulation unique, practical, and production-ready
   
   CRITICAL REQUIREMENTS:
   - All percentages MUST add up to exactly 100%
@@ -570,7 +669,7 @@ function getGenericPrompt(categoryName: string, productDescription: string): str
 }
 
 function getGentleFormulationPrompt(categoryName: string, productDescription: string): string {
-  return `You are a professional gentle formulation expert specializing in ${categoryName}. Generate a complete, gentle formulation for small business manufacturers.
+  return `You are a professional gentle formulation expert with expertise in industrial manufacturing. Generate detailed commercial gentle formulations with professional-grade specifications.
 
   CRITICAL REQUIREMENTS for ${categoryName}:
   - MUST use only gentle, mild ingredients (no sulfates, parabens, harsh chemicals)
@@ -588,13 +687,55 @@ function getGentleFormulationPrompt(categoryName: string, productDescription: st
   - NO essential oils (can cause reactions)
   - NO strong fragrances
 
-  Return JSON with complete gentle formulation including soothing ingredients like aloe vera, chamomile, etc.`;
+  Return JSON in this exact format:
+  {
+    "name": "Product Name",
+    "description": "3-4 line professional description that introduces the product's purpose, mentions main function (e.g., gently cleanses, soothes sensitive skin, hypoallergenic care), highlights key benefits for end users (e.g., safe for babies, reduces irritation, dermatologist recommended), using simple non-technical language",
+    "ingredients": [
+      {
+        "name": "Specific Ingredient Name",
+        "inci": "Official INCI Name",
+        "percentage": "X.X%",
+        "function": "Detailed function in formulation"
+      }
+    ],
+    "instructions": [
+      {
+        "phase": "Specific Phase Name (e.g., Gentle Heating Phase, Cool Down Phase)",
+        "steps": [
+          "Detailed step with specific temperatures and timing",
+          "Precise mixing instructions with equipment specifications", 
+          "Quality control checkpoints and parameters"
+        ]
+      }
+    ],
+    "usageInstructions": "Detailed professional usage instructions with application methods and dosage",
+    "phLevel": "Specific pH value or tight range (e.g., 6.2, 5.8)",
+    "shelfLife": "Specific shelf life with storage conditions",
+    "viscosity": "Specific viscosity measurement or description",
+    "storageConditions": "Detailed storage requirements with temperature and humidity",
+    "batchSize": "Professional batch size (e.g., 300 kg, 500 L)",
+    "processingTime": "Specific processing time with phases",
+    "temperature": "Exact temperature requirements for each phase",
+    "equipment": "Professional equipment list with specifications",
+    "certification": "Industry certifications and compliance standards",
+    "isActive": true
+  }
+
+  ENHANCED GUIDELINES:
+  - Use authentic gentle ingredients with proper INCI nomenclature
+  - Percentages must add up to exactly 100% with realistic proportions
+  - Include gentle-specific ingredients (mild surfactants, natural extracts, soothing agents)
+  - Provide detailed multi-phase manufacturing processes
+  - Ensure formulations meet gentle care safety and efficacy standards
+  - Include specific technical parameters (pH, viscosity, temperature, time)
+  - Make each formulation unique, practical, and production-ready`;
 }
 
 function getDetergentPrompt(categoryName: string, productDescription: string): string {
-  return `You are a professional detergent formulation expert. Generate a complete detergent formulation for ${categoryName}.
+  return `You are a professional detergent formulation expert with expertise in industrial manufacturing. Generate detailed commercial detergent formulations with professional-grade specifications.
 
-  CRITICAL REQUIREMENTS:
+  CRITICAL REQUIREMENTS for ${categoryName}:
   - MUST contain effective surfactant system (15-25%)
   - MUST include builders for water hardness (5-15%) 
   - MUST contain enzymes for stain removal (1-3%)
@@ -602,7 +743,49 @@ function getDetergentPrompt(categoryName: string, productDescription: string): s
   - Processing: Room temperature mixing
   - All percentages MUST add up to exactly 100%
 
-  Return JSON with complete detergent formulation including brighteners, anti-redeposition agents, etc.`;
+  Return JSON in this exact format:
+  {
+    "name": "Product Name",
+    "description": "3-4 line professional description that introduces the product's purpose, mentions main function (e.g., removes tough stains, brightens fabrics, deep cleaning action), highlights key benefits for end users (e.g., works in cold water, removes grease, protects colors), using simple non-technical language",
+    "ingredients": [
+      {
+        "name": "Specific Ingredient Name",
+        "inci": "Official INCI Name",
+        "percentage": "X.X%",
+        "function": "Detailed function in formulation"
+      }
+    ],
+    "instructions": [
+      {
+        "phase": "Specific Phase Name (e.g., Dry Blending Phase, Liquid Addition)",
+        "steps": [
+          "Detailed step with specific temperatures and timing",
+          "Precise mixing instructions with equipment specifications", 
+          "Quality control checkpoints and parameters"
+        ]
+      }
+    ],
+    "usageInstructions": "Detailed professional usage instructions with application methods and dosage",
+    "phLevel": "Specific pH value or tight range (e.g., 10.2, 9.8)",
+    "shelfLife": "Specific shelf life with storage conditions",
+    "viscosity": "Specific viscosity measurement or description",
+    "storageConditions": "Detailed storage requirements with temperature and humidity",
+    "batchSize": "Professional batch size (e.g., 1000 kg, 500 L)",
+    "processingTime": "Specific processing time with phases",
+    "temperature": "Exact temperature requirements for each phase",
+    "equipment": "Professional equipment list with specifications",
+    "certification": "Industry certifications and compliance standards",
+    "isActive": true
+  }
+
+  ENHANCED GUIDELINES:
+  - Use authentic detergent ingredients with proper nomenclature
+  - Percentages must add up to exactly 100% with realistic proportions
+  - Include detergent-specific ingredients (surfactants, builders, enzymes, brighteners)
+  - Provide detailed multi-phase manufacturing processes
+  - Ensure formulations meet detergent industry standards
+  - Include specific technical parameters (pH, viscosity, temperature, time)
+  - Make each formulation unique, practical, and production-ready`;
 }
 
 function getOralCarePrompt(categoryName: string, productDescription: string): string {
@@ -636,9 +819,9 @@ function getOrganicPrompt(categoryName: string, productDescription: string): str
 }
 
 function getIndustrialPrompt(categoryName: string, productDescription: string): string {
-  return `You are a professional industrial chemical formulation expert. Generate a complete industrial formulation for ${categoryName}.
+  return `You are a professional industrial chemical formulation expert with expertise in industrial manufacturing. Generate detailed commercial industrial formulations with professional-grade specifications.
 
-  CRITICAL REQUIREMENTS:
+  CRITICAL REQUIREMENTS for ${categoryName}:
   - MUST use appropriate industrial-grade solvents and chemicals
   - MUST include anti-corrosive agents for metal protection
   - MUST contain precision cleaning agents
@@ -647,13 +830,55 @@ function getIndustrialPrompt(categoryName: string, productDescription: string): 
   - All percentages MUST add up to exactly 100%
   - Must meet industrial safety standards
 
-  Return JSON with complete industrial formulation.`;
+  Return JSON in this exact format:
+  {
+    "name": "Product Name",
+    "description": "3-4 line professional description that introduces the product's purpose, mentions main function (e.g., protects metals, removes contaminants, provides conductivity), highlights key benefits for end users (e.g., long-lasting protection, industrial-grade performance, chemical resistance), using simple non-technical language",
+    "ingredients": [
+      {
+        "name": "Specific Ingredient Name",
+        "inci": "Official INCI Name",
+        "percentage": "X.X%",
+        "function": "Detailed function in formulation"
+      }
+    ],
+    "instructions": [
+      {
+        "phase": "Specific Phase Name (e.g., Pre-treatment Phase, Main Processing)",
+        "steps": [
+          "Detailed step with specific temperatures and timing",
+          "Precise mixing instructions with equipment specifications", 
+          "Quality control checkpoints and parameters"
+        ]
+      }
+    ],
+    "usageInstructions": "Detailed professional usage instructions with application methods and dosage",
+    "phLevel": "Specific pH value or tight range (e.g., 7.2, 6.8)",
+    "shelfLife": "Specific shelf life with storage conditions",
+    "viscosity": "Specific viscosity measurement or description",
+    "storageConditions": "Detailed storage requirements with temperature and humidity",
+    "batchSize": "Professional batch size (e.g., 1000 kg, 500 L)",
+    "processingTime": "Specific processing time with phases",
+    "temperature": "Exact temperature requirements for each phase",
+    "equipment": "Professional equipment list with specifications",
+    "certification": "Industry certifications and compliance standards",
+    "isActive": true
+  }
+
+  ENHANCED GUIDELINES:
+  - Use authentic industrial chemicals with proper nomenclature
+  - Percentages must add up to exactly 100% with realistic proportions
+  - Include industrial-specific ingredients (solvents, corrosion inhibitors, surfactants)
+  - Provide detailed multi-phase manufacturing processes
+  - Ensure formulations meet industrial safety and performance standards
+  - Include specific technical parameters (pH, viscosity, temperature, time)
+  - Make each formulation unique, practical, and production-ready`;
 }
 
 function getFoodGradePrompt(categoryName: string, productDescription: string): string {
-  return `You are a professional food-grade formulation expert. Generate a complete food-grade formulation for ${categoryName}.
+  return `You are a professional food-grade formulation expert with expertise in industrial manufacturing. Generate detailed commercial food-grade formulations with professional-grade specifications.
 
-  CRITICAL REQUIREMENTS:
+  CRITICAL REQUIREMENTS for ${categoryName}:
   - MUST use only FDA-approved, food-grade ingredients
   - MUST contain GRAS (Generally Recognized as Safe) compounds only
   - MUST include appropriate food preservatives
@@ -662,7 +887,49 @@ function getFoodGradePrompt(categoryName: string, productDescription: string): s
   - All percentages MUST add up to exactly 100%
   - Must meet FDA food additive regulations
 
-  Return JSON with complete food-grade formulation.`;
+  Return JSON in this exact format:
+  {
+    "name": "Product Name",
+    "description": "3-4 line professional description that introduces the product's purpose, mentions main function (e.g., enhances flavor, extends shelf life, improves texture), highlights key benefits for end users (e.g., safe for consumption, natural ingredients, meets FDA standards), using simple non-technical language",
+    "ingredients": [
+      {
+        "name": "Specific Ingredient Name",
+        "inci": "Official INCI Name",
+        "percentage": "X.X%",
+        "function": "Detailed function in formulation"
+      }
+    ],
+    "instructions": [
+      {
+        "phase": "Specific Phase Name (e.g., Mixing Phase, Heat Treatment)",
+        "steps": [
+          "Detailed step with specific temperatures and timing",
+          "Precise mixing instructions with equipment specifications", 
+          "Quality control checkpoints and parameters"
+        ]
+      }
+    ],
+    "usageInstructions": "Detailed professional usage instructions with application methods and dosage",
+    "phLevel": "Specific pH value or tight range (e.g., 4.5, 6.8)",
+    "shelfLife": "Specific shelf life with storage conditions",
+    "viscosity": "Specific viscosity measurement or description",
+    "storageConditions": "Detailed storage requirements with temperature and humidity",
+    "batchSize": "Professional batch size (e.g., 500 kg, 1000 L)",
+    "processingTime": "Specific processing time with phases",
+    "temperature": "Exact temperature requirements for each phase",
+    "equipment": "Professional equipment list with specifications",
+    "certification": "Industry certifications and compliance standards",
+    "isActive": true
+  }
+
+  ENHANCED GUIDELINES:
+  - Use authentic food-grade ingredients with proper nomenclature
+  - Percentages must add up to exactly 100% with realistic proportions
+  - Include food-specific ingredients (preservatives, emulsifiers, flavor enhancers)
+  - Provide detailed multi-phase manufacturing processes
+  - Ensure formulations meet FDA safety and quality standards
+  - Include specific technical parameters (pH, viscosity, temperature, time)
+  - Make each formulation unique, practical, and production-ready`;
 }
 
 // Enhanced generation function with category-specific logic
