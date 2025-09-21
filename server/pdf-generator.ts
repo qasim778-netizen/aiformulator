@@ -114,19 +114,13 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'normal');
   
-  // Enhanced description with key features
-  const enhancedDescription = `This professional chemical formulation is specifically designed for ${formulation.usageInstructions || 'optimal performance and safety'}.
-
-Key Features:
-• pH optimized at ${formulation.phLevel || '6.0-7.0'} for optimal stability
-• ${formulation.viscosity || 'Balanced'} viscosity for easy application  
-• Extended shelf life of ${formulation.shelfLife || '24'} months
-• Professional-grade ingredients with proven efficacy
-• Meets industry standards for safety and performance
-
-${formulation.description ? `Detailed Description: ${formulation.description}` : ''}`;
+  // Simple user-focused description
+  const shortDescription = formulation.description || `This professional formulation is designed to provide effective results for your specific needs.
+It offers gentle yet powerful performance that delivers noticeable benefits.
+Perfect for regular use, this formula helps maintain optimal results safely and reliably.
+Trusted by professionals for consistent, high-quality outcomes.`;
   
-  yPosition = addWrappedText(enhancedDescription, margin, yPosition, contentWidth);
+  yPosition = addWrappedText(shortDescription, margin, yPosition, contentWidth);
   yPosition += 10;
   
   // Technical Specifications Section

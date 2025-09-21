@@ -39,15 +39,10 @@ PRODUCT NAME: ${formulation.name || 'Professional Formulation Document'}
 
 SHORT DESCRIPTION
 =================
-This professional chemical formulation is specifically designed for ${formulation.usageInstructions || 'optimal performance and safety'}. 
-
-Key Features:
-• pH optimized at ${formulation.phLevel || '6.0-7.0'} for optimal stability
-• ${formulation.viscosity || 'Balanced'} viscosity for easy application
-• Extended shelf life of ${formulation.shelfLife || '24'} months
-• Professional-grade ingredients with proven efficacy
-• Meets industry standards for safety and performance
-${formulation.description ? `\nDetailed Description: ${formulation.description}` : ''}
+${formulation.description || `This professional formulation is designed to provide effective results for your specific needs.
+It offers gentle yet powerful performance that delivers noticeable benefits.
+Perfect for regular use, this formula helps maintain optimal results safely and reliably.
+Trusted by professionals for consistent, high-quality outcomes.`}
 
 TECHNICAL SPECIFICATIONS
 ========================
