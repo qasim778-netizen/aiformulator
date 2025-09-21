@@ -331,9 +331,9 @@ export default function FormulationPage() {
               <p className="text-gray-600 leading-relaxed">{formulation.description}</p>
             </div>
             
-            {/* Product Specifications Section */}
+            {/* Technical Specifications Section */}
             <div className="mb-8">
-              <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Product Specifications</h3>
+              <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Technical Specifications</h3>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 {/* Shelf Life & Storage */}
@@ -412,7 +412,7 @@ export default function FormulationPage() {
                     </div>
                     <div className="flex flex-col">
                       <span className="text-orange-700 font-medium text-sm">Equipment</span>
-                      <span className="text-orange-900 text-sm">{formulation.equipment}</span>
+                      <span className="text-orange-900 text-sm">See Required Equipment section below</span>
                     </div>
                   </div>
                 </div>
@@ -620,6 +620,97 @@ export default function FormulationPage() {
                       .replace(/\n/g, '<br>')
                   }}
                 />
+              </div>
+            </div>
+
+            {/* Required Equipment Section */}
+            <div className="mb-8">
+              <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Required Equipment</h3>
+              <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <p className="text-gray-700 leading-relaxed" data-testid="text-equipment">
+                  {formulation.equipment || 'Standard mixing equipment, measuring instruments, pH meter, thermometer, safety equipment'}
+                </p>
+              </div>
+            </div>
+
+            {/* Safety Precautions Section */}
+            <div className="mb-8">
+              <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Safety Precautions</h3>
+              <div className="bg-red-50 p-6 rounded-lg border border-red-200">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-red-900 mb-2">Handling:</h4>
+                    <p className="text-red-800 text-sm">Wear appropriate PPE including gloves, safety glasses, and lab coat.</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-red-900 mb-2">PPE Requirements:</h4>
+                    <p className="text-red-800 text-sm">Chemical-resistant gloves, safety goggles, protective clothing.</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-red-900 mb-2">Storage:</h4>
+                    <p className="text-red-800 text-sm">Store in cool, dry place away from direct sunlight. Keep containers tightly closed.</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-red-900 mb-2">Storage Conditions:</h4>
+                    <p className="text-red-800 text-sm" data-testid="text-storage-conditions">
+                      {formulation.storageConditions || 'Store at room temperature (15-25°C)'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Packaging Notes Section */}
+            <div className="mb-8">
+              <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Packaging Notes</h3>
+              <div className="bg-amber-50 p-6 rounded-lg border border-amber-200">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-amber-900 mb-2">Packaging:</h4>
+                    <p className="text-amber-800 text-sm">Use chemically compatible containers (HDPE, glass, or PET).</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-amber-900 mb-2">Labeling:</h4>
+                    <p className="text-amber-800 text-sm">Include product name, ingredients, usage instructions, and safety warnings.</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-amber-900 mb-2">Certification:</h4>
+                    <p className="text-amber-800 text-sm" data-testid="text-certification-details">
+                      {formulation.certification || 'Follow applicable industry standards and regulations'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Scaling Note Section */}
+            <div className="mb-8">
+              <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Scaling Note</h3>
+              <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-purple-900 mb-2">Lab Scale:</h4>
+                    <p className="text-purple-800 text-sm">This formulation is designed for laboratory testing and development.</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-purple-900 mb-2">Pilot Scale:</h4>
+                    <p className="text-purple-800 text-sm">For pilot production, scale proportionally and verify all parameters.</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-purple-900 mb-2">Production Scale:</h4>
+                    <p className="text-purple-800 text-sm">Consider equipment limitations, mixing efficiency, and process validation.</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-purple-900 mb-2">Batch Size:</h4>
+                    <p className="text-purple-800 text-sm" data-testid="text-batch-size-details">
+                      Current formulation is optimized for {formulation.batchSize || 'laboratory scale'}.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-purple-900 mb-2">Scaling Factor:</h4>
+                    <p className="text-purple-800 text-sm">Maintain ingredient ratios while adjusting processing parameters as needed.</p>
+                  </div>
+                </div>
               </div>
             </div>
 
