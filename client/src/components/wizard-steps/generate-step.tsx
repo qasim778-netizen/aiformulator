@@ -148,127 +148,132 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Hero Section */}
-      <div className="text-center py-12 px-6">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 shadow-lg">
-          <CheckCircle className="h-12 w-12" />
+      {/* Compact Hero Section */}
+      <div className="text-center py-6 px-6">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <CheckCircle className="h-8 w-8" />
         </div>
-        <h2 className="text-4xl font-bold text-gray-900 mb-4">Ready to Generate</h2>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+        <h2 className="text-3xl font-bold text-gray-900 mb-3">Ready to Generate</h2>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           Your professional chemical formulation is ready to be created based on your specifications
         </p>
       </div>
 
-      {/* Elegant Summary Section */}
-      <div className="max-w-6xl mx-auto px-6 pb-12">
-        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-          <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-8 py-6 border-b border-gray-200">
-            <h3 className="text-2xl font-semibold text-gray-900">Formulation Summary</h3>
-            <p className="text-gray-600 mt-2">Review your configuration before generating</p>
+      {/* Professional Horizontal Summary Section */}
+      <div className="max-w-7xl mx-auto px-4 pb-8">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+          <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-6 py-4 border-b border-gray-200">
+            <h3 className="text-xl font-semibold text-gray-900">Formulation Summary</h3>
+            <p className="text-gray-600 text-sm mt-1">Review your configuration before generating</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 p-6">
             {/* Product Details */}
-            <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-shadow duration-300">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="bg-blue-100 p-2 rounded-lg">
-                  <Beaker className="h-5 w-5 text-blue-600" />
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200 hover:shadow-md transition-all duration-200">
+              <div className="flex items-center space-x-2 mb-3">
+                <div className="bg-blue-600 p-1.5 rounded-lg">
+                  <Beaker className="h-4 w-4 text-white" />
                 </div>
-                <h4 className="text-lg font-semibold text-gray-900">Product Details</h4>
+                <h4 className="font-semibold text-gray-900 text-sm">Product Details</h4>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <div>
-                  <Label className="text-sm font-medium text-gray-600">Product Name</Label>
-                  <p className="text-gray-900 font-semibold text-lg">{formData.productName || "Not specified"}</p>
+                  <Label className="text-xs font-medium text-gray-600">Product Name</Label>
+                  <p className="text-gray-900 font-medium text-sm truncate" title={formData.productName}>{formData.productName || "Not specified"}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-600">Category</Label>
-                  <p className="text-gray-800">{formData.productCategory || "Not specified"}</p>
+                  <Label className="text-xs font-medium text-gray-600">Category</Label>
+                  <p className="text-gray-800 text-sm truncate" title={formData.productCategory}>{formData.productCategory || "Not specified"}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-600">Consistency Type</Label>
-                  <span className="inline-block mt-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium capitalize">
+                  <Label className="text-xs font-medium text-gray-600">Type</Label>
+                  <span className="inline-block px-2 py-0.5 bg-blue-200 text-blue-800 rounded-full text-xs font-medium capitalize">
                     {formData.consistencyType || "Not specified"}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Technical Specs */}
-            <div className="bg-purple-50 rounded-2xl p-6 border border-purple-200 hover:shadow-lg transition-shadow duration-300">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="bg-purple-100 p-2 rounded-lg">
-                  <Settings className="h-5 w-5 text-purple-600" />
+            {/* Technical Specifications */}
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200 hover:shadow-md transition-all duration-200">
+              <div className="flex items-center space-x-2 mb-3">
+                <div className="bg-purple-600 p-1.5 rounded-lg">
+                  <Settings className="h-4 w-4 text-white" />
                 </div>
-                <h4 className="text-lg font-semibold text-gray-900">Technical Specifications</h4>
+                <h4 className="font-semibold text-gray-900 text-sm">Technical Specifications</h4>
               </div>
-              <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <Label className="text-sm font-medium text-gray-600">pH Level</Label>
-                  <p className="text-purple-700 font-semibold text-lg">{formData.phLevel}</p>
+                  <Label className="text-xs font-medium text-gray-600">pH Level</Label>
+                  <p className="text-purple-700 font-medium text-sm">{formData.phLevel}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-600">Viscosity</Label>
-                  <p className="text-gray-800 capitalize">{formData.viscosity || "Not specified"}</p>
+                  <Label className="text-xs font-medium text-gray-600">Viscosity</Label>
+                  <p className="text-gray-800 text-sm capitalize truncate">{formData.viscosity || "Standard"}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-600">Shelf Life</Label>
-                  <p className="text-gray-800">{formData.shelfLife} months</p>
+                  <Label className="text-xs font-medium text-gray-600">Shelf Life</Label>
+                  <p className="text-gray-800 text-sm">{formData.shelfLife} months</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-600">Storage Temperature</Label>
-                  <p className="text-gray-800">{formData.storageTemperature || "Not specified"}</p>
+                  <Label className="text-xs font-medium text-gray-600">Storage</Label>
+                  <p className="text-gray-800 text-sm truncate" title={formData.storageTemperature}>{formData.storageTemperature || "Room temp"}</p>
                 </div>
               </div>
             </div>
 
             {/* Special Properties */}
-            {formData.specialProperties.length > 0 && (
-              <div className="bg-green-50 rounded-2xl p-6 border border-green-200 hover:shadow-lg transition-shadow duration-300">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="bg-green-100 p-2 rounded-lg">
-                    <FileText className="h-5 w-5 text-green-600" />
-                  </div>
-                  <h4 className="text-lg font-semibold text-gray-900">Special Properties</h4>
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200 hover:shadow-md transition-all duration-200">
+              <div className="flex items-center space-x-2 mb-3">
+                <div className="bg-green-600 p-1.5 rounded-lg">
+                  <FileText className="h-4 w-4 text-white" />
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {formData.specialProperties.map((prop: string) => (
-                    <span key={prop} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                <h4 className="font-semibold text-gray-900 text-sm">Special Properties</h4>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {formData.specialProperties.length > 0 ? (
+                  formData.specialProperties.map((prop: string) => (
+                    <span key={prop} className="px-2 py-0.5 bg-green-200 text-green-800 rounded-full text-xs font-medium">
                       {formatPropertyName(prop)}
                     </span>
-                  ))}
-                </div>
+                  ))
+                ) : (
+                  <span className="text-gray-500 text-sm">None specified</span>
+                )}
               </div>
-            )}
+            </div>
 
             {/* Production Requirements */}
-            <div className="bg-orange-50 rounded-2xl p-6 border border-orange-200 hover:shadow-lg transition-shadow duration-300">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="bg-orange-100 p-2 rounded-lg">
-                  <Settings className="h-5 w-5 text-orange-600" />
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200 hover:shadow-md transition-all duration-200">
+              <div className="flex items-center space-x-2 mb-3">
+                <div className="bg-orange-600 p-1.5 rounded-lg">
+                  <Settings className="h-4 w-4 text-white" />
                 </div>
-                <h4 className="text-lg font-semibold text-gray-900">Production Requirements</h4>
+                <h4 className="font-semibold text-gray-900 text-sm">Production Requirements</h4>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <div>
-                  <Label className="text-sm font-medium text-gray-600">Budget Category</Label>
-                  <span className="inline-block mt-1 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">
-                    {formData.budgetCategory || "Not specified"}
+                  <Label className="text-xs font-medium text-gray-600">Budget</Label>
+                  <span className="inline-block px-2 py-0.5 bg-orange-200 text-orange-800 rounded-full text-xs font-medium">
+                    {formData.budgetCategory || "Standard"}
                   </span>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-600">Production Volume</Label>
-                  <p className="text-gray-800">{formData.productionVolume || "Not specified"}</p>
+                  <Label className="text-xs font-medium text-gray-600">Volume</Label>
+                  <p className="text-gray-800 text-sm truncate">{formData.productionVolume || "Not specified"}</p>
                 </div>
                 {formData.regulatoryRequirements.length > 0 && (
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Regulatory Requirements</Label>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {formData.regulatoryRequirements.map((req: string) => (
-                        <span key={req} className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">
+                    <Label className="text-xs font-medium text-gray-600">Regulatory</Label>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {formData.regulatoryRequirements.slice(0, 2).map((req: string) => (
+                        <span key={req} className="px-2 py-0.5 bg-orange-200 text-orange-800 rounded-full text-xs font-medium">
                           {formatPropertyName(req)}
                         </span>
                       ))}
+                      {formData.regulatoryRequirements.length > 2 && (
+                        <span className="text-xs text-gray-500">+{formData.regulatoryRequirements.length - 2} more</span>
+                      )}
                     </div>
                   </div>
                 )}
@@ -279,16 +284,16 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
 
         {/* Additional Notes */}
         {formData.additionalNotes && (
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mt-8">
-            <h4 className="text-xl font-semibold text-gray-900 mb-4">Additional Notes</h4>
-            <div className="bg-gray-50 rounded-xl p-6 border-l-4 border-blue-500">
-              <p className="text-gray-700 leading-relaxed">{formData.additionalNotes}</p>
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 mt-4">
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Additional Notes</h4>
+            <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-blue-500">
+              <p className="text-gray-700 text-sm leading-relaxed">{formData.additionalNotes}</p>
             </div>
           </div>
         )}
 
         {/* Security Verification */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 mt-8">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mt-6">
           <div className="text-center mb-6">
             <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">🔒</span>
