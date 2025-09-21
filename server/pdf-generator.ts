@@ -89,15 +89,36 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
     yPosition += 15;
   }
   
-  // Product Name Title
-  doc.setFontSize(22);
-  doc.setTextColor(0, 0, 0);
-  doc.setFont('helvetica', 'bold');
-  doc.text('PRODUCT NAME:', margin, yPosition);
-  yPosition += 8;
+  // Product Name Title (Blue like other sections)
   doc.setFontSize(18);
-  yPosition = addWrappedText(formulation.name || 'Professional Formulation Document', margin, yPosition, contentWidth, 18);
-  yPosition += 12;
+  doc.setTextColor(52, 73, 94); // Blue color like other sections
+  doc.setFont('helvetica', 'bold');
+  doc.text('PRODUCT NAME', margin, yPosition);
+  yPosition += 8;
+  
+  doc.setLineWidth(0.5);
+  doc.line(margin, yPosition, pageWidth - margin, yPosition);
+  yPosition += 10;
+  
+  doc.setFontSize(16);
+  doc.setTextColor(0, 0, 0);
+  yPosition = addWrappedText(formulation.name || 'Professional Formulation Document', margin, yPosition, contentWidth, 16);
+  yPosition += 15;
+  
+  // Creation Date/Time
+  doc.setFontSize(10);
+  doc.setTextColor(102, 102, 102); // Gray color
+  doc.setFont('helvetica', 'normal');
+  const creationDate = new Date().toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'long', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+  doc.text(`Created: ${creationDate}`, margin, yPosition);
+  yPosition += 15;
   
   // Short Description Section
   doc.setFontSize(16);

@@ -35,7 +35,18 @@ export function generateFormulationTXT(formulation: FormulationTXTData): Buffer 
   const content = `PROFESSIONAL FORMULATION DOCUMENT
 ==================================
 
-PRODUCT NAME: ${formulation.name || 'Professional Formulation Document'}
+PRODUCT NAME
+============
+${formulation.name || 'Professional Formulation Document'}
+
+Created: ${new Date().toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'long', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  })}
 
 SHORT DESCRIPTION
 =================
