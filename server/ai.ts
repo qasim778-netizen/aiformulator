@@ -147,49 +147,55 @@ export async function generateBulkFormulations(categoryName: string, count: numb
         messages: [
           {
             role: "system",
-            content: `You are a professional chemical formulator. Generate detailed commercial formulations for the given product types. 
+            content: `You are a professional chemical formulator with expertise in industrial manufacturing. Generate detailed commercial formulations for the given product types with professional-grade specifications.
 
 IMPORTANT: Return a JSON object with this exact structure:
 {
   "formulations": [
     {
       "name": "Product Name",
-      "description": "Brief product description",
+      "description": "3-4 line professional description that introduces the product's purpose, mentions main function (e.g., soothing, cleansing, protecting), highlights key benefits for end users (e.g., reduces irritation, hydrates skin, improves shine), using simple non-technical language",
       "ingredients": [
         {
-          "name": "Ingredient Name",
-          "inci": "INCI Name",
+          "name": "Specific Ingredient Name",
+          "inci": "Official INCI Name",
           "percentage": "X.X%",
-          "function": "Function in formulation"
+          "function": "Detailed function in formulation"
         }
       ],
       "instructions": [
         {
-          "phase": "Phase Name",
-          "steps": ["Step 1", "Step 2", "Step 3"]
+          "phase": "Specific Phase Name (e.g., Water Phase, Oil Phase, Final Processing)",
+          "steps": [
+            "Detailed step with specific temperatures and timing",
+            "Precise mixing instructions with equipment specifications", 
+            "Quality control checkpoints and parameters"
+          ]
         }
       ],
-      "usageInstructions": "Detailed usage instructions",
-      "phLevel": "pH range",
-      "shelfLife": "Shelf life period",
-      "viscosity": "Viscosity range",
-      "storageConditions": "Storage requirements",
-      "batchSize": "Batch size range",
-      "processingTime": "Processing time",
-      "temperature": "Processing temperature",
-      "equipment": "Required equipment",
-      "certification": "Relevant certifications",
+      "usageInstructions": "Detailed professional usage instructions with application methods and dosage",
+      "phLevel": "Specific pH value or tight range (e.g., 6.5, 10.2)",
+      "shelfLife": "Specific shelf life with storage conditions",
+      "viscosity": "Specific viscosity measurement or description",
+      "storageConditions": "Detailed storage requirements with temperature and humidity",
+      "batchSize": "Professional batch size (e.g., 500 kg, 1000 L)",
+      "processingTime": "Specific processing time with phases",
+      "temperature": "Exact temperature requirements for each phase",
+      "equipment": "Professional equipment list with specifications",
+      "certification": "Industry certifications and compliance standards",
       "isActive": true
     }
   ]
 }
 
-Guidelines:
-- Use real chemical ingredients with INCI names when possible
-- Include specific percentages that add up to 100%
-- Provide detailed manufacturing steps
-- Ensure formulations are safe and commercially viable
-- Make each formulation unique and practical`
+ENHANCED GUIDELINES:
+- Use authentic chemical ingredients with proper INCI nomenclature
+- Percentages must add up to exactly 100% with realistic proportions
+- Include category-specific ingredients (surfactants for cleaning, enzymes for detergents, emulsifiers for cosmetics)
+- Provide detailed multi-phase manufacturing processes
+- Ensure formulations meet industry safety and efficacy standards
+- Include specific technical parameters (pH, viscosity, temperature, time)
+- Make each formulation unique, practical, and production-ready`
           },
           {
             role: "user",
@@ -234,73 +240,29 @@ Guidelines:
     } catch (error) {
       console.error(`❌ Failed to generate batch starting at ${i}:`, error);
       
-      // Create fallback formulations for failed batch
+      // Create fallback formulations for failed batch using category-specific logic
       for (let j = 0; j < currentBatch.length && formulations.length < count; j++) {
         const productType = currentBatch[j];
-        const fallbackName = `Professional ${productType}`;
+        
+        // Import and use the category-aware fallback from ai-category-specific
+        const { getFallbackFormulation } = await import('./ai-category-specific');
+        const fallbackFormulation = getFallbackFormulation(categoryName, productType);
+        
         formulations.push({
-          name: fallbackName,
-          description: `High-quality ${productType.toLowerCase()} formulated for commercial use`,
-          ingredients: JSON.stringify([
-            {
-              name: "Water",
-              inci: "Aqua",
-              percentage: "70.0%",
-              function: "Solvent"
-            },
-            {
-              name: "Active ingredient",
-              inci: "Active Complex",
-              percentage: "15.0%",
-              function: "Active component"
-            },
-            {
-              name: "Emulsifier",
-              inci: "Emulsifier",
-              percentage: "8.0%",
-              function: "Stabilizer"
-            },
-            {
-              name: "Preservative",
-              inci: "Preservative System",
-              percentage: "2.0%",
-              function: "Preservation"
-            },
-            {
-              name: "Fragrance",
-              inci: "Parfum",
-              percentage: "5.0%",
-              function: "Fragrance"
-            }
-          ]),
-          instructions: JSON.stringify([
-            {
-              phase: "Preparation",
-              steps: [
-                "Heat water to 75°C in main vessel",
-                "Add active ingredient and mix until dissolved",
-                "Add emulsifier and blend thoroughly"
-              ]
-            },
-            {
-              phase: "Cooling",
-              steps: [
-                "Cool to 40°C and add preservative",
-                "Add fragrance and mix well",
-                "Cool to room temperature before packaging"
-              ]
-            }
-          ]),
-          usageInstructions: "Apply as directed for professional results",
-          phLevel: "6.0-7.0",
-          shelfLife: "24 months",
-          viscosity: "Medium",
-          storageConditions: "Cool, dry place",
-          batchSize: "100-500 kg",
-          processingTime: "2-4 hours",
-          temperature: "Room temperature",
-          equipment: "Standard mixer",
-          certification: "",
+          name: fallbackFormulation.name,
+          description: fallbackFormulation.description,
+          ingredients: JSON.stringify(fallbackFormulation.ingredients),
+          instructions: JSON.stringify(fallbackFormulation.instructions),
+          usageInstructions: fallbackFormulation.usageInstructions,
+          phLevel: fallbackFormulation.phLevel,
+          shelfLife: fallbackFormulation.shelfLife,
+          viscosity: fallbackFormulation.viscosity,
+          storageConditions: fallbackFormulation.storageConditions,
+          batchSize: fallbackFormulation.batchSize,
+          processingTime: fallbackFormulation.processingTime,
+          temperature: fallbackFormulation.temperature,
+          equipment: fallbackFormulation.equipment,
+          certification: fallbackFormulation.certification,
           isActive: true
         });
       }
@@ -338,72 +300,26 @@ export async function generateBulkFormulationsWithKeywords(categoryName: string,
     } catch (error) {
       console.error(`❌ Failed to generate formulation ${i + 1}/${count}:`, error);
       
-      // Create fallback formulation
-      const fallbackName = `Professional ${productType}`;
+      // Create fallback formulation using category-specific logic
+      const { getFallbackFormulation } = await import('./ai-category-specific');
+      const fallbackFormulation = getFallbackFormulation(categoryName, productType);
+      
       formulations.push({
-        name: fallbackName,
-        description: `High-quality ${productType.toLowerCase()} formulated for commercial use`,
+        name: fallbackFormulation.name,
+        description: fallbackFormulation.description,
         image: includeImages ? "" : undefined,
-        ingredients: JSON.stringify([
-          {
-            name: "Water",
-            inci: "Aqua",
-            percentage: "70.0%",
-            function: "Solvent"
-          },
-          {
-            name: "Active ingredient",
-            inci: "Active Complex",
-            percentage: "15.0%",
-            function: "Active component"
-          },
-          {
-            name: "Emulsifier",
-            inci: "Emulsifier",
-            percentage: "8.0%",
-            function: "Stabilizer"
-          },
-          {
-            name: "Preservative",
-            inci: "Preservative System",
-            percentage: "2.0%",
-            function: "Preservation"
-          },
-          {
-            name: "Fragrance",
-            inci: "Parfum",
-            percentage: "5.0%",
-            function: "Fragrance"
-          }
-        ]),
-        instructions: JSON.stringify([
-          {
-            phase: "Preparation",
-            steps: [
-              "Heat water to 75°C in main vessel",
-              "Add active ingredient and mix until dissolved",
-              "Add emulsifier and blend thoroughly"
-            ]
-          },
-          {
-            phase: "Cooling",
-            steps: [
-              "Cool to 40°C and add preservative",
-              "Add fragrance and mix well",
-              "Cool to room temperature before packaging"
-            ]
-          }
-        ]),
-        usageInstructions: "Apply as directed for professional results",
-        phLevel: "6.0-7.0",
-        shelfLife: "24 months",
-        viscosity: "Medium",
-        storageConditions: "Cool, dry place",
-        batchSize: "100-500 kg",
-        processingTime: "2-4 hours",
-        temperature: "Room temperature",
-        equipment: "Standard mixer",
-        certification: "",
+        ingredients: JSON.stringify(fallbackFormulation.ingredients),
+        instructions: JSON.stringify(fallbackFormulation.instructions),
+        usageInstructions: fallbackFormulation.usageInstructions,
+        phLevel: fallbackFormulation.phLevel,
+        shelfLife: fallbackFormulation.shelfLife,
+        viscosity: fallbackFormulation.viscosity,
+        storageConditions: fallbackFormulation.storageConditions,
+        batchSize: fallbackFormulation.batchSize,
+        processingTime: fallbackFormulation.processingTime,
+        temperature: fallbackFormulation.temperature,
+        equipment: fallbackFormulation.equipment,
+        certification: fallbackFormulation.certification,
         isActive: true
       });
     }

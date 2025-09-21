@@ -264,7 +264,7 @@ function safeParse(content: string): any | null {
 }
 
 // Get fallback formulation for demo when AI fails
-function getFallbackFormulation(categoryName: string, productDescription: string): any {
+export function getFallbackFormulation(categoryName: string, productDescription: string): any {
   // Check if this is a detergent-related category
   const isDetergentCategory = categoryName.toLowerCase().includes('detergent') || 
                               categoryName.toLowerCase().includes('cleaning') ||
