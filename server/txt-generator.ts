@@ -6,9 +6,31 @@ interface FormulationTXTData extends Omit<InsertFormulation, 'categoryId'> {
 }
 
 export function generateFormulationTXT(formulation: FormulationTXTData): Buffer {
-  // Parse JSON strings
-  const ingredients = JSON.parse(formulation.ingredients || '[]');
-  const instructions = JSON.parse(formulation.instructions || '[]');
+  // Parse JSON strings with error handling
+  let ingredients: any[] = [];
+  let instructions: any[] = [];
+  
+  try {
+    ingredients = JSON.parse(formulation.ingredients || '[]');
+    if (!Array.isArray(ingredients)) {
+      console.warn('⚠️ Text Generator: Ingredients is not an array, using empty array');
+      ingredients = [];
+    }
+  } catch (error) {
+    console.error('❌ Text Generator: Failed to parse ingredients JSON:', error);
+    ingredients = [];
+  }
+  
+  try {
+    instructions = JSON.parse(formulation.instructions || '[]');
+    if (!Array.isArray(instructions)) {
+      console.warn('⚠️ Text Generator: Instructions is not an array, using empty array');
+      instructions = [];
+    }
+  } catch (error) {
+    console.error('❌ Text Generator: Failed to parse instructions JSON:', error);
+    instructions = [];
+  }
   
   const content = `PROFESSIONAL FORMULATION DOCUMENT
 ==================================

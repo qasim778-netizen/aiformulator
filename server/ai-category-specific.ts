@@ -730,21 +730,37 @@ export async function generateCategorySpecificFormulation(
         }
       }
       
+      // Ensure ingredients is always an array and normalize format
+      if (!Array.isArray(ingredients)) {
+        console.warn("⚠️ Ingredients is not an array, falling back to empty array");
+        ingredients = [];
+      }
+      
       // Normalize ingredient format - handle both "name" and "ingredient" fields
-      ingredients = ingredients.map((ing: any) => ({
-        name: ing.name || ing.ingredient || 'Unknown Ingredient',
-        inci: ing.inci || ing.name || ing.ingredient || '',
-        percentage: typeof ing.percentage === 'string' ? ing.percentage : `${ing.percentage || 0}%`,
-        function: ing.function || ing.role || 'Active ingredient'
-      }));
+      ingredients = ingredients
+        .filter((ing: any) => ing && typeof ing === 'object') // Filter out invalid entries
+        .map((ing: any) => ({
+          name: ing.name || ing.ingredient || 'Unknown Ingredient',
+          inci: ing.inci || ing.name || ing.ingredient || '',
+          percentage: typeof ing.percentage === 'string' ? ing.percentage : `${ing.percentage || 0}%`,
+          function: ing.function || ing.role || 'Active ingredient'
+        }));
+      
+      // Ensure instructions is always an array
+      let instructions = Array.isArray(result.instructions) ? result.instructions : [];
+      if (!Array.isArray(instructions)) {
+        console.warn("⚠️ Instructions is not an array, falling back to empty array");
+        instructions = [];
+      }
       
       console.log("🔍 AI Parsed Ingredients:", ingredients?.length || 0, "ingredients");
+      console.log("🔍 AI Parsed Instructions:", instructions?.length || 0, "instruction phases");
       
       const formulation = {
         name: result.name || result.product || result.product_type || `Professional ${productDescription}`,
         description: result.description || `High-quality ${productDescription.toLowerCase()}`,
         ingredients: JSON.stringify(ingredients),
-        instructions: JSON.stringify(result.instructions || []),
+        instructions: JSON.stringify(instructions),
         usageInstructions: result.usageInstructions || "",
         phLevel: result.phLevel || "7.0",
         shelfLife: result.shelfLife || "24 months",
