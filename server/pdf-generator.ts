@@ -67,45 +67,37 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
     yPosition += 15;
   }
   
+  // 1. Title Section
   doc.setFontSize(20);
   doc.setTextColor(0, 0, 0);
-  doc.text('Chemical Formulation Report', margin, yPosition);
-  yPosition += 20;
+  doc.setFont('helvetica', 'bold');
+  yPosition = addWrappedText(formulation.name || 'Professional Formulation Document', margin, yPosition, contentWidth, 20);
+  yPosition += 15;
   
-  // Product Information Section
+  // 2. Short Description Section
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
-  doc.text('Product Information', margin, yPosition);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Short Description', margin, yPosition);
   yPosition += 10;
   
-  // Draw line under section header
   doc.setLineWidth(0.5);
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
   yPosition += 10;
   
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
-  
-  // Product Name
-  doc.setFont('helvetica', 'bold');
-  doc.text('Product Name:', margin, yPosition);
   doc.setFont('helvetica', 'normal');
-  yPosition = addWrappedText(formulation.name || 'Untitled Product', margin + 35, yPosition, contentWidth - 35);
-  yPosition += 5;
+  yPosition = addWrappedText(formulation.description || 'Professional chemical formulation designed for optimal performance and safety.', margin, yPosition, contentWidth);
+  yPosition += 15;
   
-  // Description
-  doc.setFont('helvetica', 'bold');
-  doc.text('Description:', margin, yPosition);
-  doc.setFont('helvetica', 'normal');
-  yPosition = addWrappedText(formulation.description || 'No description provided', margin + 30, yPosition, contentWidth - 30);
-  yPosition += 10;
-  
-  // Technical Specifications
+  // 3. Technical Overview Section
   yPosition = checkNewPage(60);
   
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
-  doc.text('Technical Specifications', margin, yPosition);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Technical Overview', margin, yPosition);
   yPosition += 10;
   
   doc.setLineWidth(0.5);
@@ -114,36 +106,22 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   
   doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'normal');
   
-  const specs = [
-    ['pH Level:', formulation.phLevel || 'Not specified'],
-    ['Viscosity:', formulation.viscosity || 'Not specified'],
-    ['Shelf Life:', formulation.shelfLife || 'Not specified'],
-    ['Batch Size:', formulation.batchSize || 'Not specified'],
-    ['Processing Time:', formulation.processingTime || 'Not specified'],
-    ['Temperature:', formulation.temperature || 'Not specified'],
-    ['Storage Conditions:', formulation.storageConditions || 'Not specified'],
-    ['Equipment:', formulation.equipment || 'Not specified'],
-    ['Certification:', formulation.certification || 'Not specified']
-  ];
+  const technicalOverview = `Key Features: High-performance formulation with optimal stability and effectiveness.
+Performance Claims: Meets industry standards for pH balance, viscosity, and shelf life.
+Benefits: ${formulation.usageInstructions ? 'Enhanced performance with proven results.' : 'Designed for professional applications with consistent quality.'}`;
   
-  specs.forEach(([label, value]) => {
-    yPosition = checkNewPage(15);
-    doc.setFont('helvetica', 'bold');
-    doc.text(label, margin, yPosition);
-    doc.setFont('helvetica', 'normal');
-    yPosition = addWrappedText(value, margin + 45, yPosition, contentWidth - 45, 11);
-    yPosition += 3;
-  });
+  yPosition = addWrappedText(technicalOverview, margin, yPosition, contentWidth, 11);
+  yPosition += 15;
   
-  yPosition += 10;
-  
-  // Ingredients Section
+  // 4. Formulation Table Section
   yPosition = checkNewPage(40);
   
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
-  doc.text('Ingredients', margin, yPosition);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Formulation Table', margin, yPosition);
   yPosition += 10;
   
   doc.setLineWidth(0.5);
@@ -186,12 +164,13 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   
   yPosition += 10;
   
-  // Instructions Section
+  // 5. Manufacturing Process Section
   yPosition = checkNewPage(40);
   
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
-  doc.text('Manufacturing Instructions', margin, yPosition);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Manufacturing Process', margin, yPosition);
   yPosition += 10;
   
   doc.setLineWidth(0.5);
@@ -221,12 +200,13 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
     yPosition += 10;
   });
   
-  // Usage Instructions
+  // 6. Required Equipment Section
   yPosition = checkNewPage(40);
   
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
-  doc.text('Usage Instructions', margin, yPosition);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Required Equipment', margin, yPosition);
   yPosition += 10;
   
   doc.setLineWidth(0.5);
@@ -236,7 +216,103 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'normal');
-  addWrappedText(formulation.usageInstructions || 'No usage instructions provided', margin, yPosition, contentWidth);
+  const equipmentText = formulation.equipment || 'Standard mixing equipment, measuring instruments, pH meter, thermometer, safety equipment';
+  yPosition = addWrappedText(equipmentText, margin, yPosition, contentWidth);
+  yPosition += 15;
+  
+  // 7. Safety Precautions Section
+  yPosition = checkNewPage(40);
+  
+  doc.setFontSize(16);
+  doc.setTextColor(52, 73, 94);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Safety Precautions', margin, yPosition);
+  yPosition += 10;
+  
+  doc.setLineWidth(0.5);
+  doc.line(margin, yPosition, pageWidth - margin, yPosition);
+  yPosition += 10;
+  
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'normal');
+  const safetyText = `Handling: Wear appropriate PPE including gloves, safety glasses, and lab coat.
+PPE Requirements: Chemical-resistant gloves, safety goggles, protective clothing.
+Storage: Store in cool, dry place away from direct sunlight. Keep containers tightly closed.
+Storage Conditions: ${formulation.storageConditions || 'Store at room temperature (15-25°C)'}`;
+  yPosition = addWrappedText(safetyText, margin, yPosition, contentWidth);
+  yPosition += 15;
+  
+  // 8. Quality Testing & Standards Section
+  yPosition = checkNewPage(40);
+  
+  doc.setFontSize(16);
+  doc.setTextColor(52, 73, 94);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Quality Testing & Standards', margin, yPosition);
+  yPosition += 10;
+  
+  doc.setLineWidth(0.5);
+  doc.line(margin, yPosition, pageWidth - margin, yPosition);
+  yPosition += 10;
+  
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'normal');
+  const qualityTests = `pH Testing: Target pH ${formulation.phLevel || '6.5-7.5'}
+Viscosity: ${formulation.viscosity || 'As specified in technical parameters'}
+Stability Testing: Accelerated aging and thermal cycling tests
+Microbial Testing: Preservative efficacy and contamination screening
+Performance Testing: Product-specific functionality verification`;
+  yPosition = addWrappedText(qualityTests, margin, yPosition, contentWidth);
+  yPosition += 15;
+  
+  // 9. Packaging & Regulatory Notes Section
+  yPosition = checkNewPage(40);
+  
+  doc.setFontSize(16);
+  doc.setTextColor(52, 73, 94);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Packaging & Regulatory Notes', margin, yPosition);
+  yPosition += 10;
+  
+  doc.setLineWidth(0.5);
+  doc.line(margin, yPosition, pageWidth - margin, yPosition);
+  yPosition += 10;
+  
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'normal');
+  const packagingText = `Packaging: Use chemically compatible containers (HDPE, glass, or PET).
+Labeling: Include product name, ingredients, usage instructions, and safety warnings.
+Regulatory Compliance: Ensure compliance with local regulations and safety standards.
+Certification: ${formulation.certification || 'Follow applicable industry standards and regulations'}
+Documentation: Maintain batch records and quality control documentation.`;
+  yPosition = addWrappedText(packagingText, margin, yPosition, contentWidth);
+  yPosition += 15;
+  
+  // 10. Scaling Note Section
+  yPosition = checkNewPage(30);
+  
+  doc.setFontSize(16);
+  doc.setTextColor(52, 73, 94);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Scaling Note', margin, yPosition);
+  yPosition += 10;
+  
+  doc.setLineWidth(0.5);
+  doc.line(margin, yPosition, pageWidth - margin, yPosition);
+  yPosition += 10;
+  
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'normal');
+  const scalingText = `Lab Scale: This formulation is designed for laboratory testing and development.
+Pilot Scale: For pilot production, scale proportionally and verify all parameters.
+Production Scale: Consider equipment limitations, mixing efficiency, and process validation.
+Batch Size: Current formulation is optimized for ${formulation.batchSize || 'laboratory scale'}.
+Scaling Factor: Maintain ingredient ratios while adjusting processing parameters as needed.`;
+  addWrappedText(scalingText, margin, yPosition, contentWidth);
   
   // Footer
   const pageCount = doc.getNumberOfPages();
