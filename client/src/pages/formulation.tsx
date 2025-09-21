@@ -326,10 +326,6 @@ export default function FormulationPage() {
               </div>
             )}
             
-            {/* Description */}
-            <div className="mb-8">
-              <p className="text-gray-600 leading-relaxed">{formulation.description}</p>
-            </div>
             
             {/* Technical Specifications Section */}
             <div className="mb-8">
@@ -422,7 +418,7 @@ export default function FormulationPage() {
             {/* Product Images - AI Generated or Static */}
             {(formulation.image || category?.name === "Cleaning Products") && (
               <div className="mb-8">
-                <h3 className="text-lg font-inter font-semibold mb-4">Product Formulation</h3>
+                <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Product Formulation</h3>
                 <div className="bg-white p-6 rounded-lg border border-gray-200">
                   {/* AI Generated Image has priority */}
                   {formulation.image && (
@@ -557,14 +553,14 @@ export default function FormulationPage() {
             )}
 
             <div className="mb-8">
-              <h3 className="text-lg font-inter font-semibold mb-4">Product Description</h3>
+              <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Product Description</h3>
               <p className="text-gray-700 leading-relaxed">
                 {formulation.description}
               </p>
             </div>
 
             <div className="mb-8">
-              <h3 className="text-lg font-inter font-semibold mb-4">Ingredients List</h3>
+              <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Formulation Table</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -590,7 +586,7 @@ export default function FormulationPage() {
             </div>
 
             <div className="mb-8">
-              <h3 className="text-lg font-inter font-semibold mb-4">Manufacturing Instructions</h3>
+              <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Manufacturing Process</h3>
               <div className="space-y-4">
                 {instructions.map((phase: any, index: number) => (
                   <div key={index} className="bg-gray-50 p-4 rounded-lg">
@@ -606,7 +602,7 @@ export default function FormulationPage() {
             </div>
 
             <div className="mb-8">
-              <h3 className="text-lg font-inter font-semibold mb-4">Usage Instructions</h3>
+              <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Usage Instructions</h3>
               <div className="bg-blue-50 p-6 rounded-lg">
                 <div 
                   className="text-sm text-gray-700 leading-relaxed"
