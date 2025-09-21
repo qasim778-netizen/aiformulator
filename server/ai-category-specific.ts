@@ -265,6 +265,64 @@ function safeParse(content: string): any | null {
 
 // Get fallback formulation for demo when AI fails
 function getFallbackFormulation(categoryName: string, productDescription: string): any {
+  // Check if this is a detergent-related category
+  const isDetergentCategory = categoryName.toLowerCase().includes('detergent') || 
+                              categoryName.toLowerCase().includes('cleaning') ||
+                              productDescription.toLowerCase().includes('detergent') ||
+                              productDescription.toLowerCase().includes('dishwashing');
+
+  if (isDetergentCategory) {
+    // Use detergent-specific ingredients for dishwashing/detergent formulations
+    return {
+      name: `Professional ${productDescription}`,
+      description: `High-quality ${productDescription.toLowerCase()} formulations - powder - powder with low viscosity, ph 7, medium quality cost level, special requirements: fabric softening, stain removal for professional use`,
+      ingredients: [
+        { name: "Linear Alkylbenzene Sulfonate", inci: "Linear Alkylbenzene Sulfonate", percentage: "25.0%", function: "Primary surfactant" },
+        { name: "Sodium Carbonate", inci: "Sodium Carbonate", percentage: "20.0%", function: "Builder/pH adjuster" },
+        { name: "Zeolite A", inci: "Zeolite A", percentage: "15.0%", function: "Water softener" },
+        { name: "Sodium Silicate", inci: "Sodium Silicate", percentage: "12.0%", function: "Alkalinity builder" },
+        { name: "Protease Enzyme", inci: "Protease", percentage: "8.0%", function: "Protein stain removal" },
+        { name: "Amylase Enzyme", inci: "Amylase", percentage: "5.0%", function: "Starch stain removal" },
+        { name: "Optical Brightening Agent", inci: "Optical Brightening Agent", percentage: "3.0%", function: "Whitening" },
+        { name: "Anti-redeposition Agent", inci: "Carboxymethyl Cellulose", percentage: "2.0%", function: "Prevents soil redeposition" },
+        { name: "Fragrance", inci: "Parfum", percentage: "1.5%", function: "Scent" },
+        { name: "Colorant", inci: "CI 74160", percentage: "0.5%", function: "Visual appeal" },
+        { name: "Filler", inci: "Sodium Sulfate", percentage: "8.0%", function: "Bulk agent" }
+      ],
+      instructions: [
+        { 
+          phase: "Dry Blending Phase", 
+          steps: [
+            "Pre-mix all powdered ingredients in order of decreasing particle size",
+            "Add surfactants and blend thoroughly for 15 minutes",
+            "Incorporate builders and enzymes with continuous mixing"
+          ] 
+        },
+        { 
+          phase: "Final Processing", 
+          steps: [
+            "Add fragrance and colorant during final mixing stage",
+            "Ensure uniform distribution through ribbon blending",
+            "Compress into tablet form using hydraulic press",
+            "Package in moisture-resistant containers"
+          ] 
+        }
+      ],
+      usageInstructions: "Use 1 tablet per wash cycle. Dissolves completely in both hot and cold water. Safe for all dishware types.",
+      phLevel: "10.5",
+      shelfLife: "24 months",
+      viscosity: "N/A (solid tablet)",
+      storageConditions: "Store in cool, dry place away from moisture",
+      batchSize: "500 kg",
+      processingTime: "4 hours",
+      temperature: "Room temperature (20-25°C)",
+      equipment: "Ribbon blender, tablet press, packaging equipment",
+      certification: "Meets industry standards for dishwashing detergents",
+      isActive: true
+    };
+  }
+
+  // Default fallback for non-detergent categories
   return {
     name: `Professional ${productDescription}`,
     description: `High-quality ${productDescription.toLowerCase()} for professional use`,
