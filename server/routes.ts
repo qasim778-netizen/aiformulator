@@ -1233,8 +1233,17 @@ Allow: /disclaimer`;
         // Create descriptive input for AI
         const aiDescription = `${productDescription} - ${productType} with ${viscosity} viscosity, pH ${phLevel}, ${costLevel} cost level${specialRequirements ? `, special requirements: ${specialRequirements}` : ''}`;
         
+        console.log(`🔍 AI Description: ${aiDescription}`);
+        
         // Generate using category-specific AI
         const aiFormulation = await generateCategorySpecificFormulation(productCategory.toLowerCase(), aiDescription);
+        
+        console.log(`🔍 AI Formulation Response:`, {
+          hasIngredients: !!aiFormulation.ingredients,
+          ingredientsType: typeof aiFormulation.ingredients,
+          hasInstructions: !!aiFormulation.instructions,
+          instructionsType: typeof aiFormulation.instructions
+        });
         
         // Validate the formulation
         const validation = validateFormulation(aiFormulation, productCategory.toLowerCase());
@@ -1246,8 +1255,8 @@ Allow: /disclaimer`;
         formulation = {
           name: productName,
           description: aiFormulation.description || `Professional ${productType} formulation for ${productDescription}`,
-          ingredients: aiFormulation.ingredients,
-          instructions: aiFormulation.instructions,
+          ingredients: typeof aiFormulation.ingredients === 'string' ? aiFormulation.ingredients : JSON.stringify(aiFormulation.ingredients || []),
+          instructions: typeof aiFormulation.instructions === 'string' ? aiFormulation.instructions : JSON.stringify(aiFormulation.instructions || []),
           usageInstructions: aiFormulation.usageInstructions || 'Apply as needed according to product instructions',
           phLevel: aiFormulation.phLevel || phLevel.toString(),
           shelfLife: aiFormulation.shelfLife || "24 months when stored properly",
