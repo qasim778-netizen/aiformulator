@@ -35,35 +35,41 @@ export function generateFormulationTXT(formulation: FormulationTXTData): Buffer 
   const content = `PROFESSIONAL FORMULATION DOCUMENT
 ==================================
 
-1. TITLE
-========
-${formulation.name || 'Professional Formulation Document'}
+PRODUCT NAME: ${formulation.name || 'Professional Formulation Document'}
 
-2. SHORT DESCRIPTION
-===================
-${formulation.description || 'Professional chemical formulation designed for optimal performance and safety.'}
+SHORT DESCRIPTION
+=================
+This professional chemical formulation is specifically designed for ${formulation.usageInstructions || 'optimal performance and safety'}. 
 
-3. TECHNICAL SPECIFICATIONS
-==========================
-pH Level:              ${formulation.phLevel || '6.0-7.0'}
-Viscosity:             ${formulation.viscosity || '2,000-3,000 cps'}
-Shelf Life:            ${formulation.shelfLife || '24 months'}
-Batch Size:            ${formulation.batchSize || '10-100 liters'}
-Processing Time:       ${formulation.processingTime || '2-3 hours'}
-Temperature:           ${formulation.temperature || 'Room temperature (20-25°C)'}
-Storage Conditions:    ${formulation.storageConditions || 'Store in a cool, dry place away from direct sunlight'}
-Equipment:             ${formulation.equipment || 'Mixing vessel, stirrer, heating source, pH meter'}
-Certification:         ${formulation.certification || 'Meets industry standards'}
+Key Features:
+• pH optimized at ${formulation.phLevel || '6.0-7.0'} for optimal stability
+• ${formulation.viscosity || 'Balanced'} viscosity for easy application
+• Extended shelf life of ${formulation.shelfLife || '24'} months
+• Professional-grade ingredients with proven efficacy
+• Meets industry standards for safety and performance
+${formulation.description ? `\nDetailed Description: ${formulation.description}` : ''}
 
-4. FORMULATION TABLE
-===================
+TECHNICAL SPECIFICATIONS
+========================
+pH Level: ${formulation.phLevel || '6.0-7.0'}
+Viscosity: ${formulation.viscosity || '2,000-3,000 cps'}
+Shelf Life: ${formulation.shelfLife || '24 months'}
+Batch Size: ${formulation.batchSize || '10-100 liters'}
+Processing Time: ${formulation.processingTime || '2-3 hours'}
+Temperature: ${formulation.temperature || 'Room temperature (20-25°C)'}
+Storage Conditions: ${formulation.storageConditions || 'Store in a cool, dry place away from direct sunlight'}
+Equipment: ${formulation.equipment || 'Mixing vessel, stirrer, heating source, pH meter'}
+Certification: ${formulation.certification || 'Meets industry standards'}
+
+FORMULATION TABLE
+=================
 Ingredients with INCI name, percentage, and function:
 ${ingredients.map((ingredient: any, index: number) => 
   `${index + 1}. ${ingredient.name || 'N/A'} (${ingredient.inci || 'N/A'}) - ${ingredient.percentage || 'N/A'}% - ${ingredient.function || 'N/A'}`
 ).join('\n')}
 
-5. MANUFACTURING PROCESS
-=======================
+MANUFACTURING PROCESS
+====================
 Step-by-step preparation guidelines:
 ${instructions && instructions.length > 0 ? 
   instructions.map((phase: any, phaseIndex: number) => 
@@ -89,36 +95,25 @@ Phase 3: Final Processing
    4. Package in appropriate containers`
 }
 
-6. REQUIRED EQUIPMENT
-====================
+REQUIRED EQUIPMENT
+==================
 Basic instruments and tools needed:
 ${formulation.equipment || 'Standard mixing equipment, measuring instruments, pH meter, thermometer, safety equipment'}
 
-7. SAFETY PRECAUTIONS
-====================
+SAFETY PRECAUTIONS
+==================
 Handling: Wear appropriate PPE including gloves, safety glasses, and lab coat.
 PPE Requirements: Chemical-resistant gloves, safety goggles, protective clothing.
 Storage: Store in cool, dry place away from direct sunlight. Keep containers tightly closed.
 Storage Conditions: ${formulation.storageConditions || 'Store at room temperature (15-25°C)'}
 
-8. QUALITY TESTING & STANDARDS
-==============================
-Suggested checks:
-- pH Testing: Target pH ${formulation.phLevel || '6.5-7.5'}
-- Viscosity: ${formulation.viscosity || 'As specified in technical parameters'}
-- Stability Testing: Accelerated aging and thermal cycling tests
-- Microbial Testing: Preservative efficacy and contamination screening
-- Performance Testing: Product-specific functionality verification
-
-9. PACKAGING & REGULATORY NOTES
-===============================
+8. PACKAGING NOTES
+==================
 Packaging: Use chemically compatible containers (HDPE, glass, or PET).
 Labeling: Include product name, ingredients, usage instructions, and safety warnings.
-Regulatory Compliance: Ensure compliance with local regulations and safety standards.
 Certification: ${formulation.certification || 'Follow applicable industry standards and regulations'}
-Documentation: Maintain batch records and quality control documentation.
 
-10. SCALING NOTE
+9. SCALING NOTE
 ===============
 Lab Scale: This formulation is designed for laboratory testing and development.
 Pilot Scale: For pilot production, scale proportionally and verify all parameters.

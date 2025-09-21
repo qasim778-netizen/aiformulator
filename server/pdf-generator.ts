@@ -89,42 +89,58 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
     yPosition += 15;
   }
   
-  // 1. Title Section
-  doc.setFontSize(20);
+  // Product Name Title
+  doc.setFontSize(22);
   doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'bold');
-  yPosition = addWrappedText(formulation.name || 'Professional Formulation Document', margin, yPosition, contentWidth, 20);
-  yPosition += 15;
+  doc.text('PRODUCT NAME:', margin, yPosition);
+  yPosition += 8;
+  doc.setFontSize(18);
+  yPosition = addWrappedText(formulation.name || 'Professional Formulation Document', margin, yPosition, contentWidth, 18);
+  yPosition += 12;
   
-  // 2. Short Description Section
+  // Short Description Section
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
   doc.setFont('helvetica', 'bold');
   doc.text('Short Description', margin, yPosition);
-  yPosition += 10;
+  yPosition += 8;
   
   doc.setLineWidth(0.5);
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
-  yPosition += 10;
+  yPosition += 8;
   
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'normal');
-  yPosition = addWrappedText(formulation.description || 'Professional chemical formulation designed for optimal performance and safety.', margin, yPosition, contentWidth);
-  yPosition += 15;
   
-  // 3. Technical Specifications Section
+  // Enhanced description with key features
+  const enhancedDescription = `This professional chemical formulation is specifically designed for ${formulation.usageInstructions || 'optimal performance and safety'}.
+
+Key Features:
+• pH optimized at ${formulation.phLevel || '6.0-7.0'} for optimal stability
+• ${formulation.viscosity || 'Balanced'} viscosity for easy application  
+• Extended shelf life of ${formulation.shelfLife || '24'} months
+• Professional-grade ingredients with proven efficacy
+• Meets industry standards for safety and performance
+
+${formulation.description ? `Detailed Description: ${formulation.description}` : ''}`;
+  
+  yPosition = addWrappedText(enhancedDescription, margin, yPosition, contentWidth);
+  yPosition += 10;
+  
+  // Technical Specifications Section
   yPosition = checkNewPage(100);
   
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
   doc.setFont('helvetica', 'bold');
   doc.text('Technical Specifications', margin, yPosition);
-  yPosition += 10;
+  yPosition += 8;
   
   doc.setLineWidth(0.5);
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
-  yPosition += 15;
+  yPosition += 8;
   
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
@@ -149,23 +165,23 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
     doc.text(spec.label, margin, yPosition);
     doc.setFont('helvetica', 'normal');
     yPosition = addWrappedText(spec.value, margin + 80, yPosition, contentWidth - 80, 12);
-    yPosition += 8;
+    yPosition += 5;
   });
   
-  yPosition += 10;
+  yPosition += 5;
   
-  // 4. Formulation Table Section
+  // Formulation Table Section
   yPosition = checkNewPage(40);
   
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
   doc.setFont('helvetica', 'bold');
   doc.text('Formulation Table', margin, yPosition);
-  yPosition += 10;
+  yPosition += 8;
   
   doc.setLineWidth(0.5);
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
-  yPosition += 15;
+  yPosition += 10;
   
   // Table headers
   doc.setFontSize(10);
@@ -203,18 +219,18 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   
   yPosition += 10;
   
-  // 5. Manufacturing Process Section
+  // Manufacturing Process Section
   yPosition = checkNewPage(40);
   
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
   doc.setFont('helvetica', 'bold');
   doc.text('Manufacturing Process', margin, yPosition);
-  yPosition += 10;
+  yPosition += 8;
   
   doc.setLineWidth(0.5);
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
-  yPosition += 15;
+  yPosition += 10;
   
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
@@ -277,18 +293,18 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
     });
   }
   
-  // 6. Required Equipment Section
+  // Required Equipment Section
   yPosition = checkNewPage(40);
   
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
   doc.setFont('helvetica', 'bold');
   doc.text('Required Equipment', margin, yPosition);
-  yPosition += 10;
+  yPosition += 8;
   
   doc.setLineWidth(0.5);
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
-  yPosition += 10;
+  yPosition += 8;
   
   doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
@@ -297,18 +313,18 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   yPosition = addWrappedText(equipmentText, margin, yPosition, contentWidth);
   yPosition += 15;
   
-  // 7. Safety Precautions Section
+  // Safety Precautions Section
   yPosition = checkNewPage(40);
   
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
   doc.setFont('helvetica', 'bold');
   doc.text('Safety Precautions', margin, yPosition);
-  yPosition += 10;
+  yPosition += 8;
   
   doc.setLineWidth(0.5);
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
-  yPosition += 10;
+  yPosition += 8;
   
   doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
@@ -320,66 +336,40 @@ Storage Conditions: ${formulation.storageConditions || 'Store at room temperatur
   yPosition = addWrappedText(safetyText, margin, yPosition, contentWidth);
   yPosition += 15;
   
-  // 8. Quality Testing & Standards Section
+  // Packaging Notes Section
   yPosition = checkNewPage(40);
   
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
   doc.setFont('helvetica', 'bold');
-  doc.text('Quality Testing & Standards', margin, yPosition);
-  yPosition += 10;
+  doc.text('Packaging Notes', margin, yPosition);
+  yPosition += 8;
   
   doc.setLineWidth(0.5);
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
-  yPosition += 10;
-  
-  doc.setFontSize(11);
-  doc.setTextColor(0, 0, 0);
-  doc.setFont('helvetica', 'normal');
-  const qualityTests = `pH Testing: Target pH ${formulation.phLevel || '6.5-7.5'}
-Viscosity: ${formulation.viscosity || 'As specified in technical parameters'}
-Stability Testing: Accelerated aging and thermal cycling tests
-Microbial Testing: Preservative efficacy and contamination screening
-Performance Testing: Product-specific functionality verification`;
-  yPosition = addWrappedText(qualityTests, margin, yPosition, contentWidth);
-  yPosition += 15;
-  
-  // 9. Packaging & Regulatory Notes Section
-  yPosition = checkNewPage(40);
-  
-  doc.setFontSize(16);
-  doc.setTextColor(52, 73, 94);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Packaging & Regulatory Notes', margin, yPosition);
-  yPosition += 10;
-  
-  doc.setLineWidth(0.5);
-  doc.line(margin, yPosition, pageWidth - margin, yPosition);
-  yPosition += 10;
+  yPosition += 8;
   
   doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'normal');
   const packagingText = `Packaging: Use chemically compatible containers (HDPE, glass, or PET).
 Labeling: Include product name, ingredients, usage instructions, and safety warnings.
-Regulatory Compliance: Ensure compliance with local regulations and safety standards.
-Certification: ${formulation.certification || 'Follow applicable industry standards and regulations'}
-Documentation: Maintain batch records and quality control documentation.`;
+Certification: ${formulation.certification || 'Follow applicable industry standards and regulations'}`;
   yPosition = addWrappedText(packagingText, margin, yPosition, contentWidth);
-  yPosition += 15;
+  yPosition += 10;
   
-  // 10. Scaling Note Section
+  // Scaling Note Section
   yPosition = checkNewPage(30);
   
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
   doc.setFont('helvetica', 'bold');
   doc.text('Scaling Note', margin, yPosition);
-  yPosition += 10;
+  yPosition += 8;
   
   doc.setLineWidth(0.5);
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
-  yPosition += 10;
+  yPosition += 8;
   
   doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
