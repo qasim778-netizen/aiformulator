@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { Sparkles, Loader2, FlaskConical, Package, Star } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Sparkles, Loader2, FlaskConical, Package, Star, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import type { Category } from "@shared/schema";
+import FormulationPreview from "@/components/formulation-preview";
+import type { Category, Formulation } from "@shared/schema";
 
 interface BulkFormulationGeneratorProps {
   categories: Category[];
@@ -17,6 +18,8 @@ interface BulkFormulationGeneratorProps {
 export default function BulkFormulationGenerator({ categories }: BulkFormulationGeneratorProps) {
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [formulationCount, setFormulationCount] = useState("5");
+  const [showGeneratedFormulations, setShowGeneratedFormulations] = useState(false);
+  const [generatedFormulations, setGeneratedFormulations] = useState<Formulation[]>([]);
   const { toast } = useToast();
 
   // Use database categories
@@ -34,17 +37,24 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
     onSuccess: (data: any) => {
       // Invalidate all formulation-related queries to ensure fresh data appears immediately
       queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/formulations", "category"] });
       queryClient.invalidateQueries({ queryKey: ["/api/formulations-paginated"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/formulations"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/formulations-all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       
-      const count = data?.count || data?.formulations?.length || 0;
+      // Use the actual generated formulations from the API response
+      const formulations = data?.formulations || data?.createdFormulations || [];
+      const count = formulations.length || data?.count || 0;
       
       toast({ 
-        title: "Bulk generation completed!", 
-        description: `Successfully generated ${count} formulations`
+        title: "Professional formulations generated!", 
+        description: `Successfully generated ${count} formulations with professional 9-section structure`
       });
+      
+      // Store and show the exact generated formulations
+      setGeneratedFormulations(formulations);
+      setShowGeneratedFormulations(true);
       
       // Reset form
       setSelectedCategoryId("");
@@ -238,6 +248,75 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
           </form>
         </CardContent>
       </Card>
+
+      {/* Generated Formulations Preview */}
+      {showGeneratedFormulations && (
+        <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-green-900">
+              <Eye className="h-5 w-5" />
+              Recently Generated Professional Formulations
+              <Badge variant="outline" className="bg-green-100 text-green-800">
+                Professional 9-Section Structure
+              </Badge>
+            </CardTitle>
+            <p className="text-green-700">
+              Your formulations have been generated with the same professional structure as AIFormulator individual generations.
+              Each includes enhanced descriptions, category-specific ingredients, and detailed technical specifications.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {generatedFormulations && generatedFormulations.length > 0 ? (
+                <>
+                  <div className="text-center mb-6">
+                    <Badge className="bg-green-600 text-white text-sm px-4 py-2">
+                      {generatedFormulations.length} Professional Formulations Generated
+                    </Badge>
+                    <p className="text-green-700 text-sm mt-2">
+                      These are the exact formulations that were just created with professional 9-section structure
+                    </p>
+                  </div>
+                  {generatedFormulations.slice(0, 3).map((formulation) => (
+                    <div key={formulation.id} className="border-l-4 border-green-500 pl-4">
+                      <FormulationPreview 
+                        formulation={formulation} 
+                        category={allBulkCategories.find(c => c.id === formulation.categoryId)}
+                      />
+                    </div>
+                  ))}
+                  {generatedFormulations.length > 3 && (
+                    <div className="text-center pt-4">
+                      <p className="text-green-700 text-sm">
+                        And {generatedFormulations.length - 3} more formulations with the same professional structure...
+                      </p>
+                      <p className="text-green-600 text-xs mt-2">
+                        View all formulations in the admin panel or browse categories to see individual details.
+                      </p>
+                    </div>
+                  )}
+                  <div className="text-center pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowGeneratedFormulations(false);
+                        setGeneratedFormulations([]);
+                      }}
+                      className="text-green-700 border-green-300 hover:bg-green-50"
+                    >
+                      Hide Preview
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-green-700">No formulations to display</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
     </div>
   );
