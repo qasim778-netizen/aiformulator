@@ -1193,6 +1193,54 @@ Allow: /disclaimer`;
     }
   });
 
+  // Helper function to determine product category from product type and description
+  function determineProductCategory(productType: string, description: string, specialRequirements?: string): string {
+    const input = `${productType} ${description} ${specialRequirements || ''}`.toLowerCase();
+    
+    // Category mapping based on keywords
+    if (input.includes('cream') || input.includes('lotion') || input.includes('moisturizer') || 
+        input.includes('serum') || input.includes('facial') || input.includes('anti-aging') ||
+        input.includes('wrinkle') || input.includes('acne') || input.includes('hydrating') ||
+        input.includes('nourishing') || input.includes('brightening')) {
+      return 'skincare';
+    }
+    
+    if (input.includes('shampoo') || input.includes('conditioner') || input.includes('hair') ||
+        input.includes('scalp') || input.includes('styling') || input.includes('hair mask')) {
+      return 'beauty products';
+    }
+    
+    if (input.includes('makeup') || input.includes('foundation') || input.includes('lipstick') ||
+        input.includes('mascara') || input.includes('eyeshadow') || input.includes('blush') ||
+        input.includes('concealer') || input.includes('cosmetic')) {
+      return 'beauty products';
+    }
+    
+    if (input.includes('baby') || input.includes('infant') || input.includes('toddler') ||
+        input.includes('gentle') || input.includes('mild') || input.includes('tear-free')) {
+      return 'baby care';
+    }
+    
+    if (input.includes('clean') || input.includes('detergent') || input.includes('soap') ||
+        input.includes('dish') || input.includes('laundry') || input.includes('surface') ||
+        input.includes('disinfectant') || input.includes('sanitizer')) {
+      return 'cleaning products';
+    }
+    
+    if (input.includes('toothpaste') || input.includes('mouthwash') || input.includes('dental') ||
+        input.includes('oral') || input.includes('teeth') || input.includes('gum')) {
+      return 'oral care';
+    }
+    
+    if (input.includes('leather') || input.includes('shoe') || input.includes('boot') ||
+        input.includes('polish') || input.includes('protect')) {
+      return 'specialty';
+    }
+    
+    // Default to skincare for most cosmetic/personal care products
+    return 'skincare';
+  }
+
   // Custom AI Formulation with PDF Generation
   app.post("/api/ai/custom-formulation", async (req, res) => {
     console.log('🔥 Custom formulation endpoint hit!');
@@ -1216,14 +1264,15 @@ Allow: /disclaimer`;
       } = req.body;
 
       // Validate required fields
-      if (!productName || !productCategory || !productDescription || !productType || !phLevel || !costLevel) {
+      if (!productName || !productDescription || !productType || !phLevel || !costLevel) {
         return res.status(400).json({ 
-          message: "Missing required fields: productName, productCategory, productDescription, productType, phLevel, costLevel" 
+          message: "Missing required fields: productName, productDescription, productType, phLevel, costLevel" 
         });
       }
 
-      // Use the improved category-specific AI system
-      console.log(`🧠 Generating AI formulation for category: ${productCategory}`);
+      // Determine category from product type and description for intelligent AI generation
+      const inferredCategory = determineProductCategory(productType, productDescription, specialRequirements);
+      console.log(`🧠 Generating AI formulation for inferred category: ${inferredCategory}`);
       
       let formulation;
       try {
@@ -1235,8 +1284,8 @@ Allow: /disclaimer`;
         
         console.log(`🔍 AI Description: ${aiDescription}`);
         
-        // Generate using category-specific AI
-        const aiFormulation = await generateCategorySpecificFormulation(productCategory.toLowerCase(), aiDescription);
+        // Generate using category-specific AI with inferred category
+        const aiFormulation = await generateCategorySpecificFormulation(inferredCategory, aiDescription);
         
         console.log(`🔍 AI Formulation Response:`, {
           hasIngredients: !!aiFormulation.ingredients,
@@ -1246,7 +1295,7 @@ Allow: /disclaimer`;
         });
         
         // Validate the formulation
-        const validation = validateFormulation(aiFormulation, productCategory.toLowerCase());
+        const validation = validateFormulation(aiFormulation, inferredCategory);
         
         if (!validation.isValid) {
           console.warn(`⚠️ Generated formulation has validation issues:`, validation.errors);
@@ -1340,22 +1389,24 @@ Allow: /disclaimer`;
         }
       };
 
-      // Get category ID for the selected product category
+      // Get category ID based on inferred category or use a default
       const categories = await storage.getCategories();
-      const selectedCategory = categories.find(cat => cat.name === productCategory);
+      let selectedCategory = categories.find(cat => 
+        cat.name.toLowerCase().includes(inferredCategory.toLowerCase()) || 
+        inferredCategory.toLowerCase().includes(cat.name.toLowerCase().split(' ')[0])
+      );
       
+      // If no matching category found, use a default "Skin Care" or first available category
       if (!selectedCategory) {
-        return res.status(400).json({ 
-          message: "Invalid product category selected" 
-        });
+        selectedCategory = categories.find(cat => cat.name.includes('Skin Care')) || categories[0];
       }
       
-      const categoryId = selectedCategory.id;
+      const categoryId = selectedCategory?.id || categories[0]?.id;
 
       // Save formulation to database with isActive: false (pending approval)
       // Add SEO fields to custom formulation  
-      const categoryResult = await storage.getCategory(categoryId);
-      const categoryName = categoryResult ? categoryResult.name : 'Custom';
+      const categoryResult = await storage.getCategory(categoryId!);
+      const categoryName = categoryResult ? categoryResult.name : 'Custom Formulation';
       
       const formulationWithSEO = addSEOFields({
         ...formulation,
@@ -1374,7 +1425,7 @@ Allow: /disclaimer`;
           const userRequest: any = {
             sessionId: req.sessionID || 'anonymous',
             productName,
-            productCategory,
+            productCategory: categoryName,
             productDescription,
             productType,
             consistencyType: viscosity || undefined,
