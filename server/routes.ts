@@ -1197,15 +1197,19 @@ Allow: /disclaimer`;
   function determineProductCategory(productType: string, description: string, specialRequirements?: string): string {
     const input = `${productType} ${description} ${specialRequirements || ''}`.toLowerCase();
     
-    // Industrial and Construction Materials
+    // Industrial Chemical Formulations
     if (input.includes('ink') || input.includes('printing') || input.includes('pigment') ||
         input.includes('dye') || input.includes('security') || input.includes('anti-counterfeit')) {
-      return 'construction material';
+      return 'advanced agricultural chemicals'; // Most appropriate for industrial chemical formulations
     }
     
     if (input.includes('adhesive') || input.includes('glue') || input.includes('bonding') ||
-        input.includes('sealant') || input.includes('cement') || input.includes('epoxy') ||
-        input.includes('resin') || input.includes('construction')) {
+        input.includes('sealant') || input.includes('epoxy') || input.includes('resin')) {
+      return 'advanced agricultural chemicals'; // Industrial chemical formulations
+    }
+    
+    if (input.includes('cement') || input.includes('concrete') || input.includes('construction') ||
+        input.includes('building material') || input.includes('mortar')) {
       return 'construction material';
     }
     
