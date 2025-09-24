@@ -15,11 +15,9 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import SignInDialog from "@/components/signin-dialog";
 import { Captcha } from "@/components/ui/captcha";
-import { FORMULATION_CATEGORIES } from "@/constants/categories";
 
 const formulatorSchema = z.object({
   productName: z.string().min(1, "Product name is required"),
-  productCategory: z.string().min(1, "Product category is required"),
   productDescription: z.string().min(10, "Product description must be at least 10 characters"),
   productType: z.enum(["liquid", "cream", "gel", "powder", "paste", "foam"]),
   phLevel: z.string().min(1, "pH level is required"),
@@ -39,14 +37,11 @@ export default function AIFormulator() {
   const [captchaKey, setCaptchaKey] = useState(0);
   const { toast } = useToast();
 
-  // Use the new 22 formulation categories
-  const categoriesData = FORMULATION_CATEGORIES;
 
   const form = useForm<FormulatorData>({
     resolver: zodResolver(formulatorSchema),
     defaultValues: {
       productName: "",
-      productCategory: "",
       productDescription: "",
       productType: "liquid",
       phLevel: "",
@@ -195,32 +190,6 @@ export default function AIFormulator() {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="productCategory"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Product Category *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-product-category">
-                            <SelectValue placeholder="Select product category..." />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {(categoriesData as any)?.map((category: any) => (
-                            <SelectItem key={category.id} value={category.name}>
-                              {category.name}
-                            </SelectItem>
-                          )) || [
-                            <SelectItem key="loading" value="" disabled>Loading categories...</SelectItem>
-                          ]}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <FormField
                   control={form.control}
