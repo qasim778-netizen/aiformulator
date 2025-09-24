@@ -953,8 +953,8 @@ export async function generateProductProperties(request: { productName: string; 
           - Adhesives: "Waterproof", "Heat resistant", "Quick-setting", "High bond strength", "Flexible", "UV stable"
           - Cosmetics: "Hypoallergenic", "Long-lasting", "Dermatologically tested", "Non-comedogenic", "Water-resistant"
           
-          Return JSON array of property strings:
-          ["Property 1", "Property 2", "Property 3", ...]`
+          Return a JSON object with a 'properties' array:
+          {"properties": ["Property 1", "Property 2", "Property 3", ...]}`
         },
         {
           role: "user",
@@ -965,7 +965,10 @@ export async function generateProductProperties(request: { productName: string; 
       temperature: 0.7
     });
 
-    const result = JSON.parse(response.choices[0].message.content || '[]');
+    const rawContent = response.choices[0].message.content || '[]';
+    console.log(`🤖 AI Raw Response:`, rawContent);
+    
+    const result = JSON.parse(rawContent);
     
     // Handle different response formats
     if (Array.isArray(result)) {
