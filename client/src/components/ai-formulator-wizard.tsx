@@ -14,7 +14,6 @@ import GenerateStep from "./wizard-steps/generate-step";
 interface FormData {
   // Product Type
   productName: string;
-  productCategory: string;
   consistencyType: string;
   
   // Specifications
@@ -33,16 +32,13 @@ interface FormData {
 }
 
 interface DynamicPropertiesProps {
-  productCategory: string;
   availableProperties: string[];
 }
 
 // Smart initial defaults - will be calculated dynamically
 const getInitialFormData = (): FormData => {
-  const defaultCategory = "Skincare & Cosmetics";
   return {
     productName: "",
-    productCategory: defaultCategory,
     consistencyType: "cream", // Will be updated by smart defaults
     viscosity: "High", // Will be updated by smart defaults 
     volume: "50ml", // Will be updated by smart defaults
@@ -70,56 +66,16 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   // Guidance system removed for stability
   const { toast } = useToast();
 
-  // Hardcoded category-specific properties for deployment reliability
-  const getCategoryProperties = (category: string): string[] => {
-    const categoryLower = category.toLowerCase();
-    
-    if (categoryLower.includes('skincare') || categoryLower.includes('cosmetics')) {
-      return ['Anti-aging', 'Moisturizing', 'Whitening', 'Anti-acne', 'Antioxidant', 'UV Protection', 'Exfoliating', 'Firming', 'Soothing', 'Regenerating'];
-    }
-    if (categoryLower.includes('cleaning') || categoryLower.includes('household')) {
-      return ['Antibacterial', 'Eco-friendly', 'Concentrated formula', 'Multi-surface', 'Streak-free', 'Quick-drying', 'Pleasant scent', 'Non-toxic', 'Grease-cutting', 'Stain removal'];
-    }
-    if (categoryLower.includes('hair care')) {
-      return ['Strengthening', 'Volumizing', 'Color-safe', 'Anti-dandruff', 'Moisturizing', 'Heat protection', 'Frizz control', 'Shine enhancement', 'Scalp soothing', 'Sulfate-free'];
-    }
-    if (categoryLower.includes('oral care')) {
-      return ['Whitening', 'Cavity protection', 'Fresh breath', 'Plaque control', 'Enamel strengthening', 'Sensitivity relief', 'Natural ingredients', 'Fluoride-free', 'Antibacterial', 'Gum health'];
-    }
-    if (categoryLower.includes('body care') || categoryLower.includes('personal hygiene')) {
-      return ['Moisturizing', 'Long-lasting', 'Gentle formula', 'Quick absorption', 'Natural ingredients', 'Antibacterial', 'Soothing', 'Non-greasy', 'Fragrance-free', 'Sensitive skin'];
-    }
-    if (categoryLower.includes('baby') || categoryLower.includes('child')) {
-      return ['Hypoallergenic', 'Gentle formula', 'Tear-free', 'Natural ingredients', 'Fragrance-free', 'Sensitive skin', 'Dermatologist tested', 'Non-toxic', 'Moisturizing', 'pH balanced'];
-    }
-    if (categoryLower.includes('men')) {
-      return ['Long-lasting', 'Quick absorption', 'Masculine scent', 'Oil control', 'Anti-aging', 'Moisturizing', 'After-shave', 'Cooling effect', 'Non-greasy', 'Refreshing'];
-    }
-    if (categoryLower.includes('organic') || categoryLower.includes('natural')) {
-      return ['Organic certified', 'Natural ingredients', 'Eco-friendly', 'Chemical-free', 'Sustainable', 'Cruelty-free', 'Biodegradable', 'Non-toxic', 'Plant-based', 'Preservative-free'];
-    }
-    if (categoryLower.includes('detergent') || categoryLower.includes('laundry')) {
-      return ['Stain removal', 'Color protection', 'Fabric softening', 'Fresh scent', 'Concentrated formula', 'Eco-friendly', 'Enzyme-based', 'Quick dissolving', 'Anti-static', 'Whitening'];
-    }
-    if (categoryLower.includes('disinfectant') || categoryLower.includes('sanitizer')) {
-      return ['99.9% germ kill', 'Fast-acting', 'Surface safe', 'Alcohol-based', 'Non-corrosive', 'Quick-drying', 'Residue-free', 'Hospital grade', 'Broad spectrum', 'EPA approved'];
-    }
-    if (categoryLower.includes('shoe care') || categoryLower.includes('leather')) {
-      return ['Waterproofing', 'Leather conditioning', 'Stain protection', 'Color restoration', 'Flexibility enhancement', 'UV protection', 'Long-lasting', 'Easy application', 'Natural oils', 'Breathability'];
-    }
-    if (categoryLower.includes('construction') || categoryLower.includes('material')) {
-      return ['Weather resistant', 'High durability', 'Fast setting', 'Crack resistant', 'Waterproof', 'Temperature stable', 'Chemical resistant', 'Easy application', 'Long-lasting', 'Professional grade'];
-    }
-    if (categoryLower.includes('pet care') || categoryLower.includes('pets')) {
-      return ['Pet-safe', 'Natural ingredients', 'Odor control', 'Gentle formula', 'Hypoallergenic', 'Flea repellent', 'Coat conditioning', 'pH balanced', 'Non-toxic', 'Veterinarian approved'];
-    }
-    
-    // Default fallback
-    return ['Enhanced formula', 'Professional grade', 'Long-lasting', 'High quality', 'Effective results', 'Safe ingredients', 'Easy application', 'Proven performance', 'Reliable', 'Industry standard'];
-  };
-
-  // Use hardcoded properties for deployment reliability
-  const availableProperties = formData.productCategory ? getCategoryProperties(formData.productCategory) : [];
+  // General properties for all formulations
+  const availableProperties = [
+    'Anti-aging', 'Moisturizing', 'Antibacterial', 'Eco-friendly', 'Long-lasting', 
+    'Gentle formula', 'Natural ingredients', 'Professional grade', 'Enhanced formula',
+    'Quick-drying', 'Non-toxic', 'Hypoallergenic', 'UV Protection', 'Antioxidant',
+    'Whitening', 'Anti-acne', 'Strengthening', 'Volumizing', 'Color-safe',
+    'Fresh breath', 'Plaque control', 'Quick absorption', 'Soothing', 
+    'Chemical-free', 'Cruelty-free', 'Biodegradable', 'Stain removal',
+    'Weather resistant', 'High durability', 'Pet-safe', 'Odor control'
+  ];
   const propertiesLoading = false;
 
   const steps = [
@@ -129,121 +85,8 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     { title: "Generate", icon: "✏️" }
   ];
 
-  // Smart viscosity selection based on product category
-  const getSmartViscosity = (category: string): string => {
-    const categoryLower = category.toLowerCase();
-    
-    if (categoryLower.includes('skincare') || categoryLower.includes('cosmetics')) {
-      return 'medium'; // Lotions, creams, gels - medium viscosity
-    }
-    if (categoryLower.includes('cleaning') || categoryLower.includes('household')) {
-      return 'low'; // Cleaners, sprays - low viscosity for easy application
-    }
-    if (categoryLower.includes('hair care')) {
-      return 'low'; // Shampoos, conditioners - low to medium viscosity
-    }
-    if (categoryLower.includes('oral care')) {
-      return 'high'; // Toothpaste - high viscosity paste
-    }
-    if (categoryLower.includes('body care') || categoryLower.includes('personal hygiene')) {
-      return 'medium'; // Body lotions, deodorants - medium viscosity
-    }
-    if (categoryLower.includes('baby') || categoryLower.includes('child')) {
-      return 'medium'; // Baby creams, gentle formulas - medium viscosity
-    }
-    if (categoryLower.includes('men')) {
-      return 'medium'; // Aftershave, moisturizers - medium viscosity
-    }
-    if (categoryLower.includes('organic') || categoryLower.includes('natural')) {
-      return 'medium'; // Natural creams, lotions - medium viscosity
-    }
-    if (categoryLower.includes('detergent') || categoryLower.includes('laundry')) {
-      return 'low'; // Liquid detergents - low viscosity
-    }
-    if (categoryLower.includes('disinfectant') || categoryLower.includes('sanitizer')) {
-      return 'low'; // Hand sanitizers, sprays - low viscosity
-    }
-    if (categoryLower.includes('shoe care') || categoryLower.includes('leather')) {
-      return 'high'; // Polishes, conditioners - high viscosity
-    }
-    if (categoryLower.includes('construction') || categoryLower.includes('material')) {
-      return 'high'; // Adhesives, sealants - high viscosity
-    }
-    if (categoryLower.includes('pet care') || categoryLower.includes('pets')) {
-      return 'medium'; // Pet shampoos, treatments - medium viscosity
-    }
-    
-    // Default fallback
-    return 'medium';
-  };
-
-  // Smart consistency type selection based on product category and name
-  const getSmartConsistencyType = (category: string, productName?: string): string => {
-    const categoryLower = category.toLowerCase();
-    const nameLower = (productName || '').toLowerCase();
-    
-    // Product name-based detection (highest priority)
-    if (nameLower.includes('cleaner') || nameLower.includes('glass') || nameLower.includes('window')) return 'liquid';
-    if (nameLower.includes('cream') || nameLower.includes('moisturizer') || nameLower.includes('lotion')) return 'cream';
-    if (nameLower.includes('gel') || nameLower.includes('aloe')) return 'gel';
-    if (nameLower.includes('powder') || nameLower.includes('foundation') || nameLower.includes('dry')) return 'powder';
-    if (nameLower.includes('scrub') || nameLower.includes('exfoliant')) return 'cream';
-    if (nameLower.includes('shampoo') || nameLower.includes('soap') || nameLower.includes('wash')) return 'liquid';
-    if (nameLower.includes('oil') || nameLower.includes('serum')) return 'liquid';
-    if (nameLower.includes('balm') || nameLower.includes('stick')) return 'cream';
-    
-    // Category-based defaults
-    if (categoryLower.includes('cleaning') || categoryLower.includes('household')) return 'liquid';
-    if (categoryLower.includes('hair care')) return 'liquid'; // Most hair products are liquid
-    if (categoryLower.includes('oral care')) return 'gel'; // Toothpaste is typically gel
-    if (categoryLower.includes('skincare') || categoryLower.includes('cosmetics')) return 'cream'; // Most skincare is cream
-    if (categoryLower.includes('body care')) return 'cream'; // Body lotions/creams
-    if (categoryLower.includes('baby')) return 'cream'; // Baby products are often gentle creams
-    if (categoryLower.includes('organic') || categoryLower.includes('natural')) return 'cream';
-    
-    // Default fallback
-    return 'cream';
-  };
-
-  // Smart volume selection based on product category and product name
-  const getSmartDefaultVolume = (category: string, productName?: string): string => {
-    const categoryLower = category.toLowerCase();
-    const nameLower = (productName || '').toLowerCase();
-    
-    // Product name-based detection (highest priority - small units first)
-    if (nameLower.includes('serum') || nameLower.includes('essence') || nameLower.includes('oil')) return '30ml';
-    if (nameLower.includes('eye') || nameLower.includes('spot') || nameLower.includes('treatment')) return '15ml';
-    if (nameLower.includes('toner') || nameLower.includes('mist') || nameLower.includes('spray')) return '100ml';
-    if (nameLower.includes('shampoo') || nameLower.includes('conditioner') || nameLower.includes('wash')) return '100ml';
-    if (nameLower.includes('cleaner') || nameLower.includes('detergent')) return '100ml';
-    if (nameLower.includes('cream') || nameLower.includes('moisturizer') || nameLower.includes('lotion')) return '50ml';
-    if (nameLower.includes('mask') || nameLower.includes('scrub')) return '50ml';
-    if (nameLower.includes('balm') || nameLower.includes('ointment')) return '30ml';
-    if (nameLower.includes('toothpaste') || nameLower.includes('gel')) return '50ml';
-    if (nameLower.includes('mouthwash')) return '100ml';
-    
-    // Category-based defaults (small units first priority)
-    if (categoryLower.includes('skincare') || categoryLower.includes('cosmetics')) return '30ml';
-    if (categoryLower.includes('hair care')) return '100ml';
-    if (categoryLower.includes('body care')) return '50ml';
-    if (categoryLower.includes('cleaning') || categoryLower.includes('household')) return '100ml';
-    if (categoryLower.includes('oral care')) return '50ml';
-    if (categoryLower.includes('baby')) return '50ml';
-    if (categoryLower.includes('men')) return '50ml';
-    if (categoryLower.includes('organic') || categoryLower.includes('natural')) return '50ml';
-    if (categoryLower.includes('pet')) return '100ml';
-    if (categoryLower.includes('detergent') || categoryLower.includes('laundry')) return '100ml';
-    if (categoryLower.includes('disinfectant') || categoryLower.includes('sanitizer')) return '50ml';
-    if (categoryLower.includes('shoe care') || categoryLower.includes('leather')) return '30ml';
-    if (categoryLower.includes('construction') || categoryLower.includes('material')) return '100ml';
-    
-    // Default fallback (small unit)
-    return '50ml';
-  };
-
-  // Smart viscosity selection based on product category and consistency type
-  const getSmartDefaultViscosity = (category: string, consistencyType: string, productName?: string): string => {
-    const categoryLower = category.toLowerCase();
+  // Smart viscosity selection based on consistency type and product name
+  const getSmartViscosity = (consistencyType: string, productName?: string): string => {
     const nameLower = (productName || '').toLowerCase();
     
     // Product name-based detection (highest priority)
@@ -257,45 +100,79 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     if (nameLower.includes('balm') || nameLower.includes('ointment')) return 'Very High';
     
     // Consistency type-based defaults
-    if (consistencyType === 'liquid') {
-      if (categoryLower.includes('cleaning') || categoryLower.includes('household')) return 'Low';
-      if (categoryLower.includes('hair care')) return 'Medium';
-      if (categoryLower.includes('oral care')) return 'Medium';
-      return 'Low';
-    }
-    
-    if (consistencyType === 'cream') {
-      if (categoryLower.includes('skincare') || categoryLower.includes('cosmetics')) return 'High';
-      if (categoryLower.includes('body care')) return 'Medium';
-      if (categoryLower.includes('baby')) return 'Medium';
-      return 'High';
-    }
-    
-    if (consistencyType === 'gel') {
-      if (categoryLower.includes('hair care')) return 'High';
-      if (categoryLower.includes('oral care')) return 'Medium';
-      if (categoryLower.includes('skincare')) return 'Medium';
-      return 'Medium';
-    }
-    
-    if (consistencyType === 'powder') {
-      return 'Very High';
-    }
-    
-    // Category-based fallbacks
-    if (categoryLower.includes('cleaning') || categoryLower.includes('household')) return 'Low';
-    if (categoryLower.includes('hair care')) return 'Medium';
-    if (categoryLower.includes('oral care')) return 'Medium';
-    if (categoryLower.includes('skincare') || categoryLower.includes('cosmetics')) return 'High';
-    if (categoryLower.includes('body care')) return 'Medium';
+    if (consistencyType === 'liquid') return 'Low';
+    if (consistencyType === 'cream') return 'High';
+    if (consistencyType === 'gel') return 'Medium';
+    if (consistencyType === 'powder') return 'Very High';
     
     // Default fallback
     return 'Medium';
   };
 
-  // Intelligent Default Properties Mapper
-  const getSmartDefaultProperties = (category: string, productName?: string, availableProps: string[] = []): string[] => {
-    const categoryLower = category.toLowerCase();
+  // Smart consistency type selection based on product name
+  const getSmartConsistencyType = (productName?: string): string => {
+    const nameLower = (productName || '').toLowerCase();
+    
+    // Product name-based detection
+    if (nameLower.includes('cleaner') || nameLower.includes('glass') || nameLower.includes('window')) return 'liquid';
+    if (nameLower.includes('cream') || nameLower.includes('moisturizer') || nameLower.includes('lotion')) return 'cream';
+    if (nameLower.includes('gel') || nameLower.includes('aloe')) return 'gel';
+    if (nameLower.includes('powder') || nameLower.includes('foundation') || nameLower.includes('dry')) return 'powder';
+    if (nameLower.includes('scrub') || nameLower.includes('exfoliant')) return 'cream';
+    if (nameLower.includes('shampoo') || nameLower.includes('soap') || nameLower.includes('wash')) return 'liquid';
+    if (nameLower.includes('oil') || nameLower.includes('serum')) return 'liquid';
+    if (nameLower.includes('balm') || nameLower.includes('stick')) return 'cream';
+    
+    // Default fallback
+    return 'cream';
+  };
+
+  // Smart volume selection based on product name
+  const getSmartDefaultVolume = (productName?: string): string => {
+    const nameLower = (productName || '').toLowerCase();
+    
+    // Product name-based detection
+    if (nameLower.includes('serum') || nameLower.includes('essence') || nameLower.includes('oil')) return '30ml';
+    if (nameLower.includes('eye') || nameLower.includes('spot') || nameLower.includes('treatment')) return '15ml';
+    if (nameLower.includes('toner') || nameLower.includes('mist') || nameLower.includes('spray')) return '100ml';
+    if (nameLower.includes('shampoo') || nameLower.includes('conditioner') || nameLower.includes('wash')) return '100ml';
+    if (nameLower.includes('cleaner') || nameLower.includes('detergent')) return '100ml';
+    if (nameLower.includes('cream') || nameLower.includes('moisturizer') || nameLower.includes('lotion')) return '50ml';
+    if (nameLower.includes('mask') || nameLower.includes('scrub')) return '50ml';
+    if (nameLower.includes('balm') || nameLower.includes('ointment')) return '30ml';
+    if (nameLower.includes('toothpaste') || nameLower.includes('gel')) return '50ml';
+    if (nameLower.includes('mouthwash')) return '100ml';
+    
+    // Default fallback
+    return '50ml';
+  };
+
+  // Smart viscosity selection based on consistency type and product name
+  const getSmartDefaultViscosity = (consistencyType: string, productName?: string): string => {
+    const nameLower = (productName || '').toLowerCase();
+    
+    // Product name-based detection (highest priority)
+    if (nameLower.includes('serum') || nameLower.includes('essence')) return 'Very Low';
+    if (nameLower.includes('oil') || nameLower.includes('toner')) return 'Low';
+    if (nameLower.includes('cleaner') || nameLower.includes('spray')) return 'Low';
+    if (nameLower.includes('shampoo') || nameLower.includes('wash')) return 'Medium';
+    if (nameLower.includes('cream') || nameLower.includes('moisturizer')) return 'High';
+    if (nameLower.includes('gel') && nameLower.includes('hair')) return 'High';
+    if (nameLower.includes('mask') || nameLower.includes('treatment')) return 'High';
+    if (nameLower.includes('balm') || nameLower.includes('ointment')) return 'Very High';
+    
+    // Consistency type-based defaults
+    if (consistencyType === 'liquid') return 'Low';
+    if (consistencyType === 'cream') return 'High';
+    if (consistencyType === 'gel') return 'Medium';
+    if (consistencyType === 'powder') return 'Very High';
+    
+    // Default fallback
+    return 'Medium';
+  };
+
+  // Intelligent Default Properties Mapper based on product name
+  const getSmartDefaultProperties = (productName?: string, availableProps: string[] = []): string[] => {
     const nameLower = (productName || '').toLowerCase();
     const defaultProperties: string[] = [];
     
@@ -307,168 +184,89 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
       }
     };
     
-    // Product name-based intelligent selection (highest priority)
+    // Product name-based intelligent selection
     if (nameLower.includes('anti-aging') || nameLower.includes('wrinkle') || nameLower.includes('firming')) {
       addProperty('Anti-aging');
-      addProperty('Firming');
-      addProperty('Regenerating');
+      addProperty('Long-lasting');
     }
     
     if (nameLower.includes('moisturizer') || nameLower.includes('hydrating') || nameLower.includes('dry skin')) {
       addProperty('Moisturizing');
-      addProperty('Soothing');
+      addProperty('Gentle formula');
     }
     
     if (nameLower.includes('acne') || nameLower.includes('blemish') || nameLower.includes('pimple')) {
-      addProperty('Anti-acne');
-      addProperty('Anti-bacterial');
+      addProperty('Antibacterial');
+      addProperty('Non-toxic');
     }
     
     if (nameLower.includes('whitening') || nameLower.includes('brightening') || nameLower.includes('lightening')) {
       addProperty('Whitening');
-      addProperty('Antioxidant');
+      addProperty('Enhanced formula');
     }
     
     if (nameLower.includes('sensitive') || nameLower.includes('gentle') || nameLower.includes('baby')) {
-      addProperty('Soothing');
-      addProperty('Safe for sensitive skin');
+      addProperty('Gentle formula');
       addProperty('Hypoallergenic');
     }
     
     if (nameLower.includes('sun') || nameLower.includes('spf') || nameLower.includes('uv')) {
       addProperty('UV Protection');
-      addProperty('Sun protection');
-    }
-    
-    if (nameLower.includes('dandruff') || nameLower.includes('scalp')) {
-      addProperty('Anti-dandruff');
-    }
-    
-    if (nameLower.includes('volume') || nameLower.includes('thickening')) {
-      addProperty('Volume-enhancing');
-    }
-    
-    if (nameLower.includes('color') || nameLower.includes('dyed')) {
-      addProperty('Color-protecting');
+      addProperty('Professional grade');
     }
     
     if (nameLower.includes('cleaner') || nameLower.includes('cleaning')) {
       addProperty('Antibacterial');
-      addProperty('Multi-surface');
       addProperty('Eco-friendly');
-    }
-    
-    if (nameLower.includes('glass') || nameLower.includes('window')) {
-      addProperty('Streak-free');
-      addProperty('Quick-drying');
     }
     
     if (nameLower.includes('eco') || nameLower.includes('green') || nameLower.includes('natural')) {
       addProperty('Eco-friendly');
-      addProperty('Environmentally friendly');
       addProperty('Natural ingredients');
     }
     
     if (nameLower.includes('stain') || nameLower.includes('spot')) {
-      addProperty('Stain removal');
-      addProperty('Grease-cutting');
+      addProperty('Professional grade');
+      addProperty('Long-lasting');
     }
     
-    // Category-based intelligent defaults
-    if (categoryLower.includes('skincare') || categoryLower.includes('cosmetics')) {
-      if (defaultProperties.length === 0) {
-        addProperty('Moisturizing');
-        addProperty('Soothing');
-      }
+    // Default properties if none were selected
+    if (defaultProperties.length === 0) {
+      addProperty('Professional grade');
+      addProperty('Enhanced formula');
     }
     
-    if (categoryLower.includes('hair care')) {
-      if (defaultProperties.length === 0) {
-        addProperty('Moisturizing');
-        addProperty('Strengthening');
-      }
-    }
-    
-    if (categoryLower.includes('cleaning') || categoryLower.includes('household')) {
-      if (defaultProperties.length === 0) {
-        addProperty('Antibacterial');
-        addProperty('Eco-friendly');
-      }
-    }
-    
-    if (categoryLower.includes('oral care')) {
-      if (defaultProperties.length === 0) {
-        addProperty('Fresh breath');
-        addProperty('Anti-bacterial');
-      }
-    }
-    
-    if (categoryLower.includes('body care')) {
-      if (defaultProperties.length === 0) {
-        addProperty('Moisturizing');
-        addProperty('Soothing');
-      }
-    }
-    
-    if (categoryLower.includes('baby')) {
-      if (defaultProperties.length === 0) {
-        addProperty('Safe for sensitive skin');
-        addProperty('Soothing');
-      }
-    }
-    
-    // Limit to maximum 3-4 properties to avoid overwhelming
-    return defaultProperties.slice(0, 4);
+    // Limit to maximum 2 properties
+    return defaultProperties.slice(0, 2);
   };
 
   const updateFormData = (data: Partial<FormData>) => {
     let updatedData = { ...data };
     
-    // Auto-select consistency type, volume, and viscosity when category changes
-    if (data.productCategory && data.productCategory !== formData.productCategory) {
-      const smartConsistency = getSmartConsistencyType(data.productCategory, formData.productName);
-      const smartVolume = getSmartDefaultVolume(data.productCategory, formData.productName);
+    // Auto-select consistency type, volume, and viscosity when product name changes
+    if (data.productName && data.productName !== formData.productName) {
+      const smartConsistency = getSmartConsistencyType(data.productName);
+      const smartVolume = getSmartDefaultVolume(data.productName);
       
       updatedData.consistencyType = smartConsistency;
       updatedData.volume = smartVolume;
       
-      // Auto-select smart viscosity based on category
-      const smartViscosity = getSmartViscosity(data.productCategory);
+      // Auto-select smart viscosity based on consistency type
+      const smartViscosity = getSmartViscosity(smartConsistency, data.productName);
       updatedData.viscosity = smartViscosity;
       
-      // Auto-select intelligent default properties based on category and current product name
+      // Auto-select intelligent default properties based on product name
       const smartProperties = getSmartDefaultProperties(
-        data.productCategory, 
-        formData.productName, 
-        Array.isArray(availableProperties) ? availableProperties : []
-      );
-      updatedData.specialProperties = smartProperties;
-    }
-    
-    // Auto-update consistency, volume, viscosity and properties when product name changes
-    if (data.productName && data.productName !== formData.productName && formData.productCategory) {
-      const smartConsistency = getSmartConsistencyType(formData.productCategory, data.productName);
-      const smartVolume = getSmartDefaultVolume(formData.productCategory, data.productName);
-      
-      updatedData.consistencyType = smartConsistency;
-      updatedData.volume = smartVolume;
-      
-      // Auto-select smart viscosity based on category
-      const smartViscosity = getSmartViscosity(formData.productCategory);
-      updatedData.viscosity = smartViscosity;
-      
-      // Auto-select intelligent properties based on product name and category
-      const smartProperties = getSmartDefaultProperties(
-        formData.productCategory, 
         data.productName, 
         Array.isArray(availableProperties) ? availableProperties : []
       );
       updatedData.specialProperties = smartProperties;
     }
     
+    
     // Auto-update viscosity when consistency type changes manually
-    if (data.consistencyType && data.consistencyType !== formData.consistencyType && formData.productCategory) {
-      const smartViscosity = getSmartViscosity(formData.productCategory);
+    if (data.consistencyType && data.consistencyType !== formData.consistencyType) {
+      const smartViscosity = getSmartViscosity(data.consistencyType, formData.productName);
       updatedData.viscosity = smartViscosity;
     }
     
@@ -480,9 +278,8 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   useEffect(() => {
     if (availableProperties && Array.isArray(availableProperties)) {
       // Auto-select intelligent properties if none are currently selected
-      if (formData.specialProperties.length === 0 && formData.productCategory) {
+      if (formData.specialProperties.length === 0) {
         const smartProperties = getSmartDefaultProperties(
-          formData.productCategory, 
           formData.productName, 
           availableProperties
         );
@@ -495,15 +292,15 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
         }
       }
     }
-  }, [availableProperties, formData.productCategory, formData.productName]);
+  }, [availableProperties, formData.productName]);
 
   const nextStep = () => {
     // Validate required fields for current step
     if (currentStep === 0) { // Product Type Step
-      if (!formData.productName || !formData.productCategory || !formData.consistencyType) {
+      if (!formData.productName || !formData.consistencyType) {
         toast({
           title: "Required Fields Missing",
-          description: "Please fill in Product Name, Category, and Consistency Type before proceeding",
+          description: "Please fill in Product Name and Consistency Type before proceeding",
           variant: "destructive"
         });
         return;
@@ -550,7 +347,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
       if (data.additionalNotes && data.additionalNotes.trim().length > 0) {
         try {
           await saveUserNote.mutateAsync({
-            productType: data.productCategory.toLowerCase().replace(/[^a-z0-9]/g, '_'),
+            productType: data.consistencyType.toLowerCase().replace(/[^a-z0-9]/g, '_'),
             additionalNote: data.additionalNotes,
           });
         } catch (error) {
@@ -560,8 +357,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
 
       const requestData = {
         productName: data.productName,
-        productCategory: data.productCategory,
-        productDescription: `${data.productCategory} - ${data.consistencyType} formulation with ${data.specialProperties.join(', ')} properties`,
+        productDescription: `${data.consistencyType} formulation with ${data.specialProperties.join(', ')} properties`,
         productType: data.consistencyType.toLowerCase(),
         phLevel: data.phLevel.toString(),
         costLevel: data.budgetCategory === 'Cost-Effective' ? 'cost_effective' : data.budgetCategory === 'Medium Quality' ? 'medium' : 'expensive',

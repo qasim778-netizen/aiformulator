@@ -6,11 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Hand, Droplets, Waves, Circle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { Formulation } from "@shared/schema";
-import { FORMULATION_CATEGORIES } from "@/constants/categories";
 
 interface FormData {
   productName: string;
-  productCategory: string;
   consistencyType: string;
 }
 
@@ -99,8 +97,6 @@ const consistencyTypes = [
 ];
 
 export default function ProductTypeStep({ formData, updateFormData }: Props) {
-  // Use the new 22 formulation categories
-  const productCategories = FORMULATION_CATEGORIES.map(cat => cat.name);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -190,32 +186,10 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
     <div className="space-y-6">
       <h3 className="text-xl font-bold text-indigo-900 mb-4">Product Type Selection</h3>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
-        <div className="w-full min-w-0 bg-white p-6 rounded-xl border-2 border-gray-200 shadow-sm hover:border-blue-300 transition-all duration-200">
-          <Label htmlFor="productCategory" className="text-lg font-bold text-purple-800 mb-4 block flex items-center">
-            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">1</span>
-            Product Category *
-          </Label>
-          <Select 
-            value={formData.productCategory} 
-            onValueChange={(value) => updateFormData({ productCategory: value })}
-          >
-            <SelectTrigger className="w-full h-14 border-2 border-gray-300 text-lg font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200" data-testid="select-product-category">
-              <SelectValue placeholder="Select product category..." />
-            </SelectTrigger>
-            <SelectContent>
-              {productCategories.map((category: string) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
+      <div className="w-full max-w-2xl mx-auto">
         <div className="w-full min-w-0 relative bg-white p-6 rounded-xl border-2 border-gray-200 shadow-sm hover:border-blue-300 transition-all duration-200">
           <Label htmlFor="productName" className="text-lg font-bold text-emerald-800 mb-4 block flex items-center">
-            <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">2</span>
+            <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">1</span>
             Product Name *
           </Label>
           <Input
@@ -263,7 +237,7 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
       {/* Consistency Type Selection */}
       <div>
         <Label className="text-base font-semibold text-orange-800 mb-4 block">
-          <span className="text-red-600 font-bold mr-1">3.</span> Consistency Type <span className="text-red-600 font-bold">*</span>
+          <span className="text-red-600 font-bold mr-1">2.</span> Consistency Type <span className="text-red-600 font-bold">*</span>
         </Label>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
           {consistencyTypes.map((type) => {
@@ -309,7 +283,7 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
       {selectedConsistency && (
         <div className="bg-gray-50 rounded-xl p-4">
           <h4 className="font-semibold text-gray-900 mb-3 text-sm">
-            Examples for {formData.productCategory || 'skincare'} - {selectedConsistency.title.toLowerCase()}:
+            Examples for {selectedConsistency.title.toLowerCase()}:
           </h4>
           <div className="flex flex-wrap gap-2">
             {selectedConsistency.examples.map((example, index) => (
