@@ -127,7 +127,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     }
 
     // Remove duplicates and ensure we have at least some basic properties
-    const uniqueProperties = [...new Set(relevantProperties)];
+    const uniqueProperties = Array.from(new Set(relevantProperties));
     
     if (uniqueProperties.length === 0) {
       return ['Professional grade', 'Enhanced formula', 'Gentle formula', 'Non-toxic', 'Eco-friendly'];
@@ -136,7 +136,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     // Always include some general useful properties
     uniqueProperties.push('Professional grade', 'Enhanced formula', 'Eco-friendly');
     
-    return [...new Set(uniqueProperties)];
+    return Array.from(new Set(uniqueProperties));
   };
 
   // Calculate available properties dynamically based on product name and consistency

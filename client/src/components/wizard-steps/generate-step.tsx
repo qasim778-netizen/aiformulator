@@ -8,7 +8,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Captcha } from '@/components/ui/captcha';
 interface FormData {
   productName: string;
-  productCategory: string;
   consistencyType: string;
   volume: string;
   viscosity: string;
@@ -41,8 +40,7 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
       // Map our FormData to the expected API format
       const requestData = {
         productName: data.productName || 'Custom Product',
-        productCategory: data.productCategory,
-        productDescription: `${data.productCategory} - ${data.consistencyType}`,
+        productDescription: `${data.consistencyType} formulation with ${data.specialProperties.join(', ')} properties`,
         productType: data.consistencyType || 'cream',
         phLevel: data.phLevel || 7,
         costLevel: data.budgetCategory || 'Medium Quality',
@@ -191,10 +189,6 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
                   <div>
                     <Label className="text-xs font-medium text-gray-600">Name</Label>
                     <p className="text-gray-900 font-medium text-xs truncate" title={formData.productName}>{formData.productName || "Not specified"}</p>
-                  </div>
-                  <div>
-                    <Label className="text-xs font-medium text-gray-600">Category</Label>
-                    <p className="text-gray-800 text-xs truncate" title={formData.productCategory}>{formData.productCategory || "Not specified"}</p>
                   </div>
                   <div>
                     <Label className="text-xs font-medium text-gray-600">Type</Label>
