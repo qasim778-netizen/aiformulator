@@ -2073,6 +2073,41 @@ Allow: /disclaimer`;
 
   const httpServer = createServer(app);
   
+  // Dynamic product properties endpoint
+  app.get("/api/product-properties/:productName", async (req, res) => {
+    try {
+      const { productName } = req.params;
+      const productDescription = req.query.description as string || '';
+      
+      console.log(`🔍 Generating properties for: ${productName}`);
+      
+      // Import the flexible custom formulation generator
+      const { generateProductProperties } = await import('./ai');
+      
+      const properties = await generateProductProperties({
+        productName: productName,
+        productDescription: productDescription
+      });
+      
+      console.log(`✅ Generated ${properties.length} properties:`, properties);
+      
+      res.json(properties);
+    } catch (error) {
+      console.error('Error generating properties:', error);
+      
+      // Fallback to generic properties
+      const fallbackProperties = [
+        'Professional grade',
+        'Enhanced formula', 
+        'High quality',
+        'Reliable performance',
+        'Industry standard'
+      ];
+      
+      res.json(fallbackProperties);
+    }
+  });
+
   // WebSocket server for real-time chat
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   

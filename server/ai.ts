@@ -928,3 +928,82 @@ Please create a professional formulation that meets all these requirements exact
     throw new Error("Failed to generate custom formulation: " + (error as Error).message);
   }
 }
+
+// Generate product-specific properties dynamically based on product name and description
+export async function generateProductProperties(request: { productName: string; productDescription?: string }): Promise<string[]> {
+  try {
+    const { productName, productDescription = '' } = request;
+    
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are a chemical industry expert specializing in product formulations. Generate 5-8 relevant special properties for the given product that would be important for manufacturers and end users.
+          
+          Focus on properties that are:
+          - Specific to the product type and its intended use
+          - Technically relevant for formulation development
+          - Important for product performance and quality
+          - Valuable for end users and manufacturers
+          - Industry-standard terminology
+          
+          For example:
+          - Security printing inks: "Anti-counterfeiting", "UV-reactive", "Tamper-evident", "Magnetic properties", "Color-changing", "High durability", "Solvent resistance"
+          - Adhesives: "Waterproof", "Heat resistant", "Quick-setting", "High bond strength", "Flexible", "UV stable"
+          - Cosmetics: "Hypoallergenic", "Long-lasting", "Dermatologically tested", "Non-comedogenic", "Water-resistant"
+          
+          Return JSON array of property strings:
+          ["Property 1", "Property 2", "Property 3", ...]`
+        },
+        {
+          role: "user",
+          content: `Product: ${productName}${productDescription ? `\nDescription: ${productDescription}` : ''}`
+        }
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.7
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '[]');
+    
+    // Handle different response formats
+    if (Array.isArray(result)) {
+      return result;
+    }
+    if (result.properties && Array.isArray(result.properties)) {
+      return result.properties;
+    }
+    if (result.specialProperties && Array.isArray(result.specialProperties)) {
+      return result.specialProperties;
+    }
+    
+    // Fallback: try to extract array from any property
+    for (const key of Object.keys(result)) {
+      if (Array.isArray(result[key])) {
+        return result[key];
+      }
+    }
+    
+    // Final fallback
+    return [
+      'Professional grade',
+      'High quality',
+      'Reliable performance',
+      'Industry standard',
+      'Optimized formula'
+    ];
+    
+  } catch (error) {
+    console.error('Error generating product properties:', error);
+    
+    // Fallback properties
+    return [
+      'Professional grade',
+      'Enhanced formula', 
+      'High quality',
+      'Reliable performance',
+      'Industry standard'
+    ];
+  }
+}

@@ -66,84 +66,24 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   // Guidance system removed for stability
   const { toast } = useToast();
 
-  // Filter properties based on product name and consistency type
-  const getAvailableProperties = (productName?: string, consistencyType?: string): string[] => {
-    const nameLower = (productName || '').toLowerCase();
-    const allProperties = [
-      'Anti-aging', 'Moisturizing', 'Antibacterial', 'Eco-friendly', 'Long-lasting', 
-      'Gentle formula', 'Natural ingredients', 'Professional grade', 'Enhanced formula',
-      'Quick-drying', 'Non-toxic', 'Hypoallergenic', 'UV Protection', 'Antioxidant',
-      'Whitening', 'Anti-acne', 'Strengthening', 'Volumizing', 'Color-safe',
-      'Fresh breath', 'Plaque control', 'Quick absorption', 'Soothing', 
-      'Chemical-free', 'Cruelty-free', 'Biodegradable', 'Stain removal',
-      'Weather resistant', 'High durability', 'Pet-safe', 'Odor control'
-    ];
-
-    // If no product name, return basic properties
-    if (!productName) {
-      return ['Professional grade', 'Enhanced formula', 'Gentle formula', 'Non-toxic', 'Eco-friendly'];
-    }
-
-    const relevantProperties: string[] = [];
-
-    // Skincare/Beauty products
-    if (nameLower.includes('cream') || nameLower.includes('serum') || nameLower.includes('moisturizer') || 
-        nameLower.includes('lotion') || nameLower.includes('face') || nameLower.includes('skin')) {
-      relevantProperties.push('Anti-aging', 'Moisturizing', 'Gentle formula', 'Hypoallergenic', 'UV Protection', 'Antioxidant', 'Whitening', 'Anti-acne', 'Quick absorption', 'Soothing', 'Non-toxic');
-    }
-
-    // Hair care products
-    if (nameLower.includes('shampoo') || nameLower.includes('conditioner') || nameLower.includes('hair') || 
-        nameLower.includes('scalp')) {
-      relevantProperties.push('Moisturizing', 'Strengthening', 'Volumizing', 'Color-safe', 'Gentle formula', 'Natural ingredients', 'Anti-acne', 'Soothing');
-    }
-
-    // Cleaning products
-    if (nameLower.includes('cleaner') || nameLower.includes('detergent') || nameLower.includes('soap') || 
-        nameLower.includes('wash') || nameLower.includes('sanitizer')) {
-      relevantProperties.push('Antibacterial', 'Eco-friendly', 'Quick-drying', 'Non-toxic', 'Biodegradable', 'Stain removal', 'Gentle formula', 'Chemical-free');
-    }
-
-    // Oral care products
-    if (nameLower.includes('toothpaste') || nameLower.includes('mouthwash') || nameLower.includes('oral') || 
-        nameLower.includes('dental') || nameLower.includes('breath')) {
-      relevantProperties.push('Fresh breath', 'Antibacterial', 'Plaque control', 'Gentle formula', 'Non-toxic', 'Natural ingredients');
-    }
-
-    // Baby/sensitive products
-    if (nameLower.includes('baby') || nameLower.includes('sensitive') || nameLower.includes('gentle')) {
-      relevantProperties.push('Gentle formula', 'Hypoallergenic', 'Non-toxic', 'Soothing', 'Natural ingredients', 'Chemical-free', 'Cruelty-free');
-    }
-
-    // Pet care products
-    if (nameLower.includes('pet') || nameLower.includes('dog') || nameLower.includes('cat')) {
-      relevantProperties.push('Pet-safe', 'Gentle formula', 'Non-toxic', 'Odor control', 'Natural ingredients', 'Antibacterial');
-    }
-
-    // Automotive/Industrial products
-    if (nameLower.includes('car') || nameLower.includes('auto') || nameLower.includes('glass') || 
-        nameLower.includes('window') || nameLower.includes('metal')) {
-      relevantProperties.push('Weather resistant', 'High durability', 'Quick-drying', 'Professional grade', 'Stain removal', 'Long-lasting');
-    }
-
-    // Remove duplicates and ensure we have at least some basic properties
-    const uniqueProperties = Array.from(new Set(relevantProperties));
-    
-    if (uniqueProperties.length === 0) {
-      return ['Professional grade', 'Enhanced formula', 'Gentle formula', 'Non-toxic', 'Eco-friendly'];
-    }
-
-    // Always include some general useful properties
-    uniqueProperties.push('Professional grade', 'Enhanced formula', 'Eco-friendly');
-    
-    return Array.from(new Set(uniqueProperties));
-  };
-
-  // Calculate available properties dynamically based on product name and consistency
-  const availableProperties = useMemo(() => {
-    return getAvailableProperties(formData.productName, formData.consistencyType);
-  }, [formData.productName, formData.consistencyType]);
-  const propertiesLoading = false;
+  // Fetch properties dynamically from AI based on product name
+  const { data: availableProperties = [], isLoading: propertiesLoading } = useQuery<string[]>({
+    queryKey: ["/api/product-properties", formData.productName],
+    queryFn: async () => {
+      if (!formData.productName) {
+        return ['Professional grade', 'Enhanced formula', 'High quality', 'Reliable performance'];
+      }
+      
+      const response = await fetch(`/api/product-properties/${encodeURIComponent(formData.productName)}?description=${encodeURIComponent(formData.consistencyType)}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch properties');
+      }
+      return response.json();
+    },
+    enabled: !!formData.productName,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: 1
+  });
 
   const steps = [
     { title: "Product Type", icon: "✓" },
@@ -341,15 +281,13 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     setFormData(newFormData);
   };
 
-  // Auto-select intelligent properties when product name changes
+  // Auto-select intelligent properties when product name changes and properties are loaded
   useEffect(() => {
-    const newAvailableProperties = getAvailableProperties(formData.productName, formData.consistencyType);
-    
-    // Auto-select intelligent properties if none are currently selected
-    if (formData.specialProperties.length === 0 && formData.productName) {
+    // Auto-select intelligent properties if none are currently selected and properties are loaded
+    if (formData.specialProperties.length === 0 && formData.productName && availableProperties.length > 0 && !propertiesLoading) {
       const smartProperties = getSmartDefaultProperties(
         formData.productName, 
-        newAvailableProperties
+        availableProperties
       );
       
       if (smartProperties.length > 0) {
@@ -359,7 +297,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
         }));
       }
     }
-  }, [formData.productName, formData.consistencyType]);
+  }, [formData.productName, availableProperties, propertiesLoading]);
 
   const nextStep = () => {
     // Validate required fields for current step
