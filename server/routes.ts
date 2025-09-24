@@ -1200,12 +1200,12 @@ Allow: /disclaimer`;
     // Industrial Chemical Formulations
     if (input.includes('ink') || input.includes('printing') || input.includes('pigment') ||
         input.includes('dye') || input.includes('security') || input.includes('anti-counterfeit')) {
-      return 'advanced agricultural chemicals'; // Most appropriate for industrial chemical formulations
+      return 'smart textile coatings'; // Printing inks are similar to textile coatings
     }
     
     if (input.includes('adhesive') || input.includes('glue') || input.includes('bonding') ||
         input.includes('sealant') || input.includes('epoxy') || input.includes('resin')) {
-      return 'advanced agricultural chemicals'; // Industrial chemical formulations
+      return 'construction material'; // Adhesives are used in construction
     }
     
     if (input.includes('cement') || input.includes('concrete') || input.includes('construction') ||
