@@ -1335,22 +1335,31 @@ Allow: /disclaimer`;
         });
       }
 
-      // Determine category from product type and description for intelligent AI generation
-      const inferredCategory = determineProductCategory(productType, productDescription, specialRequirements);
-      console.log(`🧠 Generating AI formulation for inferred category: ${inferredCategory}`);
+      // Use direct AI generation based on product description without category constraints
+      console.log(`🧠 Generating AI formulation directly from product description: ${productName}`);
       
       let formulation;
       try {
-        // Import the category-specific generator
-        const { generateCategorySpecificFormulation, validateFormulation } = await import('./ai-category-specific');
+        // Import the flexible custom formulation generator
+        const { generateCustomFormulation } = await import('./ai');
         
-        // Create descriptive input for AI
-        const aiDescription = `${productDescription} - ${productType} with ${viscosity} viscosity, pH ${phLevel}, ${costLevel} cost level${specialRequirements ? `, special requirements: ${specialRequirements}` : ''}`;
+        // Create comprehensive request for AI
+        const customRequest = {
+          productName: productName,
+          productDescription: productDescription,
+          productType: productType,
+          phLevel: phLevel,
+          costLevel: costLevel,
+          viscosity: viscosity,
+          color: color,
+          fragrance: fragrance,
+          specialRequirements: specialRequirements
+        };
         
-        console.log(`🔍 AI Description: ${aiDescription}`);
+        console.log(`🔍 AI Request:`, customRequest);
         
-        // Generate using category-specific AI with inferred category
-        const aiFormulation = await generateCategorySpecificFormulation(inferredCategory, aiDescription);
+        // Generate using flexible AI that works with any product type
+        const aiFormulation = await generateCustomFormulation(customRequest);
         
         console.log(`🔍 AI Formulation Response:`, {
           hasIngredients: !!aiFormulation.ingredients,
@@ -1358,13 +1367,6 @@ Allow: /disclaimer`;
           hasInstructions: !!aiFormulation.instructions,
           instructionsType: typeof aiFormulation.instructions
         });
-        
-        // Validate the formulation
-        const validation = validateFormulation(aiFormulation, inferredCategory);
-        
-        if (!validation.isValid) {
-          console.warn(`⚠️ Generated formulation has validation issues:`, validation.errors);
-        }
         
         formulation = {
           name: productName,
@@ -1454,6 +1456,10 @@ Allow: /disclaimer`;
         }
       };
 
+      // Determine category for storage purposes only (doesn't constrain AI generation)
+      const inferredCategory = determineProductCategory(productType, productDescription, specialRequirements);
+      console.log(`📂 Inferred category for storage: ${inferredCategory}`);
+      
       // Get category ID based on inferred category or use a default
       const categories = await storage.getCategories();
       let selectedCategory = categories.find(cat => 
@@ -1461,9 +1467,9 @@ Allow: /disclaimer`;
         inferredCategory.toLowerCase().includes(cat.name.toLowerCase().split(' ')[0])
       );
       
-      // If no matching category found, use a default "Skin Care" or first available category
+      // If no matching category found, use a default category
       if (!selectedCategory) {
-        selectedCategory = categories.find(cat => cat.name.includes('Skin Care')) || categories[0];
+        selectedCategory = categories.find(cat => cat.name.includes('Construction Material')) || categories[0];
       }
       
       const categoryId = selectedCategory?.id || categories[0]?.id;
