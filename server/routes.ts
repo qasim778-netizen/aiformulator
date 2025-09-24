@@ -1197,16 +1197,55 @@ Allow: /disclaimer`;
   function determineProductCategory(productType: string, description: string, specialRequirements?: string): string {
     const input = `${productType} ${description} ${specialRequirements || ''}`.toLowerCase();
     
-    // Category mapping based on keywords
+    // Industrial and Construction Materials
+    if (input.includes('ink') || input.includes('printing') || input.includes('pigment') ||
+        input.includes('dye') || input.includes('security') || input.includes('anti-counterfeit')) {
+      return 'construction material';
+    }
+    
+    if (input.includes('adhesive') || input.includes('glue') || input.includes('bonding') ||
+        input.includes('sealant') || input.includes('cement') || input.includes('epoxy') ||
+        input.includes('resin') || input.includes('construction')) {
+      return 'construction material';
+    }
+    
+    if (input.includes('coating') || input.includes('paint') || input.includes('primer') ||
+        input.includes('automotive') || input.includes('metal') || input.includes('rust') ||
+        input.includes('protective') || input.includes('industrial coating')) {
+      return 'automotive coating solutions';
+    }
+    
+    if (input.includes('textile') || input.includes('fabric') || input.includes('fiber') ||
+        input.includes('waterproof') || input.includes('flame retardant') || input.includes('smart textile')) {
+      return 'smart textile coatings';
+    }
+    
+    if (input.includes('water treatment') || input.includes('purification') || input.includes('filtration') ||
+        input.includes('chlorination') || input.includes('coagulant') || input.includes('flocculant')) {
+      return 'water treatment solutions';
+    }
+    
+    if (input.includes('3d print') || input.includes('filament') || input.includes('resin') ||
+        input.includes('polymer') || input.includes('additive manufacturing')) {
+      return '3d printing materials';
+    }
+    
+    if (input.includes('agricultural') || input.includes('pesticide') || input.includes('herbicide') ||
+        input.includes('fertilizer') || input.includes('crop') || input.includes('plant growth')) {
+      return 'advanced agricultural chemicals';
+    }
+    
+    // Personal Care Products
     if (input.includes('cream') || input.includes('lotion') || input.includes('moisturizer') || 
         input.includes('serum') || input.includes('facial') || input.includes('anti-aging') ||
         input.includes('wrinkle') || input.includes('acne') || input.includes('hydrating') ||
         input.includes('nourishing') || input.includes('brightening')) {
-      return 'skincare';
+      return 'skin care';
     }
     
     if (input.includes('shampoo') || input.includes('conditioner') || input.includes('hair') ||
-        input.includes('scalp') || input.includes('styling') || input.includes('hair mask')) {
+        input.includes('scalp') || input.includes('styling') || input.includes('hair mask') ||
+        input.includes('salon') || input.includes('grooming')) {
       return 'beauty products';
     }
     
@@ -1221,6 +1260,17 @@ Allow: /disclaimer`;
       return 'baby care';
     }
     
+    if (input.includes('men') || input.includes('masculine') || input.includes('aftershave') ||
+        input.includes('beard') || input.includes('shaving')) {
+      return 'mens care style';
+    }
+    
+    if (input.includes('organic') || input.includes('natural') || input.includes('eco-friendly') ||
+        input.includes('sustainable') || input.includes('bio')) {
+      return 'organic care products';
+    }
+    
+    // Cleaning and Household
     if (input.includes('clean') || input.includes('detergent') || input.includes('soap') ||
         input.includes('dish') || input.includes('laundry') || input.includes('surface') ||
         input.includes('disinfectant') || input.includes('sanitizer')) {
@@ -1232,13 +1282,24 @@ Allow: /disclaimer`;
       return 'oral care';
     }
     
+    // Specialty Products
     if (input.includes('leather') || input.includes('shoe') || input.includes('boot') ||
         input.includes('polish') || input.includes('protect')) {
-      return 'specialty';
+      return 'leather products';
     }
     
-    // Default to skincare for most cosmetic/personal care products
-    return 'skincare';
+    if (input.includes('pet') || input.includes('animal') || input.includes('veterinary') ||
+        input.includes('dog') || input.includes('cat') || input.includes('livestock')) {
+      return 'pet care';
+    }
+    
+    if (input.includes('packaging') || input.includes('biodegradable') || input.includes('compostable') ||
+        input.includes('sustainable packaging')) {
+      return 'biodegradable packaging solutions';
+    }
+    
+    // Default to construction material for industrial/chemical products
+    return 'construction material';
   }
 
   // Custom AI Formulation with PDF Generation
