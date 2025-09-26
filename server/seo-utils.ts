@@ -167,3 +167,32 @@ export function generateCategorySEOKeywords(name: string, description: string): 
   
   return keywords.join(', ');
 }
+
+/**
+ * Apply proper title case capitalization to formulation names
+ */
+export function capitalizeFormulationName(name: string): string {
+  // Words that should remain lowercase (articles, prepositions, conjunctions)
+  const lowercaseWords = new Set([
+    'a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'if', 'in', 
+    'nor', 'of', 'on', 'or', 'so', 'the', 'to', 'up', 'yet', 'with'
+  ]);
+  
+  // Split into words and capitalize appropriately
+  const words = name.toLowerCase().trim().split(/\s+/);
+  
+  return words.map((word, index) => {
+    // Always capitalize the first word
+    if (index === 0) {
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    }
+    
+    // Keep small words lowercase unless they're at the beginning
+    if (lowercaseWords.has(word)) {
+      return word;
+    }
+    
+    // Capitalize all other words
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }).join(' ');
+}
