@@ -108,14 +108,36 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    const hostname = req.hostname;
+    const strategyName = `replitauth:${hostname}`;
+    
+    // Check if strategy exists, otherwise use first available strategy
+    const availableStrategies = Object.keys((passport as any)._strategies);
+    const targetStrategy = availableStrategies.includes(strategyName) ? strategyName : availableStrategies.find(s => s.startsWith('replitauth:'));
+    
+    if (!targetStrategy) {
+      return res.status(500).json({ message: "No authentication strategy available" });
+    }
+    
+    passport.authenticate(targetStrategy, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    const hostname = req.hostname;
+    const strategyName = `replitauth:${hostname}`;
+    
+    // Check if strategy exists, otherwise use first available strategy
+    const availableStrategies = Object.keys((passport as any)._strategies);
+    const targetStrategy = availableStrategies.includes(strategyName) ? strategyName : availableStrategies.find(s => s.startsWith('replitauth:'));
+    
+    if (!targetStrategy) {
+      return res.redirect("/api/login");
+    }
+    
+    passport.authenticate(targetStrategy, {
       successReturnToOrRedirect: "/admin",
       failureRedirect: "/api/login",
     })(req, res, next);
