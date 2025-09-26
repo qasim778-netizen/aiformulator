@@ -44,9 +44,6 @@ app.use(compression({
   level: 6, // Good balance between compression and CPU usage
   threshold: 1024, // Only compress responses larger than 1KB
   // Enable Brotli compression when supported by client
-  brotli: {
-    zlib: {}
-  }
 }));
 
 // WWW redirect middleware - force non-www version for consistency

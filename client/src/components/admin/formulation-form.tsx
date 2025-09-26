@@ -128,7 +128,7 @@ function ImageUploadSection({ form, formulationName }: { form: any, formulationN
             imageURL: data.uploadURL
           });
           
-          const finalObjectPath = aclData.objectPath || objectPath;
+          const finalObjectPath = (aclData as any).objectPath || objectPath;
           setPreviewUrl(finalObjectPath);
           form.setValue("image", finalObjectPath);
           form.setValue("imageFilename", file.name);
