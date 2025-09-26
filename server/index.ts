@@ -74,7 +74,18 @@ app.use((req, res, next) => {
       '-baby-formula', '-oral-formula', '-skin-formula', '-beauty-formula',
       '-cleaning-formula', '-detergent-formula', '-leather-formula', 
       '-mens-formula', '-men-formula', '-organic-formula', '-shoe-formula', 
-      '-general-formula'
+      '-general-formula', '-construction-formula', '-skincare-formula',
+      '-automotive-formula', '-agricultural-formula', '-water-treatment-formula',
+      '-pet-care-formula', '-hair-formula', '-grooming-formula', '-textile-formula',
+      '-3d-printing-formula', '-packaging-formula',
+      // Also handle -formulation suffixes
+      '-baby-formulation', '-oral-formulation', '-skin-formulation', '-beauty-formulation',
+      '-cleaning-formulation', '-detergent-formulation', '-leather-formulation',
+      '-mens-formulation', '-men-formulation', '-organic-formulation', '-shoe-formulation',
+      '-general-formulation', '-construction-formulation', '-skincare-formulation',
+      '-automotive-formulation', '-agricultural-formulation', '-water-treatment-formulation',
+      '-pet-care-formulation', '-hair-formulation', '-grooming-formulation', '-textile-formulation',
+      '-3d-printing-formulation', '-packaging-formulation'
     ];
     
     for (const suffix of categorySuffixes) {
