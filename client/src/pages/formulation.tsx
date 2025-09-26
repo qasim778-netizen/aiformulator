@@ -358,88 +358,79 @@ export default function FormulationPage() {
             )}
             
             
-            {/* Technical Specifications Section */}
+            {/* Technical Specifications Section - Clean Layout */}
             <div className="mb-8">
-              <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Technical Specifications</h2>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                {/* Shelf Life & Storage */}
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg border border-blue-200">
-                  <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center">
-                    <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Product Shelf Life & Storage Requirements
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex flex-col">
-                      <span className="text-blue-700 font-medium text-sm">Shelf Life</span>
-                      <span className="text-blue-900 font-semibold text-lg">{formulation.shelfLife}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-blue-700 font-medium text-sm">Storage Conditions</span>
-                      <span className="text-blue-900 text-sm leading-relaxed">{formulation.storageConditions}</span>
+              <div className="bg-white border border-gray-300 rounded-sm">
+                <div className="grid grid-cols-1 lg:grid-cols-3 divide-x divide-gray-300">
+                  
+                  {/* Product Shelf Life & Storage Requirements */}
+                  <div className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Product Shelf Life & Storage Requirements
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <span className="text-gray-900 font-bold">• Shelf life</span><br />
+                        <span className="text-gray-700 ml-4">{formulation.shelfLife}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-900 font-bold">• Storage Conditions</span><br />
+                        <span className="text-gray-700 ml-4">{formulation.storageConditions}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Product Properties */}
-                <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg border border-green-200">
-                  <h3 className="text-lg font-semibold text-green-900 mb-4 flex items-center">
-                    <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Chemical Product Properties & Characteristics
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-green-700 font-medium text-sm">Product Type</span>
-                      <span className="text-green-900 font-semibold">{category?.name || 'Unknown'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-green-700 font-medium text-sm">pH Level</span>
-                      <span className="text-green-900 font-semibold">{formulation.phLevel}</span>
-                    </div>
-                    {formulation.viscosity && (
-                      <div className="flex justify-between">
-                        <span className="text-green-700 font-medium text-sm">Viscosity</span>
-                        <span className="text-green-900 font-semibold">{formulation.viscosity}</span>
+                  {/* Chemical Product Properties & Characteristics */}
+                  <div className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Chemical Product Properties & Characteristics
+                    </h3>
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-gray-900 font-bold">Product Type </span>
+                        <span className="text-gray-700">{category?.name || 'Professional Chemical'}</span>
                       </div>
-                    )}
-                    {formulation.certification && (
-                      <div className="flex flex-col">
-                        <span className="text-green-700 font-medium text-sm">Certification</span>
-                        <span className="text-green-900 font-semibold text-sm">{formulation.certification}</span>
+                      <div>
+                        <span className="text-gray-900 font-bold">pH Level </span>
+                        <span className="text-gray-700">{formulation.phLevel}</span>
                       </div>
-                    )}
+                      {formulation.viscosity && (
+                        <div>
+                          <span className="text-gray-900 font-bold">Viscosity </span>
+                          <span className="text-gray-700">{formulation.viscosity}</span>
+                        </div>
+                      )}
+                      {formulation.certification && (
+                        <div>
+                          <span className="text-gray-900 font-bold">Complies with </span>
+                          <span className="text-gray-700">{formulation.certification}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {/* Production Specifications */}
-                <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-lg border border-orange-200">
-                  <h3 className="text-lg font-semibold text-orange-900 mb-4 flex items-center">
-                    <svg className="w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    Manufacturing Production Details
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-orange-700 font-medium text-sm">Batch Size</span>
-                      <span className="text-orange-900 font-semibold">{formulation.batchSize}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-orange-700 font-medium text-sm">Processing Time</span>
-                      <span className="text-orange-900 font-semibold">{formulation.processingTime}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-orange-700 font-medium text-sm">Processing Temp</span>
-                      <span className="text-orange-900 font-semibold">{formulation.temperature}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-orange-700 font-medium text-sm">Equipment</span>
-                      <span className="text-orange-900 text-sm">See Required Equipment section below</span>
+                  {/* Manufacturing Production Details */}
+                  <div className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Manufacturing Production Details
+                    </h3>
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-gray-900 font-bold">Batch Size </span>
+                        <span className="text-gray-700">{formulation.batchSize}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-900 font-bold">Processing Time</span><br />
+                        <span className="text-gray-700">{formulation.processingTime}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-900 font-bold">Processing Ambient Temp</span><br />
+                        <span className="text-gray-700">{formulation.temperature || 'temperature for storage and handling'}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-900 font-bold">Required Equipment</span><br />
+                        <span className="text-gray-700">section below</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -588,17 +579,6 @@ export default function FormulationPage() {
               <p className="text-gray-700 leading-relaxed">
                 {formulation.description}
               </p>
-              <div className="mt-4 text-sm text-gray-600">
-                <p>
-                  Looking for more {category?.name || 'chemical'} formulations? 
-                  <Link href={`/category/${formulation.categoryId}`} className="text-primary hover:text-blue-700 font-medium ml-1">
-                    Explore our complete {category?.name || 'product'} collection
-                  </Link> or 
-                  <Link href="/browse" className="text-primary hover:text-blue-700 font-medium ml-1">
-                    browse all professional formulations
-                  </Link>.
-                </p>
-              </div>
             </div>
 
             <div className="mb-8">
