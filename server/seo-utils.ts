@@ -71,7 +71,7 @@ export function generateSEOKeywords(name: string, categoryName: string, ingredie
  * Enhanced formulation generation with SEO fields
  */
 export function addSEOFields(
-  formulation: Omit<InsertFormulation, 'slug' | 'metaDescription' | 'keywords'>, 
+  formulation: Omit<InsertFormulation, 'slug' | 'seoTitle' | 'metaDescription' | 'keywords'>, 
   categoryName: string
 ): InsertFormulation {
   const ingredients = JSON.parse(formulation.ingredients || '[]');
@@ -79,6 +79,7 @@ export function addSEOFields(
   return {
     ...formulation,
     slug: generateSEOSlug(formulation.name, categoryName),
+    seoTitle: formulation.name, // Use formulation name as default SEO title
     metaDescription: generateMetaDescription(formulation.name, categoryName, formulation.description),
     keywords: generateSEOKeywords(formulation.name, categoryName, ingredients)
   };

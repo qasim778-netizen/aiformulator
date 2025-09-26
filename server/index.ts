@@ -45,7 +45,6 @@ app.use(compression({
   threshold: 1024, // Only compress responses larger than 1KB
   // Enable Brotli compression when supported by client
   brotli: {
-    enabled: true,
     zlib: {}
   }
 }));
