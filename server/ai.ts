@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import type { InsertCategory, InsertFormulation } from "@shared/schema";
 import { generateCategorySpecificFormulation } from "./ai-category-specific";
+import { capitalizeFormulationName } from "./seo-utils";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -211,7 +212,7 @@ ENHANCED GUIDELINES:
         // Process each formulation to match our schema
         for (const formulation of result.formulations) {
           formulations.push({
-            name: formulation.name,
+            name: capitalizeFormulationName(formulation.name),
             description: formulation.description,
             ingredients: JSON.stringify(formulation.ingredients || []),
             instructions: JSON.stringify(formulation.instructions || []),
@@ -249,7 +250,7 @@ ENHANCED GUIDELINES:
         const fallbackFormulation = getFallbackFormulation(categoryName, productType);
         
         formulations.push({
-          name: fallbackFormulation.name,
+          name: capitalizeFormulationName(fallbackFormulation.name),
           description: fallbackFormulation.description,
           ingredients: JSON.stringify(fallbackFormulation.ingredients),
           instructions: JSON.stringify(fallbackFormulation.instructions),
@@ -305,7 +306,7 @@ export async function generateBulkFormulationsWithKeywords(categoryName: string,
       const fallbackFormulation = getFallbackFormulation(categoryName, productType);
       
       formulations.push({
-        name: fallbackFormulation.name,
+        name: capitalizeFormulationName(fallbackFormulation.name),
         description: fallbackFormulation.description,
         image: includeImages ? "" : undefined,
         ingredients: JSON.stringify(fallbackFormulation.ingredients),
@@ -717,7 +718,7 @@ export async function generateFormulationWithKeywords(categoryName: string, prod
     }
     
     return {
-      name: name,
+      name: capitalizeFormulationName(name),
       description: result.description,
       image: imageUrl,
       ingredients: JSON.stringify(result.ingredients || []),
@@ -790,7 +791,7 @@ export async function generateFormulation(categoryName: string, productDescripti
     const result = JSON.parse(response.choices[0].message.content || "{}");
     
     return {
-      name: result.name,
+      name: capitalizeFormulationName(result.name),
       description: result.description,
       ingredients: JSON.stringify(result.ingredients || []),
       instructions: JSON.stringify(result.instructions || []),
