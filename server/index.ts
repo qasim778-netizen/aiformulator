@@ -61,6 +61,35 @@ app.use((req, res, next) => {
   next();
 });
 
+// Formulation URL redirect middleware - handle old URLs with category suffixes
+app.use((req, res, next) => {
+  const path = req.path;
+  
+  // Only process formulation URLs
+  if (path.startsWith('/formulation/')) {
+    const slug = path.replace('/formulation/', '');
+    
+    // Check if slug has old category suffixes and redirect to clean version
+    const categorySuffixes = [
+      '-baby-formula', '-oral-formula', '-skin-formula', '-beauty-formula',
+      '-cleaning-formula', '-detergent-formula', '-leather-formula', 
+      '-mens-formula', '-men-formula', '-organic-formula', '-shoe-formula', 
+      '-general-formula'
+    ];
+    
+    for (const suffix of categorySuffixes) {
+      if (slug.endsWith(suffix)) {
+        const cleanSlug = slug.replace(suffix, '');
+        const protocol = req.header('x-forwarded-proto') || req.protocol;
+        const host = req.get('host');
+        return res.redirect(301, `${protocol}://${host}/formulation/${cleanSlug}`);
+      }
+    }
+  }
+  
+  next();
+});
+
 app.use(express.json({ limit: '50mb' })); // Increased limit for base64 image data
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
