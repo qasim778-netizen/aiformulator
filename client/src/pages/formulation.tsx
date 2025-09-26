@@ -290,13 +290,25 @@ export default function FormulationPage() {
   return (
     <div className="bg-white py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center mb-6">
+        <div className="flex items-center justify-between mb-6">
           <Link href={`/category/${formulation.categoryId}`}>
             <Button variant="ghost" className="text-primary hover:text-blue-700 mr-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to {category?.name || 'Category'}
+              Back to {category?.name || 'Category'} Formulations
             </Button>
           </Link>
+          <div className="flex gap-2">
+            <Link href="/browse">
+              <Button variant="outline" size="sm" className="text-primary border-primary hover:bg-primary hover:text-white">
+                Browse All Formulations
+              </Button>
+            </Link>
+            <Link href={`/category/${formulation.categoryId}`}>
+              <Button variant="outline" size="sm" className="text-primary border-primary hover:bg-primary hover:text-white">
+                More {category?.name || 'Similar'} Products
+              </Button>
+            </Link>
+          </div>
         </div>
         
         <Card className="bg-white rounded-lg shadow-lg border border-gray-200">
@@ -559,6 +571,17 @@ export default function FormulationPage() {
               <p className="text-gray-700 leading-relaxed">
                 {formulation.description}
               </p>
+              <div className="mt-4 text-sm text-gray-600">
+                <p>
+                  Looking for more {category?.name || 'chemical'} formulations? 
+                  <Link href={`/category/${formulation.categoryId}`} className="text-primary hover:text-blue-700 font-medium ml-1">
+                    Explore our complete {category?.name || 'product'} collection
+                  </Link> or 
+                  <Link href="/browse" className="text-primary hover:text-blue-700 font-medium ml-1">
+                    browse all professional formulations
+                  </Link>.
+                </p>
+              </div>
             </div>
 
             <div className="mb-8">
@@ -712,7 +735,7 @@ export default function FormulationPage() {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 mb-8">
               <Button 
                 onClick={generatePDF}
                 className="bg-primary text-white hover:bg-blue-700"
@@ -746,6 +769,35 @@ export default function FormulationPage() {
                 )}
                 {isFavorited ? 'Favorited' : 'Save to Favorites'}
               </Button>
+            </div>
+
+            {/* Related Formulations and Navigation */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200">
+              <h2 className="text-xl font-inter font-semibold mb-4 text-primary">Explore More Professional Formulations</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-2">Related {category?.name || 'Chemical'} Products</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Discover more formulations in the {category?.name || 'same category'} to expand your product line.
+                  </p>
+                  <Link href={`/category/${formulation.categoryId}`}>
+                    <Button variant="outline" size="sm" className="text-primary border-primary hover:bg-primary hover:text-white">
+                      View All {category?.name || 'Category'} Formulations
+                    </Button>
+                  </Link>
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-2">Browse Complete Database</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Access our full collection of 137+ professional chemical formulations across all categories.
+                  </p>
+                  <Link href="/browse">
+                    <Button variant="outline" size="sm" className="text-primary border-primary hover:bg-primary hover:text-white">
+                      Browse All Professional Formulations
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
