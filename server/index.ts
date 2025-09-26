@@ -32,7 +32,7 @@ function validateEnvironment() {
 
 const app = express();
 
-// Enable HTML/CSS/JS compression for better performance
+// Enable HTML/CSS/JS compression for better performance (gzip/Brotli)
 app.use(compression({
   filter: (req, res) => {
     // Compress everything except images and already compressed files
@@ -42,7 +42,12 @@ app.use(compression({
     return compression.filter(req, res);
   },
   level: 6, // Good balance between compression and CPU usage
-  threshold: 1024 // Only compress responses larger than 1KB
+  threshold: 1024, // Only compress responses larger than 1KB
+  // Enable Brotli compression when supported by client
+  brotli: {
+    enabled: true,
+    zlib: {}
+  }
 }));
 
 // WWW redirect middleware - force non-www version for consistency
