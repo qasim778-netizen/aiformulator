@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import compression from "compression";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { runMigrations } from "./migrate";
@@ -30,6 +31,31 @@ function validateEnvironment() {
 }
 
 const app = express();
+
+// Enable HTML/CSS/JS compression for better performance
+app.use(compression({
+  filter: (req, res) => {
+    // Compress everything except images and already compressed files
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  },
+  level: 6, // Good balance between compression and CPU usage
+  threshold: 1024 // Only compress responses larger than 1KB
+}));
+
+// WWW redirect middleware - force non-www version for consistency
+app.use((req, res, next) => {
+  const host = req.get('host');
+  if (host && host.startsWith('www.')) {
+    const newHost = host.slice(4); // Remove 'www.'
+    const protocol = req.header('x-forwarded-proto') || req.protocol;
+    return res.redirect(301, `${protocol}://${newHost}${req.originalUrl}`);
+  }
+  next();
+});
+
 app.use(express.json({ limit: '50mb' })); // Increased limit for base64 image data
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
