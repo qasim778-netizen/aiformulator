@@ -58,15 +58,26 @@ export default function FormulationPage() {
       const shortName = formulation.name.length > 35 ? 
         formulation.name.substring(0, 32) + '...' : 
         formulation.name;
-      const seoTitle = formulation.seoTitle || `${shortName} - ${category.name}`;
+      let seoTitle = formulation.seoTitle || `${shortName} - ${category.name}`;
+      
+      // Enforce 60 character limit even for stored seoTitle
+      if (seoTitle.length > 60) {
+        seoTitle = seoTitle.substring(0, 57) + '...';
+      }
+      
       document.title = seoTitle;
 
       // Create optimized meta description (under 160 characters, compelling)
       const shortFormulationName = formulation.name.length > 50 ? 
         formulation.name.substring(0, 47) + '...' : 
         formulation.name;
-      const metaDescription = formulation.metaDescription || 
+      let metaDescription = formulation.metaDescription || 
         `Professional ${shortFormulationName} formula. Complete ingredients, manufacturing process & specs. Download PDF now!`;
+      
+      // Enforce 160 character limit even for stored metaDescription
+      if (metaDescription.length > 160) {
+        metaDescription = metaDescription.substring(0, 157) + '...';
+      }
       
       let metaDescElement = document.querySelector('meta[name="description"]');
       if (!metaDescElement) {
