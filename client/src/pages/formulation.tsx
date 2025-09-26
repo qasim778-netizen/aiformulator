@@ -768,31 +768,55 @@ export default function FormulationPage() {
               </Button>
             </div>
 
-            {/* Related Formulations and Navigation */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200">
-              <h2 className="text-xl font-inter font-semibold mb-4 text-primary">Explore More Professional Formulations</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-2">Related {category?.name || 'Chemical'} Products</h3>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Discover more formulations in the {category?.name || 'same category'} to expand your product line.
-                  </p>
-                  <Link href={`/category/${formulation.categoryId}`}>
-                    <Button variant="outline" size="sm" className="text-primary border-primary hover:bg-primary hover:text-white">
-                      View All {category?.name || 'Category'} Formulations
-                    </Button>
-                  </Link>
+            {/* Professional Formulation Navigation */}
+            <div className="mt-12 pt-8 border-t-2 border-gray-200">
+              <div className="bg-white">
+                <h2 className="text-2xl font-inter font-semibold mb-6 text-gray-900">Explore More Professional Formulations</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Related {category?.name || 'Chemical'} Formulations</h3>
+                    <p className="text-gray-700 mb-4">
+                      Looking for more {category?.name || 'chemical'} formulations? Discover our complete collection of professional formulas in the {category?.name || 'same category'} to expand your product line and manufacturing capabilities.
+                    </p>
+                    <Link href={`/category/${formulation.categoryId}`}>
+                      <Button variant="outline" className="text-primary border-primary hover:bg-primary hover:text-white">
+                        → View All {category?.name || 'Category'} Formulations
+                      </Button>
+                    </Link>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Complete Formulation Database</h3>
+                    <p className="text-gray-700 mb-4">
+                      Access our comprehensive database of 137+ professional chemical formulations across all product categories. From skincare to industrial applications, find the perfect formula for your business needs.
+                    </p>
+                    <Link href="/browse">
+                      <Button variant="outline" className="text-primary border-primary hover:bg-primary hover:text-white">
+                        → Browse All Professional Formulations
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-2">Browse Complete Database</h3>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Access our full collection of 137+ professional chemical formulations across all categories.
-                  </p>
-                  <Link href="/browse">
-                    <Button variant="outline" size="sm" className="text-primary border-primary hover:bg-primary hover:text-white">
-                      Browse All Professional Formulations
-                    </Button>
-                  </Link>
+                
+                {/* Quick Navigation Links */}
+                <div className="mt-8 pt-6 border-t border-gray-100">
+                  <h4 className="text-sm font-semibold text-gray-600 uppercase tracking-wider mb-4">Quick Navigation</h4>
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    <Link href="/browse" className="text-primary hover:text-blue-700 hover:underline">
+                      All Formulations
+                    </Link>
+                    <span className="text-gray-300">|</span>
+                    <Link href="/categories" className="text-primary hover:text-blue-700 hover:underline">
+                      Browse Categories
+                    </Link>
+                    <span className="text-gray-300">|</span>
+                    <Link href="/search" className="text-primary hover:text-blue-700 hover:underline">
+                      Search Formulations
+                    </Link>
+                    <span className="text-gray-300">|</span>
+                    <Link href="/favorites" className="text-primary hover:text-blue-700 hover:underline">
+                      My Favorites
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
