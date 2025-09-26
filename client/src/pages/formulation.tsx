@@ -54,13 +54,19 @@ export default function FormulationPage() {
   // Update SEO metadata when formulation loads
   useEffect(() => {
     if (formulation && category) {
-      // Update page title
-      const seoTitle = formulation.seoTitle || `${formulation.name} - ${category.name} Formulation | AIFormulator`;
+      // Create optimized page title (under 60 characters, keyword-rich)
+      const shortName = formulation.name.length > 35 ? 
+        formulation.name.substring(0, 32) + '...' : 
+        formulation.name;
+      const seoTitle = formulation.seoTitle || `${shortName} - ${category.name}`;
       document.title = seoTitle;
 
-      // Update or create meta description
+      // Create optimized meta description (under 160 characters, compelling)
+      const shortFormulationName = formulation.name.length > 50 ? 
+        formulation.name.substring(0, 47) + '...' : 
+        formulation.name;
       const metaDescription = formulation.metaDescription || 
-        `Professional ${formulation.name} formulation in the ${category.name} category. Get detailed ingredients, instructions, and specifications.`;
+        `Professional ${shortFormulationName} formula. Complete ingredients, manufacturing process & specs. Download PDF now!`;
       
       let metaDescElement = document.querySelector('meta[name="description"]');
       if (!metaDescElement) {
