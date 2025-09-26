@@ -302,7 +302,9 @@ export default function FormulationPage() {
         <Card className="bg-white rounded-lg shadow-lg border border-gray-200">
           <CardContent className="p-8">
             <div className="flex items-center justify-between mb-6">
-              <h1 className="text-3xl font-inter font-bold text-gray-900">{formulation.name}</h1>
+              <h1 className="text-3xl font-inter font-bold text-gray-900">
+                {formulation.name} - {category?.name || 'Professional'} Formulation
+              </h1>
               <Badge className={formulation.isActive ? "bg-success text-white" : "bg-yellow-500 text-white"}>
                 {formulation.isActive ? "Active Formula" : "Draft Formula"}
               </Badge>
@@ -329,17 +331,17 @@ export default function FormulationPage() {
             
             {/* Technical Specifications Section */}
             <div className="mb-8">
-              <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Technical Specifications</h3>
+              <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Technical Specifications</h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 {/* Shelf Life & Storage */}
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg border border-blue-200">
-                  <h4 className="text-lg font-semibold text-blue-900 mb-4 flex items-center">
+                  <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center">
                     <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Shelf Life & Storage
-                  </h4>
+                    Product Shelf Life & Storage Requirements
+                  </h3>
                   <div className="space-y-3">
                     <div className="flex flex-col">
                       <span className="text-blue-700 font-medium text-sm">Shelf Life</span>
@@ -354,12 +356,12 @@ export default function FormulationPage() {
 
                 {/* Product Properties */}
                 <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg border border-green-200">
-                  <h4 className="text-lg font-semibold text-green-900 mb-4 flex items-center">
+                  <h3 className="text-lg font-semibold text-green-900 mb-4 flex items-center">
                     <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Product Properties
-                  </h4>
+                    Chemical Product Properties & Characteristics
+                  </h3>
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-green-700 font-medium text-sm">Product Type</span>
@@ -386,13 +388,13 @@ export default function FormulationPage() {
 
                 {/* Production Specifications */}
                 <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-lg border border-orange-200">
-                  <h4 className="text-lg font-semibold text-orange-900 mb-4 flex items-center">
+                  <h3 className="text-lg font-semibold text-orange-900 mb-4 flex items-center">
                     <svg className="w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    Production Details
-                  </h4>
+                    Manufacturing Production Details
+                  </h3>
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-orange-700 font-medium text-sm">Batch Size</span>
@@ -418,7 +420,7 @@ export default function FormulationPage() {
             {/* Product Images - AI Generated or Static */}
             {(formulation.image || category?.name === "Cleaning Products") && (
               <div className="mb-8">
-                <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Product Formulation</h3>
+                <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Product Formulation Images</h2>
                 <div className="bg-white p-6 rounded-lg border border-gray-200">
                   {/* AI Generated Image has priority */}
                   {formulation.image && (
@@ -553,14 +555,14 @@ export default function FormulationPage() {
             )}
 
             <div className="mb-8">
-              <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Product Description</h3>
+              <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Chemical Product Description</h2>
               <p className="text-gray-700 leading-relaxed">
                 {formulation.description}
               </p>
             </div>
 
             <div className="mb-8">
-              <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Formulation Table</h3>
+              <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Formulation Ingredients Table</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -586,7 +588,7 @@ export default function FormulationPage() {
             </div>
 
             <div className="mb-8">
-              <h3 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Manufacturing Process</h3>
+              <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Step-by-Step Manufacturing Process</h2>
               <div className="space-y-4">
                 {instructions.map((phase: any, index: number) => (
                   <div key={index} className="bg-gray-50 p-4 rounded-lg">

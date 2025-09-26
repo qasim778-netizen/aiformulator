@@ -47,17 +47,17 @@ export default function FormulationPreview({ formulation, category }: Formulatio
 
         {/* Professional Product Specifications Section */}
         <div className="mb-6">
-          <h4 className="text-lg font-inter font-semibold mb-4 text-primary border-b-2 border-primary pb-2">Product Specifications</h4>
+          <h2 className="text-lg font-inter font-semibold mb-4 text-primary border-b-2 border-primary pb-2">Professional Chemical Specifications</h2>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             
             {/* Shelf Life & Storage */}
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
-              <h5 className="text-md font-semibold text-blue-900 mb-3 flex items-center">
+              <h3 className="text-md font-semibold text-blue-900 mb-3 flex items-center">
                 <svg className="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Shelf Life & Storage
-              </h5>
+                Product Shelf Life & Storage
+              </h3>
               <div className="space-y-2">
                 <div className="flex flex-col">
                   <span className="text-blue-700 font-medium text-xs">Shelf Life</span>
@@ -72,12 +72,12 @@ export default function FormulationPreview({ formulation, category }: Formulatio
 
             {/* Product Properties */}
             <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
-              <h5 className="text-md font-semibold text-green-900 mb-3 flex items-center">
+              <h3 className="text-md font-semibold text-green-900 mb-3 flex items-center">
                 <svg className="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Product Properties
-              </h5>
+                Chemical Properties
+              </h3>
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-green-700 font-medium text-xs">Product Type</span>
@@ -104,13 +104,13 @@ export default function FormulationPreview({ formulation, category }: Formulatio
 
             {/* Production Details */}
             <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-lg border border-orange-200">
-              <h5 className="text-md font-semibold text-orange-900 mb-3 flex items-center">
+              <h3 className="text-md font-semibold text-orange-900 mb-3 flex items-center">
                 <svg className="w-4 h-4 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                Production Details
-              </h5>
+                Manufacturing Details
+              </h3>
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-orange-700 font-medium text-xs">Batch Size</span>
