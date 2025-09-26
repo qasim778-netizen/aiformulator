@@ -99,8 +99,8 @@ export default function FormulationPage() {
       }
 
       // Update Open Graph tags for social sharing
-      const ogTitle = formulation.seoTitle || formulation.name;
-      const ogDescription = formulation.metaDescription || metaDescription;
+      const ogTitle = seoTitle; // Use the already-trimmed seoTitle
+      const ogDescription = metaDescription; // Use the already-trimmed metaDescription
       
       // Update or create og:title
       let ogTitleElement = document.querySelector('meta[property="og:title"]');
