@@ -135,12 +135,12 @@ export default function FormulationPreview({ formulation, category }: Formulatio
 
         {/* Enhanced Ingredients Section */}
         <div className="mb-6">
-          <h4 className="text-lg font-inter font-semibold mb-4 text-primary border-b-2 border-primary pb-2">Ingredients & Manufacturing</h4>
+          <h2 className="text-lg font-inter font-semibold mb-4 text-primary border-b-2 border-primary pb-2">Ingredients & Manufacturing</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             
             {/* Ingredients List */}
             <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-              <h5 className="text-md font-semibold text-purple-900 mb-3">INCI Ingredients ({ingredients.length})</h5>
+              <h3 className="text-md font-semibold text-purple-900 mb-3">INCI Ingredients ({ingredients.length})</h3>
               <div className="space-y-2 max-h-32 overflow-y-auto">
                 {ingredients.slice(0, 5).map((ingredient, index) => (
                   <div key={index} className="flex justify-between text-sm border-b border-purple-200 pb-1">
@@ -158,7 +158,7 @@ export default function FormulationPreview({ formulation, category }: Formulatio
 
             {/* Manufacturing Process */}
             <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
-              <h5 className="text-md font-semibold text-indigo-900 mb-3">Manufacturing Process</h5>
+              <h3 className="text-md font-semibold text-indigo-900 mb-3">Manufacturing Process</h3>
               <div className="space-y-2 max-h-32 overflow-y-auto">
                 {instructions.slice(0, 3).map((instruction, index) => (
                   <div key={index} className="border-b border-indigo-200 pb-2">
@@ -180,7 +180,7 @@ export default function FormulationPreview({ formulation, category }: Formulatio
 
         {/* Usage Instructions */}
         <div className="mb-4">
-          <h4 className="text-md font-semibold text-gray-800 mb-2">Professional Usage</h4>
+          <h2 className="text-md font-semibold text-gray-800 mb-2">Professional Usage</h2>
           <div className="bg-gray-50 p-3 rounded-lg">
             <p className="text-gray-700 text-sm" data-testid={`text-usage-${formulation.id}`}>
               {formulation.usageInstructions?.substring(0, 120) || "Professional usage instructions included"}...
