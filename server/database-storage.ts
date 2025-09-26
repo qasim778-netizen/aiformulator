@@ -250,28 +250,8 @@ export class DatabaseStorage implements IStorage {
       .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
       .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
     
-    // Get category name for slug (simple mapping for common categories)
-    const categoryMapping: Record<string, string> = {
-      '438911e6-9f73-428b-9527-11d3c0eb446a': 'oral',
-      '1c045920-e28c-41b5-b372-eb189966ae40': 'baby',
-      'a1150e3f-7bfb-4f30-b580-b5a9dcc83485': 'skin',
-      '335555d4-179f-42a3-915d-729086a9af49': 'beauty',
-      '07437262-b191-458e-8ca0-b8d0656ccac9': 'cleaning',
-      'dd57e6f2-d568-4986-aa83-b1eb10a039fa': 'detergent',
-      '1c12a84d-aa92-45bb-b0a3-53db112156c8': 'leather',
-      '99c06153-76c8-4a0e-9195-226228a3757f': 'men',
-      '0758f4b6-5d52-49c6-96a5-3802d5c244be': 'organic',
-      '3fccd0f2-f606-42b0-a70b-feff692247c7': 'shoe'
-    };
-    
-    const categorySlug = categoryMapping[categoryId] || 'general';
-    
-    // Don't add -formula suffix if it already contains 'formula'
-    if (baseSlug.includes('formula')) {
-      return `${baseSlug}-${categorySlug}`;
-    }
-    
-    return `${baseSlug}-${categorySlug}-formula`;
+    // Return only the base slug without category name
+    return baseSlug;
   }
 
   // AI Generation tracking methods (in-memory for demo)
