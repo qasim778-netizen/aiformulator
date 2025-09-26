@@ -11,13 +11,8 @@ export function generateSEOSlug(name: string, categoryName: string): string {
     .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
     .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
   
-  const categorySlug = categoryName
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .split('-')[0]; // Take first word of category
-  
-  return `${baseSlug}-${categorySlug}-formula`;
+  // Return only the base slug without category name
+  return baseSlug;
 }
 
 /**
