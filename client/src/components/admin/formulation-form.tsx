@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { insertFormulationSchema } from "@shared/schema";
 import type { Formulation, InsertFormulation, Category } from "@shared/schema";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 
 interface FormulationFormProps {
@@ -377,6 +377,42 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
       isActive: formulation?.isActive ?? true,
     },
   });
+
+  // Reset form when formulation changes (for editing different formulations)
+  useEffect(() => {
+    if (formulation) {
+      const ingredients = JSON.parse(formulation.ingredients);
+      const instructions = JSON.parse(formulation.instructions);
+      
+      setExistingIngredients(ingredients);
+      setExistingInstructions(instructions);
+      
+      form.reset({
+        categoryId: formulation.categoryId || "",
+        name: formulation.name || "",
+        description: formulation.description || "",
+        seoTitle: formulation.seoTitle ?? "",
+        metaDescription: formulation.metaDescription ?? "",
+        keywords: formulation.keywords ?? "",
+        image: formulation.image ?? "",
+        imageAlt: formulation.imageAlt ?? "",
+        imageFilename: formulation.imageFilename ?? "",
+        ingredients: formulation.ingredients || JSON.stringify(ingredients),
+        instructions: formulation.instructions || JSON.stringify(instructions),
+        usageInstructions: formulation.usageInstructions || "",
+        phLevel: formulation.phLevel || "",
+        shelfLife: formulation.shelfLife || "",
+        viscosity: formulation.viscosity ?? "",
+        storageConditions: formulation.storageConditions || "",
+        batchSize: formulation.batchSize || "",
+        processingTime: formulation.processingTime || "",
+        temperature: formulation.temperature || "",
+        equipment: formulation.equipment || "",
+        certification: formulation.certification ?? "",
+        isActive: formulation.isActive ?? true,
+      });
+    }
+  }, [formulation, form]);
 
   // Don't use useFieldArray for now since ingredients are stored as JSON strings
   // const {
