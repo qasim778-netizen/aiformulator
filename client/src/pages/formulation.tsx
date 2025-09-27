@@ -307,25 +307,13 @@ export default function FormulationPage() {
   return (
     <div className="bg-white py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6">
           <Link href={`/category/${formulation.categoryId}`}>
-            <Button variant="ghost" className="text-primary hover:text-blue-700 mr-4">
+            <Button variant="ghost" className="text-primary hover:text-blue-700">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to {category?.name || 'Category'} Formulations
+              Back to {category?.name || 'Category'}
             </Button>
           </Link>
-          <div className="flex gap-2">
-            <Link href="/browse">
-              <Button variant="outline" size="sm" className="text-primary border-primary hover:bg-primary hover:text-white">
-                Browse All Formulations
-              </Button>
-            </Link>
-            <Link href={`/category/${formulation.categoryId}`}>
-              <Button variant="outline" size="sm" className="text-primary border-primary hover:bg-primary hover:text-white">
-                More {category?.name || 'Similar'} Products
-              </Button>
-            </Link>
-          </div>
         </div>
         
         <Card className="bg-white rounded-lg shadow-lg border border-gray-200">
