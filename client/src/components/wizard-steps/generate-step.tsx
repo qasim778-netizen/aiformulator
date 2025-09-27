@@ -60,14 +60,9 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
       
       console.log('🚀 Sending request to API:', requestData);
       
-      // Use direct fetch instead of apiRequest
-      const response = await fetch('/api/ai/custom-formulation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
-      });
+      // Use apiRequest with proper authentication
+      const { apiRequest } = await import('@/lib/queryClient');
+      const response = await apiRequest('POST', '/api/ai/custom-formulation', requestData);
 
       if (!response.ok) {
         const error = await response.json();
