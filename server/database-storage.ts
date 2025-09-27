@@ -35,8 +35,8 @@ export class DatabaseStorage implements IStorage {
       description: category.description,
       metaDescription: category.metaDescription || `Explore professional ${category.name.toLowerCase()} formulations with complete manufacturing guides.`,
       keywords: category.keywords || `${category.name.toLowerCase()}, formulations, manufacturing, chemical recipes`,
-      icon: category.icon,
-      image: category.image,
+      icon: category.icon || "fas fa-flask",
+      image: category.image || "",
       isActive: category.isActive ?? true,
     }).returning();
     return this.mapDbCategoryToCategory(created);
@@ -102,7 +102,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createFormulation(formulation: InsertFormulation): Promise<Formulation> {
-    const slug = formulation.slug || this.generateSlugFromNameWithCategory(formulation.name, formulation.categoryId);
+    const slug = this.generateSlugFromNameWithCategory(formulation.name, formulation.categoryId);
     const [created] = await db.insert(formulationsTable).values({
       categoryId: formulation.categoryId,
       name: formulation.name,
