@@ -1307,7 +1307,7 @@ Allow: /disclaimer`;
   }
 
   // Custom AI Formulation with PDF Generation
-  app.post("/api/ai/custom-formulation", isAdmin, async (req, res) => {
+  app.post("/api/ai/custom-formulation", isAuthenticated, async (req, res) => {
     console.log('🔥 Custom formulation endpoint hit!');
     console.log('Request method:', req.method);
     console.log('Request headers:', req.headers);
