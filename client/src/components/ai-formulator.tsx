@@ -362,7 +362,7 @@ export default function AIFormulator() {
               )}
             />
 
-            <Separator />
+            <Separator className="my-4 sm:my-6" />
 
             <Captcha 
               key={captchaKey}
@@ -370,26 +370,49 @@ export default function AIFormulator() {
               onReset={resetCaptcha}
             />
 
-            <div className="flex justify-center pt-4 px-4 sm:px-0">
-              <Button
-                type="submit"
-                size="lg"
-                disabled={isGenerating || !isCaptchaVerified}
-                className="bg-primary hover:bg-primary/90 text-white px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto max-w-sm"
-                data-testid="button-generate-formulation"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="h-5 w-5 mr-3 animate-spin" />
-                    Generating Formulation...
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-5 w-5 mr-3" />
-                    Generate & Download PDF
-                  </>
+            {/* Mobile-first button layout - more prominent and visible */}
+            <div className="mt-4 sm:mt-6">
+              {/* Mobile: Full-width prominent button area */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4 sm:p-6 space-y-3">
+                <div className="text-center">
+                  <p className="text-sm sm:text-base text-blue-900 font-medium mb-2">
+                    {isCaptchaVerified ? 
+                      "✅ Ready to Generate Your Formulation!" : 
+                      "Complete security verification above to continue"
+                    }
+                  </p>
+                </div>
+                
+                <div className="flex justify-center">
+                  <Button
+                    type="submit"
+                    size="lg"
+                    disabled={isGenerating || !isCaptchaVerified}
+                    className="bg-primary hover:bg-primary/90 text-white px-6 py-4 sm:px-8 sm:py-4 text-base sm:text-lg font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto min-h-[56px] max-w-sm"
+                    data-testid="button-generate-formulation"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                        Generating Formulation...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="h-5 w-5 mr-3" />
+                        Generate & Download PDF
+                      </>
+                    )}
+                  </Button>
+                </div>
+                
+                {!isCaptchaVerified && (
+                  <div className="text-center">
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      👆 Complete the math problem above first
+                    </p>
+                  </div>
                 )}
-              </Button>
+              </div>
             </div>
           </form>
         </Form>
