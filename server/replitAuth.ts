@@ -52,6 +52,7 @@ function updateUserSession(
   user.access_token = tokens.access_token;
   user.refresh_token = tokens.refresh_token;
   user.expires_at = user.claims?.exp;
+  user.id = user.claims?.sub; // Set user.id for admin middleware
 }
 
 async function upsertUser(
