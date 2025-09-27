@@ -13,7 +13,7 @@ import { generateFormulationPDF } from "./pdf-generator";
 import { optimizeFormulationsForSEO } from "./seo-optimizer";
 import { generateFormulationImages, addImageFieldToFormulations } from "./image-generator";
 import { addSEOFields, generateStructuredData } from "./seo-utils";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { aiBlogGenerator } from "./ai-blog-generator";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 
@@ -34,7 +34,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Object Storage routes for image uploads
-  app.post("/api/objects/upload", isAuthenticated, async (req, res) => {
+  app.post("/api/objects/upload", isAdmin, async (req, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
@@ -330,7 +330,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Dashboard stats (protected admin route)
-  app.get("/api/stats", isAuthenticated, async (req, res) => {
+  app.get("/api/stats", isAdmin, async (req, res) => {
     try {
       const categories = await storage.getCategories();
       const formulations = await storage.getFormulations();
@@ -349,7 +349,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Analytics endpoint (protected admin route)
-  app.get("/api/ai-analytics", isAuthenticated, async (req, res) => {
+  app.get("/api/ai-analytics", isAdmin, async (req, res) => {
     try {
       // Get real AI generation data from storage
       const aiGenerations = await storage.getAiGenerations();
@@ -450,7 +450,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin Image Generator endpoint
-  app.post('/api/admin/generate-image', isAuthenticated, async (req, res) => {
+  app.post('/api/admin/generate-image', isAdmin, async (req, res) => {
     try {
       const { name, brandName, referenceImageBase64 } = req.body;
       
@@ -497,7 +497,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin Alt Text Generator endpoint
-  app.post('/api/admin/generate-alt-text', isAuthenticated, async (req, res) => {
+  app.post('/api/admin/generate-alt-text', isAdmin, async (req, res) => {
     try {
       const { name } = req.body;
       
@@ -541,7 +541,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Clear AI analytics data (admin only)
-  app.delete("/api/ai-analytics", isAuthenticated, async (req, res) => {
+  app.delete("/api/ai-analytics", isAdmin, async (req, res) => {
     try {
       const success = await storage.clearAiGenerations();
       if (success) {
@@ -556,7 +556,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // SEO Optimization endpoint (protected admin route)
-  app.post("/api/admin/optimize-seo", isAuthenticated, async (req, res) => {
+  app.post("/api/admin/optimize-seo", isAdmin, async (req, res) => {
     try {
       const result = await optimizeFormulationsForSEO();
       res.status(200).json(result);
@@ -566,7 +566,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Image Generation endpoints (protected admin route)
-  app.post("/api/admin/setup-images", isAuthenticated, async (req, res) => {
+  app.post("/api/admin/setup-images", isAdmin, async (req, res) => {
     try {
       await addImageFieldToFormulations();
       res.status(200).json({ message: "Image fields added to database successfully" });
@@ -575,7 +575,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/generate-images", isAuthenticated, async (req, res) => {
+  app.post("/api/admin/generate-images", isAdmin, async (req, res) => {
     try {
       const result = await generateFormulationImages();
       res.status(200).json(result);
@@ -585,7 +585,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin formulation management endpoints
-  app.get("/api/admin/formulations", isAuthenticated, async (req, res) => {
+  app.get("/api/admin/formulations", isAdmin, async (req, res) => {
     try {
       const { categoryId } = req.query;
       const page = parseInt(req.query.page as string) || 1;
@@ -622,7 +622,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/admin/formulations/:id/status", isAuthenticated, async (req, res) => {
+  app.patch("/api/admin/formulations/:id/status", isAdmin, async (req, res) => {
     try {
       const { isActive } = req.body;
       if (typeof isActive !== 'boolean') {
@@ -735,7 +735,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Category Suggestion endpoints
-  app.post("/api/admin/suggest-categories", isAuthenticated, async (req, res) => {
+  app.post("/api/admin/suggest-categories", isAdmin, async (req, res) => {
     try {
       // Get existing categories
       const existingCategories = await storage.getCategories();
@@ -751,7 +751,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/categories", isAuthenticated, async (req, res) => {
+  app.post("/api/admin/categories", isAdmin, async (req, res) => {
     try {
       const validatedData = insertCategorySchema.parse({
         ...req.body,
@@ -783,7 +783,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Generation endpoints (protected admin routes)
-  app.post("/api/ai/generate-category", isAuthenticated, async (req, res) => {
+  app.post("/api/ai/generate-category", isAdmin, async (req, res) => {
     try {
       const { description } = req.body;
       if (!description) {
@@ -803,7 +803,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/generate-formulation", isAuthenticated, async (req, res) => {
+  app.post("/api/ai/generate-formulation", isAdmin, async (req, res) => {
     try {
       const { categoryId, productDescription } = req.body;
       if (!categoryId || !productDescription) {
@@ -887,7 +887,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Generate formulation with formula keywords and image
-  app.post("/api/ai/generate-formulation-with-keywords", isAuthenticated, async (req, res) => {
+  app.post("/api/ai/generate-formulation-with-keywords", isAdmin, async (req, res) => {
     try {
       const { categoryId, productDescription, includeImage = false } = req.body;
       if (!categoryId || !productDescription) {
@@ -912,7 +912,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Bulk AI Generation endpoint (protected admin route)
-  app.post("/api/ai/generate-bulk-formulations", isAuthenticated, async (req, res) => {
+  app.post("/api/ai/generate-bulk-formulations", isAdmin, async (req, res) => {
     try {
       const { categoryId, count } = req.body;
       if (!categoryId || !count) {
@@ -969,7 +969,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Bulk AI Generation with Keywords & Images endpoint (protected admin route)
-  app.post("/api/ai/generate-bulk-formulations-with-keywords", isAuthenticated, async (req, res) => {
+  app.post("/api/ai/generate-bulk-formulations-with-keywords", isAdmin, async (req, res) => {
     try {
       const { categoryId, categorySlug, count, includeImages = false } = req.body;
       console.log(`=== BULK API ENDPOINT ===`);
