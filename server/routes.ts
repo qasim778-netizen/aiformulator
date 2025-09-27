@@ -1306,8 +1306,8 @@ Allow: /disclaimer`;
     return 'construction material';
   }
 
-  // Custom AI Formulation with PDF Generation
-  app.post("/api/ai/custom-formulation", isAuthenticated, async (req, res) => {
+  // Custom AI Formulation with PDF Generation - Public Access with Captcha Security
+  app.post("/api/ai/custom-formulation", async (req, res) => {
     console.log('🔥 Custom formulation endpoint hit!');
     console.log('Request method:', req.method);
     console.log('Request headers:', req.headers);
