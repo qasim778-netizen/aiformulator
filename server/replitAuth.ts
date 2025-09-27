@@ -137,9 +137,41 @@ export async function setupAuth(app: Express) {
       return res.redirect("/api/login");
     }
     
-    passport.authenticate(targetStrategy, {
-      successReturnToOrRedirect: "/admin",
-      failureRedirect: "/api/login",
+    passport.authenticate(targetStrategy, async (err: any, user: any) => {
+      if (err) {
+        console.error("Authentication error:", err);
+        return res.redirect("/api/login");
+      }
+      
+      if (!user) {
+        return res.redirect("/api/login");
+      }
+      
+      // Log in the user
+      req.logIn(user, async (loginErr) => {
+        if (loginErr) {
+          console.error("Login error:", loginErr);
+          return res.redirect("/api/login");
+        }
+        
+        try {
+          // Check if user is admin
+          const { DatabaseStorage } = await import("./database-storage");
+          const storage = new DatabaseStorage();
+          const isUserAdmin = await storage.isUserAdmin(user.id);
+          
+          // Redirect based on admin status
+          if (isUserAdmin) {
+            return res.redirect("/admin");
+          } else {
+            return res.redirect("/"); // Regular users go to home page
+          }
+        } catch (error) {
+          console.error("Error checking admin status during login:", error);
+          // Default to home page if there's an error
+          return res.redirect("/");
+        }
+      });
     })(req, res, next);
   });
 
