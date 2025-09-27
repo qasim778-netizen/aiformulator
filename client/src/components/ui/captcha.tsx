@@ -92,8 +92,9 @@ export function Captcha({ onVerify, onReset }: CaptchaProps) {
       </div>
       
       <div className="bg-white p-6 rounded-lg border border-blue-200 shadow-sm">
-        <div className="flex items-center justify-center space-x-4">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-4 rounded-lg shadow-md">
+        {/* Mobile: Stack vertically, Desktop: Horizontal layout */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:space-x-4 sm:gap-0">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-4 rounded-lg shadow-md mb-4 sm:mb-0">
             <span className="text-2xl font-bold font-mono">
               {num1} + {num2} = ?
             </span>
@@ -105,7 +106,7 @@ export function Captcha({ onVerify, onReset }: CaptchaProps) {
             onChange={(e) => handleInputChange(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleVerify()}
             placeholder="Enter answer"
-            className="w-32 text-center text-xl font-bold border-2 border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+            className="w-full sm:w-32 text-center text-xl font-bold border-2 border-blue-300 focus:border-blue-500 focus:ring-blue-500 mb-4 sm:mb-0"
             disabled={isVerified}
             data-testid="captcha-input"
           />
@@ -115,7 +116,7 @@ export function Captcha({ onVerify, onReset }: CaptchaProps) {
             onClick={handleVerify}
             disabled={!userAnswer || isVerified}
             size="lg"
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 font-bold shadow-md"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 font-bold shadow-md w-full sm:w-auto"
             data-testid="captcha-verify"
           >
             Verify
