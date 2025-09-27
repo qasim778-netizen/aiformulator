@@ -161,10 +161,10 @@ export default function AIFormulator() {
         </CardDescription>
       </CardHeader>
       
-      <CardContent className="p-8">
+      <CardContent className="p-4 sm:p-6 md:p-8">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Product Information */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center">
@@ -370,12 +370,12 @@ export default function AIFormulator() {
               onReset={resetCaptcha}
             />
 
-            <div className="flex justify-center pt-4">
+            <div className="flex justify-center pt-4 px-4 sm:px-0">
               <Button
                 type="submit"
                 size="lg"
                 disabled={isGenerating || !isCaptchaVerified}
-                className="bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-primary hover:bg-primary/90 text-white px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto max-w-sm"
                 data-testid="button-generate-formulation"
               >
                 {isGenerating ? (
