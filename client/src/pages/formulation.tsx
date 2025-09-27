@@ -332,7 +332,7 @@ export default function FormulationPage() {
           <CardContent className="p-8">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-inter font-bold text-gray-900">
-                {formulation.name} - Professional Chemical Formulation
+                {formulation.name}
               </h1>
               <Badge className={formulation.isActive ? "bg-success text-white" : "bg-yellow-500 text-white"}>
                 {formulation.isActive ? "Active Formula" : "Draft Formula"}
