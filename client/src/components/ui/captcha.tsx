@@ -68,22 +68,22 @@ export function Captcha({ onVerify, onReset }: CaptchaProps) {
   };
 
   return (
-    <div className="space-y-6 p-6 border-2 border-blue-200 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 border-2 border-blue-200 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg">
       <div className="text-center">
-        <div className="flex items-center justify-center mb-3">
+        <div className="flex flex-col sm:flex-row items-center justify-center mb-3 gap-2 sm:gap-0">
           <div className="bg-blue-100 p-3 rounded-full mr-3">
             <span className="text-2xl">🔒</span>
           </div>
           <div>
-            <Label className="text-lg font-bold text-blue-900">Security Verification Required</Label>
-            <p className="text-sm text-blue-700 mt-1">Complete this step to generate your formulation</p>
+            <Label className="text-base sm:text-lg font-bold text-blue-900 text-center sm:text-left">Security Verification Required</Label>
+            <p className="text-xs sm:text-sm text-blue-700 mt-1 text-center sm:text-left">Complete this step to generate your formulation</p>
           </div>
           <Button
             type="button"
             variant="ghost"
             size="sm"
             onClick={generateCaptcha}
-            className="ml-auto h-8 w-8 p-0 hover:bg-blue-100"
+            className="sm:ml-auto h-8 w-8 p-0 hover:bg-blue-100"
             data-testid="captcha-refresh"
           >
             <RefreshCw className="h-4 w-4 text-blue-600" />
@@ -91,11 +91,11 @@ export function Captcha({ onVerify, onReset }: CaptchaProps) {
         </div>
       </div>
       
-      <div className="bg-white p-6 rounded-lg border border-blue-200 shadow-sm">
+      <div className="bg-white p-3 sm:p-6 rounded-lg border border-blue-200 shadow-sm">
         {/* Mobile: Stack vertically, Desktop: Horizontal layout */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:space-x-4 sm:gap-0">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-4 rounded-lg shadow-md mb-4 sm:mb-0">
-            <span className="text-2xl font-bold font-mono">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-3 sm:px-6 sm:py-4 rounded-lg shadow-md mb-4 sm:mb-0 w-full sm:w-auto text-center">
+            <span className="text-xl sm:text-2xl font-bold font-mono">
               {num1} + {num2} = ?
             </span>
           </div>
@@ -106,7 +106,7 @@ export function Captcha({ onVerify, onReset }: CaptchaProps) {
             onChange={(e) => handleInputChange(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleVerify()}
             placeholder="Enter answer"
-            className="w-full sm:w-32 text-center text-xl font-bold border-2 border-blue-300 focus:border-blue-500 focus:ring-blue-500 mb-4 sm:mb-0"
+            className="w-full sm:w-32 text-center text-lg sm:text-xl font-bold border-2 border-blue-300 focus:border-blue-500 focus:ring-blue-500 mb-4 sm:mb-0 h-12 sm:h-10"
             disabled={isVerified}
             data-testid="captcha-input"
           />
@@ -116,7 +116,7 @@ export function Captcha({ onVerify, onReset }: CaptchaProps) {
             onClick={handleVerify}
             disabled={!userAnswer || isVerified}
             size="lg"
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 font-bold shadow-md w-full sm:w-auto"
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 sm:px-6 text-sm sm:text-base font-bold shadow-md w-full sm:w-auto h-12 sm:h-auto"
             data-testid="captcha-verify"
           >
             Verify
@@ -125,15 +125,15 @@ export function Captcha({ onVerify, onReset }: CaptchaProps) {
       </div>
 
       {showError && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center" data-testid="captcha-error">
-          <p className="text-red-700 font-medium">❌ Incorrect answer. Please try again.</p>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 text-center" data-testid="captcha-error">
+          <p className="text-red-700 font-medium text-sm sm:text-base">❌ Incorrect answer. Please try again.</p>
         </div>
       )}
       
       {isVerified && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center" data-testid="captcha-success">
-          <p className="text-green-700 font-bold text-lg">✅ Verification Successful!</p>
-          <p className="text-green-600 text-sm mt-1">You can now generate your formulation</p>
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4 text-center" data-testid="captcha-success">
+          <p className="text-green-700 font-bold text-base sm:text-lg">✅ Verification Successful!</p>
+          <p className="text-green-600 text-xs sm:text-sm mt-1">You can now generate your formulation</p>
         </div>
       )}
     </div>
