@@ -381,9 +381,20 @@ export class DatabaseStorage implements IStorage {
         firstName: userData.firstName || null,
         lastName: userData.lastName || null,
         profileImageUrl: userData.profileImageUrl || null,
+        isAdmin: userData.isAdmin || false,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
+    }
+  }
+
+  async isUserAdmin(userId: string): Promise<boolean> {
+    try {
+      const user = await this.getUser(userId);
+      return user?.isAdmin || false;
+    } catch (error) {
+      console.log("Error checking admin status:", error);
+      return false;
     }
   }
 
