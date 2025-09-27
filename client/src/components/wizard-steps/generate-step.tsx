@@ -274,62 +274,71 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
               </div>
             </div>
 
-            {/* Security Verification - Horizontal Layout */}
+            {/* Security Verification - Mobile-First Responsive Layout */}
             <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-4 border border-yellow-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-2 rounded-lg shadow-md">
-                    <span className="text-lg">🔒</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Security Verification</h3>
-                    <p className="text-gray-600 text-xs">Complete verification to enable generation</p>
-                  </div>
+              {/* Header - Always visible */}
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-2 rounded-lg shadow-md">
+                  <span className="text-lg">🔒</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Security Verification</h3>
+                  <p className="text-gray-600 text-xs">Complete verification to enable generation</p>
+                </div>
+              </div>
+              
+              {/* Mobile: Stack vertically, Desktop: Horizontal */}
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-4">
+                {/* Captcha Section */}
+                <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200 w-full lg:w-auto">
+                  <Captcha 
+                    key={captchaKey}
+                    onVerify={handleCaptchaVerify}
+                    onReset={resetCaptcha}
+                  />
                 </div>
                 
-                <div className="flex items-center space-x-4">
-                  <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
-                    <Captcha 
-                      key={captchaKey}
-                      onVerify={handleCaptchaVerify}
-                      onReset={resetCaptcha}
-                    />
-                  </div>
-                  
-                  <div className="text-center">
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mb-3 ${
+                {/* Button Section - Prominent on Mobile */}
+                <div className="w-full lg:w-auto">
+                  <div className="text-center mb-3">
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
                       isCaptchaVerified 
                         ? 'bg-green-100 text-green-800' 
                         : 'bg-gray-100 text-gray-600'
                     }`}>
                       {isCaptchaVerified ? '✅ Verified' : '⏳ Pending'}
                     </span>
-                    
-                    {!isCaptchaVerified ? (
-                      <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-center">
-                        <span className="text-red-700 font-medium text-xs">🔒 Complete verification</span>
-                      </div>
-                    ) : (
+                  </div>
+                  
+                  {!isCaptchaVerified ? (
+                    <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-center">
+                      <span className="text-red-700 font-medium text-sm">🔒 Complete verification above</span>
+                    </div>
+                  ) : (
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-4 text-center">
+                      <p className="text-blue-900 font-medium text-sm mb-3">
+                        ✅ Ready to Generate Your Professional Formulation!
+                      </p>
                       <Button
                         onClick={handleGenerate}
                         disabled={generateFormulation.isPending}
-                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 text-sm font-semibold rounded-lg shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-base font-bold rounded-lg shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 w-full lg:w-auto min-h-[56px]"
                         data-testid="button-generate-formulation"
                       >
                         {generateFormulation.isPending ? (
                           <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Generating...
+                            <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                            Generating Formulation...
                           </>
                         ) : (
                           <>
-                            <Download className="h-4 w-4 mr-2" />
-                            Generate Formulation
+                            <Download className="h-5 w-5 mr-3" />
+                            Generate & Download PDF
                           </>
                         )}
                       </Button>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
