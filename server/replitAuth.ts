@@ -183,3 +183,30 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     return;
   }
 };
+
+export const isAdmin: RequestHandler = async (req, res, next) => {
+  // First check if user is authenticated
+  const user = req.user as any;
+  
+  if (!req.isAuthenticated() || !user || !user.id) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  try {
+    // Import storage dynamically to avoid circular dependency
+    const { DatabaseStorage } = await import("./database-storage");
+    const storage = new DatabaseStorage();
+    
+    // Check if user is admin
+    const isUserAdmin = await storage.isUserAdmin(user.id);
+    
+    if (!isUserAdmin) {
+      return res.status(403).json({ message: "Forbidden: Admin access required" });
+    }
+    
+    return next();
+  } catch (error) {
+    console.error("Error checking admin status:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
