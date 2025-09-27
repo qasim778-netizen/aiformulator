@@ -198,7 +198,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/categories", async (req, res) => {
+  app.post("/api/categories", isAdmin, async (req, res) => {
     try {
       const validatedData = insertCategorySchema.parse(req.body);
       const category = await storage.createCategory(validatedData);
@@ -208,7 +208,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/categories/:id", async (req, res) => {
+  app.put("/api/categories/:id", isAdmin, async (req, res) => {
     try {
       const validatedData = insertCategorySchema.partial().parse(req.body);
       const category = await storage.updateCategory(req.params.id, validatedData);
@@ -221,7 +221,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/categories/:id", async (req, res) => {
+  app.delete("/api/categories/:id", isAdmin, async (req, res) => {
     try {
       const success = await storage.deleteCategory(req.params.id);
       if (!success) {
@@ -294,7 +294,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/formulations", async (req, res) => {
+  app.post("/api/formulations", isAdmin, async (req, res) => {
     try {
       const validatedData = insertFormulationSchema.parse(req.body);
       const formulation = await storage.createFormulation(validatedData);
@@ -304,7 +304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/formulations/:id", async (req, res) => {
+  app.put("/api/formulations/:id", isAdmin, async (req, res) => {
     try {
       const validatedData = insertFormulationSchema.partial().parse(req.body);
       const formulation = await storage.updateFormulation(req.params.id, validatedData);
@@ -317,7 +317,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/formulations/:id", async (req, res) => {
+  app.delete("/api/formulations/:id", isAdmin, async (req, res) => {
     try {
       const success = await storage.deleteFormulation(req.params.id);
       if (!success) {
@@ -690,7 +690,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/admin/user-formulation-requests/:id/status", async (req, res) => {
+  app.patch("/api/admin/user-formulation-requests/:id/status", isAdmin, async (req, res) => {
     try {
       const { status, adminNotes } = req.body;
       if (!status || !["pending", "reviewed", "approved", "rejected"].includes(status)) {
@@ -721,7 +721,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/admin/user-formulation-requests/:id", async (req, res) => {
+  app.delete("/api/admin/user-formulation-requests/:id", isAdmin, async (req, res) => {
     try {
       const deleted = await storage.deleteUserFormulationRequest(req.params.id);
       if (!deleted) {
@@ -1307,7 +1307,7 @@ Allow: /disclaimer`;
   }
 
   // Custom AI Formulation with PDF Generation
-  app.post("/api/ai/custom-formulation", async (req, res) => {
+  app.post("/api/ai/custom-formulation", isAdmin, async (req, res) => {
     console.log('🔥 Custom formulation endpoint hit!');
     console.log('Request method:', req.method);
     console.log('Request headers:', req.headers);
@@ -1659,7 +1659,7 @@ Allow: /disclaimer`;
   });
 
   // Create new page
-  app.post("/api/pages", async (req, res) => {
+  app.post("/api/pages", isAdmin, async (req, res) => {
     try {
       const validatedData = insertPageSchema.parse(req.body);
       const page = await storage.createPage(validatedData);
@@ -1671,7 +1671,7 @@ Allow: /disclaimer`;
   });
 
   // Update page
-  app.put("/api/pages/:id", async (req, res) => {
+  app.put("/api/pages/:id", isAdmin, async (req, res) => {
     try {
       const validatedData = insertPageSchema.parse(req.body);
       const page = await storage.updatePage(req.params.id, validatedData);
@@ -1686,7 +1686,7 @@ Allow: /disclaimer`;
   });
 
   // Delete page
-  app.delete("/api/pages/:id", async (req, res) => {
+  app.delete("/api/pages/:id", isAdmin, async (req, res) => {
     try {
       const success = await storage.deletePage(req.params.id);
       if (!success) {
@@ -1796,7 +1796,7 @@ Allow: /disclaimer`;
   });
 
   // Create new blog post
-  app.post("/api/blog", async (req, res) => {
+  app.post("/api/blog", isAdmin, async (req, res) => {
     try {
       const validatedData = insertBlogPostSchema.parse(req.body);
       const blogPost = await storage.createBlogPost(validatedData);
@@ -1818,7 +1818,7 @@ Allow: /disclaimer`;
   });
 
   // Update blog post
-  app.put("/api/blog/:id", async (req, res) => {
+  app.put("/api/blog/:id", isAdmin, async (req, res) => {
     try {
       const validatedData = insertBlogPostSchema.parse(req.body);
       const blogPost = await storage.updateBlogPost(req.params.id, validatedData);
@@ -1833,7 +1833,7 @@ Allow: /disclaimer`;
   });
 
   // Delete blog post
-  app.delete("/api/blog/:id", async (req, res) => {
+  app.delete("/api/blog/:id", isAdmin, async (req, res) => {
     try {
       const success = await storage.deleteBlogPost(req.params.id);
       if (!success) {
@@ -1860,7 +1860,7 @@ Allow: /disclaimer`;
   });
 
   // Generate single blog post
-  app.post("/api/ai-blog/generate", async (req, res) => {
+  app.post("/api/ai-blog/generate", isAdmin, async (req, res) => {
     try {
       const { topic, targetKeywords = [], shouldPublish = false } = req.body;
       
@@ -1885,7 +1885,7 @@ Allow: /disclaimer`;
   });
 
   // Batch generate multiple blog posts
-  app.post("/api/ai-blog/generate-batch", async (req, res) => {
+  app.post("/api/ai-blog/generate-batch", isAdmin, async (req, res) => {
     try {
       const { topics, targetKeywords = [], shouldPublish = false } = req.body;
       
@@ -1929,7 +1929,7 @@ Allow: /disclaimer`;
   });
 
   // Simple AI trending suggestions endpoint - manual trigger only
-  app.post("/api/ai/trending-suggestions", async (req, res) => {
+  app.post("/api/ai/trending-suggestions", isAdmin, async (req, res) => {
     try {
       const suggestions = await aiBlogGenerator.generateGlobalTrendingSuggestions();
       res.json({ suggestions });
