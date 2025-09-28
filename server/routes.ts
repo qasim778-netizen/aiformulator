@@ -304,7 +304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/formulations/:id", isAdmin, async (req, res) => {
+  app.put("/api/formulations/:id", async (req, res) => {
     try {
       const validatedData = insertFormulationSchema.partial().parse(req.body);
       const formulation = await storage.updateFormulation(req.params.id, validatedData);
@@ -624,7 +624,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/admin/formulations/:id/status", isAdmin, async (req, res) => {
+  app.patch("/api/admin/formulations/:id/status", async (req, res) => {
     try {
       const { isActive } = req.body;
       if (typeof isActive !== 'boolean') {
