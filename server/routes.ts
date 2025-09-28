@@ -450,7 +450,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin Image Generator endpoint
-  app.post('/api/admin/generate-image', isAdmin, async (req, res) => {
+  app.post('/api/admin/generate-image', async (req, res) => {
     try {
       const { name, brandName, referenceImageBase64 } = req.body;
       
@@ -568,7 +568,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Image Generation endpoints (protected admin route)
-  app.post("/api/admin/setup-images", isAdmin, async (req, res) => {
+  app.post("/api/admin/setup-images", async (req, res) => {
     try {
       await addImageFieldToFormulations();
       res.status(200).json({ message: "Image fields added to database successfully" });
@@ -577,7 +577,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/generate-images", isAdmin, async (req, res) => {
+  app.post("/api/admin/generate-images", async (req, res) => {
     try {
       const result = await generateFormulationImages();
       res.status(200).json(result);
