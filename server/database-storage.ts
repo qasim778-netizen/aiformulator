@@ -398,6 +398,31 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async grantAdminRights(email: string): Promise<boolean> {
+    try {
+      const { users } = await import("@shared/schema");
+      const result = await db
+        .update(users)
+        .set({ 
+          isAdmin: true,
+          updatedAt: new Date()
+        })
+        .where(eq(users.email, email))
+        .returning();
+      
+      if (result.length > 0) {
+        console.log(`✅ Admin rights granted to ${email}`);
+        return true;
+      } else {
+        console.log(`❌ User with email ${email} not found`);
+        return false;
+      }
+    } catch (error) {
+      console.error("Error granting admin rights:", error);
+      return false;
+    }
+  }
+
   // Pages Content Management methods
   async getPages(): Promise<Page[]> {
     try {
