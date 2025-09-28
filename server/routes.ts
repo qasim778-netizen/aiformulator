@@ -56,7 +56,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
         req.body.imageURL,
         {
-          owner: req.user?.claims?.sub || "system",
+          owner: (req.user as any)?.claims?.sub || "system",
           visibility: "public", // Formulation images should be publicly visible
         }
       );
@@ -83,7 +83,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
         req.body.imageURL,
         {
-          owner: req.user?.claims?.sub || "admin",
+          owner: (req.user as any)?.claims?.sub || "admin",
           visibility: "public",
         }
       );
@@ -473,10 +473,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Track AI generation for analytics
       await storage.trackAiGeneration({
-        type: 'image_generation',
-        input: cleanName,
-        output: result.fileName,
-        timestamp: new Date().toISOString()
+        productName: cleanName,
+        category: 'image_generation',
+        sessionId: req.sessionID || 'admin',
+        timestamp: new Date().toISOString(),
+        formData: { input: cleanName, output: result.fileName }
       });
       
       console.log(`✅ Admin image generated successfully: ${result.fileName}`);
@@ -519,10 +520,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Track AI generation for analytics
       await storage.trackAiGeneration({
-        type: 'alt_text_generation',
-        input: cleanName,
-        output: altText,
-        timestamp: new Date().toISOString()
+        productName: cleanName,
+        category: 'alt_text_generation',
+        sessionId: req.sessionID || 'admin',
+        timestamp: new Date().toISOString(),
+        formData: { input: cleanName, output: altText }
       });
       
       console.log(`✅ Admin alt text generated successfully: ${altText}`);
@@ -1582,6 +1584,7 @@ Allow: /disclaimer`;
         ...formulation,
         metaDescription: formulation.metaDescription ?? undefined,
         keywords: formulation.keywords ?? undefined,
+        image: formulation.image ?? undefined,
       };
       const pdfBuffer = generateFormulationPDF(formulationData, logoSettings);
       
