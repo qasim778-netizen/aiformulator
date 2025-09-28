@@ -360,13 +360,17 @@ export class DatabaseStorage implements IStorage {
   async upsertUser(userData: UpsertUser): Promise<User> {
     try {
       const { users } = await import("@shared/schema");
+      
+      // Exclude isAdmin from updates to preserve existing admin rights
+      const { isAdmin, ...updateData } = userData;
+      
       const [user] = await db
         .insert(users)
         .values(userData)
         .onConflictDoUpdate({
           target: users.id,
           set: {
-            ...userData,
+            ...updateData, // This excludes isAdmin, preserving existing admin status
             updatedAt: new Date(),
           },
         })
