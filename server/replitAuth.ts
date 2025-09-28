@@ -156,10 +156,11 @@ export async function setupAuth(app: Express) {
         }
         
         try {
-          // Check if user is admin
+          // Check if user is admin by email
           const { DatabaseStorage } = await import("./database-storage");
           const storage = new DatabaseStorage();
-          const isUserAdmin = await storage.isUserAdmin(user.id);
+          const userEmail = user.claims?.email;
+          const isUserAdmin = userEmail ? await storage.isUserAdminByEmail(userEmail) : false;
           
           // Redirect based on admin status
           if (isUserAdmin) {
@@ -221,7 +222,7 @@ export const isAdmin: RequestHandler = async (req, res, next) => {
   // First check if user is authenticated
   const user = req.user as any;
   
-  if (!req.isAuthenticated() || !user || !user.id) {
+  if (!req.isAuthenticated() || !user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
@@ -230,8 +231,13 @@ export const isAdmin: RequestHandler = async (req, res, next) => {
     const { DatabaseStorage } = await import("./database-storage");
     const storage = new DatabaseStorage();
     
-    // Check if user is admin
-    const isUserAdmin = await storage.isUserAdmin(user.id);
+    // Check if user is admin by email (more reliable than ID)
+    const userEmail = user.claims?.email;
+    if (!userEmail) {
+      return res.status(401).json({ message: "Unauthorized: No email found" });
+    }
+    
+    const isUserAdmin = await storage.isUserAdminByEmail(userEmail);
     
     if (!isUserAdmin) {
       return res.status(403).json({ message: "Forbidden: Admin access required" });

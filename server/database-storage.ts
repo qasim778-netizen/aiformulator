@@ -398,6 +398,17 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async isUserAdminByEmail(email: string): Promise<boolean> {
+    try {
+      const { users } = await import("@shared/schema");
+      const [user] = await db.select().from(users).where(eq(users.email, email));
+      return user?.isAdmin || false;
+    } catch (error) {
+      console.log("Error checking admin status by email:", error);
+      return false;
+    }
+  }
+
   async grantAdminRights(email: string): Promise<boolean> {
     try {
       const { users } = await import("@shared/schema");
