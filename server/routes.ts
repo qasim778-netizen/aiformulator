@@ -805,7 +805,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/generate-formulation", isAdmin, async (req, res) => {
+  app.post("/api/ai/generate-formulation", async (req, res) => {
     try {
       const { categoryId, productDescription } = req.body;
       if (!categoryId || !productDescription) {
@@ -889,7 +889,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Generate formulation with formula keywords and image
-  app.post("/api/ai/generate-formulation-with-keywords", isAdmin, async (req, res) => {
+  app.post("/api/ai/generate-formulation-with-keywords", async (req, res) => {
     try {
       const { categoryId, productDescription, includeImage = false } = req.body;
       if (!categoryId || !productDescription) {
@@ -914,7 +914,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Bulk AI Generation endpoint (protected admin route)
-  app.post("/api/ai/generate-bulk-formulations", isAdmin, async (req, res) => {
+  app.post("/api/ai/generate-bulk-formulations", async (req, res) => {
     try {
       const { categoryId, count } = req.body;
       if (!categoryId || !count) {
@@ -971,7 +971,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Bulk AI Generation with Keywords & Images endpoint (protected admin route)
-  app.post("/api/ai/generate-bulk-formulations-with-keywords", isAdmin, async (req, res) => {
+  app.post("/api/ai/generate-bulk-formulations-with-keywords", async (req, res) => {
     try {
       const { categoryId, categorySlug, count, includeImages = false } = req.body;
       console.log(`=== BULK API ENDPOINT ===`);
