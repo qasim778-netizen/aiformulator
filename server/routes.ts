@@ -46,7 +46,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Endpoint for setting ACL policy on formulation images
-  app.put("/api/formulation-images", isAuthenticated, async (req, res) => {
+  app.put("/api/formulation-images", async (req, res) => {
     if (!req.body.imageURL) {
       return res.status(400).json({ error: "imageURL is required" });
     }
