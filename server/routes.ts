@@ -2028,6 +2028,33 @@ Allow: /disclaimer`;
   });
 
   // WebSocket server for real-time chat
+  // Admin Management - Grant Admin Rights
+  app.post("/api/admin/grant-rights", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      const success = await storage.grantAdminRights(email);
+      
+      if (success) {
+        res.json({ 
+          message: `Admin rights granted successfully to ${email}`,
+          success: true 
+        });
+      } else {
+        res.status(404).json({ 
+          message: `User with email ${email} not found. User must log in first to create their account.`,
+          success: false 
+        });
+      }
+    } catch (error) {
+      console.error("Failed to grant admin rights:", error);
+      res.status(500).json({ message: "Failed to grant admin rights" });
+    }
+  });
+
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   
   wss.on('connection', (ws, req) => {
