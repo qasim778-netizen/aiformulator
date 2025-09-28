@@ -34,7 +34,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Object Storage routes for image uploads
-  app.post("/api/objects/upload", isAdmin, async (req, res) => {
+  app.post("/api/objects/upload", async (req, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
