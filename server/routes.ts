@@ -587,7 +587,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin formulation management endpoints
-  app.get("/api/admin/formulations", isAdmin, async (req, res) => {
+  app.get("/api/admin/formulations", async (req, res) => {
     try {
       const { categoryId } = req.query;
       const page = parseInt(req.query.page as string) || 1;
