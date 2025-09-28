@@ -222,7 +222,12 @@ export const isAdmin: RequestHandler = async (req, res, next) => {
   // First check if user is authenticated
   const user = req.user as any;
   
+  console.log("🔍 Admin Check - isAuthenticated:", req.isAuthenticated());
+  console.log("🔍 Admin Check - user exists:", !!user);
+  console.log("🔍 Admin Check - user object:", user ? { id: user.id, claims: user.claims } : "no user");
+  
   if (!req.isAuthenticated() || !user) {
+    console.log("❌ Admin Check - Not authenticated");
     return res.status(401).json({ message: "Unauthorized" });
   }
 
@@ -233,19 +238,25 @@ export const isAdmin: RequestHandler = async (req, res, next) => {
     
     // Check if user is admin by email (more reliable than ID)
     const userEmail = user.claims?.email;
+    console.log("🔍 Admin Check - user email:", userEmail);
+    
     if (!userEmail) {
+      console.log("❌ Admin Check - No email found");
       return res.status(401).json({ message: "Unauthorized: No email found" });
     }
     
     const isUserAdmin = await storage.isUserAdminByEmail(userEmail);
+    console.log("🔍 Admin Check - isUserAdmin result:", isUserAdmin);
     
     if (!isUserAdmin) {
+      console.log("❌ Admin Check - User is not admin");
       return res.status(403).json({ message: "Forbidden: Admin access required" });
     }
     
+    console.log("✅ Admin Check - Success, proceeding");
     return next();
   } catch (error) {
-    console.error("Error checking admin status:", error);
+    console.error("❌ Admin Check - Error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
