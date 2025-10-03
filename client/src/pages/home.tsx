@@ -10,8 +10,20 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-blue-50 to-white overflow-x-hidden w-full">
       <div className="responsive-container mx-auto py-4 sm:py-6 lg:py-8 w-full max-w-7xl">
-        {/* Hero Section - Hidden when in wizard */}
-        <div className="text-center mb-4"></div>
+        {/* Hero Section */}
+        {!isWizardActive && (
+          <div className="text-center mb-8 sm:mb-10">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
+              Professional Chemical Formulations
+            </h1>
+            <h2 className="text-xl sm:text-2xl text-gray-600 mb-2">
+              AI-Powered Formulation Solutions for Small Business
+            </h2>
+            <p className="text-base sm:text-lg text-gray-500 max-w-3xl mx-auto">
+              Create custom chemical formulations instantly with our AI wizard or browse our extensive library of professional formulas
+            </p>
+          </div>
+        )}
 
         {/* Single Custom Formula Option */}
         <div className="w-full max-w-6xl mx-auto">
