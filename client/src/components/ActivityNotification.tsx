@@ -23,11 +23,18 @@ export default function ActivityNotification() {
 
   useEffect(() => {
     if (activity && activity.message !== lastActivity) {
-      // Show toast notification at bottom-left
+      // Show toast notification at bottom-left with formatted layout
       toast({
         title: "🎉 New Formula Created!",
-        description: activity.message,
-        duration: 5000, // Show for 5 seconds
+        description: (
+          <div className="space-y-1">
+            <div className="font-semibold text-base">{activity.userName}</div>
+            <div className="text-sm opacity-90">{activity.country}</div>
+            <div className="text-sm font-medium">{activity.formulationName}</div>
+            <div className="text-xs opacity-75">{activity.timeAgo}</div>
+          </div>
+        ),
+        duration: 8000, // Show for 8 seconds
         className: "bottom-left-toast",
       });
       
