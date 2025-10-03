@@ -138,6 +138,29 @@
   max-width: 400px;
   animation: slideInFromLeft 0.3s ease-out;
   z-index: 9999;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: 3px solid #fbbf24 !important;
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4), 0 0 0 4px rgba(251, 191, 36, 0.2) !important;
+  color: white !important;
+}
+
+.bottom-left-toast [data-title],
+.bottom-left-toast [data-description] {
+  color: white !important;
+}
+
+.bottom-left-toast div {
+  color: white !important;
+}
+
+.bottom-left-toast button {
+  color: white !important;
+  opacity: 0.9;
+}
+
+.bottom-left-toast button:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.2) !important;
 }
 
 @keyframes slideInFromLeft {
