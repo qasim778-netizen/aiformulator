@@ -31,6 +31,9 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
     defaultValues: {
       name: category?.name || "",
       description: category?.description || "",
+      seoTitle: category?.seoTitle || "",
+      metaDescription: category?.metaDescription || "",
+      keywords: category?.keywords || "",
       icon: category?.icon || "fas fa-flask",
       image: category?.image || "",
       isActive: category?.isActive ?? true,
@@ -45,6 +48,9 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
       form.reset({
         name: category.name || "",
         description: category.description || "",
+        seoTitle: category.seoTitle || "",
+        metaDescription: category.metaDescription || "",
+        keywords: category.keywords || "",
         icon: category.icon || "fas fa-flask",
         image: category.image || "",
         isActive: category.isActive ?? true,
@@ -259,6 +265,78 @@ export default function CategoryForm({ category, onSuccess }: CategoryFormProps)
             </FormItem>
           )}
         />
+
+        {/* SEO Section */}
+        <div className="border-t pt-4 mt-4">
+          <h3 className="text-lg font-semibold mb-4">SEO Settings</h3>
+          
+          <FormField
+            control={form.control}
+            name="seoTitle"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="category-seo-title">SEO Title (Page Title)</FormLabel>
+                <FormControl>
+                  <Input 
+                    id="category-seo-title"
+                    placeholder="e.g., Best Skincare Formulations for Entrepreneurs" 
+                    autoComplete="off"
+                    disabled={isConstantCategory}
+                    {...field} 
+                    value={field.value || ""}
+                  />
+                </FormControl>
+                <p className="text-xs text-gray-500 mt-1">Recommended: 50-60 characters</p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="metaDescription"
+            render={({ field }) => (
+              <FormItem className="mt-4">
+                <FormLabel htmlFor="category-meta-description">Meta Description</FormLabel>
+                <FormControl>
+                  <Textarea 
+                    id="category-meta-description"
+                    placeholder="Brief description for search engines (appears in search results)" 
+                    autoComplete="off"
+                    disabled={isConstantCategory}
+                    rows={3}
+                    {...field} 
+                    value={field.value || ""}
+                  />
+                </FormControl>
+                <p className="text-xs text-gray-500 mt-1">Recommended: 150-160 characters</p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="keywords"
+            render={({ field }) => (
+              <FormItem className="mt-4">
+                <FormLabel htmlFor="category-keywords">Keywords</FormLabel>
+                <FormControl>
+                  <Input 
+                    id="category-keywords"
+                    placeholder="e.g., skincare, cosmetics, formulations, entrepreneurs" 
+                    autoComplete="off"
+                    disabled={isConstantCategory}
+                    {...field} 
+                    value={field.value || ""}
+                  />
+                </FormControl>
+                <p className="text-xs text-gray-500 mt-1">Comma-separated keywords for SEO</p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}

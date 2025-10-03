@@ -52,6 +52,45 @@ export default function CategoryPage() {
     enabled: !!categoryId && !!category,
   });
 
+  // Update SEO meta tags when category loads
+  useEffect(() => {
+    if (category) {
+      // Update page title with custom SEO title or category name
+      const pageTitle = category.seoTitle || `${category.name} Formulations - AIFormulator`;
+      document.title = pageTitle;
+      
+      // Update meta description with custom SEO description or default
+      const metaDescContent = category.metaDescription || 
+        `Browse ${category.name.toLowerCase()} formulations. Professional chemical formulations for small business manufacturers.`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute('content', metaDescContent);
+      }
+      
+      // Update keywords if available
+      if (category.keywords) {
+        let metaKeywords = document.querySelector('meta[name="keywords"]');
+        if (!metaKeywords) {
+          metaKeywords = document.createElement('meta');
+          metaKeywords.setAttribute('name', 'keywords');
+          document.head.appendChild(metaKeywords);
+        }
+        metaKeywords.setAttribute('content', category.keywords);
+      }
+      
+      // Update Open Graph tags
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle) {
+        ogTitle.setAttribute('content', pageTitle);
+      }
+      
+      const ogDesc = document.querySelector('meta[property="og:description"]');
+      if (ogDesc) {
+        ogDesc.setAttribute('content', metaDescContent);
+      }
+    }
+  }, [category]);
+
   // Scroll to highlighted formulation when page loads
   useEffect(() => {
     if (highlightId && formulations.length > 0) {
