@@ -20,22 +20,22 @@ export default function Footer() {
             <h4 className="font-medium mb-4">Categories</h4>
             <ul className="space-y-2 text-sm text-gray-300">
               <li>
-                <Link href="/category/a1150e3f-7bfb-4f30-b580-b5a9dcc83485">
+                <Link href="/category/skin-care-formulations">
                   <span className="hover:text-white transition-colors duration-200 cursor-pointer">Skin Care</span>
                 </Link>
               </li>
               <li>
-                <Link href="/category/335555d4-179f-42a3-915d-729086a9af49">
+                <Link href="/category/beauty-products-formulations">
                   <span className="hover:text-white transition-colors duration-200 cursor-pointer">Beauty Products</span>
                 </Link>
               </li>
               <li>
-                <Link href="/category/07437262-b191-458e-8ca0-b8d0656ccac9">
+                <Link href="/category/cleaning-products-formulations">
                   <span className="hover:text-white transition-colors duration-200 cursor-pointer">Cleaning Products</span>
                 </Link>
               </li>
               <li>
-                <Link href="/category/0758f4b6-5d52-49c6-96a5-3802d5c244be">
+                <Link href="/category/organic-care-products-formulations">
                   <span className="hover:text-white transition-colors duration-200 cursor-pointer">Organic Care</span>
                 </Link>
               </li>

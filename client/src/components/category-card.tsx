@@ -23,8 +23,11 @@ export default function CategoryCard({ category, formulationCount, index }: Cate
   const defaultImage = "/api/placeholder/400/200";
   const categoryImage = 'image' in category && category.image ? category.image : defaultImage;
   
+  // Use slug for SEO-friendly URLs, fallback to ID if slug doesn't exist
+  const categoryLink = 'slug' in category && category.slug ? category.slug : category.id;
+  
   return (
-    <Link href={`/category/${category.id}`}>
+    <Link href={`/category/${categoryLink}`}>
       <Card className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer">
         {categoryImage ? (
           <img 

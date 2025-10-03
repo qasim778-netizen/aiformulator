@@ -158,6 +158,7 @@ export default function SearchBar({
     
     // Navigate to the appropriate page based on suggestion type
     if (suggestion.type === "category") {
+      // Use slug for categories (suggestion.id is the slug from categories constant)
       setLocation(`/category/${suggestion.id}`);
     } else if (suggestion.type === "formulation") {
       setLocation(`/formulation/${suggestion.id}`);
