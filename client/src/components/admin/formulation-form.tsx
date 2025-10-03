@@ -454,8 +454,13 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
       toast({ title: "Formulation updated successfully" });
       onSuccess();
     },
-    onError: () => {
-      toast({ title: "Failed to update formulation", variant: "destructive" });
+    onError: (error: any) => {
+      console.error("Update formulation error:", error);
+      toast({ 
+        title: "Failed to update formulation", 
+        description: error.message || "Please try again",
+        variant: "destructive" 
+      });
     },
   });
 

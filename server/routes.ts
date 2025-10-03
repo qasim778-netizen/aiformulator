@@ -1582,9 +1582,14 @@ Allow: /disclaimer`;
       // Generate PDF with logo settings - convert null values to undefined for type compatibility
       const formulationData = {
         ...formulation,
+        seoTitle: formulation.seoTitle ?? undefined,
         metaDescription: formulation.metaDescription ?? undefined,
         keywords: formulation.keywords ?? undefined,
         image: formulation.image ?? undefined,
+        imageAlt: formulation.imageAlt ?? undefined,
+        imageFilename: formulation.imageFilename ?? undefined,
+        viscosity: formulation.viscosity ?? undefined,
+        certification: formulation.certification ?? undefined,
       };
       const pdfBuffer = generateFormulationPDF(formulationData, logoSettings);
       
