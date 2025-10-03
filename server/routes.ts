@@ -329,6 +329,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Activity endpoint for live notifications
+  app.get("/api/activity", async (req, res) => {
+    try {
+      const formulations = await storage.getFormulations();
+      
+      if (formulations.length === 0) {
+        return res.json(null);
+      }
+      
+      // Random user names from different cultures
+      const userNames = [
+        "arjun", "sarah", "mohammed", "yuki", "maria", "chen", "priya", "james",
+        "fatima", "diego", "amara", "lucas", "zara", "akira", "sofia", "rashid",
+        "emma", "hassan", "mia", "kai", "leila", "mateo", "nia", "ravi"
+      ];
+      
+      // Countries
+      const countries = [
+        "India", "USA", "Brazil", "Japan", "Mexico", "Egypt", "Nigeria", "China",
+        "UK", "Germany", "France", "Canada", "Australia", "South Korea", "Italy",
+        "Spain", "Turkey", "Indonesia", "Thailand", "UAE", "South Africa"
+      ];
+      
+      // Time ago options
+      const timeOptions = [
+        "1 hour ago", "2 hours ago", "3 hours ago", "4 hours ago", "5 hours ago",
+        "30 minutes ago", "45 minutes ago", "1 minute ago", "just now"
+      ];
+      
+      // Pick random formulation
+      const randomFormulation = formulations[Math.floor(Math.random() * formulations.length)];
+      
+      // Pick random user, country, and time
+      const randomUser = userNames[Math.floor(Math.random() * userNames.length)];
+      const randomCountry = countries[Math.floor(Math.random() * countries.length)];
+      const randomTime = timeOptions[Math.floor(Math.random() * timeOptions.length)];
+      
+      // Create activity message
+      const activity = {
+        message: `${randomUser} from ${randomCountry} crafted a ${randomFormulation.name} — ${randomTime}`,
+        userName: randomUser,
+        country: randomCountry,
+        formulationName: randomFormulation.name,
+        timeAgo: randomTime
+      };
+      
+      res.json(activity);
+    } catch (error: any) {
+      console.error("Failed to generate activity:", error);
+      res.status(500).json({ message: "Failed to generate activity" });
+    }
+  });
+
   // Dashboard stats (protected admin route)
   app.get("/api/stats", isAdmin, async (req, res) => {
     try {
