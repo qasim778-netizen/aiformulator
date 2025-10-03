@@ -128,6 +128,29 @@
   }
 }
 
+/* Activity notification toast positioning */
+.bottom-left-toast {
+  position: fixed !important;
+  bottom: 20px !important;
+  left: 20px !important;
+  right: auto !important;
+  top: auto !important;
+  max-width: 400px;
+  animation: slideInFromLeft 0.3s ease-out;
+  z-index: 9999;
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 /* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
   width: 8px;

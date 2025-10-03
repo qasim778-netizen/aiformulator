@@ -5,6 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ChatWidget } from "@/components/chat-widget";
+import ActivityNotification from "@/components/ActivityNotification";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Browse from "@/pages/browse";
@@ -61,6 +62,7 @@ function AppContent() {
         onToggle={() => setIsChatOpen(!isChatOpen)} 
       />
       
+      <ActivityNotification />
       <Toaster />
     </div>
   );
