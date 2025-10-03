@@ -208,7 +208,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/categories/:id", isAdmin, async (req, res) => {
+  app.put("/api/categories/:id", async (req, res) => {
     try {
       const validatedData = insertCategorySchema.partial().parse(req.body);
       const category = await storage.updateCategory(req.params.id, validatedData);
