@@ -74,9 +74,8 @@ export default function Browse() {
     if (!searchQuery.trim()) {
       return getFormulationCount(categoryId)
     }
-    const category = categories.find(c => c.id === categoryId);
     return formulations.filter(f => 
-      (f.categoryId === category?.dbCategoryId || f.categoryId === categoryId) && 
+      f.categoryId === categoryId && 
       (f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
        f.description.toLowerCase().includes(searchQuery.toLowerCase()))
     ).length
