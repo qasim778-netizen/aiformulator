@@ -102,7 +102,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createFormulation(formulation: InsertFormulation): Promise<Formulation> {
-    const slug = this.generateSlugFromNameWithCategory(formulation.name, formulation.categoryId);
+    // Use custom slug if provided, otherwise generate from name
+    const slug = formulation.slug?.trim() 
+      ? this.generateSlugFromName(formulation.slug.trim())
+      : this.generateSlugFromNameWithCategory(formulation.name, formulation.categoryId);
     const [created] = await db.insert(formulationsTable).values({
       categoryId: formulation.categoryId,
       name: formulation.name,
@@ -133,6 +136,18 @@ export class DatabaseStorage implements IStorage {
 
   async updateFormulation(id: string, formulation: Partial<InsertFormulation>): Promise<Formulation | undefined> {
     const updateData = { ...formulation };
+    
+    // Process slug if it's being updated
+    if (updateData.slug !== undefined) {
+      if (updateData.slug?.trim()) {
+        // Custom slug provided - sanitize it
+        updateData.slug = this.generateSlugFromName(updateData.slug.trim());
+      } else if (updateData.name) {
+        // Slug cleared but name provided - generate from name
+        updateData.slug = this.generateSlugFromNameWithCategory(updateData.name, updateData.categoryId || '');
+      }
+    }
+    
     if (Object.keys(updateData).length > 0) {
       (updateData as any).updatedAt = new Date();
     }
