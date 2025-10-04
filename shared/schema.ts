@@ -269,3 +269,34 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
 
 export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
 export type BlogPost = typeof blogPosts.$inferSelect;
+
+// User downloads table - tracks formulation PDF downloads
+export const userDownloads = pgTable("user_downloads", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  formulationId: uuid("formulation_id").notNull().references(() => formulations.id),
+  formulationName: text("formulation_name").notNull(), // Denormalized for quick access
+  categoryName: text("category_name").notNull(), // Denormalized for quick access
+  downloadedAt: timestamp("downloaded_at").notNull().default(sql`now()`),
+}, (table) => ({
+  userIndex: index("user_downloads_user_idx").on(table.userId),
+  formulationIndex: index("user_downloads_formulation_idx").on(table.formulationId),
+  downloadedAtIndex: index("user_downloads_date_idx").on(table.downloadedAt),
+}));
+
+export type UserDownload = typeof userDownloads.$inferSelect;
+
+// User favorites table - tracks user's favorite formulations
+export const userFavorites = pgTable("user_favorites", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  formulationId: uuid("formulation_id").notNull().references(() => formulations.id),
+  addedAt: timestamp("added_at").notNull().default(sql`now()`),
+}, (table) => ({
+  userIndex: index("user_favorites_user_idx").on(table.userId),
+  formulationIndex: index("user_favorites_formulation_idx").on(table.formulationId),
+  // Unique constraint: a user can only favorite a formulation once
+  uniqueFavorite: index("user_favorites_unique_idx").on(table.userId, table.formulationId),
+}));
+
+export type UserFavorite = typeof userFavorites.$inferSelect;
