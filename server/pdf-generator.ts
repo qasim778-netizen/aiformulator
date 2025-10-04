@@ -263,8 +263,10 @@ Trusted by professionals for consistent, high-quality outcomes.`;
     doc.line(xPos, yPosition - 3, xPos, yPosition + rowHeight - 3); // Left border
     xPos += colWidths[0];
     
-    // Ingredient
+    // Ingredient (bold)
+    doc.setFont('helvetica', 'bold');
     doc.text(nameLines, xPos + 2, yPosition);
+    doc.setFont('helvetica', 'normal');
     doc.line(xPos, yPosition - 3, xPos, yPosition + rowHeight - 3);
     xPos += colWidths[1];
     

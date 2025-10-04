@@ -569,7 +569,7 @@ export default function FormulationPage() {
                     {ingredients.map((ingredient: any, index: number) => (
                       <tr key={index}>
                         <td className="px-4 py-3 border border-gray-300">{index + 1}</td>
-                        <td className="px-4 py-3 border border-gray-300">{ingredient.name}</td>
+                        <td className="px-4 py-3 border border-gray-300 font-semibold">{ingredient.name}</td>
                         <td className="px-4 py-3 border border-gray-300">{ingredient.inci}</td>
                         <td className="px-4 py-3 border border-gray-300">{ingredient.percentage}</td>
                         <td className="px-4 py-3 border border-gray-300">{ingredient.function}</td>
