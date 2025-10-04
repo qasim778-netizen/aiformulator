@@ -135,7 +135,7 @@ export default function CategoryPage() {
             </Button>
           </Link>
           <h1 className="text-3xl font-inter font-bold text-gray-900">
-            {category.name} Formulations ({formulations.length})
+            {category.name} ({formulations.length})
             {searchTerm && (
               <span className="block text-lg font-normal text-primary mt-1">
                 Search results for "{searchTerm}"
