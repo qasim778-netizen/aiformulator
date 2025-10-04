@@ -16,6 +16,7 @@ import { addSEOFields, generateStructuredData } from "./seo-utils";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { aiBlogGenerator } from "./ai-blog-generator";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+import { optimizeFormulationName } from "./name-optimizer";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -1404,6 +1405,16 @@ Allow: /disclaimer`;
       // Use direct AI generation based on product description without category constraints
       console.log(`🧠 Generating AI formulation directly from product description: ${productName}`);
       
+      // Optimize the product name for SEO
+      const categoryForOptimization = productCategory || productType || 'formulation';
+      const nameOptimizationResult = await optimizeFormulationName(
+        productName,
+        categoryForOptimization,
+        false // Use rule-based for consistency
+      );
+      const optimizedName = nameOptimizationResult.optimizedName;
+      console.log(`📝 Name optimized: "${productName}" → "${optimizedName}"`);
+      
       let formulation;
       try {
         // Import the flexible custom formulation generator
@@ -1411,7 +1422,7 @@ Allow: /disclaimer`;
         
         // Create comprehensive request for AI
         const customRequest = {
-          productName: productName,
+          productName: optimizedName,
           productDescription: productDescription,
           productType: productType,
           phLevel: phLevel,
@@ -1435,7 +1446,7 @@ Allow: /disclaimer`;
         });
         
         formulation = {
-          name: productName,
+          name: optimizedName,
           description: aiFormulation.description || `Professional ${productType} formulation for ${productDescription}`,
           ingredients: typeof aiFormulation.ingredients === 'string' ? aiFormulation.ingredients : JSON.stringify(aiFormulation.ingredients || []),
           instructions: typeof aiFormulation.instructions === 'string' ? aiFormulation.instructions : JSON.stringify(aiFormulation.instructions || []),
@@ -1456,7 +1467,7 @@ Allow: /disclaimer`;
         console.error("AI generation failed, using fallback:", aiError);
         // Fallback to basic template if AI fails
         formulation = {
-          name: productName,
+          name: optimizedName,
           description: `Professional ${productType} formulation for ${productDescription}`,
           ingredients: JSON.stringify([
             {
