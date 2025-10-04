@@ -198,39 +198,126 @@ Trusted by professionals for consistent, high-quality outcomes.`;
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
   yPosition += 10;
   
-  // Table headers
+  // Table headers with borders
+  const colWidths = [15, 55, 55, 20, 50]; // Sr.No, Ingredient, INCI, %, Function
+  const tableStartX = margin;
+  const tableWidth = contentWidth;
+  
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.text('Ingredient', margin, yPosition);
-  doc.text('INCI Name', margin + 60, yPosition);
-  doc.text('%', margin + 120, yPosition);
-  doc.text('Function', margin + 135, yPosition);
-  yPosition += 8;
   
-  // Table line
-  doc.setLineWidth(0.3);
-  doc.line(margin, yPosition, pageWidth - margin, yPosition);
+  // Draw header row background
+  doc.setFillColor(245, 245, 245);
+  doc.rect(tableStartX, yPosition - 5, tableWidth, 8, 'F');
+  
+  // Draw header borders
+  doc.setLineWidth(0.2);
+  doc.setDrawColor(200, 200, 200);
+  let xPos = tableStartX;
+  
+  // Header text and vertical lines
+  doc.text('Sr.No', xPos + 2, yPosition);
+  doc.line(xPos, yPosition - 5, xPos, yPosition + 3); // Left border
+  xPos += colWidths[0];
+  
+  doc.text('Ingredient', xPos + 2, yPosition);
+  doc.line(xPos, yPosition - 5, xPos, yPosition + 3);
+  xPos += colWidths[1];
+  
+  doc.text('INCI Name', xPos + 2, yPosition);
+  doc.line(xPos, yPosition - 5, xPos, yPosition + 3);
+  xPos += colWidths[2];
+  
+  doc.text('%', xPos + 2, yPosition);
+  doc.line(xPos, yPosition - 5, xPos, yPosition + 3);
+  xPos += colWidths[3];
+  
+  doc.text('Function', xPos + 2, yPosition);
+  doc.line(xPos, yPosition - 5, xPos, yPosition + 3);
+  doc.line(tableStartX + tableWidth, yPosition - 5, tableStartX + tableWidth, yPosition + 3); // Right border
+  
+  // Horizontal lines for header
+  doc.line(tableStartX, yPosition - 5, tableStartX + tableWidth, yPosition - 5); // Top
+  doc.line(tableStartX, yPosition + 3, tableStartX + tableWidth, yPosition + 3); // Bottom
+  
   yPosition += 8;
   
   doc.setFont('helvetica', 'normal');
   
-  ingredients.forEach((ingredient: any) => {
+  ingredients.forEach((ingredient: any, index: number) => {
     yPosition = checkNewPage(20);
     
     doc.setFontSize(9);
-    const nameLines = doc.splitTextToSize(ingredient.name || '', 55);
-    const inciLines = doc.splitTextToSize(ingredient.inci || '', 55);
-    const functionLines = doc.splitTextToSize(ingredient.function || '', 50);
+    const nameLines = doc.splitTextToSize(ingredient.name || '', 50);
+    const inciLines = doc.splitTextToSize(ingredient.inci || '', 50);
+    const functionLines = doc.splitTextToSize(ingredient.function || '', 45);
     
     const maxLines = Math.max(nameLines.length, inciLines.length, functionLines.length);
+    const rowHeight = maxLines * 4 + 3;
     
-    doc.text(nameLines, margin, yPosition);
-    doc.text(inciLines, margin + 60, yPosition);
-    doc.text(ingredient.percentage || '', margin + 120, yPosition);
-    doc.text(functionLines, margin + 135, yPosition);
+    // Draw row borders
+    xPos = tableStartX;
     
-    yPosition += maxLines * 4 + 3;
+    // Sr.No
+    doc.text((index + 1).toString(), xPos + 5, yPosition);
+    doc.line(xPos, yPosition - 3, xPos, yPosition + rowHeight - 3); // Left border
+    xPos += colWidths[0];
+    
+    // Ingredient
+    doc.text(nameLines, xPos + 2, yPosition);
+    doc.line(xPos, yPosition - 3, xPos, yPosition + rowHeight - 3);
+    xPos += colWidths[1];
+    
+    // INCI Name
+    doc.text(inciLines, xPos + 2, yPosition);
+    doc.line(xPos, yPosition - 3, xPos, yPosition + rowHeight - 3);
+    xPos += colWidths[2];
+    
+    // Percentage
+    doc.text(ingredient.percentage || '', xPos + 2, yPosition);
+    doc.line(xPos, yPosition - 3, xPos, yPosition + rowHeight - 3);
+    xPos += colWidths[3];
+    
+    // Function
+    doc.text(functionLines, xPos + 2, yPosition);
+    doc.line(xPos, yPosition - 3, xPos, yPosition + rowHeight - 3);
+    doc.line(tableStartX + tableWidth, yPosition - 3, tableStartX + tableWidth, yPosition + rowHeight - 3); // Right border
+    
+    // Bottom horizontal line
+    doc.line(tableStartX, yPosition + rowHeight - 3, tableStartX + tableWidth, yPosition + rowHeight - 3);
+    
+    yPosition += rowHeight;
   });
+  
+  // Total row
+  yPosition = checkNewPage(15);
+  
+  doc.setFont('helvetica', 'bold');
+  doc.setFillColor(245, 245, 245);
+  doc.rect(tableStartX, yPosition - 3, tableWidth, 10, 'F');
+  
+  xPos = tableStartX;
+  
+  // "Total" spanning first 3 columns
+  doc.text('Total', xPos + 2, yPosition + 3);
+  doc.line(xPos, yPosition - 3, xPos, yPosition + 7); // Left border
+  xPos += colWidths[0] + colWidths[1] + colWidths[2];
+  
+  // Draw vertical lines for merged cells
+  doc.line(xPos, yPosition - 3, xPos, yPosition + 7);
+  xPos += colWidths[3];
+  
+  // 100% in percentage column
+  doc.text('100%', xPos - colWidths[3] + 2, yPosition + 3);
+  
+  // Empty function column
+  doc.line(xPos, yPosition - 3, xPos, yPosition + 7);
+  doc.line(tableStartX + tableWidth, yPosition - 3, tableStartX + tableWidth, yPosition + 7); // Right border
+  
+  // Horizontal lines for total row
+  doc.line(tableStartX, yPosition + 7, tableStartX + tableWidth, yPosition + 7); // Bottom
+  
+  yPosition += 12;
   
   yPosition += 10;
   
