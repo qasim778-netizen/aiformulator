@@ -1,9 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Settings, Menu, X } from "lucide-react";
+import { Settings, Menu, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
 import SearchBar from "@/components/search-bar";
 import logoImage from "@assets/logo_1756133481367.png";
+
+interface AuthUser {
+  id: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  profileImageUrl?: string;
+}
 
 interface LogoSettings {
   logoUrl: string;
@@ -28,6 +37,27 @@ export default function Navbar() {
     
     return defaultSettings;
   });
+
+  // Check if user is authenticated
+  const { data: user, isLoading: isLoadingUser } = useQuery<AuthUser>({
+    queryKey: ["/api/auth/user"],
+    retry: false,
+    // If user is not authenticated, the endpoint will return 401, which we'll handle as null
+    queryFn: async () => {
+      const response = await fetch("/api/auth/user", {
+        credentials: "include",
+      });
+      if (response.status === 401) {
+        return null;
+      }
+      if (!response.ok) {
+        throw new Error("Failed to fetch user");
+      }
+      return response.json();
+    },
+  });
+
+  const isAuthenticated = !!user;
   
   // Listen for logo settings changes
   useEffect(() => {
@@ -43,6 +73,16 @@ export default function Navbar() {
   }, []);
 
   const isActive = (path: string) => location === path;
+  
+  const getUserDisplayName = () => {
+    if (!user) return "";
+    if (user.firstName && user.lastName) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+    if (user.firstName) return user.firstName;
+    if (user.email) return user.email.split('@')[0];
+    return "User";
+  };
 
   // Handle search functionality
   const handleSearch = (query: string) => {
@@ -135,19 +175,62 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Right side - Search Bar and Logout */}
+          {/* Right side - Search Bar and Auth Buttons */}
           <div className="hidden sm:flex items-center space-x-4">
             <SearchBar 
               onSearch={handleSearch}
               placeholder="Search formulations..."
               className="w-80"
             />
-            <a 
-              href="/api/logout"
-              className="text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded whitespace-nowrap"
-            >
-              Logout
-            </a>
+            
+            {!isLoadingUser && (
+              <>
+                {isAuthenticated ? (
+                  // Show user info and logout when authenticated
+                  <>
+                    <Link href="/my-account">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="flex items-center space-x-2"
+                        data-testid="button-my-account"
+                      >
+                        <User className="h-4 w-4" />
+                        <span>{getUserDisplayName()}</span>
+                      </Button>
+                    </Link>
+                    <a 
+                      href="/api/logout"
+                      className="text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded whitespace-nowrap"
+                      data-testid="button-logout"
+                    >
+                      Logout
+                    </a>
+                  </>
+                ) : (
+                  // Show login and sign up buttons when not authenticated
+                  <>
+                    <a href="/api/login">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        data-testid="button-login"
+                      >
+                        Login
+                      </Button>
+                    </a>
+                    <a href="/api/login">
+                      <Button 
+                        size="sm"
+                        data-testid="button-signup"
+                      >
+                        Sign Up
+                      </Button>
+                    </a>
+                  </>
+                )}
+              </>
+            )}
           </div>
         </div>
 
@@ -230,14 +313,54 @@ export default function Navbar() {
                 />
               </div>
               
-              {/* Mobile Logout */}
-              <a 
-                href="/api/logout"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                data-testid="mobile-logout-button"
-              >
-                Logout (Test)
-              </a>
+              {/* Mobile Auth Section */}
+              {!isLoadingUser && (
+                <>
+                  {isAuthenticated ? (
+                    // Show user info and logout when authenticated
+                    <>
+                      <Link href="/my-account">
+                        <span 
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50 cursor-pointer"
+                          data-testid="mobile-link-my-account"
+                        >
+                          <User className="h-4 w-4" />
+                          <span>{getUserDisplayName()}</span>
+                        </span>
+                      </Link>
+                      <a 
+                        href="/api/logout"
+                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-testid="mobile-button-logout"
+                      >
+                        Logout
+                      </a>
+                    </>
+                  ) : (
+                    // Show login and sign up buttons when not authenticated
+                    <div className="px-3 py-2 space-y-2">
+                      <a href="/api/login" className="block">
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          data-testid="mobile-button-login"
+                        >
+                          Login
+                        </Button>
+                      </a>
+                      <a href="/api/login" className="block">
+                        <Button 
+                          className="w-full"
+                          data-testid="mobile-button-signup"
+                        >
+                          Sign Up
+                        </Button>
+                      </a>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         )}
