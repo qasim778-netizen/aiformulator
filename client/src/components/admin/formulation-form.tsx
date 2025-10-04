@@ -355,6 +355,7 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
     defaultValues: {
       categoryId: formulation?.categoryId || "",
       name: formulation?.name || "",
+      slug: formulation?.slug ?? "",
       description: formulation?.description || "",
       seoTitle: formulation?.seoTitle ?? "",
       metaDescription: formulation?.metaDescription ?? "",
@@ -390,6 +391,7 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
       form.reset({
         categoryId: formulation.categoryId || "",
         name: formulation.name || "",
+        slug: formulation.slug ?? "",
         description: formulation.description || "",
         seoTitle: formulation.seoTitle ?? "",
         metaDescription: formulation.metaDescription ?? "",
@@ -556,6 +558,26 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
             <CardTitle className="text-lg">SEO Optimization</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="slug"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL Slug (Optional)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="custom-url-slug (leave empty for auto-generation)" 
+                      {...field} 
+                    />
+                  </FormControl>
+                  <p className="text-sm text-gray-500">
+                    Custom URL path for this formulation. Use lowercase letters, numbers, and hyphens only.
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="seoTitle"

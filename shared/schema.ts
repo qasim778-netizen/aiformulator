@@ -65,8 +65,8 @@ export const insertFormulationSchema = createInsertSchema(formulations).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-  slug: true, // slug is auto-generated
 }).extend({
+  slug: z.string().optional(), // Allow manual slug editing, auto-generated if not provided
   seoTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   keywords: z.string().optional(),
@@ -77,6 +77,7 @@ export const insertFormulationSchema = createInsertSchema(formulations).omit({
   certification: z.string().optional(),
 }).partial({
   // Make these fields optional for form submission
+  slug: true,
   viscosity: true,
   certification: true,
   image: true,

@@ -1,6 +1,16 @@
 import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser, type Page, type InsertPage, type BlogPost, type InsertBlogPost, type ChatMessage, type InsertChatMessage, type UserFormulationRequest, type InsertUserFormulationRequest } from "@shared/schema";
 import { randomUUID } from "crypto";
 
+// Helper function to generate URL-friendly slugs
+function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/[\s_]+/g, '-')  // Replace spaces and underscores with hyphens
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+}
+
 export interface IAiGeneration {
   id: string;
   productName: string;
@@ -1610,10 +1620,25 @@ export class MemStorage implements IStorage {
 
   async createFormulation(formulation: InsertFormulation): Promise<Formulation> {
     const id = randomUUID();
+    
+    // Generate slug from name if not provided
+    const slug = formulation.slug?.trim() 
+      ? generateSlug(formulation.slug) 
+      : generateSlug(formulation.name);
+    
     const newFormulation: Formulation = {
       ...formulation,
       id,
+      slug,
       isActive: formulation.isActive ?? true,
+      seoTitle: formulation.seoTitle ?? null,
+      metaDescription: formulation.metaDescription ?? null,
+      keywords: formulation.keywords ?? null,
+      image: formulation.image ?? null,
+      imageAlt: formulation.imageAlt ?? null,
+      imageFilename: formulation.imageFilename ?? null,
+      viscosity: formulation.viscosity ?? null,
+      certification: formulation.certification ?? null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -1625,9 +1650,21 @@ export class MemStorage implements IStorage {
     const existing = this.formulations.get(id);
     if (!existing) return undefined;
 
+    // If slug is being updated, sanitize it; if name is being updated but slug is not, regenerate slug from name
+    let slug = existing.slug;
+    if (formulation.slug !== undefined) {
+      slug = formulation.slug?.trim() 
+        ? generateSlug(formulation.slug) 
+        : (formulation.name ? generateSlug(formulation.name) : existing.slug);
+    } else if (formulation.name && formulation.name !== existing.name) {
+      // Name changed but slug not provided - keep existing slug
+      slug = existing.slug;
+    }
+
     const updated: Formulation = {
       ...existing,
       ...formulation,
+      slug,
       updatedAt: new Date(),
     };
     this.formulations.set(id, updated);
