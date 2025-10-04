@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import type { InsertCategory, InsertFormulation } from "@shared/schema";
 import { generateCategorySpecificFormulation } from "./ai-category-specific";
 import { capitalizeFormulationName } from "./seo-utils";
+import { optimizeFormulationName } from "./name-optimizer";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -211,8 +212,15 @@ ENHANCED GUIDELINES:
       if (result.formulations && Array.isArray(result.formulations)) {
         // Process each formulation to match our schema
         for (const formulation of result.formulations) {
+          // Optimize the formulation name for SEO
+          const optimizationResult = await optimizeFormulationName(
+            formulation.name,
+            categoryName,
+            false // Use rule-based optimization for speed in bulk generation
+          );
+          
           formulations.push({
-            name: capitalizeFormulationName(formulation.name),
+            name: capitalizeFormulationName(optimizationResult.optimizedName),
             description: formulation.description,
             ingredients: JSON.stringify(formulation.ingredients || []),
             instructions: JSON.stringify(formulation.instructions || []),
@@ -249,8 +257,15 @@ ENHANCED GUIDELINES:
         const { getFallbackFormulation } = await import('./ai-category-specific');
         const fallbackFormulation = getFallbackFormulation(categoryName, productType);
         
+        // Optimize the fallback formulation name for SEO
+        const optimizationResult = await optimizeFormulationName(
+          fallbackFormulation.name,
+          categoryName,
+          false
+        );
+        
         formulations.push({
-          name: capitalizeFormulationName(fallbackFormulation.name),
+          name: capitalizeFormulationName(optimizationResult.optimizedName),
           description: fallbackFormulation.description,
           ingredients: JSON.stringify(fallbackFormulation.ingredients),
           instructions: JSON.stringify(fallbackFormulation.instructions),
@@ -289,6 +304,15 @@ export async function generateBulkFormulationsWithKeywords(categoryName: string,
       
       // Use the existing single formulation generator with keywords support
       const formulation = await generateFormulationWithKeywords(categoryName, productType, includeImages);
+      
+      // Optimize the formulation name for SEO
+      const optimizationResult = await optimizeFormulationName(
+        formulation.name,
+        categoryName,
+        false // Use rule-based for speed in bulk generation
+      );
+      
+      formulation.name = capitalizeFormulationName(optimizationResult.optimizedName);
       formulations.push(formulation);
       
       console.log(`✅ Generated formulation ${i + 1}/${count}: ${formulation.name}`);
@@ -305,8 +329,15 @@ export async function generateBulkFormulationsWithKeywords(categoryName: string,
       const { getFallbackFormulation } = await import('./ai-category-specific');
       const fallbackFormulation = getFallbackFormulation(categoryName, productType);
       
+      // Optimize the fallback formulation name for SEO
+      const optimizationResult = await optimizeFormulationName(
+        fallbackFormulation.name,
+        categoryName,
+        false
+      );
+      
       formulations.push({
-        name: capitalizeFormulationName(fallbackFormulation.name),
+        name: capitalizeFormulationName(optimizationResult.optimizedName),
         description: fallbackFormulation.description,
         image: includeImages ? "" : undefined,
         ingredients: JSON.stringify(fallbackFormulation.ingredients),
@@ -539,6 +570,14 @@ export async function generateFormulationWithKeywords(categoryName: string, prod
     try {
       const formulation = await generateCategorySpecificFormulation(categoryName, productDescription);
       
+      // Optimize the formulation name for SEO
+      const optimizationResult = await optimizeFormulationName(
+        formulation.name,
+        categoryName,
+        false
+      );
+      formulation.name = optimizationResult.optimizedName;
+      
       // Add image generation if requested
       if (includeImage) {
         try {
@@ -669,6 +708,14 @@ export async function generateFormulationWithKeywords(categoryName: string, prod
     if (!name.toLowerCase().includes('formula') && !name.toLowerCase().includes('formulation')) {
       name = `${name} Formula`;
     }
+    
+    // Optimize the formulation name for SEO
+    const optimizationResult = await optimizeFormulationName(
+      name,
+      categoryName,
+      false // Use rule-based for consistency
+    );
+    name = optimizationResult.optimizedName;
     
     // Generate image if requested
     let imageUrl = "";
