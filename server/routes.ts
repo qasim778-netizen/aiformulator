@@ -241,12 +241,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limit = parseInt(req.query.limit as string) || 1000; // Default large limit for non-paginated requests
       const offset = (page - 1) * limit;
       
+      // Check if user is authenticated admin
+      const isAdmin = req.user && (req.user as any).claims?.email === 'qasim778@gmail.com';
+      
       let allFormulations;
       
       if (categoryId) {
         allFormulations = await storage.getFormulationsByCategory(categoryId as string);
       } else {
         allFormulations = await storage.getFormulations();
+      }
+      
+      // Filter to only active formulations for non-admin users
+      if (!isAdmin) {
+        allFormulations = allFormulations.filter(f => f.isActive);
       }
       
       const totalItems = allFormulations.length;
@@ -332,7 +340,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Activity endpoint for live notifications
   app.get("/api/activity", async (req, res) => {
     try {
-      const formulations = await storage.getFormulations();
+      const allFormulations = await storage.getFormulations();
+      
+      // Only show active formulations in activity notifications
+      const formulations = allFormulations.filter(f => f.isActive);
       
       if (formulations.length === 0) {
         return res.json(null);
