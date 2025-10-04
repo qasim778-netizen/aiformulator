@@ -555,24 +555,31 @@ export default function FormulationPage() {
             <div className="mb-8">
               <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Formulation Ingredients Table</h2>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm border border-gray-300">
                   <thead>
                     <tr className="bg-gray-50">
-                      <th className="px-4 py-3 text-left font-medium text-gray-900">Ingredient</th>
-                      <th className="px-4 py-3 text-left font-medium text-gray-900">INCI Name</th>
-                      <th className="px-4 py-3 text-left font-medium text-gray-900">Percentage</th>
-                      <th className="px-4 py-3 text-left font-medium text-gray-900">Function</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-900 border border-gray-300">Sr.No</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-900 border border-gray-300">Ingredient</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-900 border border-gray-300">INCI Name</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-900 border border-gray-300">Percentage</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-900 border border-gray-300">Function</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody>
                     {ingredients.map((ingredient: any, index: number) => (
                       <tr key={index}>
-                        <td className="px-4 py-3">{ingredient.name}</td>
-                        <td className="px-4 py-3">{ingredient.inci}</td>
-                        <td className="px-4 py-3">{ingredient.percentage}</td>
-                        <td className="px-4 py-3">{ingredient.function}</td>
+                        <td className="px-4 py-3 border border-gray-300">{index + 1}</td>
+                        <td className="px-4 py-3 border border-gray-300">{ingredient.name}</td>
+                        <td className="px-4 py-3 border border-gray-300">{ingredient.inci}</td>
+                        <td className="px-4 py-3 border border-gray-300">{ingredient.percentage}</td>
+                        <td className="px-4 py-3 border border-gray-300">{ingredient.function}</td>
                       </tr>
                     ))}
+                    <tr className="bg-gray-50 font-semibold">
+                      <td className="px-4 py-3 border border-gray-300" colSpan={3}>Total</td>
+                      <td className="px-4 py-3 border border-gray-300">100%</td>
+                      <td className="px-4 py-3 border border-gray-300"></td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
