@@ -61,6 +61,13 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
 
+  // User downloads and favorites
+  trackDownload(userId: string, formulationId: string, formulationName: string, categoryName: string): Promise<void>;
+  getUserDownloads(userId: string): Promise<any[]>;
+  addFavorite(userId: string, formulationId: string): Promise<void>;
+  removeFavorite(userId: string, formulationId: string): Promise<void>;
+  getUserFavorites(userId: string): Promise<any[]>;
+
   // Pages Content Management
   getPages(): Promise<Page[]>;
   getPageBySlug(slug: string): Promise<Page | undefined>;
@@ -1756,11 +1763,33 @@ export class MemStorage implements IStorage {
       firstName: userData.firstName || null,
       lastName: userData.lastName || null,
       profileImageUrl: userData.profileImageUrl || null,
+      isAdmin: userData.isAdmin || existingUser?.isAdmin || false,
       createdAt: existingUser?.createdAt || new Date(),
       updatedAt: new Date(),
     };
     this.users.set(user.id, user);
     return user;
+  }
+
+  // User downloads and favorites (stub implementations - use DatabaseStorage in production)
+  async trackDownload(userId: string, formulationId: string, formulationName: string, categoryName: string): Promise<void> {
+    console.log(`[MemStorage] Tracked download for user ${userId}: ${formulationName}`);
+  }
+
+  async getUserDownloads(userId: string): Promise<any[]> {
+    return [];
+  }
+
+  async addFavorite(userId: string, formulationId: string): Promise<void> {
+    console.log(`[MemStorage] Added favorite for user ${userId}: ${formulationId}`);
+  }
+
+  async removeFavorite(userId: string, formulationId: string): Promise<void> {
+    console.log(`[MemStorage] Removed favorite for user ${userId}: ${formulationId}`);
+  }
+
+  async getUserFavorites(userId: string): Promise<any[]> {
+    return [];
   }
 
   // Pages Content Management methods

@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable } from "./db";
 import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage, UserFormulationRequest, InsertUserFormulationRequest } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
@@ -450,6 +450,99 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error("Error granting admin rights:", error);
       return false;
+    }
+  }
+
+  // User downloads and favorites methods
+  async trackDownload(userId: string, formulationId: string, formulationName: string, categoryName: string): Promise<void> {
+    try {
+      const { userDownloads } = await import("@shared/schema");
+      await db.insert(userDownloads).values({
+        userId,
+        formulationId,
+        formulationName,
+        categoryName,
+        downloadedAt: new Date(),
+      });
+    } catch (error) {
+      console.error("Error tracking download:", error);
+    }
+  }
+
+  async getUserDownloads(userId: string): Promise<any[]> {
+    try {
+      const { userDownloads, formulations, categories } = await import("@shared/schema");
+      const downloads = await db
+        .select({
+          id: userDownloads.id,
+          formulationId: userDownloads.formulationId,
+          formulationName: userDownloads.formulationName,
+          categoryName: userDownloads.categoryName,
+          downloadedAt: userDownloads.downloadedAt,
+          formulation: formulations,
+        })
+        .from(userDownloads)
+        .leftJoin(formulations, eq(userDownloads.formulationId, formulations.id))
+        .where(eq(userDownloads.userId, userId))
+        .orderBy(desc(userDownloads.downloadedAt));
+      return downloads;
+    } catch (error) {
+      console.error("Error getting user downloads:", error);
+      return [];
+    }
+  }
+
+  async addFavorite(userId: string, formulationId: string): Promise<void> {
+    try {
+      const { userFavorites } = await import("@shared/schema");
+      await db.insert(userFavorites).values({
+        userId,
+        formulationId,
+        addedAt: new Date(),
+      });
+    } catch (error) {
+      console.error("Error adding favorite:", error);
+      throw error;
+    }
+  }
+
+  async removeFavorite(userId: string, formulationId: string): Promise<void> {
+    try {
+      const { userFavorites } = await import("@shared/schema");
+      await db
+        .delete(userFavorites)
+        .where(
+          and(
+            eq(userFavorites.userId, userId),
+            eq(userFavorites.formulationId, formulationId)
+          )
+        );
+    } catch (error) {
+      console.error("Error removing favorite:", error);
+      throw error;
+    }
+  }
+
+  async getUserFavorites(userId: string): Promise<any[]> {
+    try {
+      const { userFavorites, formulations, categories } = await import("@shared/schema");
+      const favorites = await db
+        .select({
+          id: userFavorites.id,
+          formulationId: userFavorites.formulationId,
+          addedAt: userFavorites.addedAt,
+          formulation: formulations,
+          category: categories,
+        })
+        .from(userFavorites)
+        .leftJoin(formulations, eq(userFavorites.formulationId, formulations.id))
+        .leftJoin(categories, eq(formulations.categoryId, categories.id))
+        .where(eq(userFavorites.userId, userId))
+        .orderBy(desc(userFavorites.addedAt));
+      return favorites;
+    } catch (error) {
+      console.error("Error getting user favorites:", error);
+      return [];
     }
   }
 

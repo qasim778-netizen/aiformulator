@@ -34,6 +34,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User downloads tracking
+  app.post('/api/user/downloads', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { formulationId, formulationName, categoryName } = req.body;
+      
+      if (!formulationId || !formulationName || !categoryName) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      await storage.trackDownload(userId, formulationId, formulationName, categoryName);
+      res.json({ message: "Download tracked successfully" });
+    } catch (error) {
+      console.error("Error tracking download:", error);
+      res.status(500).json({ message: "Failed to track download" });
+    }
+  });
+
+  app.get('/api/user/downloads', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const downloads = await storage.getUserDownloads(userId);
+      res.json(downloads);
+    } catch (error) {
+      console.error("Error fetching downloads:", error);
+      res.status(500).json({ message: "Failed to fetch downloads" });
+    }
+  });
+
+  // User favorites management
+  app.post('/api/user/favorites', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { formulationId } = req.body;
+      
+      if (!formulationId) {
+        return res.status(400).json({ message: "Missing formulationId" });
+      }
+
+      await storage.addFavorite(userId, formulationId);
+      res.json({ message: "Favorite added successfully" });
+    } catch (error) {
+      console.error("Error adding favorite:", error);
+      res.status(500).json({ message: "Failed to add favorite" });
+    }
+  });
+
+  app.delete('/api/user/favorites/:formulationId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { formulationId } = req.params;
+      
+      await storage.removeFavorite(userId, formulationId);
+      res.json({ message: "Favorite removed successfully" });
+    } catch (error) {
+      console.error("Error removing favorite:", error);
+      res.status(500).json({ message: "Failed to remove favorite" });
+    }
+  });
+
+  app.get('/api/user/favorites', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const favorites = await storage.getUserFavorites(userId);
+      res.json(favorites);
+    } catch (error) {
+      console.error("Error fetching favorites:", error);
+      res.status(500).json({ message: "Failed to fetch favorites" });
+    }
+  });
+
   // Object Storage routes for image uploads
   app.post("/api/objects/upload", async (req, res) => {
     try {
