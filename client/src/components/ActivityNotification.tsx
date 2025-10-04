@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 interface Activity {
   message: string;
@@ -13,15 +14,25 @@ interface Activity {
 export default function ActivityNotification() {
   const { toast } = useToast();
   const [lastActivity, setLastActivity] = useState<string | null>(null);
+  const [location] = useLocation();
+  
+  // Don't show notifications on admin pages
+  const isAdminPage = location.startsWith('/admin');
 
-  // Fetch activity every 8 seconds
+  // Fetch activity every 8 seconds (but only if not on admin page)
   const { data: activity } = useQuery<Activity | null>({
     queryKey: ["/api/activity"],
     refetchInterval: 8000, // Fetch every 8 seconds
     refetchIntervalInBackground: true,
+    enabled: !isAdminPage, // Disable fetching on admin pages
   });
 
   useEffect(() => {
+    // Don't show notifications on admin pages
+    if (isAdminPage) {
+      return;
+    }
+    
     if (activity && activity.message !== lastActivity) {
       // Show toast notification at bottom-left with formatted layout
       toast({
@@ -40,7 +51,7 @@ export default function ActivityNotification() {
       
       setLastActivity(activity.message);
     }
-  }, [activity, lastActivity, toast]);
+  }, [activity, lastActivity, toast, isAdminPage]);
 
   // This component doesn't render anything visible
   return null;
