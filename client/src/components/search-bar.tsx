@@ -8,6 +8,7 @@ import { FORMULATION_CATEGORIES } from "@/constants/categories";
 
 interface SearchSuggestion {
   id: string;
+  slug?: string; // For SEO-friendly URLs
   title: string;
   type: "category" | "formulation";
   description?: string;
@@ -82,6 +83,7 @@ export default function SearchBar({
         );
         allSuggestions.push({
           id: formulation.id,
+          slug: formulation.slug, // Use slug for SEO-friendly URLs
           title: formulation.name,
           type: "formulation",
           description: `${category?.name || "Unknown Category"} - ${formulation.description.substring(0, 80)}...`
@@ -161,7 +163,8 @@ export default function SearchBar({
       // Use slug for categories (suggestion.id is the slug from categories constant)
       setLocation(`/category/${suggestion.id}`);
     } else if (suggestion.type === "formulation") {
-      setLocation(`/formulation/${suggestion.id}`);
+      // Use slug for formulations for SEO-friendly URLs
+      setLocation(`/formulation/${suggestion.slug || suggestion.id}`);
     }
     
     if (onSelect) {
