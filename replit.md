@@ -30,6 +30,7 @@ The backend follows a RESTful API design pattern using Express.js:
 - **API Design**: RESTful endpoints for categories and formulations with proper HTTP status codes
 - **Validation**: Zod schemas for request/response validation and type inference
 - **Development Setup**: Integrated Vite development server with hot module replacement
+- **SEO Name Optimization**: Automatic name optimization for formulations using rule-based transformations and optional AI enhancement
 
 ### Database Design
 The application uses a PostgreSQL database with Drizzle ORM for type-safe database operations:
@@ -76,5 +77,20 @@ The application is configured for both development and production environments:
 - **Date-fns**: Date manipulation library for handling temporal data
 - **Class Variance Authority**: Utility for creating variant-based component APIs
 - **React Hook Form**: Performant forms with easy validation integration
+- **OpenAI API**: AI-powered formulation generation and optional name optimization
+
+## Key Features
+
+### Automatic SEO Name Optimization
+The system includes an intelligent name optimizer that automatically improves formulation names during generation:
+
+- **Rule-Based Optimization**: Fast transformation of low-quality names using category-specific patterns
+- **Quality Detection**: Identifies names that need optimization (less than 40 characters, low-value keywords, missing descriptors)
+- **Professional Enhancement**: Adds industry-appropriate descriptors (Professional, Industrial-Grade, Premium, etc.) based on category
+- **Character Limit**: Ensures all names stay under 60 characters for optimal SEO performance
+- **Bulk Generation Support**: Optimizes names during both single and bulk formulation generation
+- **AI Enhancement**: Optional OpenAI integration for advanced name transformation when needed
+
+The name optimizer processes names like "glass cleaner formula" into professional titles like "Professional Glass Cleaner Formula" or "Commercial-Grade Glass Cleaner Formula" based on the category context.
 
 The architecture demonstrates a modern full-stack approach with emphasis on type safety, developer experience, and scalable design patterns suitable for chemical formulation management requirements.
