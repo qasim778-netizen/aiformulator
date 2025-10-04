@@ -12,6 +12,7 @@ import Browse from "@/pages/browse";
 import Category from "@/pages/category";
 import Formulation from "@/pages/formulation";
 import Admin from "@/pages/admin";
+import MyAccountPage from "@/pages/my-account";
 import About from "@/pages/about";
 import FAQ from "@/pages/faq";
 import TermsOfService from "@/pages/terms-of-service";
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/category/:id" component={Category} />
       <Route path="/formulation/:id" component={Formulation} />
       <Route path="/admin" component={Admin} />
+      <Route path="/my-account" component={MyAccountPage} />
       <Route path="/about" component={About} />
       <Route path="/faq" component={FAQ} />
       <Route path="/blog" component={Blog} />
