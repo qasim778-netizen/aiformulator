@@ -64,7 +64,9 @@ function getCategoryKey(categoryName: string): string {
 function applyRuleBasedOptimization(name: string, categoryName: string): string {
   let optimized = name.trim();
   
+  // Remove low-value patterns
   optimized = optimized.replace(/\bformulas?\b/gi, '');
+  optimized = optimized.replace(/\bformulations?\b/gi, '');
   optimized = optimized.replace(/\brecipes?\b/gi, '');
   optimized = optimized.replace(/\bhow to make\b/gi, '');
   optimized = optimized.replace(/\s+/g, ' ').trim();
@@ -81,13 +83,35 @@ function applyRuleBasedOptimization(name: string, categoryName: string): string 
     optimized = `${randomDescriptor} ${optimized}`;
   }
   
+  // Capitalize properly
   const words = optimized.split(' ');
   optimized = words
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
   
+  // Always ensure name ends with "Formula" or "Formulation"
+  const hasFormulaKeyword = /\b(formula|formulation)$/i.test(optimized);
+  if (!hasFormulaKeyword) {
+    // Use "Formula" as default keyword
+    optimized = `${optimized} Formula`;
+  }
+  
+  // Ensure it stays under 60 characters
   if (optimized.length > 60) {
-    optimized = optimized.substring(0, 57) + '...';
+    // Try to fit by using shorter "Formula" instead of "Formulation"
+    optimized = optimized.replace(/\bFormulation$/i, 'Formula');
+    if (optimized.length > 60) {
+      // Truncate the middle part but keep descriptor and Formula
+      const words = optimized.split(' ');
+      if (words.length >= 3) {
+        // Keep first word (descriptor), truncate middle, keep "Formula"
+        const descriptor = words[0];
+        const remaining = 60 - descriptor.length - 8; // 8 for " Formula"
+        optimized = `${descriptor} ${optimized.substring(descriptor.length + 1, descriptor.length + 1 + remaining).trim()} Formula`;
+      } else {
+        optimized = optimized.substring(0, 57) + '...';
+      }
+    }
   }
   
   return optimized;
@@ -145,6 +169,7 @@ Requirements:
 5. Use proper capitalization
 6. Do NOT use banned terms like "FDA-approved" or trademark names
 7. For hazardous materials, include use-case qualifiers
+8. MUST end with "Formula" or "Formulation" keyword
 
 Return ONLY the optimized name, nothing else.`;
 
@@ -155,9 +180,16 @@ Return ONLY the optimized name, nothing else.`;
       max_tokens: 50,
     });
 
-    const aiOptimizedName = completion.choices[0]?.message?.content?.trim() || ruleBasedName;
+    let aiOptimizedName = completion.choices[0]?.message?.content?.trim() || ruleBasedName;
+    
+    // Ensure AI result also has Formula/Formulation keyword
+    const hasFormulaKeyword = /\b(formula|formulation)$/i.test(aiOptimizedName);
+    if (!hasFormulaKeyword) {
+      aiOptimizedName = `${aiOptimizedName} Formula`;
+    }
     
     if (aiOptimizedName.length > 60) {
+      // Fallback to rule-based if AI result is too long
       return {
         originalName,
         optimizedName: ruleBasedName,
