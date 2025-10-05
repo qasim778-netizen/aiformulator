@@ -20,6 +20,14 @@ import { optimizeFormulationName } from "./name-optimizer";
 import bcrypt from "bcrypt";
 import { signupSchema, loginSchema } from "@shared/schema";
 
+// Session-based authentication middleware
+const requireAuth = (req: any, res: any, next: any) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ message: "Unauthorized - Please log in" });
+  }
+  next();
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
@@ -139,9 +147,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User downloads tracking
-  app.post('/api/user/downloads', isAuthenticated, async (req: any, res) => {
+  app.post('/api/user/downloads', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const { formulationId, formulationName, categoryName } = req.body;
       
       if (!formulationId || !formulationName || !categoryName) {
@@ -156,9 +164,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/user/downloads', isAuthenticated, async (req: any, res) => {
+  app.get('/api/user/downloads', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const downloads = await storage.getUserDownloads(userId);
       res.json(downloads);
     } catch (error) {
@@ -168,9 +176,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User favorites management
-  app.post('/api/user/favorites', isAuthenticated, async (req: any, res) => {
+  app.post('/api/user/favorites', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const { formulationId } = req.body;
       
       if (!formulationId) {
@@ -185,9 +193,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/user/favorites/:formulationId', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/user/favorites/:formulationId', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const { formulationId } = req.params;
       
       await storage.removeFavorite(userId, formulationId);
@@ -198,9 +206,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/user/favorites', isAuthenticated, async (req: any, res) => {
+  app.get('/api/user/favorites', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const favorites = await storage.getUserFavorites(userId);
       res.json(favorites);
     } catch (error) {
@@ -1817,7 +1825,7 @@ Allow: /disclaimer`;
   });
 
   // PDF Generation for existing formulations
-  app.post("/api/formulations/:id/pdf", isAuthenticated, async (req: any, res) => {
+  app.post("/api/formulations/:id/pdf", requireAuth, async (req: any, res) => {
     try {
       const formulationId = req.params.id;
       const formulation = await storage.getFormulation(formulationId);
@@ -1826,8 +1834,8 @@ Allow: /disclaimer`;
         return res.status(404).json({ message: "Formulation not found" });
       }
 
-      // Get userId from authenticated session
-      const userId = req.user.claims.sub;
+      // Get userId from session
+      const userId = req.session.userId;
 
       // Get category name for tracking
       const category = formulation.categoryId ? await storage.getCategory(formulation.categoryId) : null;
