@@ -582,6 +582,94 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  // Admin methods
+  async getUserById(userId: string): Promise<User | undefined> {
+    try {
+      const { users } = await import("@shared/schema");
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
+      return user || undefined;
+    } catch (error) {
+      console.error("Error getting user by ID:", error);
+      return undefined;
+    }
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    try {
+      const { users } = await import("@shared/schema");
+      const allUsers = await db
+        .select({
+          id: users.id,
+          email: users.email,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          country: users.country,
+          isAdmin: users.isAdmin,
+          createdAt: users.createdAt,
+        })
+        .from(users)
+        .orderBy(desc(users.createdAt));
+      return allUsers as User[];
+    } catch (error) {
+      console.error("Error getting all users:", error);
+      return [];
+    }
+  }
+
+  async getAllDownloadsAdmin(): Promise<any[]> {
+    try {
+      const { userDownloads, users, formulations } = await import("@shared/schema");
+      const downloads = await db
+        .select({
+          id: userDownloads.id,
+          userId: userDownloads.userId,
+          formulationId: userDownloads.formulationId,
+          formulationName: userDownloads.formulationName,
+          categoryName: userDownloads.categoryName,
+          downloadedAt: userDownloads.downloadedAt,
+          userEmail: users.email,
+          userFirstName: users.firstName,
+          userLastName: users.lastName,
+          userCountry: users.country,
+          formulation: formulations,
+        })
+        .from(userDownloads)
+        .leftJoin(users, eq(userDownloads.userId, users.id))
+        .leftJoin(formulations, sql`cast(${userDownloads.formulationId} as uuid) = ${formulations.id}`)
+        .orderBy(desc(userDownloads.downloadedAt));
+      return downloads;
+    } catch (error) {
+      console.error("Error getting all downloads:", error);
+      return [];
+    }
+  }
+
+  async getAllFavoritesAdmin(): Promise<any[]> {
+    try {
+      const { userFavorites, users, formulations } = await import("@shared/schema");
+      const favorites = await db
+        .select({
+          id: userFavorites.id,
+          userId: userFavorites.userId,
+          formulationId: userFavorites.formulationId,
+          addedAt: userFavorites.addedAt,
+          userEmail: users.email,
+          userFirstName: users.firstName,
+          userLastName: users.lastName,
+          userCountry: users.country,
+          formulation: formulations,
+        })
+        .from(userFavorites)
+        .leftJoin(users, eq(userFavorites.userId, users.id))
+        .leftJoin(formulations, eq(userFavorites.formulationId, formulations.slug))
+        .orderBy(desc(userFavorites.addedAt));
+      return favorites;
+    } catch (error) {
+      console.error("Error getting all favorites:", error);
+      return [];
+    }
+  }
+
   // Pages Content Management methods
   async getPages(): Promise<Page[]> {
     try {

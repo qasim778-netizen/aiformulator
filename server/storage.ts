@@ -69,6 +69,12 @@ export interface IStorage {
   addFavorite(userId: string, formulationId: string): Promise<void>;
   removeFavorite(userId: string, formulationId: string): Promise<void>;
   getUserFavorites(userId: string): Promise<any[]>;
+  
+  // Admin methods
+  getUserById(userId: string): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
+  getAllDownloadsAdmin(): Promise<any[]>;
+  getAllFavoritesAdmin(): Promise<any[]>;
 
   // Pages Content Management
   getPages(): Promise<Page[]>;
