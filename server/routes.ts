@@ -1713,13 +1713,33 @@ Allow: /disclaimer`;
   });
 
   // PDF Generation for existing formulations
-  app.post("/api/formulations/:id/pdf", isAuthenticated, async (req, res) => {
+  app.post("/api/formulations/:id/pdf", isAuthenticated, async (req: any, res) => {
     try {
       const formulationId = req.params.id;
       const formulation = await storage.getFormulation(formulationId);
       
       if (!formulation) {
         return res.status(404).json({ message: "Formulation not found" });
+      }
+
+      // Get userId from authenticated session
+      const userId = req.user.claims.sub;
+
+      // Get category name for tracking
+      const category = formulation.categoryId ? await storage.getCategory(formulation.categoryId) : null;
+
+      // Track download BEFORE generating PDF
+      try {
+        await storage.trackDownload(
+          userId,
+          formulation.id,
+          formulation.name,
+          category?.name || 'Unknown'
+        );
+        console.log(`✅ Download tracked for user ${userId}: ${formulation.name}`);
+      } catch (trackError) {
+        console.error("Error tracking download:", trackError);
+        // Continue with PDF generation even if tracking fails
       }
 
       // Get logo settings from request body

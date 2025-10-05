@@ -171,22 +171,11 @@ export default function FormulationPage() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      // Track download to backend if user is logged in
-      if (user) {
-        try {
-          await apiRequest('POST', '/api/user/downloads', {
-            formulationId: formulation.id,
-            formulationName: formulation.name,
-            categoryName: category?.name || 'Unknown',
-          });
-        } catch (trackError) {
-          console.error('Error tracking download:', trackError);
-        }
-      }
+      // Download is automatically tracked on the backend when PDF is generated
 
       toast({
         title: "PDF Downloaded",
-        description: `Formulation report for ${formulation.name} has been downloaded.`
+        description: `Formulation report for ${formulation.name} has been downloaded. Check My Account to see your downloads.`
       });
     } catch (error: any) {
       console.error('Error generating PDF:', error);
