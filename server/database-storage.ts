@@ -518,7 +518,7 @@ export class DatabaseStorage implements IStorage {
           formulation: formulations,
         })
         .from(userDownloads)
-        .leftJoin(formulations, eq(userDownloads.formulationId, formulations.id))
+        .leftJoin(formulations, sql`${userDownloads.formulationId}::uuid = ${formulations.id}`)
         .where(eq(userDownloads.userId, userId))
         .orderBy(desc(userDownloads.downloadedAt));
       return downloads;
@@ -571,7 +571,7 @@ export class DatabaseStorage implements IStorage {
           category: categories,
         })
         .from(userFavorites)
-        .leftJoin(formulations, eq(userFavorites.formulationId, formulations.id))
+        .leftJoin(formulations, eq(userFavorites.formulationId, formulations.slug))
         .leftJoin(categories, eq(formulations.categoryId, categories.id))
         .where(eq(userFavorites.userId, userId))
         .orderBy(desc(userFavorites.addedAt));
