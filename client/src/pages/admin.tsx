@@ -48,7 +48,7 @@ export default function AdminPage() {
   const { startGuidance, isCompleted } = useGuidance();
   const { isAuthenticated, isLoading, user } = useAuth();
 
-  // Redirect to login if not authenticated
+  // Redirect to login if not authenticated or not admin
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       toast({
@@ -61,7 +61,19 @@ export default function AdminPage() {
       }, 1000);
       return;
     }
-  }, [isAuthenticated, isLoading, toast]);
+    
+    if (!isLoading && isAuthenticated && user && !user.isAdmin) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have admin privileges to access this page.",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
+      return;
+    }
+  }, [isAuthenticated, isLoading, user, toast]);
 
   // Auto-start guidance for first-time users
   useEffect(() => {
