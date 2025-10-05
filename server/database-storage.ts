@@ -372,6 +372,37 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    try {
+      const { users } = await import("@shared/schema");
+      const [user] = await db.select().from(users).where(eq(users.email, email));
+      return user || undefined;
+    } catch (error) {
+      console.log("Users table not yet available, will be created after migration");
+      return undefined;
+    }
+  }
+
+  async createUser(userData: { email: string; password: string; firstName?: string; lastName?: string; country?: string }): Promise<User> {
+    const { users } = await import("@shared/schema");
+    const [user] = await db
+      .insert(users)
+      .values({
+        id: crypto.randomUUID(),
+        email: userData.email,
+        password: userData.password,
+        firstName: userData.firstName || null,
+        lastName: userData.lastName || null,
+        country: userData.country || null,
+        profileImageUrl: null,
+        isAdmin: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+    return user;
+  }
+
   async upsertUser(userData: UpsertUser): Promise<User> {
     try {
       const { users } = await import("@shared/schema");

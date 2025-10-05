@@ -59,6 +59,8 @@ export interface IStorage {
 
   // User Authentication (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: { email: string; password: string; firstName?: string; lastName?: string; country?: string }): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
 
   // User downloads and favorites
@@ -1755,13 +1757,37 @@ export class MemStorage implements IStorage {
     return this.users.get(id);
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.email === email);
+  }
+
+  async createUser(userData: { email: string; password: string; firstName?: string; lastName?: string; country?: string }): Promise<User> {
+    const id = randomUUID();
+    const user: User = {
+      id,
+      email: userData.email,
+      password: userData.password,
+      firstName: userData.firstName || null,
+      lastName: userData.lastName || null,
+      country: userData.country || null,
+      profileImageUrl: null,
+      isAdmin: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.users.set(user.id, user);
+    return user;
+  }
+
   async upsertUser(userData: UpsertUser): Promise<User> {
     const existingUser = this.users.get(userData.id!);
     const user: User = {
       id: userData.id!,
       email: userData.email || null,
+      password: userData.password || null,
       firstName: userData.firstName || null,
       lastName: userData.lastName || null,
+      country: userData.country || null,
       profileImageUrl: userData.profileImageUrl || null,
       isAdmin: userData.isAdmin || existingUser?.isAdmin || false,
       createdAt: existingUser?.createdAt || new Date(),
