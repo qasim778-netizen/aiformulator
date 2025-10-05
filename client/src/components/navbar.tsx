@@ -12,6 +12,7 @@ interface AuthUser {
   firstName?: string;
   lastName?: string;
   profileImageUrl?: string;
+  isAdmin?: boolean;
 }
 
 interface LogoSettings {
@@ -188,6 +189,19 @@ export default function Navbar() {
                 {isAuthenticated ? (
                   // Show user info and logout when authenticated
                   <>
+                    {user?.isAdmin && (
+                      <Link href="/admin/user-activity">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex items-center space-x-2"
+                          data-testid="button-admin-dashboard"
+                        >
+                          <Settings className="h-4 w-4" />
+                          <span>Admin</span>
+                        </Button>
+                      </Link>
+                    )}
                     <Link href="/my-account">
                       <Button 
                         variant="ghost" 

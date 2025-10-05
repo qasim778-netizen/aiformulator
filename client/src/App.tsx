@@ -23,6 +23,7 @@ import BlogPost from "@/pages/blog-post";
 import Demo from "@/pages/demo";
 import SignupPage from "@/pages/signup";
 import LoginPage from "@/pages/login";
+import AdminDashboard from "@/pages/admin-dashboard";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 
@@ -34,6 +35,7 @@ function Router() {
       <Route path="/category/:id" component={Category} />
       <Route path="/formulation/:id" component={Formulation} />
       <Route path="/admin" component={Admin} />
+      <Route path="/admin/user-activity" component={AdminDashboard} />
       <Route path="/my-account" component={MyAccountPage} />
       <Route path="/signup" component={SignupPage} />
       <Route path="/login" component={LoginPage} />
