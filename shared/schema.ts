@@ -297,9 +297,9 @@ export type BlogPost = typeof blogPosts.$inferSelect;
 
 // User downloads table - tracks formulation PDF downloads
 export const userDownloads = pgTable("user_downloads", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull().references(() => users.id),
-  formulationId: uuid("formulation_id").notNull().references(() => formulations.id),
+  formulationId: varchar("formulation_id").notNull(),
   formulationName: text("formulation_name").notNull(), // Denormalized for quick access
   categoryName: text("category_name").notNull(), // Denormalized for quick access
   downloadedAt: timestamp("downloaded_at").notNull().default(sql`now()`),
@@ -313,9 +313,9 @@ export type UserDownload = typeof userDownloads.$inferSelect;
 
 // User favorites table - tracks user's favorite formulations
 export const userFavorites = pgTable("user_favorites", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull().references(() => users.id),
-  formulationId: uuid("formulation_id").notNull().references(() => formulations.id),
+  formulationId: varchar("formulation_id").notNull(),
   addedAt: timestamp("added_at").notNull().default(sql`now()`),
 }, (table) => ({
   userIndex: index("user_favorites_user_idx").on(table.userId),
