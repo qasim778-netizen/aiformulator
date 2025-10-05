@@ -125,7 +125,6 @@ export default function MyAccountPage() {
                       <thead>
                         <tr className="border-b border-gray-300">
                           <th className="text-left p-3 font-semibold">Formula Name</th>
-                          <th className="text-left p-3 font-semibold">Category</th>
                           <th className="text-left p-3 font-semibold">Downloaded</th>
                           <th className="text-right p-3 font-semibold">Action</th>
                         </tr>
@@ -140,15 +139,12 @@ export default function MyAccountPage() {
                             <td className="p-3" data-testid={`text-formula-name-${index}`}>
                               {download.formulationName}
                             </td>
-                            <td className="p-3" data-testid={`text-category-${index}`}>
-                              {download.categoryName}
-                            </td>
                             <td className="p-3" data-testid={`text-downloaded-date-${index}`}>
                               {format(new Date(download.downloadedAt), 'MMM dd, yyyy')}
                             </td>
                             <td className="p-3 text-right">
                               {download.formulation && (
-                                <Link href={`/formulation/${download.formulationId}`}>
+                                <Link href={`/formulation/${download.formulation.slug}`}>
                                   <Button 
                                     variant="outline" 
                                     size="sm"
@@ -200,7 +196,6 @@ export default function MyAccountPage() {
                       <thead>
                         <tr className="border-b border-gray-300">
                           <th className="text-left p-3 font-semibold">Formula Name</th>
-                          <th className="text-left p-3 font-semibold">Category</th>
                           <th className="text-left p-3 font-semibold">Added</th>
                           <th className="text-right p-3 font-semibold">Actions</th>
                         </tr>
@@ -215,16 +210,13 @@ export default function MyAccountPage() {
                             <td className="p-3" data-testid={`text-favorite-name-${index}`}>
                               {favorite.formulation?.name || 'Unknown'}
                             </td>
-                            <td className="p-3" data-testid={`text-favorite-category-${index}`}>
-                              {favorite.category?.name || 'Unknown'}
-                            </td>
                             <td className="p-3" data-testid={`text-favorite-date-${index}`}>
                               {format(new Date(favorite.addedAt), 'MMM dd, yyyy')}
                             </td>
                             <td className="p-3 text-right">
                               <div className="flex justify-end gap-2">
                                 {favorite.formulation && (
-                                  <Link href={`/formulation/${favorite.formulationId}`}>
+                                  <Link href={`/formulation/${favorite.formulation.slug}`}>
                                     <Button 
                                       variant="outline" 
                                       size="sm"
