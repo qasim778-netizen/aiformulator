@@ -55,18 +55,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         country: validatedData.country,
       });
       
-      // Create session
+      // Create session and save it
       (req as any).session.userId = newUser.id;
       
-      res.json({ 
-        success: true, 
-        user: {
-          id: newUser.id,
-          email: newUser.email,
-          firstName: newUser.firstName,
-          lastName: newUser.lastName,
-          country: newUser.country,
+      (req as any).session.save((err: any) => {
+        if (err) {
+          console.error("Session save error:", err);
+          return res.status(500).json({ message: "Failed to create session" });
         }
+        
+        res.json({ 
+          success: true, 
+          user: {
+            id: newUser.id,
+            email: newUser.email,
+            firstName: newUser.firstName,
+            lastName: newUser.lastName,
+            country: newUser.country,
+          }
+        });
       });
     } catch (error: any) {
       console.error("Signup error:", error);
@@ -94,18 +101,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid email or password" });
       }
       
-      // Create session
+      // Create session and save it
       (req as any).session.userId = user.id;
       
-      res.json({ 
-        success: true, 
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          country: user.country,
+      (req as any).session.save((err: any) => {
+        if (err) {
+          console.error("Session save error:", err);
+          return res.status(500).json({ message: "Failed to create session" });
         }
+        
+        res.json({ 
+          success: true, 
+          user: {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            country: user.country,
+          }
+        });
       });
     } catch (error: any) {
       console.error("Login error:", error);
