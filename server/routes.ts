@@ -28,6 +28,24 @@ const requireAuth = (req: any, res: any, next: any) => {
   next();
 };
 
+// Admin-only authentication middleware
+const requireAdmin = async (req: any, res: any, next: any) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ message: "Unauthorized - Please log in" });
+  }
+  
+  try {
+    const user = await storage.getUserById(req.session.userId);
+    if (!user || !user.isAdmin) {
+      return res.status(403).json({ message: "Forbidden - Admin access required" });
+    }
+    next();
+  } catch (error) {
+    console.error("Error checking admin status:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
