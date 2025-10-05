@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
 import { ArrowLeft, Download, Printer, Bookmark, BookmarkCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useCallback } from "react";
 import type { Formulation, Category } from "@shared/schema";
 import SignInDialog from "@/components/signin-dialog";
+import { useAuth } from "@/hooks/useAuth";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Captcha } from "@/components/ui/captcha";
 import woodFloorCleaner from "@/assets/generated-images/wood-floor-cleaner.png";
 import glassCleaner from "@/assets/generated-images/glass-cleaner.png";
@@ -29,6 +31,7 @@ export default function FormulationPage() {
   const params = useParams();
   const formulationId = params.id;
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isFavorited, setIsFavorited] = useState(false);
   const [showSignInDialog, setShowSignInDialog] = useState(false);
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(true);
@@ -43,13 +46,18 @@ export default function FormulationPage() {
     enabled: !!formulation?.categoryId,
   });
 
-  // Check if already favorited on load
+  // Check if already favorited on load from backend
+  const { data: userFavorites } = useQuery<any[]>({
+    queryKey: ['/api/user/favorites'],
+    enabled: !!user,
+  });
+
   useEffect(() => {
-    if (formulationId) {
-      const favorites = JSON.parse(localStorage.getItem('favoriteFormulations') || '[]');
-      setIsFavorited(favorites.includes(formulationId));
+    if (userFavorites && formulationId) {
+      const isFav = userFavorites.some(fav => fav.formulationId === formulationId);
+      setIsFavorited(isFav);
     }
-  }, [formulationId]);
+  }, [userFavorites, formulationId]);
 
   // Update SEO metadata when formulation loads
   useEffect(() => {
@@ -163,6 +171,19 @@ export default function FormulationPage() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
+      // Track download to backend if user is logged in
+      if (user) {
+        try {
+          await apiRequest('POST', '/api/user/downloads', {
+            formulationId: formulation.id,
+            formulationName: formulation.name,
+            categoryName: category?.name || 'Unknown',
+          });
+        } catch (trackError) {
+          console.error('Error tracking download:', trackError);
+        }
+      }
+
       toast({
         title: "PDF Downloaded",
         description: `Formulation report for ${formulation.name} has been downloaded.`
@@ -181,7 +202,7 @@ export default function FormulationPage() {
         variant: "destructive"
       });
     }
-  }, [formulation, toast]);
+  }, [formulation, category, user, toast]);
 
   // Print function
   const handlePrint = useCallback(() => {
@@ -192,41 +213,65 @@ export default function FormulationPage() {
     });
   }, [toast]);
 
+  // Favorites mutation
+  const addFavoriteMutation = useMutation({
+    mutationFn: async (formulationId: string) => {
+      return apiRequest('POST', '/api/user/favorites', { formulationId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/user/favorites'] });
+      setIsFavorited(true);
+      toast({
+        title: "Added to Favorites",
+        description: `${formulation?.name} has been saved to your favorites.`
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add to favorites. Please try again.",
+        variant: "destructive"
+      });
+    },
+  });
+
+  const removeFavoriteMutation = useMutation({
+    mutationFn: async (formulationId: string) => {
+      return apiRequest('DELETE', `/api/user/favorites/${formulationId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/user/favorites'] });
+      setIsFavorited(false);
+      toast({
+        title: "Removed from Favorites",
+        description: `${formulation?.name} has been removed from your favorites.`
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove from favorites. Please try again.",
+        variant: "destructive"
+      });
+    },
+  });
+
   // Favorites function
   const toggleFavorite = useCallback(() => {
     if (!formulation || !formulationId) return;
     
-    try {
-      const favorites = JSON.parse(localStorage.getItem('favoriteFormulations') || '[]');
-      
-      if (isFavorited) {
-        // Remove from favorites
-        const updatedFavorites = favorites.filter((id: string) => id !== formulationId);
-        localStorage.setItem('favoriteFormulations', JSON.stringify(updatedFavorites));
-        setIsFavorited(false);
-        toast({
-          title: "Removed from Favorites",
-          description: `${formulation.name} has been removed from your favorites.`
-        });
-      } else {
-        // Add to favorites
-        const updatedFavorites = [...favorites, formulationId];
-        localStorage.setItem('favoriteFormulations', JSON.stringify(updatedFavorites));
-        setIsFavorited(true);
-        toast({
-          title: "Added to Favorites",
-          description: `${formulation.name} has been saved to your favorites.`
-        });
-      }
-    } catch (error) {
-      console.error('Error toggling favorite:', error);
-      toast({
-        title: "Error",
-        description: "There was an error updating your favorites. Please try again.",
-        variant: "destructive"
-      });
+    // Check if user is logged in
+    if (!user) {
+      setShowSignInDialog(true);
+      return;
     }
-  }, [formulation, formulationId, isFavorited, toast]);
+    
+    if (isFavorited) {
+      removeFavoriteMutation.mutate(formulationId);
+    } else {
+      addFavoriteMutation.mutate(formulationId);
+    }
+  }, [formulation, formulationId, isFavorited, user, addFavoriteMutation, removeFavoriteMutation]);
 
   // Captcha verification handlers
   const handleCaptchaVerify = useCallback((verified: boolean) => {
