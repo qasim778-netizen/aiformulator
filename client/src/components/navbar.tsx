@@ -210,7 +210,7 @@ export default function Navbar() {
                 ) : (
                   // Show login and sign up buttons when not authenticated
                   <>
-                    <a href="/api/login">
+                    <Link href="/login">
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -218,15 +218,15 @@ export default function Navbar() {
                       >
                         Login
                       </Button>
-                    </a>
-                    <a href="/api/login">
+                    </Link>
+                    <Link href="/signup">
                       <Button 
                         size="sm"
                         data-testid="button-signup"
                       >
                         Sign Up
                       </Button>
-                    </a>
+                    </Link>
                   </>
                 )}
               </>
@@ -340,23 +340,25 @@ export default function Navbar() {
                   ) : (
                     // Show login and sign up buttons when not authenticated
                     <div className="px-3 py-2 space-y-2">
-                      <a href="/api/login" className="block">
+                      <Link href="/login" className="block">
                         <Button 
                           variant="outline" 
                           className="w-full"
                           data-testid="mobile-button-login"
+                          onClick={() => setIsMobileMenuOpen(false)}
                         >
                           Login
                         </Button>
-                      </a>
-                      <a href="/api/login" className="block">
+                      </Link>
+                      <Link href="/signup" className="block">
                         <Button 
                           className="w-full"
                           data-testid="mobile-button-signup"
+                          onClick={() => setIsMobileMenuOpen(false)}
                         >
                           Sign Up
                         </Button>
-                      </a>
+                      </Link>
                     </div>
                   )}
                 </>
