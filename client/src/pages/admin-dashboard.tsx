@@ -13,17 +13,17 @@ export default function AdminDashboard() {
 
   const { data: users, isLoading: loadingUsers } = useQuery<any[]>({
     queryKey: ['/api/admin/users'],
-    enabled: !!user,
+    enabled: !!user?.isAdmin,
   });
 
   const { data: downloads, isLoading: loadingDownloads } = useQuery<any[]>({
     queryKey: ['/api/admin/downloads'],
-    enabled: !!user,
+    enabled: !!user?.isAdmin,
   });
 
   const { data: favorites, isLoading: loadingFavorites } = useQuery<any[]>({
     queryKey: ['/api/admin/favorites'],
-    enabled: !!user,
+    enabled: !!user?.isAdmin,
   });
 
   if (!user) {
@@ -36,7 +36,28 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <Link href="/login">
-              <Button>Go to Login</Button>
+              <Button data-testid="button-login">Go to Login</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!user.isAdmin) {
+    return (
+      <div className="container mx-auto py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Access Denied</CardTitle>
+            <CardDescription>You don't have permission to access the admin dashboard.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Admin privileges are required to view this page.
+            </p>
+            <Link href="/">
+              <Button data-testid="button-home">Go to Home</Button>
             </Link>
           </CardContent>
         </Card>
