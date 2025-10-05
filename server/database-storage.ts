@@ -1,4 +1,4 @@
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable } from "./db";
 import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage, UserFormulationRequest, InsertUserFormulationRequest } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
@@ -568,7 +568,7 @@ export class DatabaseStorage implements IStorage {
           formulationId: userFavorites.formulationId,
           addedAt: userFavorites.addedAt,
           formulation: formulations,
-          category: categories,
+          categoryName: categories.name,
         })
         .from(userFavorites)
         .leftJoin(formulations, eq(userFavorites.formulationId, formulations.slug))
