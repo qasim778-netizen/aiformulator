@@ -249,6 +249,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin routes - protected by requireAdmin middleware
+  app.get('/api/admin/users', requireAdmin, async (req: any, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching all users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  app.get('/api/admin/downloads', requireAdmin, async (req: any, res) => {
+    try {
+      const downloads = await storage.getAllDownloadsAdmin();
+      res.json(downloads);
+    } catch (error) {
+      console.error("Error fetching all downloads:", error);
+      res.status(500).json({ message: "Failed to fetch downloads" });
+    }
+  });
+
+  app.get('/api/admin/favorites', requireAdmin, async (req: any, res) => {
+    try {
+      const favorites = await storage.getAllFavoritesAdmin();
+      res.json(favorites);
+    } catch (error) {
+      console.error("Error fetching all favorites:", error);
+      res.status(500).json({ message: "Failed to fetch favorites" });
+    }
+  });
+
   // Object Storage routes for image uploads
   app.post("/api/objects/upload", async (req, res) => {
     try {
