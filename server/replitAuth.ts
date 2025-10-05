@@ -94,12 +94,16 @@ export async function setupAuth(app: Express) {
   }
   
   for (const domain of domains) {
+    // Use http for localhost in development, https for everything else
+    const isLocalhost = domain.includes('localhost') || domain.includes('127.0.0.1');
+    const protocol = (process.env.NODE_ENV === 'development' && isLocalhost) ? 'http' : 'https';
+    
     const strategy = new Strategy(
       {
         name: `replitauth:${domain}`,
         config,
         scope: "openid email profile offline_access",
-        callbackURL: `https://${domain}/api/callback`,
+        callbackURL: `${protocol}://${domain}/api/callback`,
       },
       verify,
     );
