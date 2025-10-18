@@ -136,8 +136,27 @@ export default function FormulationPage() {
         document.head.appendChild(ogTypeElement);
       }
       ogTypeElement.setAttribute('content', 'article');
+
+      // Add canonical URL for SEO
+      const canonicalUrl = `https://aiformulator.net/formulation/${formulationId}`;
+      let canonicalElement = document.querySelector('link[rel="canonical"]');
+      if (!canonicalElement) {
+        canonicalElement = document.createElement('link');
+        canonicalElement.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonicalElement);
+      }
+      canonicalElement.setAttribute('href', canonicalUrl);
+
+      // Update or create og:url
+      let ogUrlElement = document.querySelector('meta[property="og:url"]');
+      if (!ogUrlElement) {
+        ogUrlElement = document.createElement('meta');
+        ogUrlElement.setAttribute('property', 'og:url');
+        document.head.appendChild(ogUrlElement);
+      }
+      ogUrlElement.setAttribute('content', canonicalUrl);
     }
-  }, [formulation, category]);
+  }, [formulation, category, formulationId]);
 
   // PDF Generation function
   const generatePDF = useCallback(async () => {
