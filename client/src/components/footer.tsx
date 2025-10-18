@@ -8,7 +8,9 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-inter font-semibold mb-4">AIFormulator</h3>
+            <h3 className="text-lg font-inter font-semibold mb-4">
+              AIFormulator
+            </h3>
             <div className="space-y-2 text-sm text-gray-300">
               <div>AI-powered chemical formulation platform</div>
               <div>Professional formulations for manufacturers</div>
@@ -21,22 +23,30 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-gray-300">
               <li>
                 <Link href="/category/skin-care-formulations">
-                  <span className="hover:text-white transition-colors duration-200 cursor-pointer">Skin Care</span>
+                  <span className="hover:text-white transition-colors duration-200 cursor-pointer">
+                    Skin Care
+                  </span>
                 </Link>
               </li>
               <li>
                 <Link href="/category/beauty-products-formulations">
-                  <span className="hover:text-white transition-colors duration-200 cursor-pointer">Beauty Products</span>
+                  <span className="hover:text-white transition-colors duration-200 cursor-pointer">
+                    Beauty Products
+                  </span>
                 </Link>
               </li>
               <li>
                 <Link href="/category/cleaning-products-formulations">
-                  <span className="hover:text-white transition-colors duration-200 cursor-pointer">Cleaning Products</span>
+                  <span className="hover:text-white transition-colors duration-200 cursor-pointer">
+                    Cleaning Products
+                  </span>
                 </Link>
               </li>
               <li>
                 <Link href="/category/organic-care-products-formulations">
-                  <span className="hover:text-white transition-colors duration-200 cursor-pointer">Organic Care</span>
+                  <span className="hover:text-white transition-colors duration-200 cursor-pointer">
+                    Organic Care
+                  </span>
                 </Link>
               </li>
             </ul>
@@ -46,28 +56,40 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-gray-300">
               <li>
                 <Link href="/browse">
-                  <span className="hover:text-white transition-colors duration-200 cursor-pointer" data-testid="link-footer-find-formulation">
+                  <span
+                    className="hover:text-white transition-colors duration-200 cursor-pointer"
+                    data-testid="link-footer-find-formulation"
+                  >
                     Find Formulation
                   </span>
                 </Link>
               </li>
               <li>
                 <Link href="/about">
-                  <span className="hover:text-white transition-colors duration-200 cursor-pointer" data-testid="link-footer-about">
+                  <span
+                    className="hover:text-white transition-colors duration-200 cursor-pointer"
+                    data-testid="link-footer-about"
+                  >
                     About Us
                   </span>
                 </Link>
               </li>
               <li>
                 <Link href="/faq">
-                  <span className="hover:text-white transition-colors duration-200 cursor-pointer" data-testid="link-footer-faq">
+                  <span
+                    className="hover:text-white transition-colors duration-200 cursor-pointer"
+                    data-testid="link-footer-faq"
+                  >
                     FAQ
                   </span>
                 </Link>
               </li>
               <li>
                 <Link href="/blog">
-                  <span className="hover:text-white transition-colors duration-200 cursor-pointer" data-testid="link-footer-blog">
+                  <span
+                    className="hover:text-white transition-colors duration-200 cursor-pointer"
+                    data-testid="link-footer-blog"
+                  >
                     Blog
                   </span>
                 </Link>
@@ -77,19 +99,37 @@ export default function Footer() {
           <div>
             <h4 className="font-medium mb-4">Follow Us</h4>
             <div className="space-y-2 text-sm text-gray-300 mb-4">
-              <p><i className="fas fa-envelope mr-2"></i>info@aiformulator.net</p>
+              <p>
+                <i className="fas fa-envelope mr-2"></i>info@aiformulator.net
+              </p>
             </div>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-300 hover:text-white transition-colors duration-200" aria-label="YouTube">
+              <a
+                href="#"
+                className="text-gray-300 hover:text-white transition-colors duration-200"
+                aria-label="YouTube"
+              >
                 <SiYoutube className="h-6 w-6" />
               </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors duration-200" aria-label="TikTok">
+              <a
+                href="#"
+                className="text-gray-300 hover:text-white transition-colors duration-200"
+                aria-label="TikTok"
+              >
                 <SiTiktok className="h-6 w-6" />
               </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors duration-200" aria-label="Instagram">
+              <a
+                href="#"
+                className="text-gray-300 hover:text-white transition-colors duration-200"
+                aria-label="Instagram"
+              >
                 <SiInstagram className="h-6 w-6" />
               </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors duration-200" aria-label="Facebook">
+              <a
+                href="https://www.facebook.com/aiformulator"
+                className="text-gray-300 hover:text-white transition-colors duration-200"
+                aria-label="Facebook"
+              >
                 <SiFacebook className="h-6 w-6" />
               </a>
             </div>
@@ -99,17 +139,26 @@ export default function Footer() {
           <div className="text-center mb-4">
             <div className="flex flex-wrap justify-center items-center space-x-6 text-xs text-gray-400">
               <Link href="/terms-of-service">
-                <span className="hover:text-gray-300 transition-colors duration-200 cursor-pointer" data-testid="link-footer-terms">
+                <span
+                  className="hover:text-gray-300 transition-colors duration-200 cursor-pointer"
+                  data-testid="link-footer-terms"
+                >
                   Terms & Conditions
                 </span>
               </Link>
               <Link href="/privacy-policy">
-                <span className="hover:text-gray-300 transition-colors duration-200 cursor-pointer" data-testid="link-footer-privacy">
+                <span
+                  className="hover:text-gray-300 transition-colors duration-200 cursor-pointer"
+                  data-testid="link-footer-privacy"
+                >
                   Privacy Policy
                 </span>
               </Link>
               <Link href="/disclaimer">
-                <span className="hover:text-gray-300 transition-colors duration-200 cursor-pointer" data-testid="link-footer-disclaimer">
+                <span
+                  className="hover:text-gray-300 transition-colors duration-200 cursor-pointer"
+                  data-testid="link-footer-disclaimer"
+                >
                   Disclaimer of Use
                 </span>
               </Link>
