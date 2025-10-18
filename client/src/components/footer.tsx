@@ -105,7 +105,7 @@ export default function Footer() {
             </div>
             <div className="flex space-x-4">
               <a
-                href="#"
+                href="https://www.youtube.com/@AiFormulator"
                 className="text-gray-300 hover:text-white transition-colors duration-200"
                 aria-label="YouTube"
               >
@@ -119,7 +119,7 @@ export default function Footer() {
                 <SiTiktok className="h-6 w-6" />
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/aiformulator/"
                 className="text-gray-300 hover:text-white transition-colors duration-200"
                 aria-label="Instagram"
               >
