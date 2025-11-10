@@ -254,7 +254,7 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
     const functionLines = doc.splitTextToSize(ingredient.function || '', 62);
     
     const maxLines = Math.max(nameLines.length, inciLines.length, functionLines.length);
-    const rowHeight = maxLines * 4 + 3;
+    const rowHeight = maxLines * 5 + 6;
     
     // Draw row borders
     xPos = tableStartX;
