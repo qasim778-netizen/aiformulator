@@ -59,6 +59,37 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
     return y + (lines.length * fontSize * 0.5);
   };
   
+  // Helper function to add labeled bullet point with bold label
+  const addLabeledBullet = (label: string, content: string, x: number, y: number, maxWidth: number, fontSize = 11): number => {
+    doc.setFontSize(fontSize);
+    doc.setFont('helvetica', 'bold');
+    const labelText = `${label}:`;
+    const labelWidth = doc.getTextWidth(labelText);
+    
+    // Pre-calculate content height
+    doc.setFont('helvetica', 'normal');
+    const contentLines = doc.splitTextToSize(content, maxWidth - labelWidth - 2);
+    const requiredHeight = contentLines.length * fontSize * 0.5 + 4;
+    
+    // Check if we need a new page with actual calculated height
+    let currentY = yPosition;
+    if (currentY + requiredHeight > doc.internal.pageSize.getHeight() - 20) {
+      doc.addPage();
+      currentY = 20;
+      yPosition = 20;
+    }
+    
+    // Now render with guaranteed space
+    doc.setFont('helvetica', 'bold');
+    doc.text(labelText, x, currentY);
+    
+    doc.setFont('helvetica', 'normal');
+    doc.text(contentLines, x + labelWidth + 2, currentY);
+    
+    yPosition = currentY + (contentLines.length * fontSize * 0.5) + 2;
+    return yPosition;
+  };
+  
   // Helper function to check if we need a new page
   const checkNewPage = (requiredSpace: number): number => {
     if (yPosition + requiredSpace > doc.internal.pageSize.getHeight() - 20) {
@@ -419,7 +450,7 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   yPosition += 15;
   
   // Safety Precautions Section
-  yPosition = checkNewPage(40);
+  yPosition = checkNewPage(80);
   
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
@@ -433,16 +464,16 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   
   doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
-  doc.setFont('helvetica', 'normal');
-  const safetyText = `Handling: Wear appropriate PPE including gloves, safety glasses, and lab coat.
-PPE Requirements: Chemical-resistant gloves, safety goggles, protective clothing.
-Storage: Store in cool, dry place away from direct sunlight. Keep containers tightly closed.
-Storage Conditions: ${formulation.storageConditions || 'Store at room temperature (15-25°C)'}`;
-  yPosition = addWrappedText(safetyText, margin, yPosition, contentWidth);
-  yPosition += 15;
+  
+  yPosition = addLabeledBullet('Handling', 'Wear appropriate PPE including gloves, safety glasses, lab coat.', margin + 2, yPosition, contentWidth - 2, 11);
+  yPosition = addLabeledBullet('PPE Requirements', 'Chemical-resistant gloves, safety goggles, protective clothing.', margin + 2, yPosition, contentWidth - 2, 11);
+  yPosition = addLabeledBullet('Storage', 'Store in cool, dry place away from direct sunlight. Keep containers tightly closed.', margin + 2, yPosition, contentWidth - 2, 11);
+  yPosition = addLabeledBullet('Storage Conditions', formulation.storageConditions || 'Store in a cool, dry place away from moisture and direct light.', margin + 2, yPosition, contentWidth - 2, 11);
+  
+  yPosition += 10;
   
   // Packaging Notes Section
-  yPosition = checkNewPage(40);
+  yPosition = checkNewPage(70);
   
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
@@ -456,15 +487,15 @@ Storage Conditions: ${formulation.storageConditions || 'Store at room temperatur
   
   doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
-  doc.setFont('helvetica', 'normal');
-  const packagingText = `Packaging: Use chemically compatible containers (HDPE, glass, or PET).
-Labeling: Include product name, ingredients, usage instructions, and safety warnings.
-Certification: ${formulation.certification || 'Follow applicable industry standards and regulations'}`;
-  yPosition = addWrappedText(packagingText, margin, yPosition, contentWidth);
+  
+  yPosition = addLabeledBullet('Packaging', 'Use chemically compatible containers (HDPE, glass, or PET).', margin + 2, yPosition, contentWidth - 2, 11);
+  yPosition = addLabeledBullet('Labeling', 'Include product name, ingredients, usage instructions, and safety warnings.', margin + 2, yPosition, contentWidth - 2, 11);
+  yPosition = addLabeledBullet('Certification', formulation.certification || 'Complies with industry standards and regulations', margin + 2, yPosition, contentWidth - 2, 11);
+  
   yPosition += 10;
   
   // Scaling Note Section
-  yPosition = checkNewPage(30);
+  yPosition = checkNewPage(90);
   
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
@@ -478,13 +509,13 @@ Certification: ${formulation.certification || 'Follow applicable industry standa
   
   doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
-  doc.setFont('helvetica', 'normal');
-  const scalingText = `Lab Scale: This formulation is designed for laboratory testing and development.
-Pilot Scale: For pilot production, scale proportionally and verify all parameters.
-Production Scale: Consider equipment limitations, mixing efficiency, and process validation.
-Batch Size: Current formulation is optimized for ${formulation.batchSize || 'laboratory scale'}.
-Scaling Factor: Maintain ingredient ratios while adjusting processing parameters as needed.`;
-  yPosition = addWrappedText(scalingText, margin, yPosition, contentWidth, 11);
+  
+  yPosition = addLabeledBullet('Lab Scale', 'This formulation is designed for laboratory testing and development.', margin + 2, yPosition, contentWidth - 2, 11);
+  yPosition = addLabeledBullet('Pilot Scale', 'For pilot production, scale proportionally and verify all parameters.', margin + 2, yPosition, contentWidth - 2, 11);
+  yPosition = addLabeledBullet('Production Scale', 'Consider equipment limitations, mixing efficiency, and process validation.', margin + 2, yPosition, contentWidth - 2, 11);
+  yPosition = addLabeledBullet('Batch Size', `Current formulation is optimized for ${formulation.batchSize || 'laboratory scale'}.`, margin + 2, yPosition, contentWidth - 2, 11);
+  yPosition = addLabeledBullet('Scaling Factor', 'Maintain ingredient ratios while adjusting processing parameters as needed.', margin + 2, yPosition, contentWidth - 2, 11);
+  
   yPosition += 10;
   
   // Product Usage Instructions & Application Guidelines Section
