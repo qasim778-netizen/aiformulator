@@ -244,8 +244,12 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   ingredients.forEach((ingredient: any, index: number) => {
     yPosition = checkNewPage(20);
     
+    // Remove "Part A:", "Part B:", "Part C:", etc. prefixes from ingredient names
+    let cleanIngredientName = (ingredient.name || '').trimStart();
+    cleanIngredientName = cleanIngredientName.replace(/^Part\s+[A-Z]:\s*/i, '');
+    
     doc.setFontSize(9);
-    const nameLines = doc.splitTextToSize(ingredient.name || '', 35);
+    const nameLines = doc.splitTextToSize(cleanIngredientName, 35);
     const inciLines = doc.splitTextToSize(ingredient.inci || '', 30);
     const functionLines = doc.splitTextToSize(ingredient.function || '', 62);
     
