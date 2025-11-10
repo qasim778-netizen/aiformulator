@@ -518,7 +518,7 @@ Scaling Factor: Maintain ingredient ratios while adjusting processing parameters
     doc.setFont('helvetica', 'normal');
     
     // Page number on the left
-    doc.text(`📄 Page ${i} of ${pageCount}`, margin, pageHeight - 10);
+    doc.text(`Page ${i} of ${pageCount}`, margin, pageHeight - 10);
     
     // Copyright on the right
     doc.text('© 2025 AskFormulator.com — All Rights Reserved.', pageWidth - margin, pageHeight - 10, { align: 'right' });
