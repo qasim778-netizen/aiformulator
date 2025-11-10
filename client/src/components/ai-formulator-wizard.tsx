@@ -31,8 +31,13 @@ interface FormData {
   additionalNotes: string;
 }
 
+interface PropertyWithMeta {
+  name: string;
+  compulsory: boolean;
+}
+
 interface DynamicPropertiesProps {
-  availableProperties: string[];
+  availableProperties: PropertyWithMeta[];
 }
 
 // Smart initial defaults - will be calculated dynamically
@@ -67,11 +72,16 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   const { toast } = useToast();
 
   // Fetch properties dynamically from AI based on product name
-  const { data: availableProperties = [], isLoading: propertiesLoading } = useQuery<string[]>({
+  const { data: availableProperties = [], isLoading: propertiesLoading } = useQuery<PropertyWithMeta[]>({
     queryKey: ["/api/product-properties", formData.productName],
     queryFn: async () => {
       if (!formData.productName) {
-        return ['Professional grade', 'Enhanced formula', 'High quality', 'Reliable performance'];
+        return [
+          { name: 'Professional grade', compulsory: true },
+          { name: 'Enhanced formula', compulsory: false },
+          { name: 'High quality', compulsory: true },
+          { name: 'Reliable performance', compulsory: false }
+        ];
       }
       
       const response = await fetch(`/api/product-properties/${encodeURIComponent(formData.productName)}?description=${encodeURIComponent(formData.consistencyType)}`);
@@ -182,15 +192,21 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   };
 
   // Intelligent Default Properties Mapper based on product name
-  const getSmartDefaultProperties = (productName?: string, availableProps: string[] = []): string[] => {
+  const getSmartDefaultProperties = (productName?: string, availableProps: PropertyWithMeta[] = []): string[] => {
     const nameLower = (productName || '').toLowerCase();
     const defaultProperties: string[] = [];
     
-    // Helper function to add property if it exists in available props
+    // ALWAYS add all compulsory properties first
+    const compulsoryProps = availableProps.filter(p => p.compulsory).map(p => p.name);
+    defaultProperties.push(...compulsoryProps);
+    
+    // Helper function to add optional property if it exists in available props
     const addProperty = (prop: string) => {
-      const found = availableProps.find(p => p.toLowerCase().includes(prop.toLowerCase()));
-      if (found && !defaultProperties.includes(found)) {
-        defaultProperties.push(found);
+      const found = availableProps.find(p => 
+        !p.compulsory && p.name.toLowerCase().includes(prop.toLowerCase())
+      );
+      if (found && !defaultProperties.includes(found.name)) {
+        defaultProperties.push(found.name);
       }
     };
     
@@ -240,14 +256,23 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
       addProperty('Long-lasting');
     }
     
-    // Default properties if none were selected
-    if (defaultProperties.length === 0) {
+    // Default properties if none were selected (only add if no optional properties were added)
+    const optionalProps = defaultProperties.filter(
+      prop => !compulsoryProps.some(cp => cp === prop)
+    );
+    if (optionalProps.length === 0) {
       addProperty('Professional grade');
       addProperty('Enhanced formula');
     }
     
-    // Limit to maximum 2 properties
-    return defaultProperties.slice(0, 2);
+    // Return all compulsory properties + limited optional properties
+    // Ensure we never remove compulsory properties, only limit optional ones
+    const finalCompulsory = compulsoryProps;
+    const finalOptional = defaultProperties
+      .filter(prop => !compulsoryProps.includes(prop))
+      .slice(0, 2); // Limit optional properties to 2
+    
+    return [...finalCompulsory, ...finalOptional];
   };
 
   const updateFormData = (data: Partial<FormData>) => {
@@ -284,20 +309,33 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     setFormData(newFormData);
   };
 
-  // Auto-select intelligent properties when product name changes and properties are loaded
+  // Auto-select compulsory and intelligent properties when properties are loaded
   useEffect(() => {
-    // Auto-select intelligent properties if none are currently selected and properties are loaded
-    if (formData.specialProperties.length === 0 && formData.productName && availableProperties.length > 0 && !propertiesLoading) {
-      const smartProperties = getSmartDefaultProperties(
-        formData.productName, 
-        availableProperties
+    // Ensure properties are loaded and product name is set
+    if (formData.productName && availableProperties.length > 0 && !propertiesLoading) {
+      // Get all compulsory properties
+      const compulsoryProps = availableProperties
+        .filter(p => p.compulsory)
+        .map(p => p.name);
+      
+      // Check if we need to add compulsory properties
+      const missingCompulsory = compulsoryProps.filter(
+        prop => !formData.specialProperties.includes(prop)
       );
       
-      if (smartProperties.length > 0) {
-        setFormData(prev => ({
-          ...prev,
-          specialProperties: smartProperties
-        }));
+      // If there are missing compulsory properties OR no properties selected at all, refresh the selection
+      if (missingCompulsory.length > 0 || formData.specialProperties.length === 0) {
+        const smartProperties = getSmartDefaultProperties(
+          formData.productName, 
+          availableProperties
+        );
+        
+        if (smartProperties.length > 0) {
+          setFormData(prev => ({
+            ...prev,
+            specialProperties: smartProperties
+          }));
+        }
       }
     }
   }, [formData.productName, availableProperties, propertiesLoading]);

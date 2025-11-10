@@ -2363,13 +2363,13 @@ Allow: /disclaimer`;
     } catch (error) {
       console.error('Error generating properties:', error);
       
-      // Fallback to generic properties
+      // Fallback to generic properties with compulsory flags
       const fallbackProperties = [
-        'Professional grade',
-        'Enhanced formula', 
-        'High quality',
-        'Reliable performance',
-        'Industry standard'
+        { name: 'Professional grade', compulsory: true },
+        { name: 'Enhanced formula', compulsory: false },
+        { name: 'High quality', compulsory: true },
+        { name: 'Reliable performance', compulsory: false },
+        { name: 'Industry standard', compulsory: false }
       ];
       
       res.json(fallbackProperties);

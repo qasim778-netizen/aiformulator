@@ -6,6 +6,11 @@ import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Droplet, Zap, Shield, Leaf, Sparkles, Sun, Baby, Flower } from "lucide-react";
 
+interface PropertyWithMeta {
+  name: string;
+  compulsory: boolean;
+}
+
 interface FormData {
   viscosity: string;
   specialProperties: string[];
@@ -17,7 +22,7 @@ interface FormData {
 interface Props {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
-  availableProperties?: string[];
+  availableProperties?: PropertyWithMeta[];
   propertiesLoading?: boolean;
   productName?: string;
 }
@@ -71,10 +76,15 @@ const storageTemperatures = [
 ];
 
 export default function SpecificationsStep({ formData, updateFormData, availableProperties = [], propertiesLoading = false, productName = "" }: Props) {
-  const handleSpecialPropertyToggle = (propertyId: string, checked: boolean) => {
+  const handleSpecialPropertyToggle = (propertyName: string, checked: boolean, isCompulsory: boolean) => {
+    // Prevent unchecking compulsory properties
+    if (isCompulsory && !checked) {
+      return;
+    }
+    
     const newProperties = checked 
-      ? [...formData.specialProperties, propertyId]
-      : formData.specialProperties.filter(id => id !== propertyId);
+      ? [...formData.specialProperties, propertyName]
+      : formData.specialProperties.filter(name => name !== propertyName);
     updateFormData({ specialProperties: newProperties });
   };
 
@@ -147,23 +157,39 @@ export default function SpecificationsStep({ formData, updateFormData, available
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {availableProperties && availableProperties.length > 0 ? availableProperties.map((property, index) => {
-                  const propertyId = property.toLowerCase().replace(/[^a-z0-9]/g, '-');
-                  const IconComponent = getIconForProperty(property);
+                  const propertyId = property.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                  const IconComponent = getIconForProperty(property.name);
+                  const isCompulsory = property.compulsory;
+                  const isChecked = formData.specialProperties.includes(property.name);
+                  
                   return (
                     <div
                       key={`${propertyId}-${index}`}
-                      className="flex items-center space-x-2 p-2 rounded-lg border hover:bg-gray-50 transition-colors"
+                      className={`flex items-center space-x-2 p-2 rounded-lg border transition-colors ${
+                        isCompulsory 
+                          ? 'border-blue-400 bg-blue-50 hover:bg-blue-100' 
+                          : 'border-gray-200 hover:bg-gray-50'
+                      }`}
                     >
                       <Checkbox
                         id={propertyId}
-                        checked={formData.specialProperties.includes(property)}
-                        onCheckedChange={(checked) => handleSpecialPropertyToggle(property, !!checked)}
+                        checked={isChecked}
+                        onCheckedChange={(checked) => handleSpecialPropertyToggle(property.name, !!checked, isCompulsory)}
+                        disabled={isCompulsory}
                         data-testid={`checkbox-${propertyId}`}
                       />
                       <div className="flex items-center space-x-1 flex-1">
-                        <IconComponent className="h-3 w-3 text-emerald-600" />
-                        <Label htmlFor={propertyId} className="text-xs font-medium cursor-pointer text-emerald-700">
-                          {property}
+                        <IconComponent className={`h-3 w-3 ${isCompulsory ? 'text-blue-600' : 'text-emerald-600'}`} />
+                        <Label 
+                          htmlFor={propertyId} 
+                          className={`text-xs font-medium cursor-pointer ${
+                            isCompulsory ? 'text-blue-700' : 'text-emerald-700'
+                          }`}
+                        >
+                          {property.name}
+                          {isCompulsory && (
+                            <span className="ml-1 text-[10px] font-bold text-blue-600">(Required)</span>
+                          )}
                         </Label>
                       </div>
                     </div>

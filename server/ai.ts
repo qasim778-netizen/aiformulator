@@ -978,7 +978,7 @@ Please create a professional formulation that meets all these requirements exact
 }
 
 // Generate product-specific properties dynamically based on product name and description
-export async function generateProductProperties(request: { productName: string; productDescription?: string }): Promise<string[]> {
+export async function generateProductProperties(request: { productName: string; productDescription?: string }): Promise<Array<{name: string, compulsory: boolean}>> {
   try {
     const { productName, productDescription = '' } = request;
     
@@ -989,6 +989,14 @@ export async function generateProductProperties(request: { productName: string; 
           role: "system",
           content: `You are a chemical industry expert specializing in product formulations. Generate 5-8 relevant special properties for the given product that would be important for manufacturers and end users.
           
+          For each property, determine if it's COMPULSORY (essential/required for this product type) or OPTIONAL (nice-to-have enhancement).
+          
+          COMPULSORY properties are those that:
+          - Are fundamental to the product's primary function
+          - Are expected/required by industry standards
+          - Are critical for safety or performance
+          - Define the core characteristics of the product
+          
           Focus on properties that are:
           - Specific to the product type and its intended use
           - Technically relevant for formulation development
@@ -996,13 +1004,19 @@ export async function generateProductProperties(request: { productName: string; 
           - Valuable for end users and manufacturers
           - Industry-standard terminology
           
-          For example:
-          - Security printing inks: "Anti-counterfeiting", "UV-reactive", "Tamper-evident", "Magnetic properties", "Color-changing", "High durability", "Solvent resistance"
-          - Adhesives: "Waterproof", "Heat resistant", "Quick-setting", "High bond strength", "Flexible", "UV stable"
-          - Cosmetics: "Hypoallergenic", "Long-lasting", "Dermatologically tested", "Non-comedogenic", "Water-resistant"
+          Examples:
+          - Waterproof adhesive: "Waterproof" (COMPULSORY), "Heat resistant" (COMPULSORY), "Quick-setting" (OPTIONAL), "Flexible" (OPTIONAL)
+          - Sunscreen: "UV protection" (COMPULSORY), "Water-resistant" (COMPULSORY), "Non-greasy" (OPTIONAL), "Fragrance-free" (OPTIONAL)
+          - Shampoo: "Cleansing" (COMPULSORY), "pH balanced" (COMPULSORY), "Sulfate-free" (OPTIONAL), "Volumizing" (OPTIONAL)
           
-          Return a JSON object with a 'properties' array:
-          {"properties": ["Property 1", "Property 2", "Property 3", ...]}`
+          Return a JSON object with a 'properties' array where each item has 'name' and 'compulsory' fields:
+          {
+            "properties": [
+              {"name": "Property 1", "compulsory": true},
+              {"name": "Property 2", "compulsory": false},
+              ...
+            ]
+          }`
         },
         {
           role: "user",
@@ -1013,36 +1027,47 @@ export async function generateProductProperties(request: { productName: string; 
       temperature: 0.7
     });
 
-    const rawContent = response.choices[0].message.content || '[]';
+    const rawContent = response.choices[0].message.content || '{"properties":[]}';
     console.log(`🤖 AI Raw Response:`, rawContent);
     
     const result = JSON.parse(rawContent);
     
-    // Handle different response formats
-    if (Array.isArray(result)) {
-      return result;
-    }
+    // Handle new format with compulsory flag
     if (result.properties && Array.isArray(result.properties)) {
-      return result.properties;
-    }
-    if (result.specialProperties && Array.isArray(result.specialProperties)) {
-      return result.specialProperties;
+      const properties = result.properties.map((prop: any) => {
+        if (typeof prop === 'string') {
+          return { name: prop, compulsory: false };
+        }
+        return {
+          name: prop.name || prop.property || String(prop),
+          compulsory: prop.compulsory === true || prop.required === true || prop.essential === true
+        };
+      });
+      return properties;
     }
     
     // Fallback: try to extract array from any property
     for (const key of Object.keys(result)) {
       if (Array.isArray(result[key])) {
-        return result[key];
+        return result[key].map((prop: any) => {
+          if (typeof prop === 'string') {
+            return { name: prop, compulsory: false };
+          }
+          return {
+            name: prop.name || prop.property || String(prop),
+            compulsory: prop.compulsory === true || prop.required === true
+          };
+        });
       }
     }
     
     // Final fallback
     return [
-      'Professional grade',
-      'High quality',
-      'Reliable performance',
-      'Industry standard',
-      'Optimized formula'
+      { name: 'Professional grade', compulsory: true },
+      { name: 'High quality', compulsory: true },
+      { name: 'Reliable performance', compulsory: false },
+      { name: 'Industry standard', compulsory: false },
+      { name: 'Optimized formula', compulsory: false }
     ];
     
   } catch (error) {
@@ -1050,11 +1075,11 @@ export async function generateProductProperties(request: { productName: string; 
     
     // Fallback properties
     return [
-      'Professional grade',
-      'Enhanced formula', 
-      'High quality',
-      'Reliable performance',
-      'Industry standard'
+      { name: 'Professional grade', compulsory: true },
+      { name: 'Enhanced formula', compulsory: false },
+      { name: 'High quality', compulsory: true },
+      { name: 'Reliable performance', compulsory: false },
+      { name: 'Industry standard', compulsory: false }
     ];
   }
 }
