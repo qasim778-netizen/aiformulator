@@ -97,20 +97,21 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     const nameLower = (productName || '').toLowerCase();
     
     // Product name-based detection (highest priority)
-    if (nameLower.includes('serum') || nameLower.includes('essence')) return 'Very Low';
+    if (nameLower.includes('serum') || nameLower.includes('essence')) return 'Low';
     if (nameLower.includes('oil') || nameLower.includes('toner')) return 'Low';
-    if (nameLower.includes('cleaner') || nameLower.includes('spray')) return 'Low';
+    if (nameLower.includes('cleaner') || nameLower.includes('spray') || nameLower.includes('glass')) return 'Low';
     if (nameLower.includes('shampoo') || nameLower.includes('wash')) return 'Medium';
     if (nameLower.includes('cream') || nameLower.includes('moisturizer')) return 'High';
+    if (nameLower.includes('paste') || nameLower.includes('balm') || nameLower.includes('ointment')) return 'High';
     if (nameLower.includes('gel') && nameLower.includes('hair')) return 'High';
     if (nameLower.includes('mask') || nameLower.includes('treatment')) return 'High';
-    if (nameLower.includes('balm') || nameLower.includes('ointment')) return 'Very High';
+    if (nameLower.includes('wax') || nameLower.includes('pomade')) return 'High';
     
     // Consistency type-based defaults
     if (consistencyType === 'liquid') return 'Low';
     if (consistencyType === 'cream') return 'High';
     if (consistencyType === 'gel') return 'Medium';
-    if (consistencyType === 'powder') return 'Very High';
+    if (consistencyType === 'powder') return 'High';
     
     // Default fallback
     return 'Medium';
@@ -123,12 +124,13 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     // Product name-based detection
     if (nameLower.includes('cleaner') || nameLower.includes('glass') || nameLower.includes('window')) return 'liquid';
     if (nameLower.includes('cream') || nameLower.includes('moisturizer') || nameLower.includes('lotion')) return 'cream';
+    if (nameLower.includes('paste') || nameLower.includes('ointment')) return 'cream';
     if (nameLower.includes('gel') || nameLower.includes('aloe')) return 'gel';
     if (nameLower.includes('powder') || nameLower.includes('foundation') || nameLower.includes('dry')) return 'powder';
     if (nameLower.includes('scrub') || nameLower.includes('exfoliant')) return 'cream';
     if (nameLower.includes('shampoo') || nameLower.includes('soap') || nameLower.includes('wash')) return 'liquid';
     if (nameLower.includes('oil') || nameLower.includes('serum')) return 'liquid';
-    if (nameLower.includes('balm') || nameLower.includes('stick')) return 'cream';
+    if (nameLower.includes('balm') || nameLower.includes('stick') || nameLower.includes('wax')) return 'cream';
     
     // Default fallback
     return 'cream';
@@ -159,20 +161,21 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
     const nameLower = (productName || '').toLowerCase();
     
     // Product name-based detection (highest priority)
-    if (nameLower.includes('serum') || nameLower.includes('essence')) return 'Very Low';
+    if (nameLower.includes('serum') || nameLower.includes('essence')) return 'Low';
     if (nameLower.includes('oil') || nameLower.includes('toner')) return 'Low';
-    if (nameLower.includes('cleaner') || nameLower.includes('spray')) return 'Low';
+    if (nameLower.includes('cleaner') || nameLower.includes('spray') || nameLower.includes('glass')) return 'Low';
     if (nameLower.includes('shampoo') || nameLower.includes('wash')) return 'Medium';
     if (nameLower.includes('cream') || nameLower.includes('moisturizer')) return 'High';
+    if (nameLower.includes('paste') || nameLower.includes('balm') || nameLower.includes('ointment')) return 'High';
     if (nameLower.includes('gel') && nameLower.includes('hair')) return 'High';
     if (nameLower.includes('mask') || nameLower.includes('treatment')) return 'High';
-    if (nameLower.includes('balm') || nameLower.includes('ointment')) return 'Very High';
+    if (nameLower.includes('wax') || nameLower.includes('pomade')) return 'High';
     
     // Consistency type-based defaults
     if (consistencyType === 'liquid') return 'Low';
     if (consistencyType === 'cream') return 'High';
     if (consistencyType === 'gel') return 'Medium';
-    if (consistencyType === 'powder') return 'Very High';
+    if (consistencyType === 'powder') return 'High';
     
     // Default fallback
     return 'Medium';
@@ -563,6 +566,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
                 updateFormData={updateFormData}
                 availableProperties={availableProperties || []}
                 propertiesLoading={propertiesLoading}
+                productName={formData.productName}
               />
             </div>
           )}

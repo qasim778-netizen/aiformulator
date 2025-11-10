@@ -19,29 +19,30 @@ interface Props {
   updateFormData: (data: Partial<FormData>) => void;
   availableProperties?: string[];
   propertiesLoading?: boolean;
+  productName?: string;
 }
 
 const viscosityOptions = [
   {
-    id: "low",
+    id: "Low",
     title: "Low Viscosity",
     description: "Water-like consistency",
-    examples: "Serums, toners, mists"
+    examples: "Serums, toners, mists, glass cleaners, sprays"
   },
   {
-    id: "medium",
+    id: "Medium",
     title: "Medium Viscosity", 
     description: "Lotion-like consistency",
-    examples: "Lotions, gels, light creams"
+    examples: "Lotions, gels, light creams, shampoos"
   },
   {
-    id: "high",
+    id: "High",
     title: "High Viscosity",
     description: "Thick paste consistency",
-    examples: "Heavy creams, balms, ointments"
+    examples: "Heavy creams, balms, ointments, pastes"
   },
   {
-    id: "custom",
+    id: "Custom",
     title: "Custom Specification",
     description: "Define your own viscosity",
     examples: "Specialized formulations"
@@ -69,7 +70,7 @@ const storageTemperatures = [
   "Below 30°C"
 ];
 
-export default function SpecificationsStep({ formData, updateFormData, availableProperties = [], propertiesLoading = false }: Props) {
+export default function SpecificationsStep({ formData, updateFormData, availableProperties = [], propertiesLoading = false, productName = "" }: Props) {
   const handleSpecialPropertyToggle = (propertyId: string, checked: boolean) => {
     const newProperties = checked 
       ? [...formData.specialProperties, propertyId]
@@ -97,6 +98,13 @@ export default function SpecificationsStep({ formData, updateFormData, available
             <Label className="text-base font-semibold text-blue-800 mb-4 block">
               <span className="text-red-600 font-bold mr-1">4.</span> Target Viscosity <span className="text-red-600 font-bold">*</span>
             </Label>
+            {formData.viscosity && productName && (
+              <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                <p className="text-xs text-blue-700">
+                  ✨ Auto-selected based on product type: <span className="font-semibold">{productName}</span>
+                </p>
+              </div>
+            )}
             <RadioGroup 
               value={formData.viscosity} 
               onValueChange={(value) => updateFormData({ viscosity: value })}
