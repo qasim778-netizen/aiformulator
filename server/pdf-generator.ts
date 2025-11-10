@@ -507,14 +507,21 @@ Scaling Factor: Maintain ingredient ratios while adjusting processing parameters
   yPosition = addWrappedText(usageInstructions, margin, yPosition, contentWidth, 11);
   yPosition += 10;
   
-  // Footer - Simple page numbers like the template
+  // Footer - Page numbers and copyright
   const pageCount = doc.getNumberOfPages();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
     doc.setFont('helvetica', 'normal');
-    doc.text(`pg. ${i}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
+    
+    // Page number on the left
+    doc.text(`📄 Page ${i} of ${pageCount}`, margin, pageHeight - 10);
+    
+    // Copyright on the right
+    doc.text('© 2025 AskFormulator.com — All Rights Reserved.', pageWidth - margin, pageHeight - 10, { align: 'right' });
   }
   
   // Convert to buffer
