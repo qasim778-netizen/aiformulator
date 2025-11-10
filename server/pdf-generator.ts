@@ -52,7 +52,7 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   const contentWidth = pageWidth - 2 * margin;
   
   // Helper function to add text with word wrap
-  const addWrappedText = (text: string, x: number, y: number, maxWidth: number, fontSize = 12): number => {
+  const addWrappedText = (text: string, x: number, y: number, maxWidth: number, fontSize = 11): number => {
     doc.setFontSize(fontSize);
     const lines = doc.splitTextToSize(text, maxWidth);
     doc.text(lines, x, y);
@@ -71,21 +71,21 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   // Header with Logo
   try {
     // Read and convert logo to base64
-    const logoPath = path.join(process.cwd(), 'attached_assets/logo_1756133481367-B1IqNIhU_1756679964101.png');
+    const logoPath = path.join(process.cwd(), 'attached_assets/for useee_1762739923960.png');
     const logoBuffer = fs.readFileSync(logoPath);
     const logoBase64 = logoBuffer.toString('base64');
     const logoDataUrl = `data:image/png;base64,${logoBase64}`;
     
-    // Add logo image with 40px height (converted to PDF units)
-    const logoHeight = 40 * 0.75; // Convert pixels to PDF points (roughly 40px * 0.75)
+    // Add logo image with 50px height for better visibility
+    const logoHeight = 50 * 0.75; // Convert pixels to PDF points
     doc.addImage(logoDataUrl, 'PNG', margin, yPosition, 0, logoHeight); // Auto-width based on height
-    yPosition += logoHeight + 10;
+    yPosition += logoHeight + 15;
   } catch (error) {
     console.log('Failed to add logo to PDF, falling back to text:', error);
     // Fallback to company name text if logo fails
     doc.setFontSize(24);
-    doc.setTextColor(41, 128, 185); // Blue color
-    doc.text('AI Formulator', margin, yPosition);
+    doc.setTextColor(62, 39, 35); // Brown color matching logo
+    doc.text('Ask Formulator', margin, yPosition);
     yPosition += 15;
   }
   
@@ -120,28 +120,25 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   doc.text(`Created: ${creationDate}`, margin, yPosition);
   yPosition += 15;
   
-  // Short Description Section
+  // Description Section
   doc.setFontSize(16);
   doc.setTextColor(52, 73, 94);
   doc.setFont('helvetica', 'bold');
-  doc.text('Short Description', margin, yPosition);
+  doc.text('Description', margin, yPosition);
   yPosition += 8;
   
   doc.setLineWidth(0.5);
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
   yPosition += 8;
   
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'normal');
   
   // Simple user-focused description
-  const shortDescription = formulation.description || `This professional formulation is designed to provide effective results for your specific needs.
-It offers gentle yet powerful performance that delivers noticeable benefits.
-Perfect for regular use, this formula helps maintain optimal results safely and reliably.
-Trusted by professionals for consistent, high-quality outcomes.`;
+  const shortDescription = formulation.description || `This professional formulation is designed to provide effective results for your specific needs. It offers gentle yet powerful performance that delivers noticeable benefits. Perfect for regular use, this formula helps maintain optimal results safely and reliably. Trusted by professionals for consistent, high-quality outcomes.`;
   
-  yPosition = addWrappedText(shortDescription, margin, yPosition, contentWidth);
+  yPosition = addWrappedText(shortDescription, margin, yPosition, contentWidth, 11);
   yPosition += 10;
   
   // Technical Specifications Section
@@ -157,7 +154,7 @@ Trusted by professionals for consistent, high-quality outcomes.`;
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
   yPosition += 8;
   
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'normal');
   
@@ -179,7 +176,7 @@ Trusted by professionals for consistent, high-quality outcomes.`;
     doc.setFont('helvetica', 'bold');
     doc.text(spec.label, margin, yPosition);
     doc.setFont('helvetica', 'normal');
-    yPosition = addWrappedText(spec.value, margin + 80, yPosition, contentWidth - 80, 12);
+    yPosition = addWrappedText(spec.value, margin + 80, yPosition, contentWidth - 80, 11);
     yPosition += 5;
   });
   
@@ -336,7 +333,7 @@ Trusted by professionals for consistent, high-quality outcomes.`;
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
   yPosition += 10;
   
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
   
   if (instructions && instructions.length > 0) {
@@ -483,16 +480,37 @@ Pilot Scale: For pilot production, scale proportionally and verify all parameter
 Production Scale: Consider equipment limitations, mixing efficiency, and process validation.
 Batch Size: Current formulation is optimized for ${formulation.batchSize || 'laboratory scale'}.
 Scaling Factor: Maintain ingredient ratios while adjusting processing parameters as needed.`;
-  addWrappedText(scalingText, margin, yPosition, contentWidth);
+  yPosition = addWrappedText(scalingText, margin, yPosition, contentWidth, 11);
+  yPosition += 10;
   
-  // Footer
+  // Product Usage Instructions & Application Guidelines Section
+  yPosition = checkNewPage(40);
+  
+  doc.setFontSize(16);
+  doc.setTextColor(52, 73, 94);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Product Usage Instructions & Application Guidelines', margin, yPosition);
+  yPosition += 8;
+  
+  doc.setLineWidth(0.5);
+  doc.line(margin, yPosition, pageWidth - margin, yPosition);
+  yPosition += 8;
+  
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'normal');
+  const usageInstructions = formulation.usageInstructions || 'Follow industry best practices for application. Ensure proper mixing and storage conditions are maintained. Use appropriate safety equipment during application.';
+  yPosition = addWrappedText(usageInstructions, margin, yPosition, contentWidth, 11);
+  yPosition += 10;
+  
+  // Footer - Simple page numbers like the template
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
-    doc.setFontSize(8);
-    doc.setTextColor(128, 128, 128);
-    doc.text(`Generated by AIFormulator - Page ${i} of ${pageCount}`, margin, doc.internal.pageSize.getHeight() - 10);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth - margin - 50, doc.internal.pageSize.getHeight() - 10);
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`pg. ${i}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
   }
   
   // Convert to buffer
