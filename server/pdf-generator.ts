@@ -196,7 +196,7 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   yPosition += 10;
   
   // Table headers with borders
-  const colWidths = [15, 55, 55, 20, 50]; // Sr.No, Ingredient, INCI, %, Function
+  const colWidths = [14, 39, 34, 17, 66]; // Sr.No, Ingredient, INCI, %, Function (Total: 170)
   const tableStartX = margin;
   const tableWidth = contentWidth;
   
@@ -245,9 +245,9 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
     yPosition = checkNewPage(20);
     
     doc.setFontSize(9);
-    const nameLines = doc.splitTextToSize(ingredient.name || '', 50);
-    const inciLines = doc.splitTextToSize(ingredient.inci || '', 50);
-    const functionLines = doc.splitTextToSize(ingredient.function || '', 45);
+    const nameLines = doc.splitTextToSize(ingredient.name || '', 35);
+    const inciLines = doc.splitTextToSize(ingredient.inci || '', 30);
+    const functionLines = doc.splitTextToSize(ingredient.function || '', 62);
     
     const maxLines = Math.max(nameLines.length, inciLines.length, functionLines.length);
     const rowHeight = maxLines * 4 + 3;
