@@ -17,6 +17,7 @@ import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { aiBlogGenerator } from "./ai-blog-generator";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { optimizeFormulationName } from "./name-optimizer";
+import { savePDFFile, saveTextFile, generateTextContent } from "./file-storage";
 import bcrypt from "bcrypt";
 import { signupSchema, loginSchema } from "@shared/schema";
 
@@ -1866,18 +1867,51 @@ Allow: /disclaimer`;
         keywords: undefined
       }, logoSettings);
       
-      // Set headers for PDF download
-      const sanitizedName = productName
-        .replace(/[^a-zA-Z0-9\s]/g, '') // Remove special characters
-        .replace(/\s+/g, '_') // Replace spaces with underscores
-        .substring(0, 50); // Limit length
-      const filename = `${sanitizedName}_formulation.pdf`;
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-      res.setHeader('Content-Length', pdfBuffer.length);
+      // Generate text content
+      const textContent = generateTextContent(formulation);
       
-      // Send PDF
-      res.send(pdfBuffer);
+      // Save PDF and text files
+      const pdfFile = savePDFFile(pdfBuffer, formulation.name);
+      const textFile = saveTextFile(textContent, formulation.name);
+      
+      // Create slug for the formulation
+      const slug = formulation.name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '-')
+        .substring(0, 60);
+      
+      // Save formulation to database with file paths
+      let savedFormulation;
+      try {
+        savedFormulation = await storage.createFormulation({
+          ...formulation,
+          slug,
+          pdfPath: pdfFile.filename,
+          textPath: textFile.filename,
+          userId: (req as any).session?.userId || null,
+          categoryId: null, // Custom formulations don't have categories
+          isActive: false // Pending approval
+        });
+        console.log(`✅ Formulation saved to database: ${savedFormulation.id}`);
+      } catch (saveError) {
+        console.error('Failed to save formulation to database:', saveError);
+        // Return error if we can't save
+        return res.status(500).json({ 
+          message: "Failed to save formulation to database" 
+        });
+      }
+      
+      // Return JSON metadata with download URLs
+      res.json({
+        success: true,
+        formulation: {
+          id: savedFormulation.id,
+          name: savedFormulation.name,
+          pdfUrl: `/api/formulations/${savedFormulation.id}/download/pdf`,
+          textUrl: `/api/formulations/${savedFormulation.id}/download/text`
+        }
+      });
       
     } catch (error: any) {
       console.error("Failed to generate custom formulation:", error);
