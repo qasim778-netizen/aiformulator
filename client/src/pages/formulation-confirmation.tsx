@@ -1,55 +1,86 @@
-import { useEffect, useState } from 'react';
-import { useLocation, Link } from 'wouter';
+import { Link, useParams, useLocation } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Download, FileText, Sparkles, User } from 'lucide-react';
+import { CheckCircle, Download, FileText, Sparkles, User, Loader2 } from 'lucide-react';
 
 interface FormulationData {
-  id?: number;
+  id: string;
   name: string;
-  pdfUrl?: string;
-  textUrl?: string;
+  description: string;
+  pdfUrl: string;
+  textUrl: string;
+  createdAt: string;
 }
 
 export default function FormulationConfirmation() {
+  const params = useParams();
   const [, setLocation] = useLocation();
-  const [formulation, setFormulation] = useState<FormulationData | null>(null);
+  const formulationId = params.id;
 
-  useEffect(() => {
-    // Get formulation data from session storage
-    const savedData = sessionStorage.getItem('generated_formulation');
-    if (savedData) {
-      const data = JSON.parse(savedData);
-      setFormulation(data);
-      // Clear session storage after reading
-      sessionStorage.removeItem('generated_formulation');
-    } else {
-      // If no data, redirect to home
-      setLocation('/');
-    }
-  }, [setLocation]);
+  // Fetch formulation data from API
+  const { data: formulation, isLoading, error } = useQuery<FormulationData>({
+    queryKey: ['/api/formulations', formulationId],
+    queryFn: async () => {
+      const response = await fetch(`/api/formulations/${formulationId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch formulation');
+      }
+      return response.json();
+    },
+    enabled: !!formulationId,
+  });
+
+  // Redirect to home if no formulation ID
+  if (!formulationId) {
+    setLocation('/');
+    return null;
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <Card className="max-w-md mx-4">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <p className="text-red-600 font-semibold mb-4">Failed to load formulation</p>
+              <Link href="/admin">
+                <Button>Go to AI Wizard</Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const handleDownloadPDF = () => {
     if (formulation?.pdfUrl) {
-      window.open(formulation.pdfUrl, '_blank');
+      window.location.href = formulation.pdfUrl;
     }
   };
 
   const handleDownloadText = () => {
     if (formulation?.textUrl) {
-      window.open(formulation.textUrl, '_blank');
+      window.location.href = formulation.textUrl;
     }
   };
 
-  if (!formulation) {
+  // Show loading state
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto" />
+          <p className="mt-4 text-gray-600 font-medium">Loading your formulation...</p>
         </div>
       </div>
     );
+  }
+
+  if (!formulation) {
+    return null;
   }
 
   return (

@@ -1921,6 +1921,109 @@ Allow: /disclaimer`;
     }
   });
 
+  // Download PDF file for a formulation
+  app.get("/api/formulations/:id/download/pdf", async (req, res) => {
+    try {
+      const formulationId = req.params.id;
+      const formulation = await storage.getFormulation(formulationId);
+      
+      if (!formulation) {
+        return res.status(404).json({ message: "Formulation not found" });
+      }
+      
+      if (!formulation.pdfPath) {
+        return res.status(404).json({ message: "PDF file not found" });
+      }
+      
+      // Read PDF file from disk
+      const { readFile } = await import('./file-storage');
+      const pdfBuffer = readFile(formulation.pdfPath);
+      
+      // Set headers for PDF download
+      const sanitizedName = formulation.name
+        .replace(/[^a-zA-Z0-9\s]/g, '')
+        .replace(/\s+/g, '_')
+        .substring(0, 50);
+      const filename = `${sanitizedName}_formulation.pdf`;
+      
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Length', pdfBuffer.length);
+      
+      res.send(pdfBuffer);
+    } catch (error: any) {
+      console.error("Failed to download PDF:", error);
+      res.status(500).json({ 
+        message: error.message || "Failed to download PDF" 
+      });
+    }
+  });
+
+  // Download text file for a formulation
+  app.get("/api/formulations/:id/download/text", async (req, res) => {
+    try {
+      const formulationId = req.params.id;
+      const formulation = await storage.getFormulation(formulationId);
+      
+      if (!formulation) {
+        return res.status(404).json({ message: "Formulation not found" });
+      }
+      
+      if (!formulation.textPath) {
+        return res.status(404).json({ message: "Text file not found" });
+      }
+      
+      // Read text file from disk
+      const { readFile } = await import('./file-storage');
+      const textBuffer = readFile(formulation.textPath);
+      
+      // Set headers for text download
+      const sanitizedName = formulation.name
+        .replace(/[^a-zA-Z0-9\s]/g, '')
+        .replace(/\s+/g, '_')
+        .substring(0, 50);
+      const filename = `${sanitizedName}_formulation.txt`;
+      
+      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Length', textBuffer.length);
+      
+      res.send(textBuffer);
+    } catch (error: any) {
+      console.error("Failed to download text file:", error);
+      res.status(500).json({ 
+        message: error.message || "Failed to download text file" 
+      });
+    }
+  });
+
+  // Get formulation details by ID - Public endpoint for confirmation page
+  app.get("/api/formulations/:id", async (req, res) => {
+    try {
+      const formulationId = req.params.id;
+      const formulation = await storage.getFormulation(formulationId);
+      
+      if (!formulation) {
+        return res.status(404).json({ message: "Formulation not found" });
+      }
+      
+      // Return formulation metadata
+      res.json({
+        id: formulation.id,
+        name: formulation.name,
+        description: formulation.description,
+        pdfUrl: `/api/formulations/${formulation.id}/download/pdf`,
+        textUrl: `/api/formulations/${formulation.id}/download/text`,
+        createdAt: formulation.createdAt
+      });
+    } catch (error: any) {
+      console.error("Failed to get formulation:", error);
+      res.status(500).json({ 
+        message: error.message || "Failed to get formulation" 
+      });
+    }
+  });
+
   // PDF Generation for existing formulations
   app.post("/api/formulations/:id/pdf", requireAuth, async (req: any, res) => {
     try {

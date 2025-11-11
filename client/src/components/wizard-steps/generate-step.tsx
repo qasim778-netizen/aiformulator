@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { CheckCircle, Beaker, Settings, FileText, Download, Loader2, ArrowLeft } from 'lucide-react';
@@ -28,6 +29,7 @@ interface GenerateStepProps {
 
 export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
   const [captchaKey, setCaptchaKey] = useState(0);
 
@@ -69,33 +71,17 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
         throw new Error(error.message || 'Failed to generate formulation');
       }
       
-      // Get the PDF blob and trigger download
-      const pdfBlob = await response.blob();
+      // Get JSON response with formulation metadata
+      const result = await response.json();
+      console.log('✅ Formulation generated:', result);
       
-      // Create download link
-      const url = window.URL.createObjectURL(pdfBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${data.productName.replace(/\s+/g, '_')}_formulation.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Clean up
-      window.URL.revokeObjectURL(url);
-      
-      console.log('✅ PDF generated and downloaded');
-      return data;
+      return result.formulation;
     },
-    onSuccess: (data: any) => {
-      console.log('Generation success:', data);
+    onSuccess: (formulation: any) => {
+      console.log('Generation success:', formulation);
       
-      // Show success message
-      toast({
-        title: "Success!",
-        description: "Your formulation has been generated and downloaded as PDF!",
-        variant: "default",
-      });
+      // Navigate to confirmation page with formulation ID
+      setLocation(`/formulation-confirmation/${formulation.id}`);
     },
     onError: (error) => {
       toast({

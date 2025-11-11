@@ -11,6 +11,7 @@ import Home from "@/pages/home";
 import Browse from "@/pages/browse";
 import Category from "@/pages/category";
 import Formulation from "@/pages/formulation";
+import FormulationConfirmation from "@/pages/formulation-confirmation";
 import Admin from "@/pages/admin";
 import MyAccountPage from "@/pages/my-account";
 import About from "@/pages/about";
@@ -34,6 +35,7 @@ function Router() {
       <Route path="/browse" component={Browse} />
       <Route path="/category/:id" component={Category} />
       <Route path="/formulation/:id" component={Formulation} />
+      <Route path="/formulation-confirmation/:id" component={FormulationConfirmation} />
       <Route path="/admin" component={Admin} />
       <Route path="/admin/user-activity" component={AdminDashboard} />
       <Route path="/my-account" component={MyAccountPage} />
