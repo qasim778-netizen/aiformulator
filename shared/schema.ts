@@ -21,7 +21,7 @@ export const categories = pgTable("categories", {
 
 export const formulations = pgTable("formulations", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  categoryId: uuid("category_id").notNull().references(() => categories.id),
+  categoryId: uuid("category_id").references(() => categories.id), // Made nullable for custom formulations
   name: text("name").notNull(),
   slug: text("slug").notNull(), // SEO-friendly URL slug
   description: text("description").notNull(),
@@ -43,6 +43,9 @@ export const formulations = pgTable("formulations", {
   temperature: text("temperature").notNull(),
   equipment: text("equipment").notNull(),
   certification: text("certification"),
+  pdfPath: text("pdf_path"), // Path to stored PDF file
+  textPath: text("text_path"), // Path to stored text file
+  userId: varchar("user_id"), // Owner of custom formulation
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
@@ -78,6 +81,7 @@ export const insertFormulationSchema = createInsertSchema(formulations).omit({
 }).partial({
   // Make these fields optional for form submission
   slug: true,
+  categoryId: true, // Allow custom formulations without category
   viscosity: true,
   certification: true,
   image: true,
@@ -86,6 +90,9 @@ export const insertFormulationSchema = createInsertSchema(formulations).omit({
   seoTitle: true,
   metaDescription: true,
   keywords: true,
+  pdfPath: true, // File paths are optional
+  textPath: true,
+  userId: true, // User ID is optional
 });
 
 // Product special properties table for dynamic properties based on product type
