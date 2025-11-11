@@ -1809,60 +1809,17 @@ Allow: /disclaimer`;
         isActive: false // This will make it appear in pending approval
       }, categoryName);
       
-      const formulationToSave = formulationWithSEO;
-
-      try {
-        const savedFormulation = await storage.createFormulation(formulationToSave);
-        console.log('✅ Formulation saved to database for approval:', savedFormulation.id);
-
-        // Save user formulation request for admin review
-        try {
-          const userRequest: any = {
-            sessionId: req.sessionID || 'anonymous',
-            productName,
-            productCategory: categoryName,
-            productDescription,
-            productType,
-            consistencyType: viscosity || undefined,
-            phLevel: phLevel?.toString() || undefined,
-            viscosity: viscosity || undefined,
-            budgetCategory: costLevel || undefined,
-            specialProperties: specialRequirements ? [specialRequirements] : undefined,
-            additionalNotes: `Color: ${color || 'Not specified'}, Fragrance: ${fragrance || 'Not specified'}`,
-            status: 'pending',
-            formulationId: savedFormulation.id
-          };
-
-          await storage.createUserFormulationRequest(userRequest);
-          console.log('✅ User formulation request saved for admin review');
-        } catch (requestError) {
-          console.error('Failed to save user formulation request:', requestError);
-          // Continue - this is not critical to the user experience
-        }
-
-        // Track AI generation for analytics
-        const endTime = Date.now();
-        const responseTime = endTime - startTime;
-        await storage.trackAiGeneration({
-          productName,
-          category: categoryId,
-          sessionId: req.sessionID || 'anonymous',
-          timestamp: new Date().toISOString(),
-          responseTime,
-          formData: req.body,
-          country: req.headers['x-forwarded-for'] ? 'Unknown' : undefined,
-          city: undefined
-        });
-        console.log('📊 AI generation tracked for analytics');
-      } catch (dbError) {
-        console.error('Failed to save formulation to database:', dbError);
-        // Continue with PDF generation even if database save fails
-      }
+      // Create slug for the formulation
+      const slug = formulation.name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '-')
+        .substring(0, 60);
 
       // Generate PDF with logo settings
       const pdfBuffer = generateFormulationPDF({
         ...formulation,
-        slug: 'custom-formulation',
+        slug,
         metaDescription: undefined,
         keywords: undefined
       }, logoSettings);
@@ -1874,14 +1831,7 @@ Allow: /disclaimer`;
       const pdfFile = savePDFFile(pdfBuffer, formulation.name);
       const textFile = saveTextFile(textContent, formulation.name);
       
-      // Create slug for the formulation
-      const slug = formulation.name
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, '')
-        .replace(/\s+/g, '-')
-        .substring(0, 60);
-      
-      // Save formulation to database with file paths
+      // Save formulation to database with file paths and slug
       let savedFormulation;
       try {
         savedFormulation = await storage.createFormulation({
@@ -1898,8 +1848,53 @@ Allow: /disclaimer`;
         console.error('Failed to save formulation to database:', saveError);
         // Return error if we can't save
         return res.status(500).json({ 
-          message: "Failed to save formulation to database" 
+          message: `Failed to save formulation to database: ${saveError instanceof Error ? saveError.message : 'Unknown error'}`
         });
+      }
+
+      // Save user formulation request for admin review
+      try {
+        const userRequest: any = {
+          sessionId: req.sessionID || 'anonymous',
+          productName,
+          productCategory: categoryName,
+          productDescription,
+          productType,
+          consistencyType: viscosity || undefined,
+          phLevel: phLevel?.toString() || undefined,
+          viscosity: viscosity || undefined,
+          budgetCategory: costLevel || undefined,
+          specialProperties: specialRequirements ? [specialRequirements] : undefined,
+          additionalNotes: `Color: ${color || 'Not specified'}, Fragrance: ${fragrance || 'Not specified'}`,
+          status: 'pending',
+          formulationId: savedFormulation.id
+        };
+
+        await storage.createUserFormulationRequest(userRequest);
+        console.log('✅ User formulation request saved for admin review');
+      } catch (requestError) {
+        console.error('Failed to save user formulation request:', requestError);
+        // Continue - this is not critical to the user experience
+      }
+
+      // Track AI generation for analytics
+      try {
+        const endTime = Date.now();
+        const responseTime = endTime - startTime;
+        await storage.trackAiGeneration({
+          productName,
+          category: categoryId,
+          sessionId: req.sessionID || 'anonymous',
+          timestamp: new Date().toISOString(),
+          responseTime,
+          formData: req.body,
+          country: req.headers['x-forwarded-for'] ? 'Unknown' : undefined,
+          city: undefined
+        });
+        console.log('📊 AI generation tracked for analytics');
+      } catch (analyticsError) {
+        console.error('Failed to track AI generation:', analyticsError);
+        // Continue - this is not critical
       }
       
       // Return JSON metadata with download URLs
