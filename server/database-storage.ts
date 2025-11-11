@@ -129,6 +129,9 @@ export class DatabaseStorage implements IStorage {
       ingredients: formulation.ingredients,
       instructions: formulation.instructions,
       usageInstructions: formulation.usageInstructions,
+      pdfPath: formulation.pdfPath,
+      textPath: formulation.textPath,
+      userId: formulation.userId,
       isActive: formulation.isActive ?? true,
     }).returning();
     return this.mapDbFormulationToFormulation(created);
@@ -241,6 +244,9 @@ export class DatabaseStorage implements IStorage {
       ingredients: dbFormulation.ingredients,
       instructions: dbFormulation.instructions,
       usageInstructions: dbFormulation.usageInstructions,
+      pdfPath: dbFormulation.pdfPath,
+      textPath: dbFormulation.textPath,
+      userId: dbFormulation.userId,
       isActive: dbFormulation.isActive ?? true,
       createdAt: dbFormulation.createdAt,
       updatedAt: dbFormulation.updatedAt,
