@@ -105,12 +105,6 @@ export default function FormulationConfirmation() {
           </CardHeader>
           <CardContent className="p-4 sm:p-6">
             <div className="space-y-4 sm:space-y-6">
-              {/* Formula Name Display */}
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 sm:p-6 border border-blue-200">
-                <h3 className="text-sm font-semibold text-gray-600 mb-2">Formula Name</h3>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900 break-words">{formulation.name}</p>
-              </div>
-
               {/* Download Links Section */}
               <div>
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
