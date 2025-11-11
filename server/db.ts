@@ -45,6 +45,9 @@ export const formulationsTable = pgTable("formulations", {
   ingredients: text("ingredients").notNull(), // JSON string
   instructions: text("instructions").notNull(), // JSON string
   usageInstructions: text("usage_instructions").notNull(),
+  pdfPath: text("pdf_path"), // Path to stored PDF file
+  textPath: text("text_path"), // Path to stored text file
+  userId: varchar("user_id"), // Owner of custom formulation
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
