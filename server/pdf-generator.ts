@@ -102,7 +102,7 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   // Header with Logo
   try {
     // Read and convert logo to base64
-    const logoPath = path.join(process.cwd(), 'attached_assets/for useee_1762739923960.png');
+    const logoPath = path.join(process.cwd(), 'attached_assets/logo_1756133481367-B1IqNIhU_1762958320196.png');
     const logoBuffer = fs.readFileSync(logoPath);
     const logoBase64 = logoBuffer.toString('base64');
     const logoDataUrl = `data:image/png;base64,${logoBase64}`;
@@ -116,7 +116,7 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
     // Fallback to company name text if logo fails
     doc.setFontSize(24);
     doc.setTextColor(62, 39, 35); // Brown color matching logo
-    doc.text('Ask Formulator', margin, yPosition);
+    doc.text('AI Formulator', margin, yPosition);
     yPosition += 15;
   }
   
@@ -537,7 +537,7 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
     doc.text(`Page ${i} of ${pageCount}`, margin, pageHeight - 10);
     
     // Copyright on the right
-    doc.text('© 2025 AskFormulator.com — All Rights Reserved.', pageWidth - margin, pageHeight - 10, { align: 'right' });
+    doc.text('© 2025 AIFormulator.net — All Rights Reserved.', pageWidth - margin, pageHeight - 10, { align: 'right' });
   }
   
   // Convert to buffer
