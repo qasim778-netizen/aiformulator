@@ -101,6 +101,26 @@ async function createTables() {
       )
     `);
 
+    // Create formulation_content table for admin-managed custom page content
+    await db.execute(/* sql */ `
+      CREATE TABLE IF NOT EXISTS formulation_content (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        formulation_id uuid NOT NULL UNIQUE REFERENCES formulations(id) ON DELETE CASCADE,
+        overview_title text,
+        overview_content text,
+        benefits_title text,
+        benefits_content text,
+        applications_title text,
+        applications_content text,
+        usage_title text,
+        usage_content text,
+        safety_title text,
+        safety_content text,
+        created_at timestamp NOT NULL DEFAULT now(),
+        updated_at timestamp NOT NULL DEFAULT now()
+      )
+    `);
+
     console.log("Database tables created successfully!");
   } catch (error) {
     console.log("Tables might already exist or creation failed:", error);
