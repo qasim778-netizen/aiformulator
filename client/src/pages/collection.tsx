@@ -68,7 +68,7 @@ export default function Collection() {
         </div>
 
         {/* Main Content */}
-        <div className="flex h-[calc(100vh-180px)] gap-6 p-4 sm:p-6 lg:p-8">
+        <div className="flex gap-6 p-4 sm:p-6 lg:p-8 flex-1 min-h-[calc(100vh-180px)]">
           {/* Left Sidebar - Categories */}
           <div className="w-full sm:w-64 flex-shrink-0">
             <div className="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
@@ -125,11 +125,11 @@ export default function Collection() {
           </div>
 
           {/* Right Side - Formulations Grid */}
-          <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
             {selectedCategory && (
               <>
                 {/* Category Header & Search */}
-                <div className="mb-6">
+                <div className="mb-6 flex-shrink-0">
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900">{selectedCategory.name}</h2>
@@ -156,11 +156,11 @@ export default function Collection() {
 
                 {/* Formulations Grid */}
                 {filteredFormulations.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto flex-1 pr-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto flex-1">
                     {filteredFormulations.map((formulation) => (
                       <Card
                         key={formulation.id}
-                        className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 h-fit overflow-hidden hover:scale-[1.02]"
+                        className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden flex flex-col hover:scale-[1.02]"
                         data-testid={`formula-card-${formulation.id}`}
                       >
                         {/* Card Image */}
@@ -168,10 +168,10 @@ export default function Collection() {
                           <img
                             src={formulation.image}
                             alt={formulation.name}
-                            className="w-full h-40 object-cover"
+                            className="w-full h-40 object-cover flex-shrink-0"
                           />
                         ) : (
-                          <div className="w-full h-40 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+                          <div className="w-full h-40 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center flex-shrink-0">
                             <div className="text-center">
                               <div className="w-12 h-12 bg-primary/20 rounded-full mx-auto mb-2 flex items-center justify-center">
                                 <span className="text-2xl">🧪</span>
@@ -180,10 +180,10 @@ export default function Collection() {
                           </div>
                         )}
 
-                        <CardContent className="p-4">
+                        <CardContent className="p-4 flex-1 flex flex-col">
                           {/* Status Badge */}
                           <div className="flex items-start justify-between mb-3">
-                            <h3 className="font-semibold text-gray-900 line-clamp-2 flex-1">
+                            <h3 className="font-semibold text-gray-900 line-clamp-2 flex-1 text-sm">
                               {formulation.name}
                             </h3>
                             <Badge
@@ -198,24 +198,24 @@ export default function Collection() {
                           </div>
 
                           {/* Description */}
-                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                          <p className="text-xs text-gray-600 mb-3 line-clamp-2">
                             {formulation.description}
                           </p>
 
                           {/* Specs */}
-                          <div className="space-y-2 mb-4 text-xs">
+                          <div className="space-y-1 mb-4 text-xs flex-1">
                             <div className="flex justify-between">
-                              <span className="text-gray-500">pH Level:</span>
+                              <span className="text-gray-500">pH:</span>
                               <span className="font-medium text-gray-900">{formulation.phLevel}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-500">Shelf Life:</span>
                               <span className="font-medium text-gray-900">
-                                {formulation.shelfLife} months
+                                {formulation.shelfLife}m
                               </span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-500">Batch Size:</span>
+                              <span className="text-gray-500">Batch:</span>
                               <span className="font-medium text-gray-900">{formulation.batchSize}</span>
                             </div>
                           </div>
@@ -223,7 +223,7 @@ export default function Collection() {
                           {/* View Details Button */}
                           <Link href={`/formulation/${formulation.slug || formulation.id}`}>
                             <Button
-                              className="w-full bg-primary text-white hover:bg-blue-700"
+                              className="w-full bg-primary text-white hover:bg-blue-700 h-8 text-xs"
                               size="sm"
                               data-testid={`view-details-${formulation.id}`}
                             >
