@@ -43,7 +43,33 @@ export default function FormulationSidebar({
   }
 
   return (
-    <div className="flex gap-6 flex-row-reverse">
+    <div className="flex gap-6">
+      {/* Left Column - Feature Content */}
+      {selectedFeature && (
+        <div className="flex-1">
+          <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">{selectedFeature.featureName}</h3>
+            {selectedFeature.featureContent ? (
+              <div className="prose prose-sm max-w-none">
+                {selectedFeature.featureContent.startsWith("http") ? (
+                  <img
+                    src={selectedFeature.featureContent}
+                    alt={selectedFeature.featureName}
+                    className="max-w-full h-auto rounded"
+                  />
+                ) : (
+                  <div className="whitespace-pre-wrap text-gray-700">
+                    {selectedFeature.featureContent}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-gray-500 italic">No content available for this feature.</p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Right Column - Formulation Title, Features List & Buttons */}
       <div className="w-64 flex-shrink-0 flex flex-col gap-4">
         <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
@@ -117,32 +143,6 @@ export default function FormulationSidebar({
           )}
         </div>
       </div>
-
-      {/* Left Column - Feature Content */}
-      {selectedFeature && (
-        <div className="flex-1">
-          <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">{selectedFeature.featureName}</h3>
-            {selectedFeature.featureContent ? (
-              <div className="prose prose-sm max-w-none">
-                {selectedFeature.featureContent.startsWith("http") ? (
-                  <img
-                    src={selectedFeature.featureContent}
-                    alt={selectedFeature.featureName}
-                    className="max-w-full h-auto rounded"
-                  />
-                ) : (
-                  <div className="whitespace-pre-wrap text-gray-700">
-                    {selectedFeature.featureContent}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <p className="text-gray-500 italic">No content available for this feature.</p>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
