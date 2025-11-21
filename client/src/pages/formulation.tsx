@@ -404,7 +404,7 @@ export default function FormulationPage() {
 
   return (
     <div className="bg-white py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6">
           <Link href={`/category/${category?.slug || formulation.categoryId}`}>
             <Button variant="ghost" className="text-primary hover:text-blue-700">
@@ -414,8 +414,11 @@ export default function FormulationPage() {
           </Link>
         </div>
         
-        <Card className="bg-white rounded-lg shadow-lg border border-gray-200">
-          <CardContent className="p-8">
+        <div className="flex gap-8">
+          {/* Main Content */}
+          <div className="flex-1">
+            <Card className="bg-white rounded-lg shadow-lg border border-gray-200">
+              <CardContent className="p-8">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-inter font-bold text-gray-900">
                 {formulation.name}
@@ -844,8 +847,15 @@ export default function FormulationPage() {
               </Button>
             </div>
 
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar Features */}
+          <div className="w-80 flex-shrink-0">
+            <FormulationSidebar formulationId={formulation.id} />
+          </div>
+        </div>
       </div>
       
       <SignInDialog 
