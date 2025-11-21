@@ -53,6 +53,26 @@ export const formulations = pgTable("formulations", {
   slugIndex: index("formulation_slug_idx").on(table.slug), // Index for SEO URL lookups
 }));
 
+// Formulation Content table - admin-managed page content for each formulation
+export const formulationContent = pgTable("formulation_content", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  formulationId: uuid("formulation_id").notNull().references(() => formulations.id).unique(), // One content per formulation
+  overviewTitle: text("overview_title"),
+  overviewContent: text("overview_content"), // Rich HTML content
+  benefitsTitle: text("benefits_title"),
+  benefitsContent: text("benefits_content"), // Rich HTML content
+  applicationsTitle: text("applications_title"),
+  applicationsContent: text("applications_content"), // Rich HTML content
+  usageTitle: text("usage_title"),
+  usageContent: text("usage_content"), // Rich HTML content
+  safetyTitle: text("safety_title"),
+  safetyContent: text("safety_content"), // Rich HTML content
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+}, (table) => ({
+  formulationIndex: index("formulation_content_formulation_idx").on(table.formulationId),
+}));
+
 export const insertCategorySchema = createInsertSchema(categories).omit({
   id: true,
   createdAt: true,
@@ -95,6 +115,23 @@ export const insertFormulationSchema = createInsertSchema(formulations).omit({
   userId: true, // User ID is optional
 });
 
+export const insertFormulationContentSchema = createInsertSchema(formulationContent).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).partial({
+  overviewTitle: true,
+  overviewContent: true,
+  benefitsTitle: true,
+  benefitsContent: true,
+  applicationsTitle: true,
+  applicationsContent: true,
+  usageTitle: true,
+  usageContent: true,
+  safetyTitle: true,
+  safetyContent: true,
+});
+
 // Product special properties table for dynamic properties based on product type
 export const productProperties = pgTable("product_properties", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -132,6 +169,8 @@ export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertFormulation = z.infer<typeof insertFormulationSchema>;
 export type Formulation = typeof formulations.$inferSelect;
+export type InsertFormulationContent = z.infer<typeof insertFormulationContentSchema>;
+export type FormulationContent = typeof formulationContent.$inferSelect;
 export type InsertProductProperties = z.infer<typeof insertProductPropertiesSchema>;
 export type ProductProperties = typeof productProperties.$inferSelect;
 export type InsertUserNote = z.infer<typeof insertUserNoteSchema>;

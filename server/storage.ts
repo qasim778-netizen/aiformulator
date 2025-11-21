@@ -1,4 +1,4 @@
-import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser, type Page, type InsertPage, type BlogPost, type InsertBlogPost, type ChatMessage, type InsertChatMessage, type UserFormulationRequest, type InsertUserFormulationRequest } from "@shared/schema";
+import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type FormulationContent, type InsertFormulationContent, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser, type Page, type InsertPage, type BlogPost, type InsertBlogPost, type ChatMessage, type InsertChatMessage, type UserFormulationRequest, type InsertUserFormulationRequest } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 // Helper function to generate URL-friendly slugs
@@ -101,6 +101,12 @@ export interface IStorage {
   createUserFormulationRequest(request: InsertUserFormulationRequest): Promise<UserFormulationRequest>;
   updateUserFormulationRequestStatus(id: string, status: string, adminNotes?: string, reviewedBy?: string): Promise<UserFormulationRequest | undefined>;
   deleteUserFormulationRequest(id: string): Promise<boolean>;
+
+  // Formulation Content Management
+  getFormulationContent(formulationId: string): Promise<FormulationContent | undefined>;
+  createFormulationContent(content: InsertFormulationContent): Promise<FormulationContent>;
+  updateFormulationContent(formulationId: string, content: Partial<InsertFormulationContent>): Promise<FormulationContent | undefined>;
+  deleteFormulationContent(formulationId: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -114,6 +120,7 @@ export class MemStorage implements IStorage {
   private blogPosts: Map<string, BlogPost>;
   private chatMessages: Map<string, ChatMessage[]>;
   private userFormulationRequests: Map<string, UserFormulationRequest>;
+  private formulationContent: Map<string, FormulationContent>;
 
   constructor() {
     this.categories = new Map();
@@ -126,6 +133,7 @@ export class MemStorage implements IStorage {
     this.blogPosts = new Map();
     this.chatMessages = new Map();
     this.userFormulationRequests = new Map();
+    this.formulationContent = new Map();
     // Only seed data if no data exists (first run)
     this.seedInitialData();
     this.seedPages();
