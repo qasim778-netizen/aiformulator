@@ -197,11 +197,6 @@ export default function Collection() {
                             </Badge>
                           </div>
 
-                          {/* Description */}
-                          <p className="text-sm text-gray-600 mb-4 line-clamp-2 flex-1">
-                            {formulation.description}
-                          </p>
-
                           {/* View Details Button */}
                           <Link href={`/formulation/${formulation.slug || formulation.id}`}>
                             <Button
