@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useCallback } from "react";
-import type { Formulation, Category } from "@shared/schema";
+import type { Formulation, Category, FormulationContent } from "@shared/schema";
 import SignInDialog from "@/components/signin-dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -44,6 +44,21 @@ export default function FormulationPage() {
   const { data: category, isLoading: categoryLoading } = useQuery<Category>({
     queryKey: ["/api/categories", formulation?.categoryId],
     enabled: !!formulation?.categoryId,
+  });
+
+  const { data: adminContent } = useQuery<FormulationContent | null>({
+    queryKey: ["/api/formulation-content", formulationId],
+    queryFn: async () => {
+      try {
+        const response = await fetch(`/api/formulation-content/${formulationId}`);
+        if (response.status === 404) return null;
+        if (!response.ok) throw new Error("Failed to fetch content");
+        return await response.json();
+      } catch (error) {
+        return null;
+      }
+    },
+    enabled: !!formulationId,
   });
 
   // Check if already favorited on load from backend
@@ -426,7 +441,58 @@ export default function FormulationPage() {
 
             
             
-            {/* Technical Specifications Section - Clean Layout */}
+            {/* Admin Custom Content - Show if available */}
+            {adminContent && (
+              <div className="space-y-6 mb-8">
+                {adminContent.overviewContent && (
+                  <div>
+                    <h2 className="text-lg font-inter font-semibold mb-3 text-primary border-b-2 border-primary pb-2">
+                      {adminContent.overviewTitle || "Overview"}
+                    </h2>
+                    <div className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: adminContent.overviewContent }} />
+                  </div>
+                )}
+
+                {adminContent.benefitsContent && (
+                  <div>
+                    <h2 className="text-lg font-inter font-semibold mb-3 text-primary border-b-2 border-primary pb-2">
+                      {adminContent.benefitsTitle || "Key Benefits"}
+                    </h2>
+                    <div className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: adminContent.benefitsContent }} />
+                  </div>
+                )}
+
+                {adminContent.applicationsContent && (
+                  <div>
+                    <h2 className="text-lg font-inter font-semibold mb-3 text-primary border-b-2 border-primary pb-2">
+                      {adminContent.applicationsTitle || "Applications"}
+                    </h2>
+                    <div className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: adminContent.applicationsContent }} />
+                  </div>
+                )}
+
+                {adminContent.usageContent && (
+                  <div>
+                    <h2 className="text-lg font-inter font-semibold mb-3 text-primary border-b-2 border-primary pb-2">
+                      {adminContent.usageTitle || "Usage Instructions"}
+                    </h2>
+                    <div className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: adminContent.usageContent }} />
+                  </div>
+                )}
+
+                {adminContent.safetyContent && (
+                  <div>
+                    <h2 className="text-lg font-inter font-semibold mb-3 text-primary border-b-2 border-primary pb-2">
+                      {adminContent.safetyTitle || "Safety Information"}
+                    </h2>
+                    <div className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: adminContent.safetyContent }} />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Technical Specifications Section - Only show if NO admin content */}
+            {!adminContent && (
             <div className="mb-8">
               <div className="bg-white border border-gray-300 rounded-sm">
                 <div className="grid grid-cols-1 lg:grid-cols-3 divide-x divide-gray-300">
@@ -504,9 +570,12 @@ export default function FormulationPage() {
                 </div>
               </div>
             </div>
+            )}
 
-            {/* Product Images - AI Generated or Static */}
-            {(formulation.image || category?.name === "Cleaning Products") && (
+            {/* Product Images & Auto-Generated Content - Only show if NO admin content */}
+            {!adminContent && (
+              <>
+              {(formulation.image || category?.name === "Cleaning Products") && (
               <div className="mb-8">
                 <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Chemical Product Images & Visual References</h2>
                 <div className="bg-white p-6 rounded-lg border border-gray-200">
