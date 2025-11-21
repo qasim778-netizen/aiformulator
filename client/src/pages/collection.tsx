@@ -63,10 +63,10 @@ export default function Collection() {
         <div className="flex gap-6 p-4 sm:p-6 lg:p-8 flex-1 min-h-[calc(100vh-180px)]">
           {/* Left Sidebar - Categories */}
           <div className="w-full sm:w-72 flex-shrink-0">
-            <div className="bg-gray-700 rounded-xl shadow-lg overflow-hidden h-full flex flex-col">
+            <div className="bg-gray-200 rounded-xl shadow-lg overflow-hidden h-full flex flex-col">
               {/* Sidebar Header */}
-              <div className="p-5 border-b border-gray-600 bg-gray-800">
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <div className="p-5 border-b border-gray-300 bg-gray-100">
+                <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                   <Filter className="h-5 w-5" />
                   Categories
                 </h2>
@@ -88,7 +88,7 @@ export default function Collection() {
                         className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between group font-medium ${
                           isSelected
                             ? "bg-blue-500 text-white shadow-lg scale-105"
-                            : "text-gray-100 hover:bg-gray-600 hover:text-white"
+                            : "text-gray-700 hover:bg-gray-300 hover:text-gray-900"
                         }`}
                         data-testid={`category-item-${category.id}`}
                       >
@@ -96,7 +96,7 @@ export default function Collection() {
                           <p className={`text-sm font-semibold line-clamp-2`}>{category.name}</p>
                           <p
                             className={`text-xs mt-1 ${
-                              isSelected ? "text-blue-100" : "text-gray-300"
+                              isSelected ? "text-blue-100" : "text-gray-600"
                             }`}
                           >
                             {formulationCount} product{formulationCount !== 1 ? "s" : ""}
