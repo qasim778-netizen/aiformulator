@@ -23,6 +23,7 @@ import ContentManagementTab from "@/components/admin/content-management-tab";
 import BlogManagementTab from "@/components/admin/blog-management-tab";
 import AICategorySuggestions from "@/components/admin/ai-category-suggestions";
 import FormulationTester from "@/components/admin/formulation-tester";
+import FormulationContentManagementTab from "@/components/admin/formulation-content-management-tab";
 import type { Category, Formulation } from "@shared/schema";
 
 export default function AdminPage() {
@@ -362,6 +363,17 @@ export default function AdminPage() {
               data-testid="admin-blog-tab"
             >
               Blog
+            </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "formulation-content"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab("formulation-content")}
+              data-testid="admin-formulation-content-tab"
+            >
+              Page Content
             </button>
             <button
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
@@ -995,6 +1007,17 @@ export default function AdminPage() {
         {/* Blog Management Tab */}
         {activeTab === "blog" && (
           <BlogManagementTab />
+        )}
+
+        {/* Formulation Content Management Tab */}
+        {activeTab === "formulation-content" && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-inter font-semibold text-gray-900">Formulation Page Content</h2>
+              <p className="text-sm text-gray-600 mt-1">Customize content displayed on public formulation pages. Auto-generated content will be hidden.</p>
+            </div>
+            <FormulationContentManagementTab />
+          </div>
         )}
         
         {/* Test Formulation System Tab */}
