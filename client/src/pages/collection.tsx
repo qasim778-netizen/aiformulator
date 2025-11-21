@@ -202,24 +202,6 @@ export default function Collection() {
                             {formulation.description}
                           </p>
 
-                          {/* Specs */}
-                          <div className="space-y-2 mb-4 text-sm bg-gray-50 p-3 rounded-lg">
-                            <div className="flex justify-between">
-                              <span className="text-gray-600 font-medium">pH:</span>
-                              <span className="font-bold text-gray-900">{formulation.phLevel}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600 font-medium">Shelf Life:</span>
-                              <span className="font-bold text-gray-900">
-                                {formulation.shelfLife}m
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600 font-medium">Batch:</span>
-                              <span className="font-bold text-gray-900">{formulation.batchSize}</span>
-                            </div>
-                          </div>
-
                           {/* View Details Button */}
                           <Link href={`/formulation/${formulation.slug || formulation.id}`}>
                             <Button
