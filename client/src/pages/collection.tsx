@@ -160,7 +160,7 @@ export default function Collection() {
                     {filteredFormulations.map((formulation) => (
                       <Card
                         key={formulation.id}
-                        className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 overflow-hidden flex flex-col hover:scale-105 hover:border-blue-300"
+                        className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 overflow-hidden hover:scale-105 hover:border-blue-300"
                         data-testid={`formula-card-${formulation.id}`}
                       >
                         {/* Card Image */}
@@ -168,26 +168,26 @@ export default function Collection() {
                           <img
                             src={formulation.image}
                             alt={formulation.name}
-                            className="w-full h-48 object-cover flex-shrink-0"
+                            className="w-full h-40 object-cover"
                           />
                         ) : (
-                          <div className="w-full h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center flex-shrink-0">
+                          <div className="w-full h-40 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
                             <div className="text-center">
-                              <div className="w-16 h-16 bg-primary/20 rounded-full mx-auto mb-3 flex items-center justify-center">
-                                <span className="text-4xl">🧪</span>
+                              <div className="w-14 h-14 bg-primary/20 rounded-full mx-auto mb-2 flex items-center justify-center">
+                                <span className="text-3xl">🧪</span>
                               </div>
                             </div>
                           </div>
                         )}
 
-                        <CardContent className="p-5 flex-1 flex flex-col">
+                        <CardContent className="p-4">
                           {/* Status Badge */}
                           <div className="flex items-start justify-between mb-3">
-                            <h3 className="font-bold text-gray-900 line-clamp-2 flex-1 text-base">
+                            <h3 className="font-bold text-gray-900 line-clamp-2 flex-1 text-sm">
                               {formulation.name}
                             </h3>
                             <Badge
-                              className={`ml-2 text-xs font-semibold flex-shrink-0 px-3 py-1 ${
+                              className={`ml-2 text-xs font-semibold flex-shrink-0 px-2 py-1 ${
                                 formulation.isActive
                                   ? "bg-green-100 text-green-800"
                                   : "bg-yellow-100 text-yellow-800"
@@ -200,7 +200,7 @@ export default function Collection() {
                           {/* View Details Button */}
                           <Link href={`/formulation/${formulation.slug || formulation.id}`}>
                             <Button
-                              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 h-10 text-sm font-semibold rounded-lg transition-all"
+                              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 h-9 text-sm font-semibold rounded-lg transition-all"
                               size="sm"
                               data-testid={`view-details-${formulation.id}`}
                             >
