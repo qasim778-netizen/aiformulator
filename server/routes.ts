@@ -5,7 +5,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import crypto from "crypto";
 import { storage } from "./storage";
-import { insertCategorySchema, insertFormulationSchema, insertUserNoteSchema, insertPageSchema, insertBlogPostSchema } from "@shared/schema";
+import { insertCategorySchema, insertFormulationSchema, insertFormulationContentSchema, insertUserNoteSchema, insertPageSchema, insertBlogPostSchema } from "@shared/schema";
 import type { ChatMessage, InsertChatMessage } from "@shared/schema";
 import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateBulkFormulationsWithKeywords, generateProductTypes, generateCustomFormulation } from "./ai";
 import { generateCategorySuggestions } from "./services/openai";

@@ -2433,6 +2433,44 @@ export class MemStorage implements IStorage {
   async deleteUserFormulationRequest(id: string): Promise<boolean> {
     return this.userFormulationRequests.delete(id);
   }
+
+  // Formulation Content methods implementation
+  async getFormulationContent(formulationId: string): Promise<FormulationContent | undefined> {
+    return this.formulationContent.get(formulationId);
+  }
+
+  async createFormulationContent(contentData: InsertFormulationContent): Promise<FormulationContent> {
+    const content: FormulationContent = {
+      id: randomUUID(),
+      ...contentData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    this.formulationContent.set(contentData.formulationId, content);
+    return content;
+  }
+
+  async updateFormulationContent(formulationId: string, contentData: Partial<InsertFormulationContent>): Promise<FormulationContent | undefined> {
+    const existing = this.formulationContent.get(formulationId);
+    if (!existing) {
+      return undefined;
+    }
+
+    const updated: FormulationContent = {
+      ...existing,
+      ...contentData,
+      formulationId: existing.formulationId, // Ensure formulationId doesn't change
+      updatedAt: new Date(),
+    };
+
+    this.formulationContent.set(formulationId, updated);
+    return updated;
+  }
+
+  async deleteFormulationContent(formulationId: string): Promise<boolean> {
+    return this.formulationContent.delete(formulationId);
+  }
 }
 
 import { DatabaseStorage } from "./database-storage";
