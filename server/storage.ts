@@ -23,6 +23,15 @@ export interface IAiGeneration {
   city?: string;
 }
 
+export interface FormulationFeature {
+  id: string;
+  formulationId: string;
+  featureName: string;
+  featureContent?: string;
+  featureOrder: number;
+  isRequired: boolean;
+}
+
 export interface IStorage {
   // Categories
   getCategories(): Promise<Category[]>;
@@ -40,6 +49,12 @@ export interface IStorage {
   createFormulation(formulation: InsertFormulation): Promise<Formulation>;
   updateFormulation(id: string, formulation: Partial<InsertFormulation>): Promise<Formulation | undefined>;
   deleteFormulation(id: string): Promise<boolean>;
+  
+  // Formulation Features
+  getFormulationFeatures(formulationId: string): Promise<FormulationFeature[]>;
+  createFormulationFeature(feature: Omit<FormulationFeature, 'id'>): Promise<FormulationFeature>;
+  updateFormulationFeature(id: string, feature: Partial<Omit<FormulationFeature, 'id'>>): Promise<FormulationFeature | undefined>;
+  deleteFormulationFeature(id: string): Promise<boolean>;
   
   // Admin formulation methods
   getAllFormulations(): Promise<Formulation[]>; // Includes inactive formulations for admin
@@ -114,6 +129,7 @@ export class MemStorage implements IStorage {
   private blogPosts: Map<string, BlogPost>;
   private chatMessages: Map<string, ChatMessage[]>;
   private userFormulationRequests: Map<string, UserFormulationRequest>;
+  private formulationFeatures: Map<string, FormulationFeature[]>;
 
   constructor() {
     this.categories = new Map();
@@ -123,6 +139,7 @@ export class MemStorage implements IStorage {
     this.userNotes = new Map();
     this.users = new Map();
     this.pages = new Map();
+    this.formulationFeatures = new Map();
     this.blogPosts = new Map();
     this.chatMessages = new Map();
     this.userFormulationRequests = new Map();
