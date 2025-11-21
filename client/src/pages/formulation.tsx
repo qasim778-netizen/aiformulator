@@ -565,41 +565,6 @@ export default function FormulationPage() {
                 </div>
               </div>
             )}
-            <div className="flex flex-wrap gap-4 mb-8">
-              <Button 
-                onClick={generatePDF}
-                className="bg-primary text-white hover:bg-blue-700"
-                data-testid="button-download-pdf"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download PDF
-              </Button>
-              <Button 
-                onClick={handlePrint}
-                className="bg-accent text-white hover:bg-orange-600"
-                data-testid="button-print-formula"
-              >
-                <Printer className="h-4 w-4 mr-2" />
-                Print Formula
-              </Button>
-              <Button 
-                onClick={toggleFavorite}
-                variant="outline" 
-                className={`border-primary hover:bg-blue-50 ${
-                  isFavorited 
-                    ? 'bg-primary text-white hover:bg-blue-700' 
-                    : 'text-primary'
-                }`}
-                data-testid="button-toggle-favorite"
-              >
-                {isFavorited ? (
-                  <BookmarkCheck className="h-4 w-4 mr-2" />
-                ) : (
-                  <Bookmark className="h-4 w-4 mr-2" />
-                )}
-                {isFavorited ? 'Favorited' : 'Save to Favorites'}
-              </Button>
-            </div>
 
               </CardContent>
             </Card>
@@ -607,7 +572,13 @@ export default function FormulationPage() {
 
           {/* Sidebar Features */}
           <div className="w-80 flex-shrink-0">
-            <FormulationSidebar formulationId={formulation.id} />
+            <FormulationSidebar 
+              formulationId={formulation.id}
+              onGeneratePDF={generatePDF}
+              onPrint={handlePrint}
+              onToggleFavorite={toggleFavorite}
+              isFavorited={isFavorited}
+            />
           </div>
         </div>
       </div>

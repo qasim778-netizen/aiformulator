@@ -1,11 +1,23 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Download, Printer, Bookmark, BookmarkCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface FormulationSidebarProps {
   formulationId: string;
+  onGeneratePDF?: () => void;
+  onPrint?: () => void;
+  onToggleFavorite?: () => void;
+  isFavorited?: boolean;
 }
 
-export default function FormulationSidebar({ formulationId }: FormulationSidebarProps) {
+export default function FormulationSidebar({ 
+  formulationId, 
+  onGeneratePDF, 
+  onPrint, 
+  onToggleFavorite,
+  isFavorited = false
+}: FormulationSidebarProps) {
   const [selectedFeature, setSelectedFeature] = useState<any>(null);
 
   const { data: features = [], isLoading } = useQuery<any[]>({
@@ -79,6 +91,49 @@ export default function FormulationSidebar({ formulationId }: FormulationSidebar
             ) : (
               <p className="text-gray-500 italic">No content available for this feature.</p>
             )}
+            
+            {/* Action Buttons Below Content */}
+            <div className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-gray-200">
+              {onGeneratePDF && (
+                <Button 
+                  onClick={onGeneratePDF}
+                  className="bg-primary text-white hover:bg-blue-700"
+                  data-testid="button-download-pdf"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download PDF
+                </Button>
+              )}
+              {onPrint && (
+                <Button 
+                  onClick={onPrint}
+                  className="bg-accent text-white hover:bg-orange-600"
+                  data-testid="button-print-formula"
+                >
+                  <Printer className="h-4 w-4 mr-2" />
+                  Print Formula
+                </Button>
+              )}
+              {onToggleFavorite && (
+                <Button 
+                  onClick={onToggleFavorite}
+                  variant="outline" 
+                  className={`border-primary hover:bg-blue-50 ${
+                    isFavorited 
+                      ? 'bg-primary text-white hover:bg-blue-700' 
+                      : 'text-primary'
+                  }`}
+                  data-testid="button-toggle-favorite"
+                >
+                  {isFavorited ? (
+                    <BookmarkCheck className="h-4 w-4 mr-2" />
+                  ) : (
+                    <Bookmark className="h-4 w-4 mr-2" />
+                  )}
+                  {isFavorited ? 'Favorited' : 'Save to Favorites'}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       )}
