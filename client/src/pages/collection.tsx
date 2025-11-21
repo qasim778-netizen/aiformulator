@@ -18,7 +18,7 @@ export default function Collection() {
   });
 
   // Fetch all formulations
-  const { data: allFormulations = [] } = useQuery<Formulation[]>({
+  const { data: allFormulations = [], isLoading: formulationsLoading } = useQuery<Formulation[]>({
     queryKey: ["/api/formulations"],
   });
 
@@ -27,12 +27,19 @@ export default function Collection() {
     if (categories.length > 0 && !selectedCategoryId) {
       setSelectedCategoryId(categories[0].id);
     }
-  }, [categories, selectedCategoryId]);
+  }, [categories]);
+
+  // Get formulations for selected category
+  const getFormulationsByCategory = (categoryId: string) => {
+    return allFormulations.filter((f) => {
+      // Handle both direct match and string comparison in case of type mismatches
+      return String(f.categoryId) === String(categoryId);
+    });
+  };
 
   // Filter formulations by selected category and search query
   const filteredFormulations = selectedCategoryId
-    ? allFormulations
-        .filter((f) => f.categoryId === selectedCategoryId)
+    ? getFormulationsByCategory(selectedCategoryId)
         .filter((f) =>
           searchQuery.trim() === ""
             ? true
@@ -43,7 +50,7 @@ export default function Collection() {
 
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
 
-  if (categoriesLoading) {
+  if (categoriesLoading || formulationsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -77,9 +84,7 @@ export default function Collection() {
               <div className="flex-1 overflow-y-auto">
                 <nav className="space-y-1 p-3">
                   {categories.map((category) => {
-                    const formulationCount = allFormulations.filter(
-                      (f) => f.categoryId === category.id
-                    ).length;
+                    const formulationCount = getFormulationsByCategory(category.id).length;
                     const isSelected = selectedCategoryId === category.id;
 
                     return (
@@ -96,18 +101,18 @@ export default function Collection() {
                         }`}
                         data-testid={`category-item-${category.id}`}
                       >
-                        <div>
+                        <div className="flex-1 min-w-0">
                           <p className={`font-medium text-sm line-clamp-2`}>{category.name}</p>
                           <p
                             className={`text-xs ${
                               isSelected ? "text-blue-100" : "text-gray-500"
                             }`}
                           >
-                            {formulationCount} products
+                            {formulationCount} product{formulationCount !== 1 ? "s" : ""}
                           </p>
                         </div>
                         <ChevronRight
-                          className={`h-4 w-4 flex-shrink-0 transition-transform ${
+                          className={`h-4 w-4 flex-shrink-0 transition-transform ml-2 ${
                             isSelected ? "translate-x-1" : ""
                           }`}
                         />
