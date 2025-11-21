@@ -565,85 +565,6 @@ export default function FormulationPage() {
                 </div>
               </div>
             )}
-
-              <div className="bg-red-50 p-6 rounded-lg border border-red-200">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold text-red-900 mb-2">Handling:</h3>
-                    <p className="text-red-800 text-sm">Wear appropriate PPE including gloves, safety glasses, and lab coat.</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-red-900 mb-2">PPE Requirements:</h3>
-                    <p className="text-red-800 text-sm">Chemical-resistant gloves, safety goggles, protective clothing.</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-red-900 mb-2">Storage:</h3>
-                    <p className="text-red-800 text-sm">Store in cool, dry place away from direct sunlight. Keep containers tightly closed.</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-red-900 mb-2">Storage Conditions:</h3>
-                    <p className="text-red-800 text-sm" data-testid="text-storage-conditions">
-                      {formulation.storageConditions || 'Store at room temperature (15-25°C)'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Packaging Notes Section */}
-            <div className="mb-8">
-              <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Packaging Requirements & Standards</h2>
-              <div className="bg-amber-50 p-6 rounded-lg border border-amber-200">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold text-amber-900 mb-2">Packaging:</h3>
-                    <p className="text-amber-800 text-sm">Use chemically compatible containers (HDPE, glass, or PET).</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-amber-900 mb-2">Labeling:</h3>
-                    <p className="text-amber-800 text-sm">Include product name, ingredients, usage instructions, and safety warnings.</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-amber-900 mb-2">Certification:</h3>
-                    <p className="text-amber-800 text-sm" data-testid="text-certification-details">
-                      {formulation.certification || 'Follow applicable industry standards and regulations'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Scaling Note Section */}
-            <div className="mb-8">
-              <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Production Scaling Guidelines & Considerations</h2>
-              <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold text-purple-900 mb-2">Lab Scale:</h3>
-                    <p className="text-purple-800 text-sm">This formulation is designed for laboratory testing and development.</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-purple-900 mb-2">Pilot Scale:</h3>
-                    <p className="text-purple-800 text-sm">For pilot production, scale proportionally and verify all parameters.</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-purple-900 mb-2">Production Scale:</h3>
-                    <p className="text-purple-800 text-sm">Consider equipment limitations, mixing efficiency, and process validation.</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-purple-900 mb-2">Batch Size:</h3>
-                    <p className="text-purple-800 text-sm" data-testid="text-batch-size-details">
-                      Current formulation is optimized for {formulation.batchSize || 'laboratory scale'}.
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-purple-900 mb-2">Scaling Factor:</h3>
-                    <p className="text-purple-800 text-sm">Maintain ingredient ratios while adjusting processing parameters as needed.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div className="flex flex-wrap gap-4 mb-8">
               <Button 
                 onClick={generatePDF}
@@ -651,3 +572,52 @@ export default function FormulationPage() {
                 data-testid="button-download-pdf"
               >
                 <Download className="h-4 w-4 mr-2" />
+                Download PDF
+              </Button>
+              <Button 
+                onClick={handlePrint}
+                className="bg-accent text-white hover:bg-orange-600"
+                data-testid="button-print-formula"
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Print Formula
+              </Button>
+              <Button 
+                onClick={toggleFavorite}
+                variant="outline" 
+                className={`border-primary hover:bg-blue-50 ${
+                  isFavorited 
+                    ? 'bg-primary text-white hover:bg-blue-700' 
+                    : 'text-primary'
+                }`}
+                data-testid="button-toggle-favorite"
+              >
+                {isFavorited ? (
+                  <BookmarkCheck className="h-4 w-4 mr-2" />
+                ) : (
+                  <Bookmark className="h-4 w-4 mr-2" />
+                )}
+                {isFavorited ? 'Favorited' : 'Save to Favorites'}
+              </Button>
+            </div>
+
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar Features */}
+          <div className="w-80 flex-shrink-0">
+            <FormulationSidebar formulationId={formulation.id} />
+          </div>
+        </div>
+      </div>
+      
+      <SignInDialog 
+        open={showSignInDialog}
+        onOpenChange={setShowSignInDialog}
+        title="Sign In to Download"
+        description="Please sign in to download this formulation as a PDF report."
+      />
+    </div>
+  );
+}
