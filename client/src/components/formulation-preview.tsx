@@ -1,13 +1,33 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Formulation } from "@shared/schema";
+import type { Formulation, FormulationContent } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
 
 interface FormulationPreviewProps {
   formulation: Formulation;
   category?: { name: string };
+  adminContent?: FormulationContent | null;
+  isPublic?: boolean;
 }
 
-export default function FormulationPreview({ formulation, category }: FormulationPreviewProps) {
+export default function FormulationPreview({ formulation, category, adminContent: initialAdminContent, isPublic = true }: FormulationPreviewProps) {
+  // Fetch admin content for this formulation if it exists
+  const { data: fetchedAdminContent } = useQuery<FormulationContent | null>({
+    queryKey: ["/api/formulation-content", formulation.id],
+    queryFn: async () => {
+      try {
+        const response = await fetch(`/api/formulation-content/${formulation.id}`);
+        if (response.status === 404) return null;
+        if (!response.ok) throw new Error("Failed to fetch content");
+        return await response.json();
+      } catch (error) {
+        return null;
+      }
+    },
+    enabled: isPublic, // Only fetch for public pages
+  });
+
+  const adminContent = initialAdminContent || fetchedAdminContent;
   // Safely parse ingredients with error handling
   let ingredients: any[] = [];
   try {
@@ -35,9 +55,11 @@ export default function FormulationPreview({ formulation, category }: Formulatio
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-inter font-bold text-gray-900" data-testid={`text-formulation-name-${formulation.id}`}>{formulation.name}</h3>
-          <Badge className={formulation.isActive ? "bg-green-600 text-white" : "bg-yellow-500 text-white"} data-testid={`badge-status-${formulation.id}`}>
-            {formulation.isActive ? "Active Formula" : "Draft Formula"}
-          </Badge>
+          {!isPublic && (
+            <Badge className={formulation.isActive ? "bg-green-600 text-white" : "bg-yellow-500 text-white"} data-testid={`badge-status-${formulation.id}`}>
+              {formulation.isActive ? "Active Formula" : "Draft Formula"}
+            </Badge>
+          )}
         </div>
 
         {/* Enhanced Description */}
@@ -45,9 +67,60 @@ export default function FormulationPreview({ formulation, category }: Formulatio
           <p className="text-gray-600 leading-relaxed" data-testid={`text-description-${formulation.id}`}>{formulation.description}</p>
         </div>
 
-        {/* Professional Product Specifications Section */}
-        <div className="mb-6">
-          <h2 className="text-lg font-inter font-semibold mb-4 text-primary border-b-2 border-primary pb-2">Professional Chemical Specifications</h2>
+        {/* Admin Custom Content - Display if available on public pages */}
+        {isPublic && adminContent && (
+          <div className="space-y-6">
+            {adminContent.overviewContent && (
+              <div>
+                <h2 className="text-lg font-inter font-semibold mb-3 text-primary border-b-2 border-primary pb-2">
+                  {adminContent.overviewTitle || "Overview"}
+                </h2>
+                <div className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: adminContent.overviewContent }} />
+              </div>
+            )}
+
+            {adminContent.benefitsContent && (
+              <div>
+                <h2 className="text-lg font-inter font-semibold mb-3 text-primary border-b-2 border-primary pb-2">
+                  {adminContent.benefitsTitle || "Key Benefits"}
+                </h2>
+                <div className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: adminContent.benefitsContent }} />
+              </div>
+            )}
+
+            {adminContent.applicationsContent && (
+              <div>
+                <h2 className="text-lg font-inter font-semibold mb-3 text-primary border-b-2 border-primary pb-2">
+                  {adminContent.applicationsTitle || "Applications"}
+                </h2>
+                <div className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: adminContent.applicationsContent }} />
+              </div>
+            )}
+
+            {adminContent.usageContent && (
+              <div>
+                <h2 className="text-lg font-inter font-semibold mb-3 text-primary border-b-2 border-primary pb-2">
+                  {adminContent.usageTitle || "Usage Instructions"}
+                </h2>
+                <div className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: adminContent.usageContent }} />
+              </div>
+            )}
+
+            {adminContent.safetyContent && (
+              <div>
+                <h2 className="text-lg font-inter font-semibold mb-3 text-primary border-b-2 border-primary pb-2">
+                  {adminContent.safetyTitle || "Safety Information"}
+                </h2>
+                <div className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: adminContent.safetyContent }} />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Professional Product Specifications Section - Hidden on public pages with admin content */}
+        {(!isPublic || !adminContent) && (
+          <div className="mb-6">
+            <h2 className="text-lg font-inter font-semibold mb-4 text-primary border-b-2 border-primary pb-2">Professional Chemical Specifications</h2>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             
             {/* Shelf Life & Storage */}
@@ -131,9 +204,11 @@ export default function FormulationPreview({ formulation, category }: Formulatio
               </div>
             </div>
           </div>
-        </div>
+          </div>
+        )}
 
-        {/* Enhanced Ingredients Section */}
+        {/* Enhanced Ingredients Section - Hidden on public pages with admin content */}
+        {(!isPublic || !adminContent) && (
         <div className="mb-6">
           <h2 className="text-lg font-inter font-semibold mb-4 text-primary border-b-2 border-primary pb-2">Ingredients & Manufacturing</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -178,7 +253,8 @@ export default function FormulationPreview({ formulation, category }: Formulatio
           </div>
         </div>
 
-        {/* Usage Instructions */}
+        {/* Usage Instructions - Hidden on public pages with admin content */}
+        {(!isPublic || !adminContent) && (
         <div className="mb-4">
           <h2 className="text-md font-semibold text-gray-800 mb-2">Professional Usage</h2>
           <div className="bg-gray-50 p-3 rounded-lg">
@@ -187,6 +263,7 @@ export default function FormulationPreview({ formulation, category }: Formulatio
             </p>
           </div>
         </div>
+        )}
 
       </CardContent>
     </Card>

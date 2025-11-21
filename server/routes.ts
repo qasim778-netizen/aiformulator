@@ -2477,6 +2477,80 @@ Allow: /disclaimer`;
     }
   });
 
+  // Formulation Content Management API
+  // Get formulation content for a specific formulation
+  app.get("/api/formulation-content/:formulationId", async (req, res) => {
+    try {
+      const content = await storage.getFormulationContent(req.params.formulationId);
+      if (!content) {
+        return res.status(404).json({ message: "Content not found" });
+      }
+      res.json(content);
+    } catch (error: any) {
+      console.error("Failed to fetch formulation content:", error);
+      res.status(500).json({ message: "Failed to fetch formulation content" });
+    }
+  });
+
+  // Create or update formulation content
+  app.post("/api/formulation-content", isAdmin, async (req, res) => {
+    try {
+      const validatedData = insertFormulationContentSchema.parse(req.body);
+      const existingContent = await storage.getFormulationContent(validatedData.formulationId);
+      
+      let content;
+      if (existingContent) {
+        content = await storage.updateFormulationContent(validatedData.formulationId, validatedData);
+      } else {
+        content = await storage.createFormulationContent(validatedData);
+      }
+      
+      res.status(201).json(content);
+    } catch (error: any) {
+      console.error("Failed to create/update formulation content:", error);
+      if (error.issues) {
+        res.status(400).json({ 
+          message: "Validation failed", 
+          issues: error.issues.map((issue: any) => ({
+            path: issue.path,
+            message: issue.message
+          }))
+        });
+      } else {
+        res.status(400).json({ message: error.message || "Invalid content data" });
+      }
+    }
+  });
+
+  // Update formulation content
+  app.put("/api/formulation-content/:formulationId", isAdmin, async (req, res) => {
+    try {
+      const validatedData = insertFormulationContentSchema.partial().parse(req.body);
+      const content = await storage.updateFormulationContent(req.params.formulationId, validatedData);
+      if (!content) {
+        return res.status(404).json({ message: "Content not found" });
+      }
+      res.json(content);
+    } catch (error: any) {
+      console.error("Failed to update formulation content:", error);
+      res.status(400).json({ message: error.message || "Invalid content data" });
+    }
+  });
+
+  // Delete formulation content
+  app.delete("/api/formulation-content/:formulationId", isAdmin, async (req, res) => {
+    try {
+      const success = await storage.deleteFormulationContent(req.params.formulationId);
+      if (!success) {
+        return res.status(404).json({ message: "Content not found" });
+      }
+      res.status(204).send();
+    } catch (error: any) {
+      console.error("Failed to delete formulation content:", error);
+      res.status(500).json({ message: "Failed to delete formulation content" });
+    }
+  });
+
   // Chat API endpoints
   app.get("/api/chat/messages/:sessionId", async (req, res) => {
     try {
