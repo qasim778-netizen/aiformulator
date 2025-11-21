@@ -598,59 +598,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Formulation Features endpoints
-  app.get("/api/formulations/:id/features", async (req, res) => {
-    try {
-      const features = await storage.getFormulationFeatures(req.params.id);
-      res.json(features);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch features" });
-    }
-  });
-
-  app.post("/api/formulations/:id/features", async (req, res) => {
-    try {
-      const { featureName, featureContent, featureOrder, isRequired } = req.body;
-      const feature = await storage.createFormulationFeature({
-        formulationId: req.params.id,
-        featureName,
-        featureContent,
-        featureOrder: featureOrder || 1,
-        isRequired: isRequired || false,
-      });
-      res.status(201).json(feature);
-    } catch (error: any) {
-      console.error("Failed to create feature:", error);
-      res.status(400).json({ message: error.message || "Failed to create feature" });
-    }
-  });
-
-  app.patch("/api/formulations/:formulationId/features/:featureId", async (req, res) => {
-    try {
-      const feature = await storage.updateFormulationFeature(req.params.featureId, req.body);
-      if (!feature) {
-        return res.status(404).json({ message: "Feature not found" });
-      }
-      res.json(feature);
-    } catch (error: any) {
-      console.error("Failed to update feature:", error);
-      res.status(400).json({ message: error.message || "Failed to update feature" });
-    }
-  });
-
-  app.delete("/api/formulations/:formulationId/features/:featureId", async (req, res) => {
-    try {
-      const success = await storage.deleteFormulationFeature(req.params.featureId);
-      if (!success) {
-        return res.status(404).json({ message: "Feature not found" });
-      }
-      res.status(204).send();
-    } catch (error) {
-      console.error("Failed to delete feature:", error);
-      res.status(500).json({ message: "Failed to delete feature" });
-    }
-  });
-
   // Activity endpoint for live notifications
   app.get("/api/activity", async (req, res) => {
     try {

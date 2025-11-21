@@ -128,18 +128,6 @@ export const userFormulationRequestsTable = pgTable("user_formulation_requests",
   reviewedBy: varchar("reviewed_by", { length: 255 }),
 });
 
-// Formulation features table - stores 15 features per formulation with content
-export const formulationFeaturesTable = pgTable("formulation_features", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  formulationId: uuid("formulation_id").notNull().references(() => formulationsTable.id, { onDelete: "cascade" }),
-  featureName: text("feature_name").notNull(),
-  featureContent: text("feature_content"),
-  featureOrder: integer("feature_order").notNull().default(1),
-  isRequired: boolean("is_required").notNull().default(false),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
-
 export type DbCategory = typeof categoriesTable.$inferSelect;
 export type DbFormulation = typeof formulationsTable.$inferSelect;
 export type DbProductProperties = typeof productPropertiesTable.$inferSelect;
@@ -147,7 +135,6 @@ export type DbUserNote = typeof userNotesTable.$inferSelect;
 export type DbPage = typeof pagesTable.$inferSelect;
 export type DbBlogPost = typeof blogPostsTable.$inferSelect;
 export type DbUserFormulationRequest = typeof userFormulationRequestsTable.$inferSelect;
-export type DbFormulationFeature = typeof formulationFeaturesTable.$inferSelect;
 export type InsertDbCategory = typeof categoriesTable.$inferInsert;
 export type InsertDbFormulation = typeof formulationsTable.$inferInsert;
 export type InsertDbProductProperties = typeof productPropertiesTable.$inferInsert;
@@ -155,4 +142,3 @@ export type InsertDbUserNote = typeof userNotesTable.$inferInsert;
 export type InsertDbPage = typeof pagesTable.$inferInsert;
 export type InsertDbBlogPost = typeof blogPostsTable.$inferInsert;
 export type InsertDbUserFormulationRequest = typeof userFormulationRequestsTable.$inferInsert;
-export type InsertDbFormulationFeature = typeof formulationFeaturesTable.$inferInsert;

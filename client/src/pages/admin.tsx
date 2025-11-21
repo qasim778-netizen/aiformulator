@@ -23,7 +23,6 @@ import ContentManagementTab from "@/components/admin/content-management-tab";
 import BlogManagementTab from "@/components/admin/blog-management-tab";
 import AICategorySuggestions from "@/components/admin/ai-category-suggestions";
 import FormulationTester from "@/components/admin/formulation-tester";
-import AdminFeaturesManager from "@/components/AdminFeaturesManager";
 import type { Category, Formulation } from "@shared/schema";
 
 export default function AdminPage() {
@@ -45,8 +44,6 @@ export default function AdminPage() {
   const [editingFormulation, setEditingFormulation] = useState<Formulation | null>(null);
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [featureManagerOpen, setFeatureManagerOpen] = useState(false);
-  const [selectedFormulationForFeatures, setSelectedFormulationForFeatures] = useState<Formulation | null>(null);
   const { toast } = useToast();
   const { startGuidance, isCompleted } = useGuidance();
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -897,18 +894,6 @@ export default function AdminPage() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => {
-                                    setSelectedFormulationForFeatures(formulation);
-                                    setFeatureManagerOpen(true);
-                                  }}
-                                  title="Manage features"
-                                  data-testid={`button-manage-features-${formulation.id}`}
-                                >
-                                  ⚙️
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
                                   onClick={() => deleteFormulation.mutate(formulation.id)}
                                   className="text-red-600 hover:text-red-900"
                                   data-testid={`button-delete-formulation-${formulation.id}`}
@@ -1023,18 +1008,6 @@ export default function AdminPage() {
           </div>
         )}
       </div>
-
-      {/* Feature Manager Dialog */}
-      <Dialog open={featureManagerOpen} onOpenChange={setFeatureManagerOpen}>
-        <DialogContent className="max-w-2xl max-h-96 overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Manage Features - {selectedFormulationForFeatures?.name}</DialogTitle>
-          </DialogHeader>
-          {selectedFormulationForFeatures && (
-            <AdminFeaturesManager formulationId={selectedFormulationForFeatures.id} />
-          )}
-        </DialogContent>
-      </Dialog>
 
       {/* Delete Category Confirmation Dialog */}
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>

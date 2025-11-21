@@ -9,7 +9,6 @@ import { useState, useEffect, useCallback } from "react";
 import type { Formulation, Category } from "@shared/schema";
 import SignInDialog from "@/components/signin-dialog";
 import { useAuth } from "@/hooks/useAuth";
-import FormulationSidebar from "@/components/FormulationSidebar";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Captcha } from "@/components/ui/captcha";
 import woodFloorCleaner from "@/assets/generated-images/wood-floor-cleaner.png";
@@ -404,7 +403,7 @@ export default function FormulationPage() {
 
   return (
     <div className="bg-white py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6">
           <Link href={`/category/${category?.slug || formulation.categoryId}`}>
             <Button variant="ghost" className="text-primary hover:text-blue-700">
@@ -414,11 +413,8 @@ export default function FormulationPage() {
           </Link>
         </div>
         
-        <div className="flex gap-8">
-          {/* Main Content */}
-          <div className="flex-1">
-            <Card className="bg-white rounded-lg shadow-lg border border-gray-200">
-              <CardContent className="p-8">
+        <Card className="bg-white rounded-lg shadow-lg border border-gray-200">
+          <CardContent className="p-8">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-inter font-bold text-gray-900">
                 {formulation.name}
@@ -428,6 +424,86 @@ export default function FormulationPage() {
               </Badge>
             </div>
 
+            
+            
+            {/* Technical Specifications Section - Clean Layout */}
+            <div className="mb-8">
+              <div className="bg-white border border-gray-300 rounded-sm">
+                <div className="grid grid-cols-1 lg:grid-cols-3 divide-x divide-gray-300">
+                  
+                  {/* Product Shelf Life & Storage Requirements */}
+                  <div className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Product Shelf Life & Storage Requirements
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <span className="text-gray-900 font-bold">• Shelf life</span><br />
+                        <span className="text-gray-700 ml-4">{formulation.shelfLife}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-900 font-bold">• Storage Conditions</span><br />
+                        <span className="text-gray-700 ml-4">{formulation.storageConditions}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Chemical Product Properties & Characteristics */}
+                  <div className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Chemical Product Properties & Characteristics
+                    </h3>
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-gray-900 font-bold">Product Type </span>
+                        <span className="text-gray-700">{category?.name || 'Professional Chemical'}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-900 font-bold">pH Level </span>
+                        <span className="text-gray-700">{formulation.phLevel}</span>
+                      </div>
+                      {formulation.viscosity && (
+                        <div>
+                          <span className="text-gray-900 font-bold">Viscosity </span>
+                          <span className="text-gray-700">{formulation.viscosity}</span>
+                        </div>
+                      )}
+                      {formulation.certification && (
+                        <div>
+                          <span className="text-gray-900 font-bold">Complies with </span>
+                          <span className="text-gray-700">{formulation.certification}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Manufacturing Production Details */}
+                  <div className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Manufacturing Production Details
+                    </h3>
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-gray-900 font-bold">Batch Size </span>
+                        <span className="text-gray-700">{formulation.batchSize}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-900 font-bold">Processing Time</span><br />
+                        <span className="text-gray-700">{formulation.processingTime}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-900 font-bold">Processing Ambient Temp</span><br />
+                        <span className="text-gray-700">{formulation.temperature || 'temperature for storage and handling'}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-900 font-bold">Required Equipment</span><br />
+                        <span className="text-gray-700">section below</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Product Images - AI Generated or Static */}
             {(formulation.image || category?.name === "Cleaning Products") && (
@@ -566,22 +642,209 @@ export default function FormulationPage() {
               </div>
             )}
 
-              </CardContent>
-            </Card>
-          </div>
+            <div className="mb-8">
+              <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Chemical Product Description & Overview</h2>
+              <p className="text-gray-700 leading-relaxed">
+                {formulation.description}
+              </p>
+            </div>
 
-          {/* Sidebar Features */}
-          <div className="w-80 flex-shrink-0">
-            <FormulationSidebar 
-              formulationId={formulation.id}
-              formulationName={formulation.name}
-              onGeneratePDF={generatePDF}
-              onPrint={handlePrint}
-              onToggleFavorite={toggleFavorite}
-              isFavorited={isFavorited}
-            />
-          </div>
-        </div>
+            <div className="mb-8">
+              <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Formulation Ingredients Table</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border border-gray-300">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="px-4 py-3 text-left font-medium text-gray-900 border border-gray-300">Sr.No</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-900 border border-gray-300">Ingredient</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-900 border border-gray-300">INCI Name</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-900 border border-gray-300">Percentage</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-900 border border-gray-300">Function</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ingredients.map((ingredient: any, index: number) => (
+                      <tr key={index}>
+                        <td className="px-4 py-3 border border-gray-300">{index + 1}</td>
+                        <td className="px-4 py-3 border border-gray-300 font-semibold">{ingredient.name}</td>
+                        <td className="px-4 py-3 border border-gray-300">{ingredient.inci}</td>
+                        <td className="px-4 py-3 border border-gray-300">{ingredient.percentage}</td>
+                        <td className="px-4 py-3 border border-gray-300">{ingredient.function}</td>
+                      </tr>
+                    ))}
+                    <tr className="bg-gray-50 font-semibold">
+                      <td className="px-4 py-3 border border-gray-300" colSpan={3}>Total</td>
+                      <td className="px-4 py-3 border border-gray-300">100%</td>
+                      <td className="px-4 py-3 border border-gray-300"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Step-by-Step Manufacturing Process</h2>
+              <div className="space-y-4">
+                {instructions.map((phase: any, index: number) => (
+                  <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-medium mb-2">{phase.phase}</h3>
+                    <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
+                      {phase.steps.map((step: string, stepIndex: number) => (
+                        <li key={stepIndex}>{step}</li>
+                      ))}
+                    </ol>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Product Usage Instructions & Application Guidelines</h2>
+              <div className="bg-blue-50 p-6 rounded-lg">
+                <div 
+                  className="text-sm text-gray-700 leading-relaxed"
+                  dangerouslySetInnerHTML={{
+                    __html: formulation.usageInstructions
+                      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+                      .replace(/^\d+\.\s+\*\*(.*?)\*\*:/gm, '<h4 class="text-base font-semibold text-gray-900 mt-6 mb-3 border-b border-blue-200 pb-2">$1:</h4>')
+                      .replace(/^   - (.*)$/gm, '<div class="ml-6 mb-2 text-gray-700">• $1</div>')
+                      .replace(/^- (.*)$/gm, '<div class="ml-4 mb-2 text-gray-700">• $1</div>')
+                      .replace(/\n\n+/g, '<div class="mb-4"></div>')
+                      .replace(/\n/g, '<br>')
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Required Equipment Section */}
+            <div className="mb-8">
+              <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Required Manufacturing Equipment & Tools</h2>
+              <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <p className="text-gray-700 leading-relaxed" data-testid="text-equipment">
+                  {formulation.equipment || 'Standard mixing equipment, measuring instruments, pH meter, thermometer, safety equipment'}
+                </p>
+              </div>
+            </div>
+
+            {/* Safety Precautions Section */}
+            <div className="mb-8">
+              <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Chemical Safety Precautions & Handling Guidelines</h2>
+              <div className="bg-red-50 p-6 rounded-lg border border-red-200">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold text-red-900 mb-2">Handling:</h3>
+                    <p className="text-red-800 text-sm">Wear appropriate PPE including gloves, safety glasses, and lab coat.</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-red-900 mb-2">PPE Requirements:</h3>
+                    <p className="text-red-800 text-sm">Chemical-resistant gloves, safety goggles, protective clothing.</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-red-900 mb-2">Storage:</h3>
+                    <p className="text-red-800 text-sm">Store in cool, dry place away from direct sunlight. Keep containers tightly closed.</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-red-900 mb-2">Storage Conditions:</h3>
+                    <p className="text-red-800 text-sm" data-testid="text-storage-conditions">
+                      {formulation.storageConditions || 'Store at room temperature (15-25°C)'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Packaging Notes Section */}
+            <div className="mb-8">
+              <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Packaging Requirements & Standards</h2>
+              <div className="bg-amber-50 p-6 rounded-lg border border-amber-200">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold text-amber-900 mb-2">Packaging:</h3>
+                    <p className="text-amber-800 text-sm">Use chemically compatible containers (HDPE, glass, or PET).</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-amber-900 mb-2">Labeling:</h3>
+                    <p className="text-amber-800 text-sm">Include product name, ingredients, usage instructions, and safety warnings.</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-amber-900 mb-2">Certification:</h3>
+                    <p className="text-amber-800 text-sm" data-testid="text-certification-details">
+                      {formulation.certification || 'Follow applicable industry standards and regulations'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Scaling Note Section */}
+            <div className="mb-8">
+              <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Production Scaling Guidelines & Considerations</h2>
+              <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold text-purple-900 mb-2">Lab Scale:</h3>
+                    <p className="text-purple-800 text-sm">This formulation is designed for laboratory testing and development.</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-purple-900 mb-2">Pilot Scale:</h3>
+                    <p className="text-purple-800 text-sm">For pilot production, scale proportionally and verify all parameters.</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-purple-900 mb-2">Production Scale:</h3>
+                    <p className="text-purple-800 text-sm">Consider equipment limitations, mixing efficiency, and process validation.</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-purple-900 mb-2">Batch Size:</h3>
+                    <p className="text-purple-800 text-sm" data-testid="text-batch-size-details">
+                      Current formulation is optimized for {formulation.batchSize || 'laboratory scale'}.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-purple-900 mb-2">Scaling Factor:</h3>
+                    <p className="text-purple-800 text-sm">Maintain ingredient ratios while adjusting processing parameters as needed.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-4 mb-8">
+              <Button 
+                onClick={generatePDF}
+                className="bg-primary text-white hover:bg-blue-700"
+                data-testid="button-download-pdf"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download PDF
+              </Button>
+              <Button 
+                onClick={handlePrint}
+                className="bg-accent text-white hover:bg-orange-600"
+                data-testid="button-print-formula"
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Print Formula
+              </Button>
+              <Button 
+                onClick={toggleFavorite}
+                variant="outline" 
+                className={`border-primary hover:bg-blue-50 ${
+                  isFavorited 
+                    ? 'bg-primary text-white hover:bg-blue-700' 
+                    : 'text-primary'
+                }`}
+                data-testid="button-toggle-favorite"
+              >
+                {isFavorited ? (
+                  <BookmarkCheck className="h-4 w-4 mr-2" />
+                ) : (
+                  <Bookmark className="h-4 w-4 mr-2" />
+                )}
+                {isFavorited ? 'Favorited' : 'Save to Favorites'}
+              </Button>
+            </div>
+
+          </CardContent>
+        </Card>
       </div>
       
       <SignInDialog 

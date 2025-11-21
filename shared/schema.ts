@@ -115,20 +115,6 @@ export const userNotes = pgTable("user_notes", {
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
 });
 
-// Formulation features table - stores 15 features per formulation with content
-export const formulationFeatures = pgTable("formulation_features", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  formulationId: uuid("formulation_id").notNull().references(() => formulations.id),
-  featureName: text("feature_name").notNull(), // Title/name of the feature
-  featureContent: text("feature_content"), // Main content (text or image URL)
-  featureOrder: integer("feature_order").notNull().default(1), // Order in sidebar (1-15)
-  isRequired: boolean("is_required").notNull().default(false), // Is this feature mandatory
-  createdAt: timestamp("created_at").notNull().default(sql`now()`),
-  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
-}, (table) => ({
-  formulationIdIdx: index("formulation_features_formulation_idx").on(table.formulationId),
-}));
-
 // Export insert schemas
 export const insertProductPropertiesSchema = createInsertSchema(productProperties).omit({
   id: true,
@@ -142,12 +128,6 @@ export const insertUserNoteSchema = createInsertSchema(userNotes).omit({
   updatedAt: true,
 });
 
-export const insertFormulationFeatureSchema = createInsertSchema(formulationFeatures).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertFormulation = z.infer<typeof insertFormulationSchema>;
@@ -156,8 +136,6 @@ export type InsertProductProperties = z.infer<typeof insertProductPropertiesSche
 export type ProductProperties = typeof productProperties.$inferSelect;
 export type InsertUserNote = z.infer<typeof insertUserNoteSchema>;
 export type UserNote = typeof userNotes.$inferSelect;
-export type InsertFormulationFeature = z.infer<typeof insertFormulationFeatureSchema>;
-export type FormulationFeature = typeof formulationFeatures.$inferSelect;
 
 // Session storage table for Replit Auth
 export const sessions = pgTable(
