@@ -577,8 +577,8 @@ export default function FormulationPage() {
               <>
                 {(formulation.image || category?.name === "Cleaning Products") && (
                   <div className="mb-8">
-                <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Chemical Product Images & Visual References</h2>
-                <div className="bg-white p-6 rounded-lg border border-gray-200">
+                    <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Chemical Product Images & Visual References</h2>
+                    <div className="bg-white p-6 rounded-lg border border-gray-200">
                   {/* AI Generated Image has priority */}
                   {formulation.image && (
                     <img 
@@ -706,19 +706,20 @@ export default function FormulationPage() {
                   )}
                   {/* No fallback image for custom formulations */}
                     </>
-                  )}
+                    )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mb-8">
+                  <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Chemical Product Description & Overview</h2>
+                  <p className="text-gray-700 leading-relaxed">
+                    {formulation.description}
+                  </p>
                 </div>
-              </div>
 
-              <div className="mb-8">
-                <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Chemical Product Description & Overview</h2>
-                <p className="text-gray-700 leading-relaxed">
-                  {formulation.description}
-                </p>
-              </div>
-
-              <div className="mb-8">
-                <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Formulation Ingredients Table</h2>
+                <div className="mb-8">
+                  <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Formulation Ingredients Table</h2>
                 <div className="overflow-x-auto">
                 <table className="w-full text-sm border border-gray-300">
                   <thead>
@@ -750,8 +751,8 @@ export default function FormulationPage() {
                 </div>
               </div>
 
-              <div className="mb-8">
-                <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Step-by-Step Manufacturing Process</h2>
+                <div className="mb-8">
+                  <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Step-by-Step Manufacturing Process</h2>
                 <div className="space-y-4">
                   {instructions.map((phase: any, index: number) => (
                     <div key={index} className="bg-gray-50 p-4 rounded-lg">
@@ -766,8 +767,8 @@ export default function FormulationPage() {
                 </div>
               </div>
 
-              <div className="mb-8">
-                <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Product Usage Instructions & Application Guidelines</h2>
+                <div className="mb-8">
+                  <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Product Usage Instructions & Application Guidelines</h2>
                 <div className="bg-blue-50 p-6 rounded-lg">
                   <div 
                     className="text-sm text-gray-700 leading-relaxed"
@@ -784,9 +785,9 @@ export default function FormulationPage() {
                 </div>
               </div>
 
-              {/* Required Equipment Section */}
-              <div className="mb-8">
-                <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Required Manufacturing Equipment & Tools</h2>
+                {/* Required Equipment Section */}
+                <div className="mb-8">
+                  <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Required Manufacturing Equipment & Tools</h2>
                 <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
                   <p className="text-gray-700 leading-relaxed" data-testid="text-equipment">
                     {formulation.equipment || 'Standard mixing equipment, measuring instruments, pH meter, thermometer, safety equipment'}
@@ -794,9 +795,9 @@ export default function FormulationPage() {
                 </div>
               </div>
 
-              {/* Safety Precautions Section */}
-              <div className="mb-8">
-                <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Chemical Safety Precautions & Handling Guidelines</h2>
+                {/* Safety Precautions Section */}
+                <div className="mb-8">
+                  <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Chemical Safety Precautions & Handling Guidelines</h2>
                 <div className="bg-red-50 p-6 rounded-lg border border-red-200">
                   <div className="space-y-4">
                     <div>
@@ -821,9 +822,9 @@ export default function FormulationPage() {
                 </div>
               </div>
 
-              {/* Packaging Notes Section */}
-              <div className="mb-8">
-                <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Packaging Requirements & Standards</h2>
+                {/* Packaging Notes Section */}
+                <div className="mb-8">
+                  <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Professional Packaging Requirements & Standards</h2>
                 <div className="bg-amber-50 p-6 rounded-lg border border-amber-200">
                   <div className="space-y-4">
                     <div>
@@ -844,9 +845,9 @@ export default function FormulationPage() {
                 </div>
               </div>
 
-              {/* Scaling Note Section */}
-              <div className="mb-8">
-                <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Production Scaling Guidelines & Considerations</h2>
+                {/* Scaling Note Section */}
+                <div className="mb-8">
+                  <h2 className="text-xl font-inter font-semibold mb-6 text-primary border-b-2 border-primary pb-2">Production Scaling Guidelines & Considerations</h2>
                 <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
                   <div className="space-y-4">
                     <div>
