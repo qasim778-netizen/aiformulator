@@ -180,7 +180,7 @@ export default function Collection() {
                           </div>
                         )}
 
-                        <CardContent className="p-4 flex flex-col h-full">
+                        <CardContent className="p-4">
                           {/* Status Badge */}
                           <div className="flex items-start justify-between mb-2">
                             <h3 className="font-semibold text-gray-900 line-clamp-2 flex-1 text-sm">
@@ -221,17 +221,15 @@ export default function Collection() {
                           </div>
 
                           {/* View Details Button */}
-                          <div className="mt-auto">
-                            <Link href={`/formulation/${formulation.slug || formulation.id}`}>
-                              <Button
-                                className="w-full bg-primary text-white hover:bg-blue-700 h-8 text-xs"
-                                size="sm"
-                                data-testid={`view-details-${formulation.id}`}
-                              >
-                                View Details
-                              </Button>
-                            </Link>
-                          </div>
+                          <Link href={`/formulation/${formulation.slug || formulation.id}`}>
+                            <Button
+                              className="w-full bg-primary text-white hover:bg-blue-700 h-8 text-xs"
+                              size="sm"
+                              data-testid={`view-details-${formulation.id}`}
+                            >
+                              View Details
+                            </Button>
+                          </Link>
                         </CardContent>
                       </Card>
                     ))}
