@@ -1,16 +1,34 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Search, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import FormulationContentForm from "@/components/admin/formulation-content-form";
-import type { Formulation } from "@shared/schema";
+import type { Formulation, Category } from "@shared/schema";
 
 export default function FormulationContentManagementTab() {
   const [selectedFormulationId, setSelectedFormulationId] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const { data: formulations = [] } = useQuery<Formulation[]>({
     queryKey: ["/api/formulations"],
   });
+
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
+  });
+
+  // Filter formulations based on search and category
+  const filteredFormulations = useMemo(() => {
+    return formulations.filter((formulation) => {
+      const matchesSearch = formulation.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory === "all" || formulation.categoryId === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [formulations, searchQuery, selectedCategory]);
 
   const selectedFormulation = formulations.find(f => f.id === selectedFormulationId);
 
@@ -25,20 +43,62 @@ export default function FormulationContentManagementTab() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            {/* Search and Filter Bar */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Search Input */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Search formulations..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-8"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Category Filter */}
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by category..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Formulation Selector */}
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Select Formulation
+                Select Formulation {filteredFormulations.length > 0 && `(${filteredFormulations.length} found)`}
               </label>
               <Select value={selectedFormulationId} onValueChange={setSelectedFormulationId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choose a formulation to customize..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {formulations.map((formulation) => (
-                    <SelectItem key={formulation.id} value={formulation.id}>
-                      {formulation.name}
-                    </SelectItem>
-                  ))}
+                  {filteredFormulations.length > 0 ? (
+                    filteredFormulations.map((formulation) => (
+                      <SelectItem key={formulation.id} value={formulation.id}>
+                        {formulation.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="p-2 text-sm text-gray-500">No formulations found</div>
+                  )}
                 </SelectContent>
               </Select>
             </div>
