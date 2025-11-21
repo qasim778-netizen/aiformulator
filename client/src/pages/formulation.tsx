@@ -47,10 +47,11 @@ export default function FormulationPage() {
   });
 
   const { data: adminContent } = useQuery<FormulationContent | null>({
-    queryKey: ["/api/formulation-content", formulationId],
+    queryKey: ["/api/formulation-content", formulation?.id],
     queryFn: async () => {
+      if (!formulation?.id) return null;
       try {
-        const response = await fetch(`/api/formulation-content/${formulationId}`);
+        const response = await fetch(`/api/formulation-content/${formulation.id}`);
         if (response.status === 404) return null;
         if (!response.ok) throw new Error("Failed to fetch content");
         return await response.json();
@@ -58,7 +59,7 @@ export default function FormulationPage() {
         return null;
       }
     },
-    enabled: !!formulationId,
+    enabled: !!formulation?.id,
   });
 
   // Check if already favorited on load from backend
