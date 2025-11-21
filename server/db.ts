@@ -128,6 +128,24 @@ export const userFormulationRequestsTable = pgTable("user_formulation_requests",
   reviewedBy: varchar("reviewed_by", { length: 255 }),
 });
 
+// Formulation Content table - admin-managed page content for each formulation
+export const formulationContentTable = pgTable("formulation_content", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  formulationId: uuid("formulation_id").notNull().references(() => formulationsTable.id, { onDelete: "cascade" }).unique(),
+  overviewTitle: text("overview_title"),
+  overviewContent: text("overview_content"),
+  benefitsTitle: text("benefits_title"),
+  benefitsContent: text("benefits_content"),
+  applicationsTitle: text("applications_title"),
+  applicationsContent: text("applications_content"),
+  usageTitle: text("usage_title"),
+  usageContent: text("usage_content"),
+  safetyTitle: text("safety_title"),
+  safetyContent: text("safety_content"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export type DbCategory = typeof categoriesTable.$inferSelect;
 export type DbFormulation = typeof formulationsTable.$inferSelect;
 export type DbProductProperties = typeof productPropertiesTable.$inferSelect;
@@ -135,6 +153,7 @@ export type DbUserNote = typeof userNotesTable.$inferSelect;
 export type DbPage = typeof pagesTable.$inferSelect;
 export type DbBlogPost = typeof blogPostsTable.$inferSelect;
 export type DbUserFormulationRequest = typeof userFormulationRequestsTable.$inferSelect;
+export type DbFormulationContent = typeof formulationContentTable.$inferSelect;
 export type InsertDbCategory = typeof categoriesTable.$inferInsert;
 export type InsertDbFormulation = typeof formulationsTable.$inferInsert;
 export type InsertDbProductProperties = typeof productPropertiesTable.$inferInsert;
@@ -142,3 +161,4 @@ export type InsertDbUserNote = typeof userNotesTable.$inferInsert;
 export type InsertDbPage = typeof pagesTable.$inferInsert;
 export type InsertDbBlogPost = typeof blogPostsTable.$inferInsert;
 export type InsertDbUserFormulationRequest = typeof userFormulationRequestsTable.$inferInsert;
+export type InsertDbFormulationContent = typeof formulationContentTable.$inferInsert;

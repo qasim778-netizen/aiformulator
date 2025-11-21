@@ -1,5 +1,5 @@
 import { eq, desc, and, sql } from "drizzle-orm";
-import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable } from "./db";
+import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable, formulationContentTable } from "./db";
 import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage, UserFormulationRequest, InsertUserFormulationRequest, FormulationContent, InsertFormulationContent } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
 import crypto from "crypto";
@@ -909,40 +909,59 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // Formulation Content methods (in-memory storage)
+  // Formulation Content methods (database storage)
   async getFormulationContent(formulationId: string): Promise<FormulationContent | undefined> {
-    return this.formulationContent.get(formulationId);
+    try {
+      const [content] = await db
+        .select()
+        .from(formulationContentTable)
+        .where(eq(formulationContentTable.formulationId, formulationId));
+      return content;
+    } catch (error) {
+      console.error("Failed to get formulation content:", error);
+      return undefined;
+    }
   }
 
   async createFormulationContent(contentData: InsertFormulationContent): Promise<FormulationContent> {
-    const content: FormulationContent = {
-      id: randomUUID(),
-      ...contentData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    this.formulationContent.set(contentData.formulationId, content);
-    return content;
+    try {
+      const [created] = await db
+        .insert(formulationContentTable)
+        .values(contentData)
+        .returning();
+      return created;
+    } catch (error) {
+      console.error("Failed to create formulation content:", error);
+      throw error;
+    }
   }
 
   async updateFormulationContent(formulationId: string, contentData: Partial<InsertFormulationContent>): Promise<FormulationContent | undefined> {
-    const existing = this.formulationContent.get(formulationId);
-    if (!existing) {
+    try {
+      const [updated] = await db
+        .update(formulationContentTable)
+        .set({
+          ...contentData,
+          updatedAt: new Date(),
+        })
+        .where(eq(formulationContentTable.formulationId, formulationId))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error("Failed to update formulation content:", error);
       return undefined;
     }
-
-    const updated: FormulationContent = {
-      ...existing,
-      ...contentData,
-      formulationId: existing.formulationId,
-      updatedAt: new Date(),
-    };
-
-    this.formulationContent.set(formulationId, updated);
-    return updated;
   }
 
   async deleteFormulationContent(formulationId: string): Promise<boolean> {
-    return this.formulationContent.delete(formulationId);
+    try {
+      const result = await db
+        .delete(formulationContentTable)
+        .where(eq(formulationContentTable.formulationId, formulationId));
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error("Failed to delete formulation content:", error);
+      return false;
+    }
   }
 }
