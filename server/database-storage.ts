@@ -905,4 +905,55 @@ export class DatabaseStorage implements IStorage {
       return false;
     }
   }
+
+  // Formulation Features methods
+  async getFormulationFeatures(formulationId: string): Promise<any[]> {
+    try {
+      const { formulationFeaturesTable } = await import("./db");
+      return await db.select().from(formulationFeaturesTable).where(eq(formulationFeaturesTable.formulationId, formulationId)).orderBy(formulationFeaturesTable.featureOrder);
+    } catch (error) {
+      console.log("Formulation features table not yet available, returning empty array");
+      return [];
+    }
+  }
+
+  async createFormulationFeature(feature: any): Promise<any> {
+    try {
+      const { formulationFeaturesTable } = await import("./db");
+      const [created] = await db.insert(formulationFeaturesTable).values({
+        ...feature,
+        id: crypto.randomUUID(),
+      }).returning();
+      return created;
+    } catch (error) {
+      console.error("Failed to create formulation feature:", error);
+      throw new Error("Failed to create formulation feature");
+    }
+  }
+
+  async updateFormulationFeature(id: string, feature: any): Promise<any | undefined> {
+    try {
+      const { formulationFeaturesTable } = await import("./db");
+      const [updated] = await db
+        .update(formulationFeaturesTable)
+        .set({ ...feature, updatedAt: new Date() })
+        .where(eq(formulationFeaturesTable.id, id))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error("Failed to update formulation feature:", error);
+      return undefined;
+    }
+  }
+
+  async deleteFormulationFeature(id: string): Promise<boolean> {
+    try {
+      const { formulationFeaturesTable } = await import("./db");
+      const result = await db.delete(formulationFeaturesTable).where(eq(formulationFeaturesTable.id, id));
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error("Failed to delete formulation feature:", error);
+      return false;
+    }
+  }
 }

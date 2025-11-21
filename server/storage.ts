@@ -2442,6 +2442,47 @@ export class MemStorage implements IStorage {
   async deleteUserFormulationRequest(id: string): Promise<boolean> {
     return this.userFormulationRequests.delete(id);
   }
+
+  // Formulation Features methods implementation
+  async getFormulationFeatures(formulationId: string): Promise<FormulationFeature[]> {
+    return this.formulationFeatures.get(formulationId) || [];
+  }
+
+  async createFormulationFeature(feature: Omit<FormulationFeature, 'id'>): Promise<FormulationFeature> {
+    const newFeature: FormulationFeature = {
+      id: randomUUID(),
+      ...feature,
+    };
+
+    if (!this.formulationFeatures.has(feature.formulationId)) {
+      this.formulationFeatures.set(feature.formulationId, []);
+    }
+
+    this.formulationFeatures.get(feature.formulationId)!.push(newFeature);
+    return newFeature;
+  }
+
+  async updateFormulationFeature(id: string, feature: Partial<Omit<FormulationFeature, 'id'>>): Promise<FormulationFeature | undefined> {
+    for (const features of this.formulationFeatures.values()) {
+      const index = features.findIndex(f => f.id === id);
+      if (index !== -1) {
+        features[index] = { ...features[index], ...feature };
+        return features[index];
+      }
+    }
+    return undefined;
+  }
+
+  async deleteFormulationFeature(id: string): Promise<boolean> {
+    for (const features of this.formulationFeatures.values()) {
+      const index = features.findIndex(f => f.id === id);
+      if (index !== -1) {
+        features.splice(index, 1);
+        return true;
+      }
+    }
+    return false;
+  }
 }
 
 import { DatabaseStorage } from "./database-storage";

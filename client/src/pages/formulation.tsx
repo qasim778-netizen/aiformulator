@@ -9,6 +9,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { Formulation, Category } from "@shared/schema";
 import SignInDialog from "@/components/signin-dialog";
 import { useAuth } from "@/hooks/useAuth";
+import FormulationSidebar from "@/components/FormulationSidebar";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Captcha } from "@/components/ui/captcha";
 import woodFloorCleaner from "@/assets/generated-images/wood-floor-cleaner.png";
