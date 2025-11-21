@@ -1,16 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { ChevronRight, Search, Filter } from "lucide-react";
+import { ChevronRight, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import type { Category, Formulation } from "@shared/schema";
 
 export default function Collection() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch all categories
   const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
@@ -37,15 +35,9 @@ export default function Collection() {
     });
   };
 
-  // Filter formulations by selected category and search query
+  // Filter formulations by selected category
   const filteredFormulations = selectedCategoryId
     ? getFormulationsByCategory(selectedCategoryId)
-        .filter((f) =>
-          searchQuery.trim() === ""
-            ? true
-            : f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              f.description.toLowerCase().includes(searchQuery.toLowerCase())
-        )
     : [];
 
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
@@ -92,7 +84,6 @@ export default function Collection() {
                         key={category.id}
                         onClick={() => {
                           setSelectedCategoryId(category.id);
-                          setSearchQuery("");
                         }}
                         className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between group font-medium ${
                           isSelected
@@ -140,18 +131,6 @@ export default function Collection() {
                     </Badge>
                   </div>
 
-                  {/* Search Bar */}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <Input
-                      type="text"
-                      placeholder="Search formulas..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 py-2 w-full max-w-md"
-                      data-testid="search-formulations-collection"
-                    />
-                  </div>
                 </div>
 
                 {/* Formulations Grid */}
@@ -216,9 +195,7 @@ export default function Collection() {
                     <div className="text-center">
                       <p className="text-lg text-gray-600 mb-2">No formulas found</p>
                       <p className="text-sm text-gray-500">
-                        {searchQuery
-                          ? `Try adjusting your search for "${searchQuery}"`
-                          : "No formulas available in this category"}
+                        No formulas available in this category
                       </p>
                     </div>
                   </div>
