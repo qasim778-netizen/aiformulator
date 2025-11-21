@@ -116,8 +116,8 @@ export default function FormulationPreview({ formulation, category, adminContent
           </div>
         )}
 
-        {/* Professional Product Specifications Section - Hidden on public pages with admin content */}
-        {(!isPublic || !adminContent) && (
+        {/* Professional Product Specifications Section - Only on admin/internal pages */}
+        {!isPublic && (
           <div className="mb-6">
             <h2 className="text-lg font-inter font-semibold mb-4 text-primary border-b-2 border-primary pb-2">Professional Chemical Specifications</h2>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -206,8 +206,8 @@ export default function FormulationPreview({ formulation, category, adminContent
           </div>
         )}
 
-        {/* Enhanced Ingredients Section - Hidden on public pages with admin content */}
-        {(!isPublic || !adminContent) && (
+        {/* Enhanced Ingredients Section - Only on admin/internal pages */}
+        {!isPublic && (
           <div className="mb-6">
             <h2 className="text-lg font-inter font-semibold mb-4 text-primary border-b-2 border-primary pb-2">Ingredients & Manufacturing</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -253,8 +253,8 @@ export default function FormulationPreview({ formulation, category, adminContent
           </div>
         )}
 
-        {/* Usage Instructions - Hidden on public pages with admin content */}
-        {(!isPublic || !adminContent) && (
+        {/* Usage Instructions - Only on admin/internal pages */}
+        {!isPublic && (
           <div className="mb-4">
             <h2 className="text-md font-semibold text-gray-800 mb-2">Professional Usage</h2>
             <div className="bg-gray-50 p-3 rounded-lg">
