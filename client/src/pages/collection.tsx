@@ -158,7 +158,7 @@ export default function Collection() {
                 {filteredFormulations.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto flex-1">
                     {filteredFormulations.map((formulation) => (
-                      <Card
+                      <div
                         key={formulation.id}
                         className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 overflow-hidden hover:scale-105 hover:border-blue-300"
                         data-testid={`formula-card-${formulation.id}`}
@@ -180,7 +180,7 @@ export default function Collection() {
                           </div>
                         )}
 
-                        <CardContent className="p-4">
+                        <div className="p-4">
                           {/* Status Badge */}
                           <div className="flex items-start justify-between mb-3">
                             <h3 className="font-bold text-gray-900 line-clamp-2 flex-1 text-sm">
@@ -207,8 +207,8 @@ export default function Collection() {
                               View Details
                             </Button>
                           </Link>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 ) : (
