@@ -574,6 +574,7 @@ export default function FormulationPage() {
           <div className="w-80 flex-shrink-0">
             <FormulationSidebar 
               formulationId={formulation.id}
+              formulationName={formulation.name}
               onGeneratePDF={generatePDF}
               onPrint={handlePrint}
               onToggleFavorite={toggleFavorite}
