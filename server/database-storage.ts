@@ -1,12 +1,15 @@
 import { eq, desc, and, sql } from "drizzle-orm";
 import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable } from "./db";
-import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage, UserFormulationRequest, InsertUserFormulationRequest } from "@shared/schema";
+import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage, UserFormulationRequest, InsertUserFormulationRequest, FormulationContent, InsertFormulationContent } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
 import crypto from "crypto";
+import { randomUUID } from "crypto";
 
 export class DatabaseStorage implements IStorage {
   // In-memory AI generations tracking (for demo purposes)
   private aiGenerations: Map<string, IAiGeneration> = new Map();
+  // In-memory formulation content (fallback storage)
+  private formulationContent: Map<string, FormulationContent> = new Map();
 
   constructor() {
     // Initialize with empty AI generations map - no dummy data
@@ -904,5 +907,42 @@ export class DatabaseStorage implements IStorage {
       console.error("Failed to delete user formulation request:", error);
       return false;
     }
+  }
+
+  // Formulation Content methods (in-memory storage)
+  async getFormulationContent(formulationId: string): Promise<FormulationContent | undefined> {
+    return this.formulationContent.get(formulationId);
+  }
+
+  async createFormulationContent(contentData: InsertFormulationContent): Promise<FormulationContent> {
+    const content: FormulationContent = {
+      id: randomUUID(),
+      ...contentData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.formulationContent.set(contentData.formulationId, content);
+    return content;
+  }
+
+  async updateFormulationContent(formulationId: string, contentData: Partial<InsertFormulationContent>): Promise<FormulationContent | undefined> {
+    const existing = this.formulationContent.get(formulationId);
+    if (!existing) {
+      return undefined;
+    }
+
+    const updated: FormulationContent = {
+      ...existing,
+      ...contentData,
+      formulationId: existing.formulationId,
+      updatedAt: new Date(),
+    };
+
+    this.formulationContent.set(formulationId, updated);
+    return updated;
+  }
+
+  async deleteFormulationContent(formulationId: string): Promise<boolean> {
+    return this.formulationContent.delete(formulationId);
   }
 }
