@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { FormulationFeature } from "@shared/schema";
 
 interface FormulationSidebarProps {
   formulationId: string;
 }
 
 export default function FormulationSidebar({ formulationId }: FormulationSidebarProps) {
-  const [selectedFeature, setSelectedFeature] = useState<FormulationFeature | null>(null);
+  const [selectedFeature, setSelectedFeature] = useState<any>(null);
 
-  const { data: features = [], isLoading } = useQuery<FormulationFeature[]>({
+  const { data: features = [], isLoading } = useQuery<any[]>({
     queryKey: [`/api/formulations/${formulationId}/features`],
   });
 

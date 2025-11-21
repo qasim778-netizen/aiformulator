@@ -2463,8 +2463,9 @@ export class MemStorage implements IStorage {
   }
 
   async updateFormulationFeature(id: string, feature: Partial<Omit<FormulationFeature, 'id'>>): Promise<FormulationFeature | undefined> {
-    for (const features of this.formulationFeatures.values()) {
-      const index = features.findIndex(f => f.id === id);
+    const allFeatures = Array.from(this.formulationFeatures.values());
+    for (const features of allFeatures) {
+      const index = features.findIndex((f: any) => f.id === id);
       if (index !== -1) {
         features[index] = { ...features[index], ...feature };
         return features[index];
@@ -2474,8 +2475,9 @@ export class MemStorage implements IStorage {
   }
 
   async deleteFormulationFeature(id: string): Promise<boolean> {
-    for (const features of this.formulationFeatures.values()) {
-      const index = features.findIndex(f => f.id === id);
+    const allFeatures = Array.from(this.formulationFeatures.values());
+    for (const features of allFeatures) {
+      const index = features.findIndex((f: any) => f.id === id);
       if (index !== -1) {
         features.splice(index, 1);
         return true;
