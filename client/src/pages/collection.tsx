@@ -160,7 +160,7 @@ export default function Collection() {
                     {filteredFormulations.map((formulation) => (
                       <div
                         key={formulation.id}
-                        className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 overflow-hidden hover:scale-105 hover:border-blue-300"
+                        className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 overflow-hidden hover:scale-105 hover:border-blue-300 h-72"
                         data-testid={`formula-card-${formulation.id}`}
                       >
                         {/* Card Image */}
@@ -180,9 +180,9 @@ export default function Collection() {
                           </div>
                         )}
 
-                        <div className="p-4">
+                        <div className="p-4 h-32 flex flex-col justify-between">
                           {/* Status Badge */}
-                          <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-start justify-between">
                             <h3 className="font-bold text-gray-900 line-clamp-2 flex-1 text-sm">
                               {formulation.name}
                             </h3>
