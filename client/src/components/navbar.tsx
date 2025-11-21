@@ -146,6 +146,15 @@ export default function Navbar() {
                   Find Formulation
                 </span>
               </Link>
+              <Link href="/collection">
+                <span className={`px-3 py-2 rounded-md text-sm font-medium cursor-pointer ${
+                  isActive("/collection") 
+                    ? "text-primary bg-primary/10" 
+                    : "text-gray-600 hover:text-primary"
+                }`}>
+                  Collections
+                </span>
+              </Link>
               <Link href="/about">
                 <span className={`px-3 py-2 rounded-md text-sm font-medium cursor-pointer ${
                   isActive("/about") 
@@ -276,6 +285,19 @@ export default function Navbar() {
                   data-testid="mobile-link-browse"
                 >
                   Find Formulation
+                </span>
+              </Link>
+              <Link href="/collection">
+                <span 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 cursor-pointer ${
+                    isActive("/collection") 
+                      ? "text-primary bg-primary/10 font-semibold" 
+                      : "text-gray-600 hover:text-primary hover:bg-gray-50"
+                  }`}
+                  data-testid="mobile-link-collections"
+                >
+                  Collections
                 </span>
               </Link>
               <Link href="/about">

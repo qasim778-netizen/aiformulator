@@ -10,6 +10,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Browse from "@/pages/browse";
 import Category from "@/pages/category";
+import Collection from "@/pages/collection";
 import Formulation from "@/pages/formulation";
 import FormulationConfirmation from "@/pages/formulation-confirmation";
 import Admin from "@/pages/admin";
@@ -33,6 +34,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/browse" component={Browse} />
+      <Route path="/collection" component={Collection} />
       <Route path="/category/:id" component={Category} />
       <Route path="/formulation/:id" component={Formulation} />
       <Route path="/formulation-confirmation/:id" component={FormulationConfirmation} />
