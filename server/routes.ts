@@ -2493,7 +2493,7 @@ Allow: /disclaimer`;
   });
 
   // Create or update formulation content
-  app.post("/api/formulation-content", isAdmin, async (req, res) => {
+  app.post("/api/formulation-content", requireAdmin, async (req, res) => {
     try {
       const validatedData = insertFormulationContentSchema.parse(req.body);
       const existingContent = await storage.getFormulationContent(validatedData.formulationId);
@@ -2523,7 +2523,7 @@ Allow: /disclaimer`;
   });
 
   // Update formulation content
-  app.put("/api/formulation-content/:formulationId", isAdmin, async (req, res) => {
+  app.put("/api/formulation-content/:formulationId", requireAdmin, async (req, res) => {
     try {
       const validatedData = insertFormulationContentSchema.partial().parse(req.body);
       const content = await storage.updateFormulationContent(req.params.formulationId, validatedData);
@@ -2538,7 +2538,7 @@ Allow: /disclaimer`;
   });
 
   // Delete formulation content
-  app.delete("/api/formulation-content/:formulationId", isAdmin, async (req, res) => {
+  app.delete("/api/formulation-content/:formulationId", requireAdmin, async (req, res) => {
     try {
       const success = await storage.deleteFormulationContent(req.params.formulationId);
       if (!success) {
