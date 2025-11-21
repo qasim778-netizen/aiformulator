@@ -70,11 +70,11 @@ export default function Collection() {
         {/* Main Content */}
         <div className="flex gap-6 p-4 sm:p-6 lg:p-8 flex-1 min-h-[calc(100vh-180px)]">
           {/* Left Sidebar - Categories */}
-          <div className="w-full sm:w-64 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
+          <div className="w-full sm:w-72 flex-shrink-0">
+            <div className="bg-gray-700 rounded-xl shadow-lg overflow-hidden h-full flex flex-col">
               {/* Sidebar Header */}
-              <div className="p-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <div className="p-5 border-b border-gray-600 bg-gray-800">
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
                   <Filter className="h-5 w-5" />
                   Categories
                 </h2>
@@ -82,7 +82,7 @@ export default function Collection() {
 
               {/* Categories List */}
               <div className="flex-1 overflow-y-auto">
-                <nav className="space-y-1 p-3">
+                <nav className="space-y-2 p-3">
                   {categories.map((category) => {
                     const formulationCount = getFormulationsByCategory(category.id).length;
                     const isSelected = selectedCategoryId === category.id;
@@ -94,25 +94,25 @@ export default function Collection() {
                           setSelectedCategoryId(category.id);
                           setSearchQuery("");
                         }}
-                        className={`w-full text-left px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-between group ${
+                        className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between group font-medium ${
                           isSelected
-                            ? "bg-primary text-white shadow-md"
-                            : "text-gray-700 hover:bg-gray-100"
+                            ? "bg-blue-500 text-white shadow-lg scale-105"
+                            : "text-gray-100 hover:bg-gray-600 hover:text-white"
                         }`}
                         data-testid={`category-item-${category.id}`}
                       >
                         <div className="flex-1 min-w-0">
-                          <p className={`font-medium text-sm line-clamp-2`}>{category.name}</p>
+                          <p className={`text-sm font-semibold line-clamp-2`}>{category.name}</p>
                           <p
-                            className={`text-xs ${
-                              isSelected ? "text-blue-100" : "text-gray-500"
+                            className={`text-xs mt-1 ${
+                              isSelected ? "text-blue-100" : "text-gray-300"
                             }`}
                           >
                             {formulationCount} product{formulationCount !== 1 ? "s" : ""}
                           </p>
                         </div>
                         <ChevronRight
-                          className={`h-4 w-4 flex-shrink-0 transition-transform ml-2 ${
+                          className={`h-5 w-5 flex-shrink-0 transition-transform ml-2 ${
                             isSelected ? "translate-x-1" : ""
                           }`}
                         />
@@ -156,11 +156,11 @@ export default function Collection() {
 
                 {/* Formulations Grid */}
                 {filteredFormulations.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto flex-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto flex-1">
                     {filteredFormulations.map((formulation) => (
                       <Card
                         key={formulation.id}
-                        className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden flex flex-col hover:scale-[1.02]"
+                        className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 overflow-hidden flex flex-col hover:scale-105 hover:border-blue-300"
                         data-testid={`formula-card-${formulation.id}`}
                       >
                         {/* Card Image */}
@@ -168,26 +168,26 @@ export default function Collection() {
                           <img
                             src={formulation.image}
                             alt={formulation.name}
-                            className="w-full h-40 object-cover flex-shrink-0"
+                            className="w-full h-48 object-cover flex-shrink-0"
                           />
                         ) : (
-                          <div className="w-full h-40 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center flex-shrink-0">
+                          <div className="w-full h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center flex-shrink-0">
                             <div className="text-center">
-                              <div className="w-12 h-12 bg-primary/20 rounded-full mx-auto mb-2 flex items-center justify-center">
-                                <span className="text-2xl">🧪</span>
+                              <div className="w-16 h-16 bg-primary/20 rounded-full mx-auto mb-3 flex items-center justify-center">
+                                <span className="text-4xl">🧪</span>
                               </div>
                             </div>
                           </div>
                         )}
 
-                        <CardContent className="p-4">
+                        <CardContent className="p-5 flex-1 flex flex-col">
                           {/* Status Badge */}
-                          <div className="flex items-start justify-between mb-2">
-                            <h3 className="font-semibold text-gray-900 line-clamp-2 flex-1 text-sm">
+                          <div className="flex items-start justify-between mb-3">
+                            <h3 className="font-bold text-gray-900 line-clamp-2 flex-1 text-base">
                               {formulation.name}
                             </h3>
                             <Badge
-                              className={`ml-2 text-xs flex-shrink-0 ${
+                              className={`ml-2 text-xs font-semibold flex-shrink-0 px-3 py-1 ${
                                 formulation.isActive
                                   ? "bg-green-100 text-green-800"
                                   : "bg-yellow-100 text-yellow-800"
@@ -198,32 +198,32 @@ export default function Collection() {
                           </div>
 
                           {/* Description */}
-                          <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                          <p className="text-sm text-gray-600 mb-4 line-clamp-2 flex-1">
                             {formulation.description}
                           </p>
 
                           {/* Specs */}
-                          <div className="space-y-1 mb-3 text-xs">
+                          <div className="space-y-2 mb-4 text-sm bg-gray-50 p-3 rounded-lg">
                             <div className="flex justify-between">
-                              <span className="text-gray-500">pH:</span>
-                              <span className="font-medium text-gray-900">{formulation.phLevel}</span>
+                              <span className="text-gray-600 font-medium">pH:</span>
+                              <span className="font-bold text-gray-900">{formulation.phLevel}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-500">Shelf Life:</span>
-                              <span className="font-medium text-gray-900">
+                              <span className="text-gray-600 font-medium">Shelf Life:</span>
+                              <span className="font-bold text-gray-900">
                                 {formulation.shelfLife}m
                               </span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-500">Batch:</span>
-                              <span className="font-medium text-gray-900">{formulation.batchSize}</span>
+                              <span className="text-gray-600 font-medium">Batch:</span>
+                              <span className="font-bold text-gray-900">{formulation.batchSize}</span>
                             </div>
                           </div>
 
                           {/* View Details Button */}
                           <Link href={`/formulation/${formulation.slug || formulation.id}`}>
                             <Button
-                              className="w-full bg-primary text-white hover:bg-blue-700 h-8 text-xs"
+                              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 h-10 text-sm font-semibold rounded-lg transition-all"
                               size="sm"
                               data-testid={`view-details-${formulation.id}`}
                             >
