@@ -41,8 +41,8 @@ export default function FormulationSidebar({
   }
 
   return (
-    <div className="flex gap-6">
-      {/* Left Sidebar - Features List */}
+    <div className="flex gap-6 flex-row-reverse">
+      {/* Right Sidebar - Features List */}
       <div className="w-64 flex-shrink-0">
         <div className="bg-white rounded-lg shadow border border-gray-200 sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto">
           <div className="p-4 border-b border-gray-200">
@@ -69,7 +69,7 @@ export default function FormulationSidebar({
         </div>
       </div>
 
-      {/* Right Side - Feature Content */}
+      {/* Left Side - Feature Content */}
       {selectedFeature && (
         <div className="flex-1">
           <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
