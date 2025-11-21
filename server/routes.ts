@@ -1027,6 +1027,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // TODO: Get admin user from req.user when authentication is fully implemented
       const reviewedBy = "admin"; // In future, get from req.user
 
+      // Get the original request to check if we need to create a formulation
+      const originalRequest = await storage.getUserFormulationRequest(req.params.id);
+      if (!originalRequest) {
+        return res.status(404).json({ message: "User formulation request not found" });
+      }
+
+      let formulationId = originalRequest.formulationId;
+
+      // If status is being changed to "approved" and there's no formulation yet, create one
+      if (status === "approved" && !formulationId) {
+        try {
+          // Find the category by name
+          const categories = await storage.getCategories();
+          const category = categories.find(c => c.name.toLowerCase().includes(originalRequest.productCategory.toLowerCase()));
+          
+          if (category) {
+            // Create a new formulation from the request data
+            const formData = (originalRequest.formData || {}) as any;
+            const newFormulation = await storage.createFormulation({
+              categoryId: category.id,
+              name: originalRequest.productName,
+              slug: originalRequest.productName,
+              description: originalRequest.additionalNotes || `Custom formulation: ${originalRequest.productName}`,
+              phLevel: originalRequest.phLevel || "6.5",
+              shelfLife: originalRequest.shelfLife || "12",
+              batchSize: "1000ml",
+              processingTime: "30 minutes",
+              temperature: "Room temperature",
+              equipment: "Standard lab equipment",
+              storageConditions: "Cool and dry place",
+              ingredients: JSON.stringify(formData.ingredients || []),
+              instructions: JSON.stringify(formData.instructions || []),
+              usageInstructions: formData.usageInstructions || "Follow standard application procedures",
+              isActive: true,
+            });
+            
+            formulationId = newFormulation.id;
+            console.log(`Created formulation ${formulationId} for approved request ${req.params.id}`);
+          }
+        } catch (error) {
+          console.error("Failed to create formulation for approved request:", error);
+          // Continue anyway - update the request status even if formulation creation fails
+        }
+      }
+
       const updatedRequest = await storage.updateUserFormulationRequestStatus(
         req.params.id,
         status,
@@ -1038,9 +1083,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User formulation request not found" });
       }
 
+      // If we created a formulation, update the request with the formulation ID
+      if (formulationId && formulationId !== originalRequest.formulationId) {
+        // Update the request to link it to the new formulation
+        const { db } = await import("./db");
+        const { userFormulationRequestsTable } = await import("./db");
+        const { eq } = await import("drizzle-orm");
+        
+        await db.update(userFormulationRequestsTable)
+          .set({ formulationId })
+          .where(eq(userFormulationRequestsTable.id, req.params.id));
+      }
+
       res.json({
         message: `User formulation request status updated to ${status}`,
-        request: updatedRequest
+        request: updatedRequest,
+        formulationId: formulationId
       });
     } catch (error) {
       console.error("Failed to update user formulation request status:", error);
