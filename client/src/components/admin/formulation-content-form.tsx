@@ -96,6 +96,7 @@ export default function FormulationContentForm({
                       <input
                         type="text"
                         {...field}
+                        value={field.value || ""}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                         placeholder="e.g., Product Overview"
                       />
@@ -113,6 +114,7 @@ export default function FormulationContentForm({
                     <FormControl>
                       <Textarea
                         {...field}
+                        value={field.value || ""}
                         placeholder="Add your custom overview content here..."
                         rows={4}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
@@ -141,6 +143,7 @@ export default function FormulationContentForm({
                       <input
                         type="text"
                         {...field}
+                        value={field.value || ""}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                         placeholder="e.g., Key Benefits"
                       />
@@ -158,6 +161,7 @@ export default function FormulationContentForm({
                     <FormControl>
                       <Textarea
                         {...field}
+                        value={field.value || ""}
                         placeholder="List the key benefits of this formulation..."
                         rows={4}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
@@ -186,6 +190,7 @@ export default function FormulationContentForm({
                       <input
                         type="text"
                         {...field}
+                        value={field.value || ""}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                         placeholder="e.g., Applications"
                       />
@@ -203,6 +208,7 @@ export default function FormulationContentForm({
                     <FormControl>
                       <Textarea
                         {...field}
+                        value={field.value || ""}
                         placeholder="Describe the applications and use cases..."
                         rows={4}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
@@ -231,6 +237,7 @@ export default function FormulationContentForm({
                       <input
                         type="text"
                         {...field}
+                        value={field.value || ""}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                         placeholder="e.g., Usage Instructions"
                       />
@@ -248,6 +255,7 @@ export default function FormulationContentForm({
                     <FormControl>
                       <Textarea
                         {...field}
+                        value={field.value || ""}
                         placeholder="Provide detailed usage instructions..."
                         rows={4}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
@@ -276,6 +284,7 @@ export default function FormulationContentForm({
                       <input
                         type="text"
                         {...field}
+                        value={field.value || ""}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                         placeholder="e.g., Safety Information"
                       />
@@ -293,6 +302,7 @@ export default function FormulationContentForm({
                     <FormControl>
                       <Textarea
                         {...field}
+                        value={field.value || ""}
                         placeholder="Add safety warnings and precautions..."
                         rows={4}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
