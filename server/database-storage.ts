@@ -1,5 +1,5 @@
 import { eq, desc, and, sql } from "drizzle-orm";
-import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable } from "./db";
+import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable, formulationFeaturesTable } from "./db";
 import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage, UserFormulationRequest, InsertUserFormulationRequest } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
 import crypto from "crypto";
@@ -909,20 +909,17 @@ export class DatabaseStorage implements IStorage {
   // Formulation Features methods
   async getFormulationFeatures(formulationId: string): Promise<any[]> {
     try {
-      const { formulationFeaturesTable } = await import("./db");
       return await db.select().from(formulationFeaturesTable).where(eq(formulationFeaturesTable.formulationId, formulationId)).orderBy(formulationFeaturesTable.featureOrder);
     } catch (error) {
-      console.log("Formulation features table not yet available, returning empty array");
+      console.error("Failed to fetch formulation features:", error);
       return [];
     }
   }
 
   async createFormulationFeature(feature: any): Promise<any> {
     try {
-      const { formulationFeaturesTable } = await import("./db");
       const [created] = await db.insert(formulationFeaturesTable).values({
         ...feature,
-        id: crypto.randomUUID(),
       }).returning();
       return created;
     } catch (error) {
@@ -933,7 +930,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateFormulationFeature(id: string, feature: any): Promise<any | undefined> {
     try {
-      const { formulationFeaturesTable } = await import("./db");
       const [updated] = await db
         .update(formulationFeaturesTable)
         .set({ ...feature, updatedAt: new Date() })
@@ -948,7 +944,6 @@ export class DatabaseStorage implements IStorage {
 
   async deleteFormulationFeature(id: string): Promise<boolean> {
     try {
-      const { formulationFeaturesTable } = await import("./db");
       const result = await db.delete(formulationFeaturesTable).where(eq(formulationFeaturesTable.id, id));
       return result.rowCount > 0;
     } catch (error) {
