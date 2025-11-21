@@ -180,9 +180,9 @@ export default function Collection() {
                           </div>
                         )}
 
-                        <CardContent className="p-4 flex-1 flex flex-col">
+                        <CardContent className="p-4 flex flex-col h-full">
                           {/* Status Badge */}
-                          <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-start justify-between mb-2">
                             <h3 className="font-semibold text-gray-900 line-clamp-2 flex-1 text-sm">
                               {formulation.name}
                             </h3>
@@ -198,12 +198,12 @@ export default function Collection() {
                           </div>
 
                           {/* Description */}
-                          <p className="text-xs text-gray-600 mb-3 line-clamp-2">
+                          <p className="text-xs text-gray-600 mb-2 line-clamp-2">
                             {formulation.description}
                           </p>
 
                           {/* Specs */}
-                          <div className="space-y-1 mb-4 text-xs flex-1">
+                          <div className="space-y-1 mb-3 text-xs">
                             <div className="flex justify-between">
                               <span className="text-gray-500">pH:</span>
                               <span className="font-medium text-gray-900">{formulation.phLevel}</span>
@@ -221,15 +221,17 @@ export default function Collection() {
                           </div>
 
                           {/* View Details Button */}
-                          <Link href={`/formulation/${formulation.slug || formulation.id}`}>
-                            <Button
-                              className="w-full bg-primary text-white hover:bg-blue-700 h-8 text-xs"
-                              size="sm"
-                              data-testid={`view-details-${formulation.id}`}
-                            >
-                              View Details
-                            </Button>
-                          </Link>
+                          <div className="mt-auto">
+                            <Link href={`/formulation/${formulation.slug || formulation.id}`}>
+                              <Button
+                                className="w-full bg-primary text-white hover:bg-blue-700 h-8 text-xs"
+                                size="sm"
+                                data-testid={`view-details-${formulation.id}`}
+                              >
+                                View Details
+                              </Button>
+                            </Link>
+                          </div>
                         </CardContent>
                       </Card>
                     ))}
