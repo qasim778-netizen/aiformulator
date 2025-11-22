@@ -591,6 +591,29 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async getUserGeneratedFormulations(userId: string): Promise<any[]> {
+    try {
+      const { formulations, categories } = await import("@shared/schema");
+      const generated = await db
+        .select({
+          id: formulations.id,
+          name: formulations.name,
+          slug: formulations.slug,
+          description: formulations.description,
+          createdAt: formulations.createdAt,
+          categoryName: categories.name,
+        })
+        .from(formulations)
+        .leftJoin(categories, eq(formulations.categoryId, categories.id))
+        .where(eq(formulations.userId, userId))
+        .orderBy(desc(formulations.createdAt));
+      return generated;
+    } catch (error) {
+      console.error("Error getting user generated formulations:", error);
+      return [];
+    }
+  }
+
   // Admin methods
   async getUserById(userId: string): Promise<User | undefined> {
     try {

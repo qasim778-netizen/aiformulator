@@ -250,6 +250,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/user/generated', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const generated = await storage.getUserGeneratedFormulations(userId);
+      res.json(generated);
+    } catch (error) {
+      console.error("Error fetching generated formulations:", error);
+      res.status(500).json({ message: "Failed to fetch generated formulations" });
+    }
+  });
+
   // Admin routes - protected by requireAdmin middleware
   app.get('/api/admin/users', requireAdmin, async (req: any, res) => {
     try {
@@ -1262,7 +1273,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const formulationData = await generateFormulation(categoryName, productDescription);
       const formulation = await storage.createFormulation({
         ...formulationData,
-        categoryId: finalCategoryId
+        categoryId: finalCategoryId,
+        userId: req.session?.userId
       });
       
       res.status(201).json(formulation);
@@ -1287,7 +1299,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const formulationData = await generateFormulationWithKeywords(category.name, productDescription, includeImage);
       const formulation = await storage.createFormulation({
         ...formulationData,
-        categoryId
+        categoryId,
+        userId: req.session?.userId
       });
       
       res.status(201).json(formulation);
@@ -1320,7 +1333,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Add SEO fields to formulation data
           const formulationWithSEO = addSEOFields({
             ...formulationData,
-            categoryId
+            categoryId,
+            userId: req.session?.userId
           }, category.name);
           
           const formulation = await storage.createFormulation(formulationWithSEO);
@@ -1399,7 +1413,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Add SEO fields to formulation data
           const formulationWithSEO = addSEOFields({
             ...formulationData,
-            categoryId: finalCategoryId
+            categoryId: finalCategoryId,
+            userId: req.session?.userId
           }, categoryName);
           
           const formulation = await storage.createFormulation(formulationWithSEO);
