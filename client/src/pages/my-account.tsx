@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Heart, Download, Trash2, User } from "lucide-react";
+import { Heart, Download, Trash2, User, Wand2 } from "lucide-react";
 import { format } from "date-fns";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +21,11 @@ export default function MyAccountPage() {
 
   const { data: favorites, isLoading: loadingFavorites } = useQuery<any[]>({
     queryKey: ['/api/user/favorites'],
+    enabled: !!user,
+  });
+
+  const { data: generated, isLoading: loadingGenerated } = useQuery<any[]>({
+    queryKey: ['/api/user/generated'],
     enabled: !!user,
   });
 
@@ -93,14 +98,27 @@ export default function MyAccountPage() {
         </Card>
 
         <Tabs defaultValue="downloads" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="downloads" data-testid="tab-downloads">
               <Download className="w-4 h-4 mr-2" />
               My Downloads
+              <span className="ml-1 bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs font-semibold">
+                {downloads?.length || 0}
+              </span>
             </TabsTrigger>
             <TabsTrigger value="favorites" data-testid="tab-favorites">
               <Heart className="w-4 h-4 mr-2" />
               My Favorites
+              <span className="ml-1 bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs font-semibold">
+                {favorites?.length || 0}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="generated" data-testid="tab-generated">
+              <Wand2 className="w-4 h-4 mr-2" />
+              Generated Formulas
+              <span className="ml-1 bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs font-semibold">
+                {generated?.length || 0}
+              </span>
             </TabsTrigger>
           </TabsList>
 
@@ -249,6 +267,77 @@ export default function MyAccountPage() {
                     <Link href="/">
                       <Button variant="link" className="mt-2" data-testid="button-browse-formulas-favorites">
                         Browse Formulas
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="generated">
+            <Card>
+              <CardHeader>
+                <CardTitle>Generated Formulas</CardTitle>
+                <CardDescription>
+                  Formulas you've created using the AI wizard
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loadingGenerated ? (
+                  <div className="space-y-4">
+                    <Skeleton className="h-16 w-full" />
+                    <Skeleton className="h-16 w-full" />
+                    <Skeleton className="h-16 w-full" />
+                  </div>
+                ) : generated && generated.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="border-b border-gray-300">
+                          <th className="text-left p-3 font-semibold">Formula Name</th>
+                          <th className="text-left p-3 font-semibold">Created</th>
+                          <th className="text-right p-3 font-semibold">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {generated.map((gen: any, index: number) => (
+                          <tr 
+                            key={gen.id} 
+                            className="border-b border-gray-200 hover:bg-gray-50"
+                            data-testid={`row-generated-${index}`}
+                          >
+                            <td className="p-3" data-testid={`text-generated-name-${index}`}>
+                              {gen.name}
+                            </td>
+                            <td className="p-3" data-testid={`text-generated-date-${index}`}>
+                              {format(new Date(gen.createdAt), 'MMM dd, yyyy')}
+                            </td>
+                            <td className="p-3 text-right">
+                              {gen.slug && (
+                                <Link href={`/formulation/${gen.slug}`}>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    data-testid={`button-view-generated-${index}`}
+                                  >
+                                    View
+                                  </Button>
+                                </Link>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground" data-testid="text-no-generated">
+                    <Wand2 className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                    <p>You haven't generated any formulas yet.</p>
+                    <Link href="/demo">
+                      <Button variant="link" className="mt-2" data-testid="button-create-formula">
+                        Create Your First Formula
                       </Button>
                     </Link>
                   </div>
