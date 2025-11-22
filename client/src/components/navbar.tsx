@@ -1,10 +1,17 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Settings, Menu, X, User } from "lucide-react";
+import { Settings, Menu, X, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import SearchBar from "@/components/search-bar";
 import logoImage from "@assets/logo_1756133481367.png";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 interface AuthUser {
   id: string;
@@ -196,40 +203,55 @@ export default function Navbar() {
             {!isLoadingUser && (
               <>
                 {isAuthenticated ? (
-                  // Show user info and logout when authenticated
-                  <>
-                    {user?.isAdmin && (
-                      <Link href="/admin/user-activity">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex items-center space-x-2"
-                          data-testid="button-admin-dashboard"
-                        >
-                          <Settings className="h-4 w-4" />
-                          <span>Admin</span>
-                        </Button>
-                      </Link>
-                    )}
-                    <Link href="/my-account">
+                  // Show account dropdown menu when authenticated
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
                       <Button 
                         variant="ghost" 
                         size="sm" 
                         className="flex items-center space-x-2"
-                        data-testid="button-my-account"
+                        data-testid="button-account-menu"
                       >
                         <User className="h-4 w-4" />
                         <span>{getUserDisplayName()}</span>
                       </Button>
-                    </Link>
-                    <a 
-                      href="/api/logout"
-                      className="text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded whitespace-nowrap"
-                      data-testid="button-logout"
-                    >
-                      Logout
-                    </a>
-                  </>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      {user?.isAdmin && (
+                        <>
+                          <Link href="/admin/user-activity">
+                            <DropdownMenuItem 
+                              className="cursor-pointer flex items-center space-x-2"
+                              data-testid="dropdown-admin-dashboard"
+                            >
+                              <Settings className="h-4 w-4" />
+                              <span>Admin Dashboard</span>
+                            </DropdownMenuItem>
+                          </Link>
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
+                      <Link href="/my-account">
+                        <DropdownMenuItem 
+                          className="cursor-pointer flex items-center space-x-2"
+                          data-testid="dropdown-profile"
+                        >
+                          <User className="h-4 w-4" />
+                          <span>Profile</span>
+                        </DropdownMenuItem>
+                      </Link>
+                      <DropdownMenuSeparator />
+                      <a href="/api/logout" className="w-full">
+                        <DropdownMenuItem 
+                          className="cursor-pointer flex items-center space-x-2"
+                          data-testid="dropdown-logout"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          <span>Logout</span>
+                        </DropdownMenuItem>
+                      </a>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 ) : (
                   // Show login and sign up buttons when not authenticated
                   <>
