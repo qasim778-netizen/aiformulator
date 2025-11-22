@@ -3,6 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Download, FileText, Sparkles, User, Loader2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import SignInDialog from '@/components/signin-dialog';
+import { useState } from 'react';
 
 interface FormulationData {
   id: string;
@@ -16,6 +19,8 @@ interface FormulationData {
 export default function FormulationConfirmation() {
   const params = useParams();
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  const [showSignInDialog, setShowSignInDialog] = useState(false);
   const formulationId = params.id;
 
   // Fetch formulation data from API
@@ -56,6 +61,10 @@ export default function FormulationConfirmation() {
   }
 
   const handleDownloadPDF = () => {
+    if (!user) {
+      setShowSignInDialog(true);
+      return;
+    }
     if (formulation?.pdfUrl) {
       window.location.href = formulation.pdfUrl;
     }
@@ -79,6 +88,7 @@ export default function FormulationConfirmation() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <SignInDialog open={showSignInDialog} onOpenChange={setShowSignInDialog} />
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-12 max-w-4xl">
         {/* Success Animation */}
         <div className="text-center mb-6 sm:mb-8 animate-fade-in">

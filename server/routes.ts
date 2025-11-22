@@ -2002,8 +2002,8 @@ Allow: /disclaimer`;
     }
   });
 
-  // Download PDF file for a formulation
-  app.get("/api/formulations/:id/download/pdf", async (req, res) => {
+  // Download PDF file for a formulation - requires authentication
+  app.get("/api/formulations/:id/download/pdf", requireAuth, async (req, res) => {
     try {
       const formulationId = req.params.id;
       const formulation = await storage.getFormulation(formulationId);
@@ -2040,8 +2040,8 @@ Allow: /disclaimer`;
     }
   });
 
-  // Download text file for a formulation
-  app.get("/api/formulations/:id/download/text", async (req, res) => {
+  // Download text file for a formulation - requires authentication
+  app.get("/api/formulations/:id/download/text", requireAuth, async (req, res) => {
     try {
       const formulationId = req.params.id;
       const formulation = await storage.getFormulation(formulationId);
