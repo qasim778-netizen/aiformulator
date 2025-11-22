@@ -39,8 +39,8 @@ export default function LoginPage() {
         description: "Welcome back to AIFormulator.",
       });
       
-      // Get returnTo parameter from URL query string
-      const params = new URLSearchParams(location.split('?')[1]);
+      // Get returnTo parameter from URL query string using window.location.search
+      const params = new URLSearchParams(window.location.search);
       const returnTo = params.get('returnTo');
       
       // Redirect to returnTo if provided, otherwise go to my-account
