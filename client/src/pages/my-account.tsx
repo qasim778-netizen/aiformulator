@@ -21,16 +21,31 @@ export default function MyAccountPage() {
 
   const { data: downloadsData, isLoading: loadingDownloads } = useQuery<any>({
     queryKey: ['/api/user/downloads', downloadsPage],
+    queryFn: async () => {
+      const response = await fetch(`/api/user/downloads?page=${downloadsPage}`);
+      if (!response.ok) throw new Error('Failed to fetch downloads');
+      return response.json();
+    },
     enabled: !!user,
   });
 
   const { data: favoritesData, isLoading: loadingFavorites } = useQuery<any>({
     queryKey: ['/api/user/favorites', favoritesPage],
+    queryFn: async () => {
+      const response = await fetch(`/api/user/favorites?page=${favoritesPage}`);
+      if (!response.ok) throw new Error('Failed to fetch favorites');
+      return response.json();
+    },
     enabled: !!user,
   });
 
   const { data: generatedData, isLoading: loadingGenerated } = useQuery<any>({
     queryKey: ['/api/user/generated', generatedPage],
+    queryFn: async () => {
+      const response = await fetch(`/api/user/generated?page=${generatedPage}`);
+      if (!response.ok) throw new Error('Failed to fetch generated');
+      return response.json();
+    },
     enabled: !!user,
   });
 
