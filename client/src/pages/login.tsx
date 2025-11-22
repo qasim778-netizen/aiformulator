@@ -122,10 +122,17 @@ export default function LoginPage() {
                 </Button>
 
                 <div className="text-center text-sm text-muted-foreground">
-                  Don't have an account?{" "}
-                  <Link href="/signup">
-                    <a className="text-primary hover:underline" data-testid="link-signup">
-                      Sign up
+                  <div className="mb-2">
+                    Don't have an account?{" "}
+                    <Link href="/signup">
+                      <a className="text-primary hover:underline" data-testid="link-signup">
+                        Sign up
+                      </a>
+                    </Link>
+                  </div>
+                  <Link href="/forgot-password">
+                    <a className="text-primary hover:underline" data-testid="link-forgot-password">
+                      Forgot password?
                     </a>
                   </Link>
                 </div>
