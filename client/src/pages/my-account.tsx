@@ -19,42 +19,18 @@ export default function MyAccountPage() {
   const [favoritesPage, setFavoritesPage] = useState(1);
   const [generatedPage, setGeneratedPage] = useState(1);
 
-  const { data: downloadsData, isLoading: loadingDownloads } = useQuery<any>({
-    queryKey: ['/api/user/downloads', downloadsPage],
-    queryFn: async ({ queryKey }) => {
-      const [endpoint, page] = queryKey;
-      const response = await fetch(`${endpoint}?page=${page}`, {
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to fetch downloads');
-      return response.json();
-    },
+  const { data: downloadsData, isLoading: loadingDownloads, isError: downloadsError } = useQuery<any>({
+    queryKey: [`/api/user/downloads?page=${downloadsPage}`],
     enabled: !!user,
   });
 
-  const { data: favoritesData, isLoading: loadingFavorites } = useQuery<any>({
-    queryKey: ['/api/user/favorites', favoritesPage],
-    queryFn: async ({ queryKey }) => {
-      const [endpoint, page] = queryKey;
-      const response = await fetch(`${endpoint}?page=${page}`, {
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to fetch favorites');
-      return response.json();
-    },
+  const { data: favoritesData, isLoading: loadingFavorites, isError: favoritesError } = useQuery<any>({
+    queryKey: [`/api/user/favorites?page=${favoritesPage}`],
     enabled: !!user,
   });
 
-  const { data: generatedData, isLoading: loadingGenerated } = useQuery<any>({
-    queryKey: ['/api/user/generated', generatedPage],
-    queryFn: async ({ queryKey }) => {
-      const [endpoint, page] = queryKey;
-      const response = await fetch(`${endpoint}?page=${page}`, {
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to fetch generated');
-      return response.json();
-    },
+  const { data: generatedData, isLoading: loadingGenerated, isError: generatedError } = useQuery<any>({
+    queryKey: [`/api/user/generated?page=${generatedPage}`],
     enabled: !!user,
   });
 
@@ -207,6 +183,10 @@ export default function MyAccountPage() {
                     <Skeleton className="h-16 w-full" />
                     <Skeleton className="h-16 w-full" />
                   </div>
+                ) : downloadsError ? (
+                  <div className="text-center py-8 text-destructive" data-testid="text-downloads-error">
+                    Error loading downloads. Please try again later.
+                  </div>
                 ) : downloads && downloads.length > 0 ? (
                   <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
@@ -292,6 +272,10 @@ export default function MyAccountPage() {
                     <Skeleton className="h-16 w-full" />
                     <Skeleton className="h-16 w-full" />
                     <Skeleton className="h-16 w-full" />
+                  </div>
+                ) : favoritesError ? (
+                  <div className="text-center py-8 text-destructive" data-testid="text-favorites-error">
+                    Error loading favorites. Please try again later.
                   </div>
                 ) : favorites && favorites.length > 0 ? (
                   <div className="overflow-x-auto">
@@ -389,6 +373,10 @@ export default function MyAccountPage() {
                     <Skeleton className="h-16 w-full" />
                     <Skeleton className="h-16 w-full" />
                     <Skeleton className="h-16 w-full" />
+                  </div>
+                ) : generatedError ? (
+                  <div className="text-center py-8 text-destructive" data-testid="text-generated-error">
+                    Error loading generated formulas. Please try again later.
                   </div>
                 ) : generated && generated.length > 0 ? (
                   <div className="overflow-x-auto">
