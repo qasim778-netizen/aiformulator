@@ -30,29 +30,48 @@ async function getSendGridClient() {
     ? 'depl ' + process.env.WEB_REPL_RENEWAL 
     : null;
 
+  console.log('[SendGrid] Getting client, hostname:', hostname, 'token exists:', !!xReplitToken);
+
   if (!xReplitToken) {
     throw new Error('X_REPLIT_TOKEN not found for repl/depl');
   }
 
-  const connectionSettings = await fetch(
-    'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=sendgrid',
-    {
-      headers: {
-        'Accept': 'application/json',
-        'X_REPLIT_TOKEN': xReplitToken
-      }
-    }
-  ).then(res => res.json()).then(data => data.items?.[0]);
+  const url = 'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=sendgrid';
+  console.log('[SendGrid] Fetching connection from:', url);
 
-  if (!connectionSettings || (!connectionSettings.settings.api_key || !connectionSettings.settings.from_email)) {
-    throw new Error('SendGrid not connected');
+  const response = await fetch(url, {
+    headers: {
+      'Accept': 'application/json',
+      'X_REPLIT_TOKEN': xReplitToken
+    }
+  });
+  
+  const responseData = await response.json();
+  console.log('[SendGrid] Response status:', response.status, 'data:', JSON.stringify(responseData).substring(0, 200));
+  
+  const connectionSettings = responseData.items?.[0];
+
+  if (!connectionSettings) {
+    console.error('[SendGrid] No connection settings found');
+    throw new Error('SendGrid not connected - no connection settings');
+  }
+
+  const apiKey = connectionSettings.settings?.api_key;
+  const fromEmail = connectionSettings.settings?.from_email;
+  
+  console.log('[SendGrid] API Key present:', !!apiKey, 'From Email:', fromEmail);
+
+  if (!apiKey || !fromEmail) {
+    throw new Error('SendGrid not connected - missing api_key or from_email');
   }
 
   const sgMail = (await import('@sendgrid/mail')).default;
-  sgMail.setApiKey(connectionSettings.settings.api_key);
+  sgMail.setApiKey(apiKey);
+  console.log('[SendGrid] Client initialized successfully');
+  
   return {
     client: sgMail,
-    fromEmail: connectionSettings.settings.from_email
+    fromEmail: fromEmail
   };
 }
 
@@ -198,12 +217,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/forgot-password', async (req, res) => {
     try {
       const { email } = req.body;
+      console.log('[ForgotPassword] Request received for email:', email);
       
       if (!email) {
         return res.status(400).json({ message: "Email is required" });
       }
 
       const user = await storage.getUserByEmail(email);
+      console.log('[ForgotPassword] User found:', !!user);
+      
       if (!user) {
         // For security, don't reveal whether email exists
         return res.json({ message: "If email exists, reset link has been sent" });
@@ -214,13 +236,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const expiry = new Date(Date.now() + 3600000); // 1 hour from now
 
       await storage.setPasswordResetToken(user.id, resetToken, expiry);
+      console.log('[ForgotPassword] Reset token generated and stored');
 
       // Send reset email via SendGrid
       try {
+        console.log('[ForgotPassword] Attempting to get SendGrid client...');
         const { client, fromEmail } = await getSendGridClient();
-        const resetLink = `${process.env.VITE_APP_URL || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
+        console.log('[ForgotPassword] SendGrid client obtained, from email:', fromEmail);
         
-        await client.send({
+        const resetLink = `${process.env.VITE_APP_URL || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
+        console.log('[ForgotPassword] Reset link:', resetLink);
+        
+        const emailPayload = {
           to: email,
           from: fromEmail,
           subject: 'Reset Your Password - AI Formulator',
@@ -231,17 +258,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             <p>This link expires in 1 hour.</p>
             <p>If you didn't request this, please ignore this email.</p>
           `
-        });
+        };
         
-        console.log(`Password reset email sent to ${email}`);
+        console.log('[ForgotPassword] Sending email payload...');
+        const result = await client.send(emailPayload);
+        console.log(`[ForgotPassword] Password reset email sent successfully to ${email}`, result);
       } catch (emailError: any) {
-        console.error("Failed to send email:", emailError);
+        console.error("[ForgotPassword] Failed to send email:", emailError.message || emailError);
+        console.error("[ForgotPassword] Full error:", emailError);
         // Don't fail the request if email fails - still return success for security
       }
 
       res.json({ message: "If email exists, reset link has been sent" });
     } catch (error: any) {
-      console.error("Forgot password error:", error);
+      console.error("[ForgotPassword] Forgot password error:", error);
       res.status(500).json({ message: "Failed to process request" });
     }
   });
