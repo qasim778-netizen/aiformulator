@@ -62,6 +62,10 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: { email: string; password: string; firstName?: string; lastName?: string; country?: string }): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
+  updateUserPasswordReset(userId: string, hashedPassword: string): Promise<User | undefined>;
+  getUserByResetToken(token: string): Promise<User | undefined>;
+  setPasswordResetToken(userId: string, token: string, expiry: Date): Promise<void>;
+  clearPasswordResetToken(userId: string): Promise<void>;
 
   // User downloads and favorites
   trackDownload(userId: string, formulationId: string, formulationName: string, categoryName: string): Promise<void>;
@@ -1786,6 +1790,8 @@ export class MemStorage implements IStorage {
       country: userData.country || null,
       profileImageUrl: null,
       isAdmin: false,
+      resetToken: null,
+      resetTokenExpiry: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -1797,18 +1803,68 @@ export class MemStorage implements IStorage {
     const existingUser = this.users.get(userData.id!);
     const user: User = {
       id: userData.id!,
-      email: userData.email || null,
-      password: userData.password || null,
+      email: userData.email as string,
+      password: userData.password as string,
       firstName: userData.firstName || null,
       lastName: userData.lastName || null,
       country: userData.country || null,
       profileImageUrl: userData.profileImageUrl || null,
       isAdmin: userData.isAdmin || existingUser?.isAdmin || false,
+      resetToken: existingUser?.resetToken || null,
+      resetTokenExpiry: existingUser?.resetTokenExpiry || null,
       createdAt: existingUser?.createdAt || new Date(),
       updatedAt: new Date(),
     };
     this.users.set(user.id, user);
     return user;
+  }
+
+  async updateUserPasswordReset(userId: string, hashedPassword: string): Promise<User | undefined> {
+    const user = this.users.get(userId);
+    if (!user) return undefined;
+    
+    const updated: User = {
+      ...user,
+      password: hashedPassword,
+      resetToken: null,
+      resetTokenExpiry: null,
+      updatedAt: new Date(),
+    };
+    this.users.set(userId, updated);
+    return updated;
+  }
+
+  async getUserByResetToken(token: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => {
+      if (!user.resetToken || !user.resetTokenExpiry) return false;
+      return user.resetToken === token && new Date(user.resetTokenExpiry) > new Date();
+    });
+  }
+
+  async setPasswordResetToken(userId: string, token: string, expiry: Date): Promise<void> {
+    const user = this.users.get(userId);
+    if (!user) return;
+    
+    const updated: User = {
+      ...user,
+      resetToken: token,
+      resetTokenExpiry: expiry,
+      updatedAt: new Date(),
+    };
+    this.users.set(userId, updated);
+  }
+
+  async clearPasswordResetToken(userId: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (!user) return;
+    
+    const updated: User = {
+      ...user,
+      resetToken: null,
+      resetTokenExpiry: null,
+      updatedAt: new Date(),
+    };
+    this.users.set(userId, updated);
   }
 
   // User downloads and favorites (stub implementations - use DatabaseStorage in production)

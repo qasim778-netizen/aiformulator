@@ -159,6 +159,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Forgot password endpoint
+  app.post('/api/forgot-password', async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        // For security, don't reveal whether email exists
+        return res.json({ message: "If email exists, reset link has been sent" });
+      }
+
+      // Generate a reset token (valid for 1 hour)
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const expiry = new Date(Date.now() + 3600000); // 1 hour from now
+
+      await storage.setPasswordResetToken(user.id, resetToken, expiry);
+
+      // In production, you would send an email here with the reset link
+      // For now, just log it (in a real app, use SendGrid or Resend)
+      console.log(`Password reset link for ${email}: /reset-password?token=${resetToken}`);
+
+      res.json({ message: "If email exists, reset link has been sent" });
+    } catch (error: any) {
+      console.error("Forgot password error:", error);
+      res.status(500).json({ message: "Failed to process request" });
+    }
+  });
+
+  // Reset password endpoint
+  app.post('/api/reset-password', async (req, res) => {
+    try {
+      const { token, password } = req.body;
+      
+      if (!token || !password) {
+        return res.status(400).json({ message: "Token and password are required" });
+      }
+
+      const user = await storage.getUserByResetToken(token);
+      if (!user) {
+        return res.status(400).json({ message: "Invalid or expired reset link" });
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Update password and clear reset token
+      await storage.updateUserPasswordReset(user.id, hashedPassword);
+
+      res.json({ message: "Password has been reset successfully" });
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+      res.status(500).json({ message: "Failed to reset password" });
+    }
+  });
+
   // Auth routes
   app.get('/api/auth/user', async (req: any, res) => {
     try {
