@@ -15,21 +15,31 @@ export default function MyAccountPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [downloadsPage, setDownloadsPage] = useState(1);
+  const [favoritesPage, setFavoritesPage] = useState(1);
+  const [generatedPage, setGeneratedPage] = useState(1);
 
-  const { data: downloads, isLoading: loadingDownloads } = useQuery<any[]>({
-    queryKey: ['/api/user/downloads'],
+  const { data: downloadsData, isLoading: loadingDownloads } = useQuery<any>({
+    queryKey: ['/api/user/downloads', downloadsPage],
     enabled: !!user,
   });
 
-  const { data: favorites, isLoading: loadingFavorites } = useQuery<any[]>({
-    queryKey: ['/api/user/favorites'],
+  const { data: favoritesData, isLoading: loadingFavorites } = useQuery<any>({
+    queryKey: ['/api/user/favorites', favoritesPage],
     enabled: !!user,
   });
 
-  const { data: generated, isLoading: loadingGenerated } = useQuery<any[]>({
-    queryKey: ['/api/user/generated'],
+  const { data: generatedData, isLoading: loadingGenerated } = useQuery<any>({
+    queryKey: ['/api/user/generated', generatedPage],
     enabled: !!user,
   });
+
+  const downloads = downloadsData?.data || [];
+  const downloadsPagination = downloadsData?.pagination;
+  const favorites = favoritesData?.data || [];
+  const favoritesPagination = favoritesData?.pagination;
+  const generated = generatedData?.data || [];
+  const generatedPagination = generatedData?.pagination;
 
   const downloadGeneratedMutation = useMutation({
     mutationFn: async (formulation: any) => {
@@ -139,21 +149,21 @@ export default function MyAccountPage() {
               <Download className="w-4 h-4 mr-2" />
               My Downloads
               <span className="ml-1 bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs font-semibold">
-                {downloads?.length || 0}
+                {downloadsPagination?.total || 0}
               </span>
             </TabsTrigger>
             <TabsTrigger value="favorites" data-testid="tab-favorites">
               <Heart className="w-4 h-4 mr-2" />
               My Favorites
               <span className="ml-1 bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs font-semibold">
-                {favorites?.length || 0}
+                {favoritesPagination?.total || 0}
               </span>
             </TabsTrigger>
             <TabsTrigger value="generated" data-testid="tab-generated">
               <Wand2 className="w-4 h-4 mr-2" />
               Generated Formulas
               <span className="ml-1 bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs font-semibold">
-                {generated?.length || 0}
+                {generatedPagination?.total || 0}
               </span>
             </TabsTrigger>
           </TabsList>
@@ -223,6 +233,21 @@ export default function MyAccountPage() {
                         Browse Formulas
                       </Button>
                     </Link>
+                  </div>
+                )}
+                {downloadsPagination && downloadsPagination.totalPages > 1 && (
+                  <div className="flex justify-center gap-2 mt-6 pt-4 border-t">
+                    {Array.from({ length: downloadsPagination.totalPages }, (_, i) => i + 1).map((page) => (
+                      <Button
+                        key={page}
+                        variant={downloadsPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setDownloadsPage(page)}
+                        data-testid={`button-page-downloads-${page}`}
+                      >
+                        {page}
+                      </Button>
+                    ))}
                   </div>
                 )}
               </CardContent>
@@ -307,6 +332,21 @@ export default function MyAccountPage() {
                     </Link>
                   </div>
                 )}
+                {favoritesPagination && favoritesPagination.totalPages > 1 && (
+                  <div className="flex justify-center gap-2 mt-6 pt-4 border-t">
+                    {Array.from({ length: favoritesPagination.totalPages }, (_, i) => i + 1).map((page) => (
+                      <Button
+                        key={page}
+                        variant={favoritesPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setFavoritesPage(page)}
+                        data-testid={`button-page-favorites-${page}`}
+                      >
+                        {page}
+                      </Button>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -386,6 +426,21 @@ export default function MyAccountPage() {
                         Create Your First Formula
                       </Button>
                     </Link>
+                  </div>
+                )}
+                {generatedPagination && generatedPagination.totalPages > 1 && (
+                  <div className="flex justify-center gap-2 mt-6 pt-4 border-t">
+                    {Array.from({ length: generatedPagination.totalPages }, (_, i) => i + 1).map((page) => (
+                      <Button
+                        key={page}
+                        variant={generatedPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setGeneratedPage(page)}
+                        data-testid={`button-page-generated-${page}`}
+                      >
+                        {page}
+                      </Button>
+                    ))}
                   </div>
                 )}
               </CardContent>
