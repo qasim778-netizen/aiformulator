@@ -99,6 +99,8 @@ export default function AIFormulator() {
         queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
         queryClient.invalidateQueries({ queryKey: ["/api/formulations-paginated"] });
         queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+        // Invalidate cache so generated formulas appear in dashboard
+        queryClient.invalidateQueries({ queryKey: ['/api/user/generated'] });
         
         toast({
           title: "Formulation Generated Successfully!",

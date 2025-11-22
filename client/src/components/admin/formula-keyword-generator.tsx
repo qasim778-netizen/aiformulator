@@ -36,6 +36,8 @@ export default function FormulaKeywordGenerator({ categories, onSuccess }: Formu
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      // Invalidate cache so generated formulas appear in customer dashboard
+      queryClient.invalidateQueries({ queryKey: ['/api/user/generated'] });
       toast({ 
         title: "Formula generation completed!", 
         description: `Created formulation: ${data.name} ${data.image ? 'with matching image' : ''}` 

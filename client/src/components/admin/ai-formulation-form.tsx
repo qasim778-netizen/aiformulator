@@ -27,6 +27,8 @@ export default function AiFormulationForm({ categories, onSuccess }: AiFormulati
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      // Invalidate cache so generated formulas appear in customer dashboard
+      queryClient.invalidateQueries({ queryKey: ['/api/user/generated'] });
       toast({ 
         title: "Formulation generated successfully", 
         description: `Created formulation: ${data.name}` 

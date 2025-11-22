@@ -42,6 +42,8 @@ export default function BulkFormulationGenerator({ categories }: BulkFormulation
       queryClient.invalidateQueries({ queryKey: ["/api/admin/formulations"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/formulations-all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      // Invalidate cache so generated formulas appear in customer dashboard
+      queryClient.invalidateQueries({ queryKey: ['/api/user/generated'] });
       
       // Use the actual generated formulations from the API response
       const formulations = data?.formulations || data?.createdFormulations || [];

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { CheckCircle, Beaker, Settings, FileText, Download, Loader2, ArrowLeft } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { Captcha } from '@/components/ui/captcha';
 interface FormData {
@@ -79,6 +79,9 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
     },
     onSuccess: (formulation: any) => {
       console.log('Generation success:', formulation);
+      
+      // Invalidate cache so generated formulas appear in dashboard
+      queryClient.invalidateQueries({ queryKey: ['/api/user/generated'] });
       
       // Navigate to confirmation page with formulation ID
       setLocation(`/formulation-confirmation/${formulation.id}`);
