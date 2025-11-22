@@ -200,23 +200,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/user/downloads', requireAuth, async (req: any, res) => {
     try {
       const userId = req.session.userId;
-      const page = parseInt(req.query.page || '1');
-      const limit = 10;
-      const offset = (page - 1) * limit;
-      
-      const allDownloads = await storage.getUserDownloads(userId);
-      const total = allDownloads.length;
-      const downloads = allDownloads.slice(offset, offset + limit);
-      
-      res.json({
-        data: downloads,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit)
-        }
-      });
+      const downloads = await storage.getUserDownloads(userId);
+      res.json(downloads);
     } catch (error) {
       console.error("Error fetching downloads:", error);
       res.status(500).json({ message: "Failed to fetch downloads" });
@@ -257,23 +242,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/user/favorites', requireAuth, async (req: any, res) => {
     try {
       const userId = req.session.userId;
-      const page = parseInt(req.query.page || '1');
-      const limit = 10;
-      const offset = (page - 1) * limit;
-      
-      const allFavorites = await storage.getUserFavorites(userId);
-      const total = allFavorites.length;
-      const favorites = allFavorites.slice(offset, offset + limit);
-      
-      res.json({
-        data: favorites,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit)
-        }
-      });
+      const favorites = await storage.getUserFavorites(userId);
+      res.json(favorites);
     } catch (error) {
       console.error("Error fetching favorites:", error);
       res.status(500).json({ message: "Failed to fetch favorites" });
@@ -283,23 +253,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/user/generated', requireAuth, async (req: any, res) => {
     try {
       const userId = req.session.userId;
-      const page = parseInt(req.query.page || '1');
-      const limit = 10;
-      const offset = (page - 1) * limit;
-      
-      const allGenerated = await storage.getUserGeneratedFormulations(userId);
-      const total = allGenerated.length;
-      const generated = allGenerated.slice(offset, offset + limit);
-      
-      res.json({
-        data: generated,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit)
-        }
-      });
+      const generated = await storage.getUserGeneratedFormulations(userId);
+      res.json(generated);
     } catch (error) {
       console.error("Error fetching generated formulations:", error);
       res.status(500).json({ message: "Failed to fetch generated formulations" });
