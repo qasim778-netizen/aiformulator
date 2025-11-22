@@ -31,7 +31,7 @@ export default function FormulationPage() {
   const formulationId = params.id;
   const { toast } = useToast();
   const { user } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const [isFavorited, setIsFavorited] = useState(false);
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(true);
   const [captchaKey, setCaptchaKey] = useState(0);
@@ -189,7 +189,7 @@ export default function FormulationPage() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          setLocation('/login');
+          setLocation(`/login?returnTo=${encodeURIComponent(location)}`);
           return;
         }
         throw new Error("Failed to generate PDF");
@@ -279,7 +279,7 @@ export default function FormulationPage() {
     
     // Check if user is logged in
     if (!user) {
-      setLocation('/login');
+      setLocation(`/login?returnTo=${encodeURIComponent(location)}`);
       return;
     }
     
@@ -288,7 +288,7 @@ export default function FormulationPage() {
     } else {
       addFavoriteMutation.mutate(formulationId);
     }
-  }, [formulation, formulationId, isFavorited, user, addFavoriteMutation, removeFavoriteMutation, setLocation]);
+  }, [formulation, formulationId, isFavorited, user, addFavoriteMutation, removeFavoriteMutation, setLocation, location]);
 
   // Captcha verification handlers
   const handleCaptchaVerify = useCallback((verified: boolean) => {

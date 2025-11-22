@@ -18,7 +18,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { toast } = useToast();
 
   const form = useForm<LoginFormData>({
@@ -38,7 +38,14 @@ export default function LoginPage() {
         title: "Login successful!",
         description: "Welcome back to AIFormulator.",
       });
-      setLocation("/my-account");
+      
+      // Get returnTo parameter from URL query string
+      const params = new URLSearchParams(location.split('?')[1]);
+      const returnTo = params.get('returnTo');
+      
+      // Redirect to returnTo if provided, otherwise go to my-account
+      const redirectPath = returnTo ? decodeURIComponent(returnTo) : "/my-account";
+      setLocation(redirectPath);
       window.location.reload();
     },
     onError: (error: any) => {
