@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { ArrowLeft, Download, Printer, Bookmark, BookmarkCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +7,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useCallback } from "react";
 import type { Formulation, Category, FormulationContent } from "@shared/schema";
-import SignInDialog from "@/components/signin-dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Captcha } from "@/components/ui/captcha";
@@ -32,8 +31,8 @@ export default function FormulationPage() {
   const formulationId = params.id;
   const { toast } = useToast();
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
   const [isFavorited, setIsFavorited] = useState(false);
-  const [showSignInDialog, setShowSignInDialog] = useState(false);
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(true);
   const [captchaKey, setCaptchaKey] = useState(0);
 
@@ -190,7 +189,7 @@ export default function FormulationPage() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          setShowSignInDialog(true);
+          setLocation('/login');
           return;
         }
         throw new Error("Failed to generate PDF");
@@ -214,19 +213,13 @@ export default function FormulationPage() {
       });
     } catch (error: any) {
       console.error('Error generating PDF:', error);
-      
-      // Don't show error toast if sign-in dialog is being shown
-      if (showSignInDialog) {
-        return;
-      }
-      
       toast({
         title: "Download Failed",
         description: "There was an error downloading the formulation report. Please try again.",
         variant: "destructive"
       });
     }
-  }, [formulation, category, user, toast]);
+  }, [formulation, category, user, toast, setLocation]);
 
   // Print function
   const handlePrint = useCallback(() => {
@@ -286,7 +279,7 @@ export default function FormulationPage() {
     
     // Check if user is logged in
     if (!user) {
-      setShowSignInDialog(true);
+      setLocation('/login');
       return;
     }
     
@@ -295,7 +288,7 @@ export default function FormulationPage() {
     } else {
       addFavoriteMutation.mutate(formulationId);
     }
-  }, [formulation, formulationId, isFavorited, user, addFavoriteMutation, removeFavoriteMutation]);
+  }, [formulation, formulationId, isFavorited, user, addFavoriteMutation, removeFavoriteMutation, setLocation]);
 
   // Captcha verification handlers
   const handleCaptchaVerify = useCallback((verified: boolean) => {
@@ -918,13 +911,6 @@ export default function FormulationPage() {
           </CardContent>
         </Card>
       </div>
-      
-      <SignInDialog 
-        open={showSignInDialog}
-        onOpenChange={setShowSignInDialog}
-        title="Sign In to Download"
-        description="Please sign in to download this formulation as a PDF report."
-      />
     </div>
   );
 }
