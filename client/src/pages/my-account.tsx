@@ -8,15 +8,14 @@ import { Heart, Download, Trash2, User, Wand2 } from "lucide-react";
 import { format } from "date-fns";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useState } from "react";
-import SignInDialog from "@/components/signin-dialog";
 
 export default function MyAccountPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
-  const [showSignInDialog, setShowSignInDialog] = useState(false);
 
   const { data: downloads, isLoading: loadingDownloads } = useQuery<any[]>({
     queryKey: ['/api/user/downloads'],
@@ -39,7 +38,7 @@ export default function MyAccountPage() {
       try {
         const response = await fetch(`/api/formulations/${formulation.id}/download/pdf`);
         if (response.status === 401) {
-          setShowSignInDialog(true);
+          setLocation('/login');
           throw new Error('Please log in to download');
         }
         if (!response.ok) throw new Error('Download failed');
@@ -94,15 +93,14 @@ export default function MyAccountPage() {
   if (!user) {
     return (
       <div className="container mx-auto py-8">
-        <SignInDialog open={true} onOpenChange={setShowSignInDialog} />
         <Card>
           <CardHeader>
             <CardTitle>Access Denied</CardTitle>
             <CardDescription>Please log in to view your account.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/">
-              <Button>Go to Home</Button>
+            <Link href="/login">
+              <Button>Go to Login</Button>
             </Link>
           </CardContent>
         </Card>
@@ -112,7 +110,6 @@ export default function MyAccountPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <SignInDialog open={showSignInDialog} onOpenChange={setShowSignInDialog} />
       <div className="max-w-6xl mx-auto">
         <Card className="mb-8">
           <CardHeader>
