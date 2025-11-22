@@ -9,10 +9,12 @@ import { format } from "date-fns";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
+import { useState } from "react";
 
 export default function MyAccountPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const { data: downloads, isLoading: loadingDownloads } = useQuery<any[]>({
     queryKey: ['/api/user/downloads'],
@@ -27,6 +29,40 @@ export default function MyAccountPage() {
   const { data: generated, isLoading: loadingGenerated } = useQuery<any[]>({
     queryKey: ['/api/user/generated'],
     enabled: !!user,
+  });
+
+  const downloadGeneratedMutation = useMutation({
+    mutationFn: async (formulation: any) => {
+      setDownloadingId(formulation.id);
+      try {
+        const response = await fetch(`/api/formulations/${formulation.id}/download/pdf`);
+        if (!response.ok) throw new Error('Download failed');
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${formulation.name}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        await apiRequest('POST', '/api/user/downloads', {
+          formulationId: formulation.id,
+          formulationName: formulation.name,
+          categoryName: formulation.categoryName || 'Generated'
+        });
+        
+        await queryClient.invalidateQueries({ queryKey: ['/api/user/downloads'] });
+        toast({ title: "Downloaded", description: `${formulation.name} PDF downloaded successfully` });
+      } finally {
+        setDownloadingId(null);
+      }
+    },
+    onError: () => {
+      setDownloadingId(null);
+      toast({ title: "Error", description: "Failed to download PDF", variant: "destructive" });
+    }
   });
 
   const removeFavoriteMutation = useMutation({
@@ -297,7 +333,7 @@ export default function MyAccountPage() {
                         <tr className="border-b border-gray-300">
                           <th className="text-left p-3 font-semibold">Formula Name</th>
                           <th className="text-left p-3 font-semibold">Created</th>
-                          <th className="text-right p-3 font-semibold">Action</th>
+                          <th className="text-right p-3 font-semibold">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -313,7 +349,17 @@ export default function MyAccountPage() {
                             <td className="p-3" data-testid={`text-generated-date-${index}`}>
                               {format(new Date(gen.createdAt), 'MMM dd, yyyy')}
                             </td>
-                            <td className="p-3 text-right">
+                            <td className="p-3 text-right space-x-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => downloadGeneratedMutation.mutate(gen)}
+                                disabled={downloadingId === gen.id}
+                                data-testid={`button-download-generated-${index}`}
+                              >
+                                <Download className="w-4 h-4 mr-1" />
+                                {downloadingId === gen.id ? 'Downloading...' : 'Download'}
+                              </Button>
                               {gen.slug && (
                                 <Link href={`/formulation/${gen.slug}`}>
                                   <Button 
