@@ -21,6 +21,41 @@ import { savePDFFile, saveTextFile, generateTextContent } from "./file-storage";
 import bcrypt from "bcrypt";
 import { signupSchema, loginSchema } from "@shared/schema";
 
+// SendGrid email helper function
+async function getSendGridClient() {
+  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
+  const xReplitToken = process.env.REPL_IDENTITY 
+    ? 'repl ' + process.env.REPL_IDENTITY 
+    : process.env.WEB_REPL_RENEWAL 
+    ? 'depl ' + process.env.WEB_REPL_RENEWAL 
+    : null;
+
+  if (!xReplitToken) {
+    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
+  }
+
+  const connectionSettings = await fetch(
+    'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=sendgrid',
+    {
+      headers: {
+        'Accept': 'application/json',
+        'X_REPLIT_TOKEN': xReplitToken
+      }
+    }
+  ).then(res => res.json()).then(data => data.items?.[0]);
+
+  if (!connectionSettings || (!connectionSettings.settings.api_key || !connectionSettings.settings.from_email)) {
+    throw new Error('SendGrid not connected');
+  }
+
+  const sgMail = (await import('@sendgrid/mail')).default;
+  sgMail.setApiKey(connectionSettings.settings.api_key);
+  return {
+    client: sgMail,
+    fromEmail: connectionSettings.settings.from_email
+  };
+}
+
 // Session-based authentication middleware
 const requireAuth = (req: any, res: any, next: any) => {
   if (!req.session.userId) {
@@ -180,9 +215,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       await storage.setPasswordResetToken(user.id, resetToken, expiry);
 
-      // In production, you would send an email here with the reset link
-      // For now, just log it (in a real app, use SendGrid or Resend)
-      console.log(`Password reset link for ${email}: /reset-password?token=${resetToken}`);
+      // Send reset email via SendGrid
+      try {
+        const { client, fromEmail } = await getSendGridClient();
+        const resetLink = `${process.env.VITE_APP_URL || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
+        
+        await client.send({
+          to: email,
+          from: fromEmail,
+          subject: 'Reset Your Password - AI Formulator',
+          html: `
+            <h2>Password Reset Request</h2>
+            <p>We received a request to reset your password. Click the link below to set a new password:</p>
+            <p><a href="${resetLink}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a></p>
+            <p>This link expires in 1 hour.</p>
+            <p>If you didn't request this, please ignore this email.</p>
+          `
+        });
+        
+        console.log(`Password reset email sent to ${email}`);
+      } catch (emailError: any) {
+        console.error("Failed to send email:", emailError);
+        // Don't fail the request if email fails - still return success for security
+      }
 
       res.json({ message: "If email exists, reset link has been sent" });
     } catch (error: any) {
