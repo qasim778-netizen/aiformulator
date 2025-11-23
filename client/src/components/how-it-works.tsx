@@ -4,8 +4,8 @@ export default function HowItWorks() {
   const steps = [
     {
       number: '1️⃣',
-      title: 'Choose Product Type',
-      description: '(Shampoo, Adhesive, Car Care, Detergent, etc.)',
+      title: 'Product Name & Type',
+      description: '(Product name + consistency type)',
       icon: Grid3x3,
     },
     {
