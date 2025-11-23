@@ -121,6 +121,38 @@ async function createTables() {
       )
     `);
 
+    // Create sample_products table for homepage showcase
+    await db.execute(/* sql */ `
+      CREATE TABLE IF NOT EXISTS sample_products (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        title text NOT NULL,
+        description text NOT NULL,
+        image text NOT NULL,
+        link text NOT NULL,
+        category text NOT NULL DEFAULT 'General',
+        is_active boolean NOT NULL DEFAULT true,
+        created_at timestamp NOT NULL DEFAULT now(),
+        updated_at timestamp NOT NULL DEFAULT now()
+      )
+    `);
+
+    // Create users table for authentication
+    await db.execute(/* sql */ `
+      CREATE TABLE IF NOT EXISTS users (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        email text NOT NULL UNIQUE,
+        password_hash text NOT NULL,
+        first_name text,
+        last_name text,
+        country text,
+        is_admin boolean NOT NULL DEFAULT false,
+        reset_token text,
+        reset_token_expires_at timestamp,
+        created_at timestamp NOT NULL DEFAULT now(),
+        updated_at timestamp NOT NULL DEFAULT now()
+      )
+    `);
+
     console.log("Database tables created successfully!");
   } catch (error) {
     console.log("Tables might already exist or creation failed:", error);
