@@ -273,6 +273,12 @@ export default function AdminPage() {
                 <User className="h-4 w-4 mr-2" />
                 {user?.email || 'Admin User'}
               </div>
+              <Link href="/admin/products">
+                <Button variant="default" className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Package className="h-4 w-4 mr-2" />
+                  Sample Products
+                </Button>
+              </Link>
               <Button variant="outline" onClick={handleLogout} className="text-gray-600 hover:text-gray-800">
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
