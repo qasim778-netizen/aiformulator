@@ -2157,9 +2157,9 @@ Allow: /disclaimer`;
       try {
         const userRequest: any = {
           sessionId: req.sessionID || 'anonymous',
-          customerName: req.body.customerName || undefined,
-          email: req.body.email || undefined,
-          country: req.body.country || undefined,
+          customerName: req.body.customerName && req.body.customerName.trim() ? req.body.customerName.trim() : null,
+          email: req.body.email && req.body.email.trim() ? req.body.email.trim() : null,
+          country: req.body.country && req.body.country.trim() ? req.body.country.trim() : null,
           productName,
           productCategory: categoryName,
           consistencyType: viscosity || undefined,
