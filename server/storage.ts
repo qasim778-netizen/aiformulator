@@ -1,4 +1,4 @@
-import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type FormulationContent, type InsertFormulationContent, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser, type Page, type InsertPage, type BlogPost, type InsertBlogPost, type ChatMessage, type InsertChatMessage, type UserFormulationRequest, type InsertUserFormulationRequest } from "@shared/schema";
+import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type FormulationContent, type InsertFormulationContent, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser, type Page, type InsertPage, type BlogPost, type InsertBlogPost, type ChatMessage, type InsertChatMessage, type UserFormulationRequest, type InsertUserFormulationRequest, type SampleProduct, type InsertSampleProduct } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 // Helper function to generate URL-friendly slugs
@@ -111,6 +111,13 @@ export interface IStorage {
   createFormulationContent(content: InsertFormulationContent): Promise<FormulationContent>;
   updateFormulationContent(formulationId: string, content: Partial<InsertFormulationContent>): Promise<FormulationContent | undefined>;
   deleteFormulationContent(formulationId: string): Promise<boolean>;
+
+  // Sample Products Management
+  getSampleProducts(): Promise<SampleProduct[]>;
+  getSampleProduct(id: string): Promise<SampleProduct | undefined>;
+  createSampleProduct(product: InsertSampleProduct): Promise<SampleProduct>;
+  updateSampleProduct(id: string, product: Partial<InsertSampleProduct>): Promise<SampleProduct | undefined>;
+  deleteSampleProduct(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -125,6 +132,7 @@ export class MemStorage implements IStorage {
   private chatMessages: Map<string, ChatMessage[]>;
   private userFormulationRequests: Map<string, UserFormulationRequest>;
   private formulationContent: Map<string, FormulationContent>;
+  private sampleProducts: Map<string, SampleProduct>;
 
   constructor() {
     this.categories = new Map();
@@ -138,6 +146,7 @@ export class MemStorage implements IStorage {
     this.chatMessages = new Map();
     this.userFormulationRequests = new Map();
     this.formulationContent = new Map();
+    this.sampleProducts = new Map();
     // Only seed data if no data exists (first run)
     this.seedInitialData();
     this.seedPages();
@@ -151,6 +160,79 @@ export class MemStorage implements IStorage {
     }
     this.seedData();
     this.seedProductProperties();
+    this.seedSampleProducts();
+  }
+
+  private seedSampleProducts() {
+    const products: SampleProduct[] = [
+      {
+        id: randomUUID(),
+        title: 'Stone Adhesive',
+        description: 'Industrial-strength adhesive for stone and tiles.',
+        image: '/assets/4dae56dc-4029-42c8-84bb-f024cc1b8efa-min_1763884454972.png',
+        link: '/formulation/stone-adhesive',
+        category: 'Industrial',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: 'All-Purpose Cleaner',
+        description: 'Multipurpose cleaner for kitchens and household surfaces.',
+        image: '/assets/743dab24-37f1-4016-9995-ddeb91c78081-min_1763884454973.png',
+        link: '/formulation/all-purpose-cleaner',
+        category: 'Cleaners',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: 'Toilet Cleaner Gel',
+        description: 'Thick gel formula for stain removal and daily hygiene.',
+        image: '/assets/ChatGPT Image Nov 22, 2025, 10_30_45 PM-min_1763884454973.png',
+        link: '/formulation/toilet-cleaner',
+        category: 'Cleaners',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: 'Snow Foam Car Shampoo',
+        description: 'High-foam shampoo for detailing and pressure-wash systems.',
+        image: '/assets/ChatGPT Image Nov 22, 2025, 10_34_49 PM-min_1763884454974.png',
+        link: '/formulation/car-shampoo',
+        category: 'Auto Care',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: 'Baby Body Wash',
+        description: 'Mild, tear-free wash for sensitive baby skin.',
+        image: '/assets/ChatGPT Image Nov 22, 2025, 10_36_23 PM-min_1763884454974.png',
+        link: '/formulation/baby-wash',
+        category: 'Baby Care',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: 'Fabric Softener',
+        description: 'Softening and conditioning agent for laundry care.',
+        image: '/assets/ChatGPT Image Nov 22, 2025, 10_38_08 PM-min_1763884454975.png',
+        link: '/formulation/fabric-softener',
+        category: 'Laundry',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+    products.forEach(product => this.sampleProducts.set(product.id, product));
   }
 
   private seedProductProperties() {
@@ -2526,6 +2608,43 @@ export class MemStorage implements IStorage {
 
   async deleteFormulationContent(formulationId: string): Promise<boolean> {
     return this.formulationContent.delete(formulationId);
+  }
+
+  async getSampleProducts(): Promise<SampleProduct[]> {
+    return Array.from(this.sampleProducts.values()).filter(p => p.isActive);
+  }
+
+  async getSampleProduct(id: string): Promise<SampleProduct | undefined> {
+    return this.sampleProducts.get(id);
+  }
+
+  async createSampleProduct(product: InsertSampleProduct): Promise<SampleProduct> {
+    const newProduct: SampleProduct = {
+      id: randomUUID(),
+      ...product,
+      isActive: product.isActive ?? true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.sampleProducts.set(newProduct.id, newProduct);
+    return newProduct;
+  }
+
+  async updateSampleProduct(id: string, product: Partial<InsertSampleProduct>): Promise<SampleProduct | undefined> {
+    const existing = this.sampleProducts.get(id);
+    if (!existing) return undefined;
+    
+    const updated: SampleProduct = {
+      ...existing,
+      ...product,
+      updatedAt: new Date(),
+    };
+    this.sampleProducts.set(id, updated);
+    return updated;
+  }
+
+  async deleteSampleProduct(id: string): Promise<boolean> {
+    return this.sampleProducts.delete(id);
   }
 }
 

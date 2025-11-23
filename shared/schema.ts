@@ -373,3 +373,25 @@ export const userFavorites = pgTable("user_favorites", {
 }));
 
 export type UserFavorite = typeof userFavorites.$inferSelect;
+
+// Sample Products table for homepage showcase
+export const sampleProducts = pgTable("sample_products", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  image: text("image").notNull(),
+  link: text("link").notNull(),
+  category: text("category").notNull().default("General"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+});
+
+export const insertSampleProductSchema = createInsertSchema(sampleProducts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSampleProduct = z.infer<typeof insertSampleProductSchema>;
+export type SampleProduct = typeof sampleProducts.$inferSelect;

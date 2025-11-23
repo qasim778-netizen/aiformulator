@@ -5,7 +5,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import crypto from "crypto";
 import { storage } from "./storage";
-import { insertCategorySchema, insertFormulationSchema, insertFormulationContentSchema, insertUserNoteSchema, insertPageSchema, insertBlogPostSchema } from "@shared/schema";
+import { insertCategorySchema, insertFormulationSchema, insertFormulationContentSchema, insertUserNoteSchema, insertPageSchema, insertBlogPostSchema, insertSampleProductSchema } from "@shared/schema";
 import type { ChatMessage, InsertChatMessage } from "@shared/schema";
 import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateBulkFormulationsWithKeywords, generateProductTypes, generateCustomFormulation } from "./ai";
 import { generateCategorySuggestions } from "./services/openai";
@@ -2441,6 +2441,76 @@ Allow: /disclaimer`;
         message: "Failed to generate demo formulation",
         error: error instanceof Error ? error.message : "Unknown error"
       });
+    }
+  });
+
+  // Sample Products API
+  // Get all active sample products
+  app.get("/api/sample-products", async (req, res) => {
+    try {
+      const products = await storage.getSampleProducts();
+      res.json(products);
+    } catch (error: any) {
+      console.error("Failed to fetch sample products:", error);
+      res.status(500).json({ message: "Failed to fetch sample products" });
+    }
+  });
+
+  // Get single sample product
+  app.get("/api/sample-products/:id", async (req, res) => {
+    try {
+      const product = await storage.getSampleProduct(req.params.id);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      res.json(product);
+    } catch (error: any) {
+      console.error("Failed to fetch product:", error);
+      res.status(500).json({ message: "Failed to fetch product" });
+    }
+  });
+
+  // Create new sample product (admin only)
+  app.post("/api/sample-products", requireAdmin, async (req, res) => {
+    try {
+      const validatedData = insertSampleProductSchema.parse(req.body);
+      const product = await storage.createSampleProduct(validatedData);
+      res.status(201).json(product);
+    } catch (error: any) {
+      console.error("Failed to create product:", error);
+      if (error.issues) {
+        res.status(400).json({ message: "Validation failed", issues: error.issues });
+      } else {
+        res.status(400).json({ message: error.message || "Invalid product data" });
+      }
+    }
+  });
+
+  // Update sample product (admin only)
+  app.patch("/api/sample-products/:id", requireAdmin, async (req, res) => {
+    try {
+      const product = await storage.updateSampleProduct(req.params.id, req.body);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      res.json(product);
+    } catch (error: any) {
+      console.error("Failed to update product:", error);
+      res.status(400).json({ message: error.message || "Invalid update data" });
+    }
+  });
+
+  // Delete sample product (admin only)
+  app.delete("/api/sample-products/:id", requireAdmin, async (req, res) => {
+    try {
+      const success = await storage.deleteSampleProduct(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      res.json({ message: "Product deleted successfully" });
+    } catch (error: any) {
+      console.error("Failed to delete product:", error);
+      res.status(500).json({ message: "Failed to delete product" });
     }
   });
 

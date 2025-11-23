@@ -1,60 +1,26 @@
 import { ArrowRight, Sparkles } from 'lucide-react'
-import stoneAdhesiveImg from '@assets/4dae56dc-4029-42c8-84bb-f024cc1b8efa-min_1763884454972.png'
-import allPurposeCleanerImg from '@assets/743dab24-37f1-4016-9995-ddeb91c78081-min_1763884454973.png'
-
-// Image paths with spaces - served from public assets
-const toiletCleanerImg = '/assets/ChatGPT Image Nov 22, 2025, 10_30_45 PM-min_1763884454973.png'
-const snowFoamImg = '/assets/ChatGPT Image Nov 22, 2025, 10_34_49 PM-min_1763884454974.png'
-const babyBodyWashImg = '/assets/ChatGPT Image Nov 22, 2025, 10_36_23 PM-min_1763884454974.png'
-const fabricSoftenerImg = '/assets/ChatGPT Image Nov 22, 2025, 10_38_08 PM-min_1763884454975.png'
-
-interface FormulationCard {
-  title: string
-  description: string
-  image: string
-  category: string
-}
+import { useQuery } from '@tanstack/react-query'
+import type { SampleProduct } from '@shared/schema'
 
 export default function SampleFormulations() {
+  const { data: formulations = [], isLoading } = useQuery({
+    queryKey: ['/api/sample-products'],
+    queryFn: async () => {
+      const response = await fetch('/api/sample-products')
+      if (!response.ok) throw new Error('Failed to fetch products')
+      return response.json() as Promise<SampleProduct[]>
+    },
+  })
 
-  const formulations: FormulationCard[] = [
-    {
-      title: 'Stone Adhesive',
-      description: 'Industrial-strength adhesive for stone and tiles.',
-      image: stoneAdhesiveImg,
-      category: 'Industrial'
-    },
-    {
-      title: 'All-Purpose Cleaner',
-      description: 'Multipurpose cleaner for kitchens and household surfaces.',
-      image: allPurposeCleanerImg,
-      category: 'Cleaners'
-    },
-    {
-      title: 'Toilet Cleaner Gel',
-      description: 'Thick gel formula for stain removal and daily hygiene.',
-      image: toiletCleanerImg,
-      category: 'Cleaners'
-    },
-    {
-      title: 'Snow Foam Car Shampoo',
-      description: 'High-foam shampoo for detailing and pressure-wash systems.',
-      image: snowFoamImg,
-      category: 'Auto Care'
-    },
-    {
-      title: 'Baby Body Wash',
-      description: 'Mild, tear-free wash for sensitive baby skin.',
-      image: babyBodyWashImg,
-      category: 'Baby Care'
-    },
-    {
-      title: 'Fabric Softener',
-      description: 'Softening and conditioning agent for laundry care.',
-      image: fabricSoftenerImg,
-      category: 'Laundry'
-    }
-  ]
+  if (isLoading) {
+    return (
+      <div className="w-full py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gradient-to-b from-white to-blue-50">
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="text-gray-500">Loading sample formulations...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="w-full py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gradient-to-b from-white to-blue-50">
@@ -77,7 +43,7 @@ export default function SampleFormulations() {
         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {formulations.map((formula, index) => (
             <div
-              key={index}
+              key={formula.id}
               className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col h-full"
             >
               {/* Image Container */}
@@ -113,7 +79,7 @@ export default function SampleFormulations() {
 
                 {/* Link */}
                 <a
-                  href="#"
+                  href={formula.link}
                   className="inline-flex items-center text-[#4A90E2] font-semibold hover:text-[#2563eb] group/link gap-2 transition-all duration-300"
                 >
                   View Formula

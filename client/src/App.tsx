@@ -14,6 +14,7 @@ import Collection from "@/pages/collection";
 import Formulation from "@/pages/formulation";
 import FormulationConfirmation from "@/pages/formulation-confirmation";
 import Admin from "@/pages/admin";
+import AdminProducts from "@/pages/admin-products";
 import MyAccountPage from "@/pages/my-account";
 import About from "@/pages/about";
 import FAQ from "@/pages/faq";
@@ -41,6 +42,7 @@ function Router() {
       <Route path="/formulation/:id" component={Formulation} />
       <Route path="/formulation-confirmation/:id" component={FormulationConfirmation} />
       <Route path="/admin" component={Admin} />
+      <Route path="/admin/products" component={AdminProducts} />
       <Route path="/admin/user-activity" component={AdminDashboard} />
       <Route path="/my-account" component={MyAccountPage} />
       <Route path="/signup" component={SignupPage} />
