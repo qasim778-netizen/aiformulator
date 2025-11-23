@@ -4,7 +4,6 @@ import {
   Award, 
   Grid3x3, 
   Zap,
-  Lightbulb,
   Calculator
 } from 'lucide-react'
 
@@ -52,11 +51,6 @@ export default function WhyChooseFormulator() {
       icon: Grid3x3,
       title: '50+ Product Categories',
       description: 'Cosmetics, detergents, adhesives, car care, pet care & more.'
-    },
-    {
-      icon: Lightbulb,
-      title: 'Chemical-Optimized AI',
-      description: 'AI trained specifically on chemical formulation datasets.'
     },
     {
       icon: Zap,
