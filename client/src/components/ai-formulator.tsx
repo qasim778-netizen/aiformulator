@@ -17,6 +17,8 @@ import SignInDialog from "@/components/signin-dialog";
 import { Captcha } from "@/components/ui/captcha";
 
 const formulatorSchema = z.object({
+  email: z.string().email("Valid email required").optional(),
+  country: z.string().optional(),
   productName: z.string().min(1, "Product name is required"),
   productDescription: z.string().min(10, "Product description must be at least 10 characters"),
   productType: z.enum(["liquid", "cream", "gel", "powder", "paste", "foam"]),
@@ -41,6 +43,8 @@ export default function AIFormulator() {
   const form = useForm<FormulatorData>({
     resolver: zodResolver(formulatorSchema),
     defaultValues: {
+      email: "",
+      country: "",
       productName: "",
       productDescription: "",
       productType: "liquid",
@@ -167,6 +171,51 @@ export default function AIFormulator() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              {/* Contact Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <FileText className="h-5 w-5 mr-2 text-primary" />
+                  Contact Information
+                </h3>
+                
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email (Optional)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="email"
+                          placeholder="your@email.com" 
+                          {...field} 
+                          data-testid="input-email"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Country (Optional)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="e.g., United States" 
+                          {...field} 
+                          data-testid="input-country"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               {/* Product Information */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center">
