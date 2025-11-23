@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Sparkles } from 'lucide-react'
 import AIFormulatorWizard from '@/components/ai-formulator-wizard'
+import HowItWorks from '@/components/how-it-works'
 
 export default function Home() {
   const [isWizardActive, setIsWizardActive] = useState(false)
@@ -46,6 +47,13 @@ export default function Home() {
           </div>
 
         </div>
+
+        {/* How It Works Section */}
+        {!isWizardActive && (
+          <div className="mt-12 sm:mt-16 lg:mt-20 bg-[#F8FBFF] rounded-2xl">
+            <HowItWorks />
+          </div>
+        )}
       </div>
     </div>
   )
