@@ -4,6 +4,7 @@ import { Sparkles } from 'lucide-react'
 import AIFormulatorWizard from '@/components/ai-formulator-wizard'
 import HowItWorks from '@/components/how-it-works'
 import WhyChooseFormulator from '@/components/why-choose-formulator'
+import SampleFormulations from '@/components/sample-formulations'
 
 export default function Home() {
   const [isWizardActive, setIsWizardActive] = useState(false)
@@ -60,6 +61,13 @@ export default function Home() {
         {!isWizardActive && (
           <div className="mt-12 sm:mt-16 lg:mt-20">
             <WhyChooseFormulator />
+          </div>
+        )}
+
+        {/* Sample Formulations Section */}
+        {!isWizardActive && (
+          <div className="mt-12 sm:mt-16 lg:mt-20">
+            <SampleFormulations />
           </div>
         )}
       </div>
