@@ -1,43 +1,53 @@
 import { ArrowRight } from 'lucide-react'
+import productImage from '@assets/2eba695e-48c8-4bf2-b1b9-a8580457196b_1763878247823.png'
 
 interface FormulationCard {
   title: string
   description: string
+  imagePosition: string
 }
 
 export default function SampleFormulations() {
   const formulations: FormulationCard[] = [
     {
       title: 'Car Polish Gloss Enhancer',
-      description: 'Premium gloss-boosting polish for automotive surfaces.'
+      description: 'Premium gloss-boosting polish for automotive surfaces.',
+      imagePosition: '0% 0%'
     },
     {
       title: 'Anti-Dandruff Shampoo',
-      description: 'Gentle cleansing shampoo with scalp-active ingredients.'
+      description: 'Gentle cleansing shampoo with scalp-active ingredients.',
+      imagePosition: '25% 0%'
     },
     {
       title: 'Stone Adhesive',
-      description: 'High-strength adhesive for marble, tiles, and stone.'
+      description: 'Industrial-strength adhesive for stone and tiles.',
+      imagePosition: '50% 0%'
     },
     {
       title: 'Toilet Cleaner Gel',
-      description: 'Thick gel cleaner for stain removal and disinfection.'
+      description: 'Thick gel formula for stain removal and daily hygiene.',
+      imagePosition: '75% 0%'
     },
     {
       title: 'Snow Foam Car Shampoo',
-      description: 'High-foam automotive shampoo for detailing use.'
+      description: 'High-foam shampoo for detailing and pressure-wash systems.',
+      imagePosition: '0% 100%'
     },
     {
       title: 'Baby Body Wash',
-      description: 'Mild, tear-free formula for delicate baby skin.'
+      description: 'Mild, tear-free wash for sensitive baby skin.',
+      imagePosition: '25% 100%'
     },
     {
       title: 'Fabric Softener',
-      description: 'Silky soft conditioning agent for laundry care.'
+      description: 'Softening and conditioning agent for laundry care.',
+      imagePosition: '50% 100%'
     },
     {
       title: 'All-Purpose Cleaner',
-      description: 'Multipurpose cleaner for kitchens, floors, and surfaces.'
+      description: 'Multipurpose cleaner for kitchens and household surfaces.',
+      imagePosition: '75% 100%'
     }
   ]
 
@@ -59,17 +69,32 @@ export default function SampleFormulations() {
           {formulations.map((formula, index) => (
             <div
               key={index}
-              className="bg-white rounded-[20px] shadow-md hover:shadow-lg transition-shadow duration-300 p-6 sm:p-8 flex flex-col h-full"
+              className="bg-white rounded-xl shadow-sm hover:shadow-md hover:scale-105 transition-all duration-300 p-6 flex flex-col items-center h-full"
             >
-              <h3 className="text-lg sm:text-xl font-bold text-[#1A2B4B] mb-3 leading-snug">
+              {/* Product Image */}
+              <div className="w-24 h-32 sm:w-28 sm:h-40 mb-4 rounded-lg overflow-hidden flex-shrink-0">
+                <div
+                  className="w-full h-full bg-cover bg-center"
+                  style={{
+                    backgroundImage: `url(${productImage})`,
+                    backgroundPosition: formula.imagePosition,
+                    backgroundSize: '400% 200%'
+                  }}
+                />
+              </div>
+
+              {/* Product Info */}
+              <h3 className="text-lg sm:text-xl font-semibold text-[#1A2B4B] mb-2 text-center leading-snug">
                 {formula.title}
               </h3>
-              <p className="text-sm sm:text-base text-[#6B7280] mb-6 flex-grow">
+              <p className="text-sm text-[#6B7280] mb-4 flex-grow text-center">
                 {formula.description}
               </p>
+              
+              {/* Link */}
               <a
                 href="#"
-                className="inline-flex items-center text-[#4A90E2] font-semibold hover:text-[#2563eb] transition-colors duration-300 gap-2"
+                className="inline-flex items-center text-[#4A90E2] font-semibold hover:underline transition-colors duration-300 gap-2 mt-auto"
               >
                 View Formula
                 <ArrowRight className="w-4 h-4" />

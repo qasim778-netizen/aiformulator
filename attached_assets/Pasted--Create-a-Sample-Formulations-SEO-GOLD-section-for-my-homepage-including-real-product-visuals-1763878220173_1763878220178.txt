@@ -1,0 +1,63 @@
+**“Create a ‘Sample Formulations (SEO GOLD)’ section for my homepage, including real product visuals.
+Follow this exact structure and design:
+
+SECTION TITLE
+• Heading centered: ‘Sample Formulations’
+• Subheading: ‘Explore ready-made formulas across cosmetics, detergents, car care, and adhesives.’
+
+GRID LAYOUT
+• 4 columns on desktop, 2 columns on tablet, 1 column on mobile
+• Use TailwindCSS
+• Card size: rounded-xl, shadow-sm, white background, 24px padding, 20px gap
+• Each card must contain:
+– Product image (use the image I uploaded:
+/mnt/data/A_2D_digital_image_displays_eight_product_packagin.png
+crop each product individually for each card)
+– Product title
+– Short description
+– Blue “View Formula” link
+
+CARD LIST (IMPORTANT):
+
+Car Polish Gloss Enhancer
+Description: ‘Premium gloss-boosting polish for automotive surfaces.’
+Use the CAR POLISH bottle image from the uploaded image.
+
+Anti-Dandruff Shampoo
+Description: ‘Gentle cleansing shampoo with scalp-active ingredients.’
+Use the SHAMPOO bottle image.
+
+Stone Adhesive
+Description: ‘Industrial-strength adhesive for stone and tiles.’
+Use the ADHESIVE bucket image.
+
+Toilet Cleaner Gel
+Description: ‘Thick gel formula for stain removal and daily hygiene.’
+Use the TOILET CLEANER bottle image.
+
+Snow Foam Car Shampoo
+Description: ‘High-foam shampoo for detailing and pressure-wash systems.’
+Use the FOAM SHAMPOO bottle image.
+
+Baby Body Wash
+Description: ‘Mild, tear-free wash for sensitive baby skin.’
+Use the BABY WASH bottle image.
+
+Fabric Softener
+Description: ‘Softening and conditioning agent for laundry care.’
+Use the SOFTENER bottle image.
+
+All-Purpose Cleaner
+Description: ‘Multipurpose cleaner for kitchens and household surfaces.’
+Use the ALL-PURPOSE bottle image.
+
+DESIGN RULES
+• Images should be 100–140px wide
+• Center all images
+• Titles: text-xl font-semibold
+• Descriptions: text-sm text-gray-600
+• Link: text-blue-600 hover:underline
+• Hover effect: slight lift + shadow-md
+• Entire section must be fully responsive
+
+Now generate the complete HTML + TailwindCSS code for this section and insert it into my homepage component.”**
