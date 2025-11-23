@@ -2154,6 +2154,7 @@ Allow: /disclaimer`;
       try {
         const userRequest: any = {
           sessionId: req.sessionID || 'anonymous',
+          customerName: req.body.customerName || undefined,
           email: req.body.email || undefined,
           country: req.body.country || undefined,
           productName,

@@ -17,6 +17,7 @@ import SignInDialog from "@/components/signin-dialog";
 import { Captcha } from "@/components/ui/captcha";
 
 const formulatorSchema = z.object({
+  customerName: z.string().optional(),
   email: z.string().email("Valid email required").optional(),
   country: z.string().optional(),
   productName: z.string().min(1, "Product name is required"),
@@ -43,6 +44,7 @@ export default function AIFormulator() {
   const form = useForm<FormulatorData>({
     resolver: zodResolver(formulatorSchema),
     defaultValues: {
+      customerName: "",
       email: "",
       country: "",
       productName: "",
@@ -178,6 +180,24 @@ export default function AIFormulator() {
                   Contact Information
                 </h3>
                 
+                <FormField
+                  control={form.control}
+                  name="customerName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name (Optional)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Your full name" 
+                          {...field} 
+                          data-testid="input-customer-name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="email"

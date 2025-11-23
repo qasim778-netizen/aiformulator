@@ -246,6 +246,7 @@ export type InsertChatMessage = typeof chatMessages.$inferInsert;
 export const userFormulationRequests = pgTable("user_formulation_requests", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   sessionId: varchar("session_id").notNull(), // Session ID to group requests from same user
+  customerName: text("customer_name"), // Customer full name
   email: text("email"), // Customer email address
   country: text("country"), // Customer country
   productName: text("product_name").notNull(),

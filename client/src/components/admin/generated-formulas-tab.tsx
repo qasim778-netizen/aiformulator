@@ -151,6 +151,15 @@ export default function GeneratedFormulasTab() {
 
           {selectedRequest && (
             <div className="space-y-4">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Customer Information</h3>
+                <div className="space-y-2">
+                  <p className="text-sm"><strong>Name:</strong> {selectedRequest.customerName || 'Not provided'}</p>
+                  <p className="text-sm"><strong>Email:</strong> {selectedRequest.email || 'Not provided'}</p>
+                  <p className="text-sm"><strong>Country:</strong> {selectedRequest.country || 'Not provided'}</p>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-700">Status</label>
