@@ -2,11 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Download, Heart } from "lucide-react";
+import { Users, Download, Heart, FlaskConical } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import GeneratedFormulasTab from "@/components/admin/generated-formulas-tab";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -23,6 +24,11 @@ export default function AdminDashboard() {
 
   const { data: favorites, isLoading: loadingFavorites } = useQuery<any[]>({
     queryKey: ['/api/admin/favorites'],
+    enabled: !!user?.isAdmin,
+  });
+
+  const { data: generatedFormulas, isLoading: loadingGeneratedFormulas } = useQuery<any[]>({
+    queryKey: ['/api/admin/user-formulations'],
     enabled: !!user?.isAdmin,
   });
 
@@ -74,7 +80,7 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs defaultValue="users" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="users" data-testid="tab-users">
               <Users className="w-4 h-4 mr-2" />
               Users ({users?.length || 0})
@@ -86,6 +92,10 @@ export default function AdminDashboard() {
             <TabsTrigger value="favorites" data-testid="tab-favorites">
               <Heart className="w-4 h-4 mr-2" />
               Favorites ({favorites?.length || 0})
+            </TabsTrigger>
+            <TabsTrigger value="generated-formulas" data-testid="tab-generated-formulas">
+              <FlaskConical className="w-4 h-4 mr-2" />
+              Generated ({generatedFormulas?.length || 0})
             </TabsTrigger>
           </TabsList>
 
@@ -285,6 +295,25 @@ export default function AdminDashboard() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="generated-formulas">
+            {loadingGeneratedFormulas ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Generated Formulas</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <Skeleton className="h-16 w-full" />
+                    <Skeleton className="h-16 w-full" />
+                    <Skeleton className="h-16 w-full" />
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <GeneratedFormulasTab />
+            )}
           </TabsContent>
         </Tabs>
       </div>
