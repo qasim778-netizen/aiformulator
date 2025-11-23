@@ -100,8 +100,8 @@ export default function GeneratedFormulasTab() {
               <tr key={request.id} className="hover:bg-gray-50 transition">
                 <td className="px-6 py-4">
                   <div className="text-sm font-medium text-gray-900">{request.productName}</div>
-                  <div className="text-xs text-gray-500">{request.email}</div>
-                  <div className="text-xs text-gray-500">{request.country}</div>
+                  <div className="text-xs text-gray-500">📧 {request.email || 'No email'}</div>
+                  <div className="text-xs text-gray-500">🌍 {request.country || 'No country'}</div>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600">{request.productCategory}</td>
                 <td className="px-6 py-4">
