@@ -4,6 +4,7 @@ import {
   Award, 
   Grid3x3, 
   Zap,
+  Brain,
   Calculator
 } from 'lucide-react'
 
@@ -74,6 +75,11 @@ export default function WhyChooseFormulator() {
       icon: Zap,
       title: 'Instant Custom Formulas',
       description: 'Generate complete formulas (ingredients + % + process + PDF).'
+    },
+    {
+      icon: Brain,
+      title: 'AI-Powered Formulator',
+      description: 'Advanced machine learning optimizes formulations for performance, cost & compliance.'
     },
     {
       icon: Calculator,
