@@ -1,15 +1,14 @@
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { useEffect, useRef } from 'react'
-import carPolishImg from '@assets/e7461a4b-5c0d-4c89-8856-515c4397f26a_1763879981422.png'
-import antiDandruffImg from '@assets/b9947c62-dc86-4b9c-9734-fe6eb8825bff_1763879981421.png'
-import stoneAdhesiveImg from '@assets/4a266f5c-f647-4a7c-acee-203abd1383d3_1763879981419.png'
-import allPurposeCleanerImg from '@assets/743dab24-37f1-4016-9995-ddeb91c78081_1763879981421.png'
+import stoneAdhesiveImg from '@assets/4dae56dc-4029-42c8-84bb-f024cc1b8efa_1763883671890.png'
+import allPurposeCleanerImg from '@assets/743dab24-37f1-4016-9995-ddeb91c78081_1763883671893.png'
+import antiDandruffImg from '@assets/gfd_1763883671898.png'
 
 // Dynamically construct image paths with spaces in file names
-const toiletCleanerImg = '/assets/ChatGPT Image Nov 22, 2025, 10_30_45 PM_1763880050790.png'
-const snowFoamImg = '/assets/ChatGPT Image Nov 22, 2025, 10_34_49 PM_1763879994487.png'
-const babyBodyWashImg = '/assets/ChatGPT Image Nov 22, 2025, 10_36_23 PM_1763879994489.png'
-const fabricSoftenerImg = '/assets/ChatGPT Image Nov 22, 2025, 10_38_08 PM_1763879994490.png'
+const toiletCleanerImg = '/assets/ChatGPT Image Nov 22, 2025, 10_30_45 PM_1763883671896.png'
+const snowFoamImg = '/assets/ChatGPT Image Nov 22, 2025, 10_34_49 PM_1763883671896.png'
+const babyBodyWashImg = '/assets/ChatGPT Image Nov 22, 2025, 10_36_23 PM_1763883671897.png'
+const fabricSoftenerImg = '/assets/ChatGPT Image Nov 22, 2025, 10_38_08 PM_1763883671897.png'
 
 interface FormulationCard {
   title: string
@@ -47,22 +46,16 @@ export default function SampleFormulations() {
 
   const formulations: FormulationCard[] = [
     {
-      title: 'Car Polish Gloss Enhancer',
-      description: 'Premium gloss-boosting polish for automotive surfaces.',
-      image: carPolishImg,
-      category: 'Auto Care'
-    },
-    {
-      title: 'Anti-Dandruff Shampoo',
-      description: 'Gentle cleansing shampoo with scalp-active ingredients.',
-      image: antiDandruffImg,
-      category: 'Hair Care'
-    },
-    {
       title: 'Stone Adhesive',
       description: 'Industrial-strength adhesive for stone and tiles.',
       image: stoneAdhesiveImg,
       category: 'Industrial'
+    },
+    {
+      title: 'All-Purpose Cleaner',
+      description: 'Multipurpose cleaner for kitchens and household surfaces.',
+      image: allPurposeCleanerImg,
+      category: 'Cleaners'
     },
     {
       title: 'Toilet Cleaner Gel',
@@ -89,10 +82,10 @@ export default function SampleFormulations() {
       category: 'Laundry'
     },
     {
-      title: 'All-Purpose Cleaner',
-      description: 'Multipurpose cleaner for kitchens and household surfaces.',
-      image: allPurposeCleanerImg,
-      category: 'Cleaners'
+      title: 'Anti-Dandruff Shampoo',
+      description: 'Gentle cleansing shampoo with scalp-active ingredients.',
+      image: antiDandruffImg,
+      category: 'Hair Care'
     }
   ]
 
