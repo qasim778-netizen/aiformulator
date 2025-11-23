@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Package, LogOut, Image, Eye } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Package, LogOut, Image, Eye, ChevronDown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { HelpButton } from "@/components/ui/help-button";
 import { useGuidance } from "@/hooks/use-guidance";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -273,13 +274,35 @@ export default function AdminPage() {
                 <User className="h-4 w-4 mr-2" />
                 {user?.email || 'Admin User'}
               </div>
-              <Link href="/admin/products">
-                <Button variant="default" className="bg-blue-600 hover:bg-blue-700 text-white">
-                  <Package className="h-4 w-4 mr-2" />
-                  Sample Products
-                </Button>
-              </Link>
-              <Button variant="outline" onClick={handleLogout} className="text-gray-600 hover:text-gray-800">
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="default" className="bg-blue-600 hover:bg-blue-700 text-white">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Quick Actions
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem onClick={() => { setActiveTab("formulations"); setFormulationDialogOpen(true); }} data-testid="dropdown-create-formulation">
+                    <FlaskConical className="h-4 w-4 mr-2" />
+                    <span>1. Create Formulation</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => { setActiveTab("bulk-formulations"); setBulkGenerationDialogOpen(true); }} data-testid="dropdown-create-bulk">
+                    <Ungroup className="h-4 w-4 mr-2" />
+                    <span>2. Bulk Formulation</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/products" data-testid="dropdown-sample-products">
+                      <Package className="h-4 w-4 mr-2" />
+                      <span>Add Sample Product</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button variant="outline" onClick={handleLogout} className="text-gray-600 hover:text-gray-800" data-testid="button-logout">
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
               </Button>
