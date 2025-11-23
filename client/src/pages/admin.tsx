@@ -25,6 +25,7 @@ import BlogManagementTab from "@/components/admin/blog-management-tab";
 import AICategorySuggestions from "@/components/admin/ai-category-suggestions";
 import FormulationTester from "@/components/admin/formulation-tester";
 import FormulationContentManagementTab from "@/components/admin/formulation-content-management-tab";
+import GeneratedFormulasTab from "@/components/admin/generated-formulas-tab";
 import type { Category, Formulation } from "@shared/schema";
 
 export default function AdminPage() {
@@ -414,6 +415,17 @@ export default function AdminPage() {
               data-testid="admin-test-formulation-tab"
             >
               🧪 Test AI System
+            </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "generated-formulas"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab("generated-formulas")}
+              data-testid="admin-generated-formulas-tab"
+            >
+              Generated Formulas
             </button>
           </nav>
         </div>
@@ -1058,6 +1070,11 @@ export default function AdminPage() {
             </div>
             <FormulationTester />
           </div>
+        )}
+
+        {/* Generated Formulas Tab */}
+        {activeTab === "generated-formulas" && (
+          <GeneratedFormulasTab />
         )}
       </div>
 
