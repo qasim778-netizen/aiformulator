@@ -436,6 +436,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all customer-generated formulation requests
+  app.get('/api/admin/user-formulations', requireAdmin, async (req: any, res) => {
+    try {
+      const requests = await storage.getUserFormulationRequests();
+      res.json(requests);
+    } catch (error) {
+      console.error("Error fetching user formulation requests:", error);
+      res.status(500).json({ message: "Failed to fetch user formulation requests" });
+    }
+  });
+
+  // Get a single user formulation request
+  app.get('/api/admin/user-formulations/:id', requireAdmin, async (req: any, res) => {
+    try {
+      const request = await storage.getUserFormulationRequest(req.params.id);
+      if (!request) {
+        return res.status(404).json({ message: "User formulation request not found" });
+      }
+      res.json(request);
+    } catch (error) {
+      console.error("Error fetching user formulation request:", error);
+      res.status(500).json({ message: "Failed to fetch user formulation request" });
+    }
+  });
+
+  // Update user formulation request status
+  app.patch('/api/admin/user-formulations/:id', requireAdmin, async (req: any, res) => {
+    try {
+      const { status, adminNotes } = req.body;
+      
+      if (!status) {
+        return res.status(400).json({ message: "Status is required" });
+      }
+
+      const updatedRequest = await storage.updateUserFormulationRequestStatus(
+        req.params.id,
+        status,
+        adminNotes,
+        req.session?.userId || 'admin'
+      );
+
+      if (!updatedRequest) {
+        return res.status(404).json({ message: "User formulation request not found" });
+      }
+
+      res.json(updatedRequest);
+    } catch (error) {
+      console.error("Error updating user formulation request:", error);
+      res.status(500).json({ message: "Failed to update user formulation request" });
+    }
+  });
+
+  // Delete user formulation request
+  app.delete('/api/admin/user-formulations/:id', requireAdmin, async (req: any, res) => {
+    try {
+      const success = await storage.deleteUserFormulationRequest(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "User formulation request not found" });
+      }
+      res.json({ success: true, message: "User formulation request deleted" });
+    } catch (error) {
+      console.error("Error deleting user formulation request:", error);
+      res.status(500).json({ message: "Failed to delete user formulation request" });
+    }
+  });
+
   // Object Storage routes for image uploads
   app.post("/api/objects/upload", async (req, res) => {
     try {
