@@ -15,8 +15,26 @@ interface CardProps {
 }
 
 function Card({ icon: Icon, title, description, fullWidth = false }: CardProps) {
+  if (fullWidth) {
+    return (
+      <div className="lg:col-span-3 bg-gradient-to-r from-[#4A90E2] to-[#2563eb] rounded-[20px] shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 p-8 sm:p-10 lg:p-12 flex flex-col sm:flex-row items-center justify-between gap-8 text-white">
+        <div className="flex flex-col items-center sm:items-start text-center sm:text-left flex-1">
+          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">
+            {title}
+          </h3>
+          <p className="text-sm sm:text-base text-blue-100 leading-relaxed max-w-2xl">
+            {description}
+          </p>
+        </div>
+        <div className="flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-full border-3 border-white flex items-center justify-center bg-white bg-opacity-10 backdrop-blur-sm">
+          <Icon className="w-12 h-12 sm:w-16 sm:h-16 text-white" strokeWidth={1.5} />
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className={`${fullWidth ? 'lg:col-span-3' : ''} bg-white rounded-[20px] shadow-md hover:shadow-lg transition-shadow duration-300 p-6 sm:p-7 lg:p-8 flex flex-col items-center text-center h-full`}>
+    <div className="bg-white rounded-[20px] shadow-md hover:shadow-lg transition-shadow duration-300 p-6 sm:p-7 lg:p-8 flex flex-col items-center text-center h-full">
       <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-3 border-[#4A90E2] flex items-center justify-center mb-4 flex-shrink-0 bg-gradient-to-br from-blue-50 to-blue-100">
         <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-[#4A90E2]" strokeWidth={1.5} />
       </div>
