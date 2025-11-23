@@ -96,7 +96,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
   });
 
   const steps = [
-    { title: "Product Type", icon: "✓" },
+    { title: "Product Name & Type", icon: "✓" },
     { title: "Specifications", icon: "⚙️" },
     { title: "Requirements", icon: "📋" },
     { title: "Generate", icon: "✏️" }
