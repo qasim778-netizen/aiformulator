@@ -2154,6 +2154,8 @@ Allow: /disclaimer`;
       try {
         const userRequest: any = {
           sessionId: req.sessionID || 'anonymous',
+          email: req.body.email || undefined,
+          country: req.body.country || undefined,
           productName,
           productCategory: categoryName,
           consistencyType: viscosity || undefined,
