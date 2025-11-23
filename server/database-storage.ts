@@ -468,7 +468,7 @@ export class DatabaseStorage implements IStorage {
           isAdmin: true,
           updatedAt: new Date()
         })
-        .where(eq(users.email, email))
+        .where(eq(usersTable.email, email))
         .returning();
       
       if (result.length > 0) {
