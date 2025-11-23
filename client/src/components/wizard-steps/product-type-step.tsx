@@ -183,28 +183,32 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
   };
 
   return (
-    <div className="space-y-6">
-      <h3 className="text-xl font-bold text-indigo-900 mb-4">Product Type Selection</h3>
+    <div className="space-y-8">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-[#1A2B4B] mb-2">What do you want to make?</h2>
+        <p className="text-[#6B7280] text-lg">Tell us your desired product name and its type</p>
+      </div>
       
       <div className="w-full max-w-2xl mx-auto">
-        <div className="w-full min-w-0 relative bg-white p-6 rounded-xl border-2 border-gray-200 shadow-sm hover:border-blue-300 transition-all duration-200">
-          <Label htmlFor="productName" className="text-lg font-bold text-emerald-800 mb-4 block flex items-center">
-            <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mr-3">1</span>
-            Product Name *
+        <div className="w-full min-w-0 relative bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-xl border-3 border-[#4A90E2] shadow-lg">
+          <Label htmlFor="productName" className="text-xl font-bold text-[#1A2B4B] mb-4 block flex items-center">
+            <span className="bg-[#4A90E2] text-white px-4 py-2 rounded-full text-base font-bold mr-4 w-10 h-10 flex items-center justify-center">1</span>
+            Your Desired Product
           </Label>
           <Input
             ref={inputRef}
             id="productName"
             type="text"
-            placeholder="e.g., Anti-Aging Face Cream, Moisturizing Shampoo..."
+            placeholder="e.g., Anti-Aging Face Cream, Moisturizing Shampoo, Car Detergent..."
             value={formData.productName}
             onChange={(e) => updateFormData({ productName: e.target.value })}
             onKeyDown={handleKeyDown}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            className="w-full h-14 border-2 border-gray-300 text-lg font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+            className="w-full h-16 border-2 border-[#4A90E2] text-lg font-medium focus:border-[#2563eb] focus:ring-2 focus:ring-blue-300 bg-white rounded-lg"
             data-testid="input-product-name"
           />
+          <p className="text-sm text-[#6B7280] mt-2">Be specific! This helps us generate accurate formulas (e.g., "Coconut Moisturizing Shampoo")</p>
           
           {/* Autocomplete Suggestions */}
           {showSuggestions && suggestions.length > 0 && (
@@ -235,10 +239,12 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
       </div>
 
       {/* Consistency Type Selection */}
-      <div>
-        <Label className="text-base font-semibold text-orange-800 mb-4 block">
-          <span className="text-red-600 font-bold mr-1">2.</span> Consistency Type <span className="text-red-600 font-bold">*</span>
+      <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-8 rounded-xl border-3 border-orange-200">
+        <Label className="text-xl font-bold text-[#1A2B4B] mb-6 block flex items-center">
+          <span className="bg-orange-500 text-white px-4 py-2 rounded-full text-base font-bold mr-4 w-10 h-10 flex items-center justify-center">2</span>
+          What's the texture/consistency?
         </Label>
+        <p className="text-[#6B7280] mb-6">Choose the product type that best matches your formula</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
           {consistencyTypes.map((type) => {
             const IconComponent = type.icon;
@@ -281,21 +287,31 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
 
       {/* Examples Section */}
       {selectedConsistency && (
-        <div className="bg-gray-50 rounded-xl p-4">
-          <h4 className="font-semibold text-gray-900 mb-3 text-sm">
-            Examples for {selectedConsistency.title.toLowerCase()}:
+        <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-6 border-2 border-emerald-200">
+          <h4 className="font-bold text-[#1A2B4B] mb-4 text-base">
+            ✓ Common {selectedConsistency.title.toLowerCase()} products:
           </h4>
           <div className="flex flex-wrap gap-2">
             {selectedConsistency.examples.map((example, index) => (
               <Badge 
                 key={index} 
                 variant="secondary" 
-                className="bg-blue-100 text-blue-800 hover:bg-blue-200 text-xs px-2 py-1"
+                className="bg-emerald-200 text-emerald-900 hover:bg-emerald-300 text-sm px-3 py-1.5 font-medium"
               >
                 {example}
               </Badge>
             ))}
           </div>
+        </div>
+      )}
+      
+      {/* Summary Section */}
+      {formData.productName && selectedConsistency && (
+        <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl p-6 shadow-lg">
+          <h4 className="font-bold text-lg mb-2">✓ Ready to continue!</h4>
+          <p className="text-sm opacity-90">
+            We'll create a formula for: <span className="font-bold">{formData.productName}</span> ({selectedConsistency.title})
+          </p>
         </div>
       )}
     </div>
