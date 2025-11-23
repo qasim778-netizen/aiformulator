@@ -1919,9 +1919,7 @@ Allow: /disclaimer`;
   // Custom AI Formulation with PDF Generation - Public Access with Captcha Security
   app.post("/api/ai/custom-formulation", async (req, res) => {
     console.log('🔥 Custom formulation endpoint hit!');
-    console.log('Request method:', req.method);
-    console.log('Request headers:', req.headers);
-    console.log('Request body:', req.body);
+    console.log('Full request body:', JSON.stringify(req.body, null, 2));
     const startTime = Date.now();
     try {
       const {
@@ -2155,11 +2153,16 @@ Allow: /disclaimer`;
 
       // Save user formulation request for admin review
       try {
+        const debugName = req.body.customerName?.trim() || '';
+        const debugEmail = req.body.email?.trim() || '';
+        const debugCountry = req.body.country?.trim() || '';
+        console.log('📝 Customer Info Received:', { name: debugName, email: debugEmail, country: debugCountry });
+        
         const userRequest: any = {
           sessionId: req.sessionID || 'anonymous',
-          customerName: req.body.customerName && req.body.customerName.trim() ? req.body.customerName.trim() : null,
-          email: req.body.email && req.body.email.trim() ? req.body.email.trim() : null,
-          country: req.body.country && req.body.country.trim() ? req.body.country.trim() : null,
+          customerName: debugName || null,
+          email: debugEmail || null,
+          country: debugCountry || null,
           productName,
           productCategory: categoryName,
           consistencyType: viscosity || undefined,
