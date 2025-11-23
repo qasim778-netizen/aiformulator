@@ -1,4 +1,4 @@
-import { Grid3x3, CheckCircle2, FlaskConical, ChevronRight } from 'lucide-react'
+import { Grid3x3, ClipboardList, FlaskConical, ChevronRight } from 'lucide-react'
 
 export default function HowItWorks() {
   const steps = [
@@ -12,7 +12,7 @@ export default function HowItWorks() {
       number: '2️⃣',
       title: 'Enter Requirements',
       description: '(pH, viscosity, natural/sulfate-free, cost goals)',
-      icon: CheckCircle2,
+      icon: ClipboardList,
     },
     {
       number: '3️⃣',
