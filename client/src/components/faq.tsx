@@ -52,8 +52,8 @@ export default function FAQ() {
   ]
 
   return (
-    <div className="w-full py-12 sm:py-16 lg:py-20 px-4 sm:px-6">
-      <div className="max-w-3xl mx-auto">
+    <div className="w-full py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-[#F5F5F5] rounded-2xl">
+      <div className="max-w-6xl mx-auto">
         {/* Section Title */}
         <div className="text-center mb-12 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1A2B4B] mb-3">
@@ -64,38 +64,28 @@ export default function FAQ() {
           </p>
         </div>
 
-        {/* FAQ List */}
-        <div className="space-y-3 sm:space-y-4">
+        {/* FAQ Grid - 2 Columns */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 mb-12 sm:mb-16">
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden transition-all duration-300 hover:border-[#4A90E2]"
+              className="flex flex-col"
             >
               <button
                 onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
-                className="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left transition-colors duration-300 hover:bg-[#F8FBFF]"
+                className="flex items-start justify-between gap-4 text-left transition-colors duration-300 pb-4 border-b border-[#E5E7EB] hover:text-[#4A90E2]"
               >
-                <span className="text-base sm:text-lg font-semibold text-[#1A2B4B] leading-relaxed">
+                <span className="text-base sm:text-lg font-semibold text-[#1A2B4B] leading-relaxed flex-1 hover:text-[#4A90E2] transition-colors">
                   {faq.question}
                 </span>
-                <div className={`flex-shrink-0 text-[#4A90E2] transition-transform duration-300 ${expandedIndex === index ? 'rotate-180' : ''}`}>
-                  <svg
-                    className="w-6 h-6"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
+                <div className={`flex-shrink-0 text-[#4A90E2] text-2xl transition-transform duration-300 ${expandedIndex === index ? 'rotate-45' : ''}`}>
+                  +
                 </div>
               </button>
 
               {/* Expanded Answer */}
               {expandedIndex === index && (
-                <div className="border-t border-[#E5E7EB] bg-[#F8FBFF] px-5 sm:px-6 py-4 sm:py-5">
+                <div className="pt-4 mt-4 border-t border-[#E5E7EB]">
                   <p className="text-sm sm:text-base text-[#6B7280] leading-relaxed">
                     {faq.answer}
                   </p>
@@ -106,7 +96,7 @@ export default function FAQ() {
         </div>
 
         {/* CTA Section */}
-        <div className="mt-12 sm:mt-16 text-center">
+        <div className="text-center border-t border-[#E5E7EB] pt-12 sm:pt-16">
           <p className="text-[#6B7280] text-base sm:text-lg mb-6">
             Still have questions? We're here to help!
           </p>
