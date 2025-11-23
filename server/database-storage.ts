@@ -1,6 +1,6 @@
 import { eq, desc, and, sql } from "drizzle-orm";
-import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable, formulationContentTable } from "./db";
-import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage, UserFormulationRequest, InsertUserFormulationRequest, FormulationContent, InsertFormulationContent } from "@shared/schema";
+import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable, formulationContentTable, sampleProductsTable } from "./db";
+import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage, UserFormulationRequest, InsertUserFormulationRequest, FormulationContent, InsertFormulationContent, SampleProduct, InsertSampleProduct } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
 import crypto from "crypto";
 import { randomUUID } from "crypto";
@@ -984,6 +984,83 @@ export class DatabaseStorage implements IStorage {
       return result.rowCount > 0;
     } catch (error) {
       console.error("Failed to delete formulation content:", error);
+      return false;
+    }
+  }
+
+  // Sample Products Management
+  async getSampleProducts(): Promise<SampleProduct[]> {
+    try {
+      const products = await db
+        .select()
+        .from(sampleProductsTable)
+        .where(eq(sampleProductsTable.isActive, true))
+        .orderBy(desc(sampleProductsTable.createdAt));
+      return products;
+    } catch (error) {
+      console.error("Failed to fetch sample products:", error);
+      return [];
+    }
+  }
+
+  async getSampleProduct(id: string): Promise<SampleProduct | undefined> {
+    try {
+      const [product] = await db
+        .select()
+        .from(sampleProductsTable)
+        .where(eq(sampleProductsTable.id, id));
+      return product;
+    } catch (error) {
+      console.error("Failed to fetch sample product:", error);
+      return undefined;
+    }
+  }
+
+  async createSampleProduct(product: InsertSampleProduct): Promise<SampleProduct> {
+    try {
+      const [created] = await db
+        .insert(sampleProductsTable)
+        .values({
+          title: product.title,
+          description: product.description,
+          image: product.image,
+          link: product.link,
+          category: product.category || "General",
+          isActive: product.isActive ?? true,
+        })
+        .returning();
+      return created;
+    } catch (error) {
+      console.error("Failed to create sample product:", error);
+      throw error;
+    }
+  }
+
+  async updateSampleProduct(id: string, product: Partial<InsertSampleProduct>): Promise<SampleProduct | undefined> {
+    try {
+      const [updated] = await db
+        .update(sampleProductsTable)
+        .set({
+          ...product,
+          updatedAt: new Date(),
+        })
+        .where(eq(sampleProductsTable.id, id))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error("Failed to update sample product:", error);
+      return undefined;
+    }
+  }
+
+  async deleteSampleProduct(id: string): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(sampleProductsTable)
+        .where(eq(sampleProductsTable.id, id));
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error("Failed to delete sample product:", error);
       return false;
     }
   }

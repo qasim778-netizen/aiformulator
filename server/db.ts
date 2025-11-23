@@ -146,6 +146,19 @@ export const formulationContentTable = pgTable("formulation_content", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Sample Products table for homepage showcase
+export const sampleProductsTable = pgTable("sample_products", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  image: text("image").notNull(),
+  link: text("link").notNull(),
+  category: text("category").notNull().default("General"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export type DbCategory = typeof categoriesTable.$inferSelect;
 export type DbFormulation = typeof formulationsTable.$inferSelect;
 export type DbProductProperties = typeof productPropertiesTable.$inferSelect;
@@ -154,6 +167,7 @@ export type DbPage = typeof pagesTable.$inferSelect;
 export type DbBlogPost = typeof blogPostsTable.$inferSelect;
 export type DbUserFormulationRequest = typeof userFormulationRequestsTable.$inferSelect;
 export type DbFormulationContent = typeof formulationContentTable.$inferSelect;
+export type DbSampleProduct = typeof sampleProductsTable.$inferSelect;
 export type InsertDbCategory = typeof categoriesTable.$inferInsert;
 export type InsertDbFormulation = typeof formulationsTable.$inferInsert;
 export type InsertDbProductProperties = typeof productPropertiesTable.$inferInsert;
@@ -162,3 +176,4 @@ export type InsertDbPage = typeof pagesTable.$inferInsert;
 export type InsertDbBlogPost = typeof blogPostsTable.$inferInsert;
 export type InsertDbUserFormulationRequest = typeof userFormulationRequestsTable.$inferInsert;
 export type InsertDbFormulationContent = typeof formulationContentTable.$inferInsert;
+export type InsertDbSampleProduct = typeof sampleProductsTable.$inferInsert;
