@@ -1935,6 +1935,8 @@ Allow: /disclaimer`;
         color,
         fragrance,
         specialRequirements,
+        shelfLife,
+        productionVolume,
         logoSettings
       } = req.body;
 

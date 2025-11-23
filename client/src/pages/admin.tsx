@@ -897,7 +897,7 @@ export default function AdminPage() {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                                {getCategoryName(formulation.categoryId)}
+                                {formulation.categoryId ? getCategoryName(formulation.categoryId) : 'Custom'}
                               </Badge>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
