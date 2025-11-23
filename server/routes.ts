@@ -2154,15 +2154,16 @@ Allow: /disclaimer`;
           sessionId: req.sessionID || 'anonymous',
           productName,
           productCategory: categoryName,
-          productDescription,
-          productType,
           consistencyType: viscosity || undefined,
           phLevel: phLevel?.toString() || undefined,
           viscosity: viscosity || undefined,
+          shelfLife: shelfLife || undefined,
           budgetCategory: costLevel || undefined,
+          productionVolume: productionVolume || undefined,
           specialProperties: specialRequirements ? [specialRequirements] : undefined,
           additionalNotes: `Color: ${color || 'Not specified'}, Fragrance: ${fragrance || 'Not specified'}`,
           status: 'pending',
+          formData: req.body, // REQUIRED: Include complete form data
           formulationId: savedFormulation.id
         };
 
