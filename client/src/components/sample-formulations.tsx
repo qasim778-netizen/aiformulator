@@ -1,14 +1,14 @@
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { useEffect, useRef } from 'react'
-import stoneAdhesiveImg from '@assets/4dae56dc-4029-42c8-84bb-f024cc1b8efa_1763883671890.png'
-import allPurposeCleanerImg from '@assets/743dab24-37f1-4016-9995-ddeb91c78081_1763883671893.png'
-import antiDandruffImg from '@assets/gfd_1763883671898.png'
+import stoneAdhesiveImg from '@assets/4dae56dc-4029-42c8-84bb-f024cc1b8efa-min_1763884454972.png'
+import allPurposeCleanerImg from '@assets/743dab24-37f1-4016-9995-ddeb91c78081-min_1763884454973.png'
+import antiDandruffImg from '@assets/gfd-min_1763884454976.png'
 
 // Dynamically construct image paths with spaces in file names
-const toiletCleanerImg = '/assets/ChatGPT Image Nov 22, 2025, 10_30_45 PM_1763883671896.png'
-const snowFoamImg = '/assets/ChatGPT Image Nov 22, 2025, 10_34_49 PM_1763883671896.png'
-const babyBodyWashImg = '/assets/ChatGPT Image Nov 22, 2025, 10_36_23 PM_1763883671897.png'
-const fabricSoftenerImg = '/assets/ChatGPT Image Nov 22, 2025, 10_38_08 PM_1763883671897.png'
+const toiletCleanerImg = '/assets/ChatGPT Image Nov 22, 2025, 10_30_45 PM-min_1763884454973.png'
+const snowFoamImg = '/assets/ChatGPT Image Nov 22, 2025, 10_34_49 PM-min_1763884454974.png'
+const babyBodyWashImg = '/assets/ChatGPT Image Nov 22, 2025, 10_36_23 PM-min_1763884454974.png'
+const fabricSoftenerImg = '/assets/ChatGPT Image Nov 22, 2025, 10_38_08 PM-min_1763884454975.png'
 
 interface FormulationCard {
   title: string
