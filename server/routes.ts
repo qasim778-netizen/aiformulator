@@ -1925,6 +1925,9 @@ Allow: /disclaimer`;
     const startTime = Date.now();
     try {
       const {
+        customerName,
+        email,
+        country,
         productName,
         productCategory,
         productDescription,
