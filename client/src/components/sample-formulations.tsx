@@ -1,5 +1,13 @@
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { useEffect, useRef } from 'react'
+import carPolishImg from '@assets/e7461a4b-5c0d-4c89-8856-515c4397f26a_1763879981422.png'
+import antiDandruffImg from '@assets/b9947c62-dc86-4b9c-9734-fe6eb8825bff_1763879981421.png'
+import stoneAdhesiveImg from '@assets/4a266f5c-f647-4a7c-acee-203abd1383d3_1763879981419.png'
+import toiletCleanerImg from '@assets/ChatGPT_Image_Nov_22_2025_10_30_45_PM_1763880050790.png'
+import snowFoamImg from '@assets/ChatGPT_Image_Nov_22_2025_10_34_49_PM_1763879994487.png'
+import babyBodyWashImg from '@assets/ChatGPT_Image_Nov_22_2025_10_36_23_PM_1763879994489.png'
+import fabricSoftenerImg from '@assets/ChatGPT_Image_Nov_22_2025_10_38_08_PM_1763879994490.png'
+import allPurposeCleanerImg from '@assets/743dab24-37f1-4016-9995-ddeb91c78081_1763879981421.png'
 
 interface FormulationCard {
   title: string
@@ -39,49 +47,49 @@ export default function SampleFormulations() {
     {
       title: 'Car Polish Gloss Enhancer',
       description: 'Premium gloss-boosting polish for automotive surfaces.',
-      image: '/assets/e7461a4b-5c0d-4c89-8856-515c4397f26a_1763879981422.png',
+      image: carPolishImg,
       category: 'Auto Care'
     },
     {
       title: 'Anti-Dandruff Shampoo',
       description: 'Gentle cleansing shampoo with scalp-active ingredients.',
-      image: '/assets/b9947c62-dc86-4b9c-9734-fe6eb8825bff_1763879981421.png',
+      image: antiDandruffImg,
       category: 'Hair Care'
     },
     {
       title: 'Stone Adhesive',
       description: 'Industrial-strength adhesive for stone and tiles.',
-      image: '/assets/4a266f5c-f647-4a7c-acee-203abd1383d3_1763879981419.png',
+      image: stoneAdhesiveImg,
       category: 'Industrial'
     },
     {
       title: 'Toilet Cleaner Gel',
       description: 'Thick gel formula for stain removal and daily hygiene.',
-      image: '/assets/ChatGPT Image Nov 22, 2025, 10_30_45 PM_1763880050790.png',
+      image: toiletCleanerImg,
       category: 'Cleaners'
     },
     {
       title: 'Snow Foam Car Shampoo',
       description: 'High-foam shampoo for detailing and pressure-wash systems.',
-      image: '/assets/ChatGPT Image Nov 22, 2025, 10_34_49 PM_1763879994487.png',
+      image: snowFoamImg,
       category: 'Auto Care'
     },
     {
       title: 'Baby Body Wash',
       description: 'Mild, tear-free wash for sensitive baby skin.',
-      image: '/assets/ChatGPT Image Nov 22, 2025, 10_36_23 PM_1763879994489.png',
+      image: babyBodyWashImg,
       category: 'Baby Care'
     },
     {
       title: 'Fabric Softener',
       description: 'Softening and conditioning agent for laundry care.',
-      image: '/assets/ChatGPT Image Nov 22, 2025, 10_38_08 PM_1763879994490.png',
+      image: fabricSoftenerImg,
       category: 'Laundry'
     },
     {
       title: 'All-Purpose Cleaner',
       description: 'Multipurpose cleaner for kitchens and household surfaces.',
-      image: '/assets/743dab24-37f1-4016-9995-ddeb91c78081_1763879981421.png',
+      image: allPurposeCleanerImg,
       category: 'Cleaners'
     }
   ]
