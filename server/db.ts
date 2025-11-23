@@ -6,6 +6,20 @@ import { pgTable, text, boolean, timestamp, uuid, jsonb, integer, varchar } from
 const sql = neon(process.env.DATABASE_URL!);
 export const db = drizzle(sql);
 
+// Users table
+export const usersTable = pgTable("users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").notNull().unique(),
+  password: text("password").notNull(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  country: text("country"),
+  profileImageUrl: text("profile_image_url"),
+  isAdmin: boolean("is_admin").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // Categories table
 export const categoriesTable = pgTable("categories", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -168,6 +182,7 @@ export type DbBlogPost = typeof blogPostsTable.$inferSelect;
 export type DbUserFormulationRequest = typeof userFormulationRequestsTable.$inferSelect;
 export type DbFormulationContent = typeof formulationContentTable.$inferSelect;
 export type DbSampleProduct = typeof sampleProductsTable.$inferSelect;
+export type DbUser = typeof usersTable.$inferSelect;
 export type InsertDbCategory = typeof categoriesTable.$inferInsert;
 export type InsertDbFormulation = typeof formulationsTable.$inferInsert;
 export type InsertDbProductProperties = typeof productPropertiesTable.$inferInsert;
@@ -177,3 +192,4 @@ export type InsertDbBlogPost = typeof blogPostsTable.$inferInsert;
 export type InsertDbUserFormulationRequest = typeof userFormulationRequestsTable.$inferInsert;
 export type InsertDbFormulationContent = typeof formulationContentTable.$inferInsert;
 export type InsertDbSampleProduct = typeof sampleProductsTable.$inferInsert;
+export type InsertDbUser = typeof usersTable.$inferInsert;

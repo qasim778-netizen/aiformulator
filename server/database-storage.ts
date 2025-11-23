@@ -1,5 +1,5 @@
 import { eq, desc, and, sql } from "drizzle-orm";
-import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable, formulationContentTable, sampleProductsTable } from "./db";
+import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable, formulationContentTable, sampleProductsTable, usersTable } from "./db";
 import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage, UserFormulationRequest, InsertUserFormulationRequest, FormulationContent, InsertFormulationContent, SampleProduct, InsertSampleProduct } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
 import crypto from "crypto";
@@ -366,39 +366,33 @@ export class DatabaseStorage implements IStorage {
     return recommendations;
   }
 
-  // User Authentication methods (required for Replit Auth)
+  // User Authentication methods
   async getUser(id: string): Promise<User | undefined> {
-    // This method uses shared schema which will be updated to include users table
-    // For now return undefined as users table needs to be created via migration
     try {
-      const { users } = await import("@shared/schema");
-      const [user] = await db.select().from(users).where(eq(users.id, id));
+      const [user] = await db.select().from(usersTable).where(eq(usersTable.id, id));
       return user || undefined;
     } catch (error) {
-      // Users table doesn't exist yet, will be created after schema update
-      console.log("Users table not yet available, will be created after migration");
+      console.error("Error fetching user:", error);
       return undefined;
     }
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     try {
-      const { users } = await import("@shared/schema");
-      const [user] = await db.select().from(users).where(eq(users.email, email));
+      const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
       return user || undefined;
     } catch (error) {
-      console.log("Users table not yet available, will be created after migration");
+      console.error("Error fetching user by email:", error);
       return undefined;
     }
   }
 
   async createUser(userData: { email: string; password: string; firstName?: string; lastName?: string; country?: string }): Promise<User> {
     try {
-      const { users } = await import("@shared/schema");
       const [user] = await db
-        .insert(users)
+        .insert(usersTable)
         .values({
-          id: crypto.randomUUID(),
+          id: randomUUID(),
           email: userData.email,
           password: userData.password,
           firstName: userData.firstName || null,
@@ -406,49 +400,43 @@ export class DatabaseStorage implements IStorage {
           country: userData.country || null,
           profileImageUrl: null,
           isAdmin: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
         })
         .returning();
       return user;
     } catch (error) {
-      console.error("❌ Database error in createUser:", error);
+      console.error("Error creating user:", error);
       throw error;
     }
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
     try {
-      const { users } = await import("@shared/schema");
-      
-      // Exclude isAdmin from updates to preserve existing admin rights
       const { isAdmin, ...updateData } = userData;
       
       const [user] = await db
-        .insert(users)
-        .values(userData)
+        .insert(usersTable)
+        .values({
+          id: userData.id,
+          email: userData.email || '',
+          password: userData.password || '',
+          firstName: userData.firstName || null,
+          lastName: userData.lastName || null,
+          country: userData.country || null,
+          profileImageUrl: userData.profileImageUrl || null,
+          isAdmin: userData.isAdmin || false,
+        })
         .onConflictDoUpdate({
-          target: users.id,
+          target: usersTable.id,
           set: {
-            ...updateData, // This excludes isAdmin, preserving existing admin status
+            ...updateData,
             updatedAt: new Date(),
           },
         })
         .returning();
       return user;
     } catch (error) {
-      // For now, return a mock user until migration completes
-      console.log("Users table not yet available, returning mock user");
-      return {
-        id: userData.id || crypto.randomUUID(),
-        email: userData.email || null,
-        firstName: userData.firstName || null,
-        lastName: userData.lastName || null,
-        profileImageUrl: userData.profileImageUrl || null,
-        isAdmin: userData.isAdmin || false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      console.error("Error upserting user:", error);
+      throw error;
     }
   }
 
@@ -464,8 +452,7 @@ export class DatabaseStorage implements IStorage {
 
   async isUserAdminByEmail(email: string): Promise<boolean> {
     try {
-      const { users } = await import("@shared/schema");
-      const [user] = await db.select().from(users).where(eq(users.email, email));
+      const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
       return user?.isAdmin || false;
     } catch (error) {
       console.log("Error checking admin status by email:", error);
@@ -475,9 +462,8 @@ export class DatabaseStorage implements IStorage {
 
   async grantAdminRights(email: string): Promise<boolean> {
     try {
-      const { users } = await import("@shared/schema");
       const result = await db
-        .update(users)
+        .update(usersTable)
         .set({ 
           isAdmin: true,
           updatedAt: new Date()
