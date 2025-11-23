@@ -203,11 +203,11 @@ export default function AdminProducts() {
                     />
                     
                     {imagePreview ? (
-                      <div className="relative w-full">
+                      <div className="relative inline-block">
                         <img
                           src={imagePreview}
                           alt="Preview"
-                          className="w-full h-40 object-cover rounded border border-gray-300"
+                          className="max-w-xs h-auto max-h-48 object-contain rounded border border-gray-300"
                           data-testid="img-preview"
                         />
                         <button
@@ -239,13 +239,17 @@ export default function AdminProducts() {
                   </div>
                 </div>
 
-                <Input
-                  placeholder="Link/URL"
-                  value={formData.link}
-                  onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                  required
-                  data-testid="input-link"
-                />
+                <div className="col-span-1 md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Product Link (optional)</label>
+                  <p className="text-xs text-gray-500 mb-2">Link where users can learn more or purchase this product</p>
+                  <Input
+                    placeholder="https://example.com"
+                    value={formData.link}
+                    onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                    required
+                    data-testid="input-link"
+                  />
+                </div>
               </div>
               <div className="flex gap-2">
                 <Button 
