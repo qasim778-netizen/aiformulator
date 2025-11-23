@@ -1,16 +1,19 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Trash2, Edit2, Plus } from 'lucide-react'
+import { Trash2, Edit2, Plus, Upload, X } from 'lucide-react'
 import { queryClient, apiRequest } from '@/lib/queryClient'
 import { useToast } from '@/hooks/use-toast'
 import type { SampleProduct, InsertSampleProduct } from '@shared/schema'
 
 export default function AdminProducts() {
   const { toast } = useToast()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [formData, setFormData] = useState<InsertSampleProduct>({
     title: '',
     description: '',
@@ -79,6 +82,7 @@ export default function AdminProducts() {
 
   const resetForm = () => {
     setEditingId(null)
+    setImagePreview(null)
     setFormData({
       title: '',
       description: '',
@@ -91,6 +95,7 @@ export default function AdminProducts() {
 
   const handleEdit = (product: SampleProduct) => {
     setEditingId(product.id)
+    setImagePreview(product.image)
     setFormData({
       title: product.title,
       description: product.description,
@@ -101,8 +106,41 @@ export default function AdminProducts() {
     })
   }
 
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setUploadingImage(true)
+    try {
+      // Create preview
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const result = e.target?.result as string
+        setImagePreview(result)
+        setFormData({ ...formData, image: result })
+      }
+      reader.readAsDataURL(file)
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to process image',
+        variant: 'destructive',
+      })
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!formData.title || !formData.description || !formData.image || !formData.link) {
+      toast({
+        title: 'Error',
+        description: 'Please fill in all fields including an image',
+        variant: 'destructive',
+      })
+      return
+    }
     saveMutation.mutate(formData)
   }
 
@@ -132,12 +170,14 @@ export default function AdminProducts() {
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
+                  data-testid="input-product-title"
                 />
                 <Input
                   placeholder="Category"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   required
+                  data-testid="input-category"
                 />
                 <textarea
                   placeholder="Description"
@@ -145,26 +185,78 @@ export default function AdminProducts() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="col-span-1 md:col-span-2 border rounded px-3 py-2 min-h-20"
                   required
+                  data-testid="textarea-description"
                 />
-                <Input
-                  placeholder="Image URL"
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  required
-                />
+                
+                {/* Image Upload Section */}
+                <div className="col-span-1 md:col-span-2">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Product Image</label>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImage}
+                      className="hidden"
+                      data-testid="input-image-file"
+                    />
+                    
+                    {imagePreview ? (
+                      <div className="relative w-full">
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full h-40 object-cover rounded border border-gray-300"
+                          data-testid="img-preview"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImagePreview(null)
+                            setFormData({ ...formData, image: '' })
+                            if (fileInputRef.current) fileInputRef.current.value = ''
+                          }}
+                          className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded hover:bg-red-600"
+                          data-testid="button-remove-image"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingImage}
+                        className="w-full border-2 border-dashed border-gray-300 rounded py-8 text-center hover:border-blue-500 transition-colors disabled:opacity-50"
+                        data-testid="button-upload-image"
+                      >
+                        <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                        <p className="text-gray-600">Click to upload image or drag and drop</p>
+                        <p className="text-sm text-gray-500">PNG, JPG up to 5MB</p>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 <Input
                   placeholder="Link/URL"
                   value={formData.link}
                   onChange={(e) => setFormData({ ...formData, link: e.target.value })}
                   required
+                  data-testid="input-link"
                 />
               </div>
               <div className="flex gap-2">
-                <Button type="submit" disabled={saveMutation.isPending}>
+                <Button 
+                  type="submit" 
+                  disabled={saveMutation.isPending || uploadingImage}
+                  data-testid="button-submit-product"
+                >
                   {saveMutation.isPending ? 'Saving...' : editingId ? 'Update Product' : 'Add Product'}
                 </Button>
                 {editingId && (
-                  <Button type="button" variant="outline" onClick={resetForm}>
+                  <Button type="button" variant="outline" onClick={resetForm} data-testid="button-cancel">
                     Cancel
                   </Button>
                 )}
@@ -176,7 +268,7 @@ export default function AdminProducts() {
         {/* Products List */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
-            <Card key={product.id} className="hover:shadow-lg transition-shadow">
+            <Card key={product.id} className="hover:shadow-lg transition-shadow" data-testid={`card-product-${product.id}`}>
               <CardHeader>
                 <CardTitle className="text-lg">{product.title}</CardTitle>
               </CardHeader>
@@ -186,12 +278,13 @@ export default function AdminProducts() {
                     src={product.image}
                     alt={product.title}
                     className="w-full h-32 object-cover rounded"
+                    data-testid={`img-product-${product.id}`}
                   />
                 )}
                 <p className="text-sm text-gray-600">{product.description}</p>
                 <div className="flex items-center justify-between text-xs">
                   <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">{product.category}</span>
-                  <span className={product.isActive ? 'text-green-600' : 'text-red-600'}>
+                  <span className={product.isActive ? 'text-green-600' : 'text-red-600'} data-testid={`status-${product.id}`}>
                     {product.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </div>
@@ -201,6 +294,7 @@ export default function AdminProducts() {
                     variant="outline"
                     onClick={() => handleEdit(product)}
                     className="flex-1"
+                    data-testid={`button-edit-${product.id}`}
                   >
                     <Edit2 className="w-4 h-4 mr-1" />
                     Edit
@@ -211,6 +305,7 @@ export default function AdminProducts() {
                     onClick={() => handleDelete(product.id)}
                     className="flex-1"
                     disabled={deleteMutation.isPending}
+                    data-testid={`button-delete-${product.id}`}
                   >
                     <Trash2 className="w-4 h-4 mr-1" />
                     Delete
