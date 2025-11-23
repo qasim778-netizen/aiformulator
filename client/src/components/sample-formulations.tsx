@@ -76,55 +76,57 @@ export default function SampleFormulations() {
           </p>
         </div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mt-12">
-          {formulations.map((formula, index) => (
-            <div
-              key={index}
-              className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col h-full"
-            >
-              {/* Image Container */}
-              <div className="relative w-full h-56 sm:h-64 bg-gradient-to-br from-blue-50 to-white overflow-hidden flex items-center justify-center">
-                {/* Category Badge */}
-                <div className="absolute top-3 right-3 z-10 px-3 py-1 bg-[#4A90E2] text-white text-xs font-bold rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  {formula.category}
+        {/* Horizontal Scroll Container */}
+        <div className="mt-12 -mx-4 sm:-mx-6 px-4 sm:px-6">
+          <div className="flex gap-6 sm:gap-8 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory">
+            {formulations.map((formula, index) => (
+              <div
+                key={index}
+                className="group flex-shrink-0 w-80 sm:w-96 bg-white rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col h-full snap-center"
+              >
+                {/* Image Container */}
+                <div className="relative w-full h-56 sm:h-64 bg-gradient-to-br from-blue-50 to-white overflow-hidden flex items-center justify-center">
+                  {/* Category Badge */}
+                  <div className="absolute top-3 right-3 z-10 px-3 py-1 bg-[#4A90E2] text-white text-xs font-bold rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    {formula.category}
+                  </div>
+
+                  {/* Product Image */}
+                  <img
+                    src={formula.image}
+                    alt={formula.title}
+                    className="w-auto h-full object-contain group-hover:scale-110 transition-transform duration-500 ease-out"
+                    loading="lazy"
+                  />
+
+                  {/* Shine Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500 translate-x-[-100%] group-hover:translate-x-[100%]" />
                 </div>
 
-                {/* Product Image */}
-                <img
-                  src={formula.image}
-                  alt={formula.title}
-                  className="w-auto h-full object-contain group-hover:scale-110 transition-transform duration-500 ease-out"
-                  loading="lazy"
-                />
+                {/* Content Container */}
+                <div className="flex-1 p-5 sm:p-6 flex flex-col">
+                  {/* Title */}
+                  <h3 className="text-lg sm:text-xl font-bold text-[#1A2B4B] mb-2 leading-snug group-hover:text-[#4A90E2] transition-colors duration-300">
+                    {formula.title}
+                  </h3>
 
-                {/* Shine Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500 translate-x-[-100%] group-hover:translate-x-[100%]" />
+                  {/* Description */}
+                  <p className="text-sm text-[#6B7280] flex-grow mb-4 leading-relaxed">
+                    {formula.description}
+                  </p>
+
+                  {/* Link */}
+                  <a
+                    href="#"
+                    className="inline-flex items-center text-[#4A90E2] font-semibold hover:text-[#2563eb] group/link gap-2 transition-all duration-300"
+                  >
+                    View Formula
+                    <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform duration-300" />
+                  </a>
+                </div>
               </div>
-
-              {/* Content Container */}
-              <div className="flex-1 p-5 sm:p-6 flex flex-col">
-                {/* Title */}
-                <h3 className="text-lg sm:text-xl font-bold text-[#1A2B4B] mb-2 leading-snug group-hover:text-[#4A90E2] transition-colors duration-300">
-                  {formula.title}
-                </h3>
-
-                {/* Description */}
-                <p className="text-sm text-[#6B7280] flex-grow mb-4 leading-relaxed">
-                  {formula.description}
-                </p>
-
-                {/* Link */}
-                <a
-                  href="#"
-                  className="inline-flex items-center text-[#4A90E2] font-semibold hover:text-[#2563eb] group/link gap-2 transition-all duration-300"
-                >
-                  View Formula
-                  <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform duration-300" />
-                </a>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* CTA Section */}
