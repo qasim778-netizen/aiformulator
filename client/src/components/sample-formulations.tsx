@@ -1,4 +1,5 @@
 import { ArrowRight, Sparkles } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 
 interface FormulationCard {
   title: string
@@ -8,6 +9,32 @@ interface FormulationCard {
 }
 
 export default function SampleFormulations() {
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    let scrollInterval: NodeJS.Timeout
+    let currentScroll = 0
+
+    const scroll = () => {
+      if (container) {
+        currentScroll += 2
+        container.scrollLeft = currentScroll
+
+        // Loop back to start when reaching the end
+        if (currentScroll >= container.scrollWidth - container.clientWidth) {
+          currentScroll = 0
+        }
+      }
+    }
+
+    scrollInterval = setInterval(scroll, 30)
+
+    return () => clearInterval(scrollInterval)
+  }, [])
+
   const formulations: FormulationCard[] = [
     {
       title: 'Car Polish Gloss Enhancer',
@@ -78,7 +105,7 @@ export default function SampleFormulations() {
 
         {/* Horizontal Scroll Container */}
         <div className="mt-12 -mx-4 sm:-mx-6 px-4 sm:px-6">
-          <div className="flex gap-6 sm:gap-8 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory">
+          <div ref={scrollContainerRef} className="flex gap-6 sm:gap-8 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory">
             {formulations.map((formula, index) => (
               <div
                 key={index}
