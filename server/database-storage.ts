@@ -603,8 +603,7 @@ export class DatabaseStorage implements IStorage {
   // Admin methods
   async getUserById(userId: string): Promise<User | undefined> {
     try {
-      const { users } = await import("@shared/schema");
-      const [user] = await db.select().from(users).where(eq(users.id, userId));
+      const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
       return user || undefined;
     } catch (error) {
       console.error("Error getting user by ID:", error);
@@ -614,19 +613,18 @@ export class DatabaseStorage implements IStorage {
 
   async getAllUsers(): Promise<User[]> {
     try {
-      const { users } = await import("@shared/schema");
       const allUsers = await db
         .select({
-          id: users.id,
-          email: users.email,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          country: users.country,
-          isAdmin: users.isAdmin,
-          createdAt: users.createdAt,
+          id: usersTable.id,
+          email: usersTable.email,
+          firstName: usersTable.firstName,
+          lastName: usersTable.lastName,
+          country: usersTable.country,
+          isAdmin: usersTable.isAdmin,
+          createdAt: usersTable.createdAt,
         })
-        .from(users)
-        .orderBy(desc(users.createdAt));
+        .from(usersTable)
+        .orderBy(desc(usersTable.createdAt));
       return allUsers as User[];
     } catch (error) {
       console.error("Error getting all users:", error);
@@ -636,7 +634,7 @@ export class DatabaseStorage implements IStorage {
 
   async getAllDownloadsAdmin(): Promise<any[]> {
     try {
-      const { userDownloads, users, formulations } = await import("@shared/schema");
+      const { userDownloads, formulations } = await import("@shared/schema");
       const downloads = await db
         .select({
           id: userDownloads.id,
@@ -645,14 +643,14 @@ export class DatabaseStorage implements IStorage {
           formulationName: userDownloads.formulationName,
           categoryName: userDownloads.categoryName,
           downloadedAt: userDownloads.downloadedAt,
-          userEmail: users.email,
-          userFirstName: users.firstName,
-          userLastName: users.lastName,
-          userCountry: users.country,
+          userEmail: usersTable.email,
+          userFirstName: usersTable.firstName,
+          userLastName: usersTable.lastName,
+          userCountry: usersTable.country,
           formulation: formulations,
         })
         .from(userDownloads)
-        .leftJoin(users, eq(userDownloads.userId, users.id))
+        .leftJoin(usersTable, eq(userDownloads.userId, usersTable.id))
         .leftJoin(formulations, sql`cast(${userDownloads.formulationId} as uuid) = ${formulations.id}`)
         .orderBy(desc(userDownloads.downloadedAt));
       return downloads;
@@ -664,21 +662,21 @@ export class DatabaseStorage implements IStorage {
 
   async getAllFavoritesAdmin(): Promise<any[]> {
     try {
-      const { userFavorites, users, formulations } = await import("@shared/schema");
+      const { userFavorites, formulations } = await import("@shared/schema");
       const favorites = await db
         .select({
           id: userFavorites.id,
           userId: userFavorites.userId,
           formulationId: userFavorites.formulationId,
           addedAt: userFavorites.addedAt,
-          userEmail: users.email,
-          userFirstName: users.firstName,
-          userLastName: users.lastName,
-          userCountry: users.country,
+          userEmail: usersTable.email,
+          userFirstName: usersTable.firstName,
+          userLastName: usersTable.lastName,
+          userCountry: usersTable.country,
           formulation: formulations,
         })
         .from(userFavorites)
-        .leftJoin(users, eq(userFavorites.userId, users.id))
+        .leftJoin(usersTable, eq(userFavorites.userId, usersTable.id))
         .leftJoin(formulations, eq(userFavorites.formulationId, formulations.slug))
         .orderBy(desc(userFavorites.addedAt));
       return favorites;
