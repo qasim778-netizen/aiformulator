@@ -45,21 +45,23 @@ export default function AdminDashboard() {
     setSelectedUser(userData);
     setLoadingFormulas(true);
     try {
-      const userRequest = generatedFormulas?.find((req: any) => req.userId === userData.id);
-      if (userRequest) {
+      const userRequests = generatedFormulas?.filter((req: any) => req.userId === userData.id) || [];
+      const allFormulas: any[] = [];
+      
+      for (const userRequest of userRequests) {
         const response = await fetch(`/api/admin/user-formulations/${userRequest.id}/generated`);
         if (response.ok) {
           const formulas = await response.json();
-          setUserFormulas(formulas);
-          setViewFormulasOpen(true);
-        } else {
-          toast({ title: 'Failed to fetch generated formulas', variant: 'destructive' });
+          allFormulas.push(...formulas);
         }
-      } else {
-        setUserFormulas([]);
-        setViewFormulasOpen(true);
       }
+      
+      // Remove duplicates by id
+      const uniqueFormulas = Array.from(new Map(allFormulas.map(f => [f.id, f])).values());
+      setUserFormulas(uniqueFormulas);
+      setViewFormulasOpen(true);
     } catch (error) {
+      console.error("Error fetching formulas:", error);
       toast({ title: 'Error fetching formulas', variant: 'destructive' });
     } finally {
       setLoadingFormulas(false);
