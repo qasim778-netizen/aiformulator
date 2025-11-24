@@ -45,10 +45,23 @@ export default function AdminDashboard() {
     setSelectedUser(userData);
     setLoadingFormulas(true);
     try {
+      // Filter by matching multiple criteria: email, customer_name, or user_id
       const userRequests = generatedFormulas?.filter((req: any) => {
         try {
           const formData = typeof req.formData === 'string' ? JSON.parse(req.formData) : req.formData;
-          return formData?.email === userData.email;
+          
+          // Try to match by email first
+          if (userData.email && formData?.email === userData.email) return true;
+          if (userData.email && req.email === userData.email) return true;
+          
+          // Try to match by customer name
+          if (userData.firstName && req.customer_name?.toLowerCase().includes(userData.firstName.toLowerCase())) return true;
+          if (userData.firstName && formData?.customerName?.toLowerCase().includes(userData.firstName.toLowerCase())) return true;
+          
+          // Try to match by user_id
+          if (userData.id && req.user_id === userData.id) return true;
+          
+          return false;
         } catch {
           return false;
         }
@@ -79,6 +92,7 @@ export default function AdminDashboard() {
         }
       });
       
+      console.log(`Found ${displayFormulas.length} formulas for user:`, userData);
       setUserFormulas(displayFormulas);
       setViewFormulasOpen(true);
     } catch (error) {
