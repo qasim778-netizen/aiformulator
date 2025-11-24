@@ -713,18 +713,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Formulation not found" });
       }
       
-      // If this is a UUID request from the confirmation page, return with download URLs
-      if (identifier.includes('-') && identifier.length === 36 && formulation.pdfPath && formulation.textPath) {
-        return res.json({
-          id: formulation.id,
-          name: formulation.name,
-          description: formulation.description,
-          pdfUrl: `/api/formulations/${formulation.id}/download/pdf`,
-          textUrl: `/api/formulations/${formulation.id}/download/text`,
-          createdAt: formulation.createdAt
-        });
-      }
-      
       res.json(formulation);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch formulation" });
