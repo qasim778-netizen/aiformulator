@@ -54,19 +54,32 @@ export default function AdminDashboard() {
         }
       }) || [];
       
-      const allFormulas: any[] = [];
-      
-      for (const userRequest of userRequests) {
-        const response = await fetch(`/api/admin/user-formulations/${userRequest.id}/generated`);
-        if (response.ok) {
-          const formulas = await response.json();
-          allFormulas.push(...formulas);
+      // Convert user requests to displayable format with their form data
+      const displayFormulas = userRequests.map((req: any) => {
+        try {
+          const formData = typeof req.formData === 'string' ? JSON.parse(req.formData) : req.formData;
+          return {
+            id: req.id,
+            name: req.product_name || formData?.productName || 'Unnamed Product',
+            productType: formData?.productType || req.product_category || 'Unknown',
+            status: req.status,
+            createdAt: req.created_at,
+            formData: formData,
+            isActive: true,
+          };
+        } catch {
+          return {
+            id: req.id,
+            name: req.product_name || 'Unnamed Product',
+            productType: req.product_category || 'Unknown',
+            status: req.status,
+            createdAt: req.created_at,
+            isActive: true,
+          };
         }
-      }
+      });
       
-      // Remove duplicates by id
-      const uniqueFormulas = Array.from(new Map(allFormulas.map(f => [f.id, f])).values());
-      setUserFormulas(uniqueFormulas);
+      setUserFormulas(displayFormulas);
       setViewFormulasOpen(true);
     } catch (error) {
       console.error("Error fetching formulas:", error);
@@ -385,7 +398,11 @@ export default function AdminDashboard() {
               </DialogDescription>
             </DialogHeader>
 
-            {userFormulas.length === 0 ? (
+            {loadingFormulas ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Loading formulas...</p>
+              </div>
+            ) : userFormulas.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-gray-500">No formulas generated yet</p>
               </div>
@@ -396,7 +413,8 @@ export default function AdminDashboard() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h4 className="font-semibold text-gray-900">{formula.name}</h4>
-                        <p className="text-sm text-gray-600 mt-1">Category: {formula.categoryId ? 'Custom' : 'Generated'}</p>
+                        <p className="text-sm text-gray-600 mt-1">Type: {formula.productType}</p>
+                        <p className="text-sm text-gray-600 mt-1">Status: <Badge className="text-xs">{formula.status}</Badge></p>
                         <p className="text-sm text-gray-500 mt-1">Created: {new Date(formula.createdAt || '').toLocaleDateString()}</p>
                       </div>
                       <Badge className={formula.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
