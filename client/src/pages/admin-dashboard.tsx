@@ -45,7 +45,15 @@ export default function AdminDashboard() {
     setSelectedUser(userData);
     setLoadingFormulas(true);
     try {
-      const userRequests = generatedFormulas?.filter((req: any) => req.userId === userData.id) || [];
+      const userRequests = generatedFormulas?.filter((req: any) => {
+        try {
+          const formData = typeof req.formData === 'string' ? JSON.parse(req.formData) : req.formData;
+          return formData?.email === userData.email;
+        } catch {
+          return false;
+        }
+      }) || [];
+      
       const allFormulas: any[] = [];
       
       for (const userRequest of userRequests) {
