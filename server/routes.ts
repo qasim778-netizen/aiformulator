@@ -2193,6 +2193,7 @@ Allow: /disclaimer`;
         console.log('📝 Customer Info Received:', { name: debugName, email: debugEmail, country: debugCountry });
         
         const userRequest: any = {
+          userId: (req as any).session?.userId || null, // Store authenticated user ID
           sessionId: req.sessionID || 'anonymous',
           customerName: debugName.length > 0 ? debugName : null,
           email: debugEmail.length > 0 ? debugEmail : null,
@@ -2213,7 +2214,7 @@ Allow: /disclaimer`;
         };
 
         await storage.createUserFormulationRequest(userRequest);
-        console.log('✅ User formulation request saved for admin review');
+        console.log(`✅ User formulation request saved for admin review (userId: ${userRequest.userId})`);
       } catch (requestError) {
         console.error('Failed to save user formulation request:', requestError);
         // Continue - this is not critical to the user experience

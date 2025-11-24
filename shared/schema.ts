@@ -245,6 +245,7 @@ export type InsertChatMessage = typeof chatMessages.$inferInsert;
 // User formulation requests table - tracks user interests and custom formulation requests
 export const userFormulationRequests = pgTable("user_formulation_requests", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: uuid("user_id").references(() => users.id), // Link to authenticated user
   sessionId: varchar("session_id").notNull(), // Session ID to group requests from same user
   customerName: text("customer_name"), // Customer full name
   email: text("email"), // Customer email address
@@ -270,6 +271,7 @@ export const userFormulationRequests = pgTable("user_formulation_requests", {
   reviewedAt: timestamp("reviewed_at"), // When admin reviewed this request
   reviewedBy: varchar("reviewed_by"), // Admin who reviewed this
 }, (table) => ({
+  userIndex: index("user_requests_user_idx").on(table.userId),
   sessionIndex: index("user_requests_session_idx").on(table.sessionId),
   categoryIndex: index("user_requests_category_idx").on(table.productCategory),
   statusIndex: index("user_requests_status_idx").on(table.status),
