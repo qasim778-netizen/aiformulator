@@ -2074,7 +2074,7 @@ Allow: /disclaimer`;
           pdfPath: pdfFile.filename,
           textPath: textFile.filename,
           userId: (req as any).session?.userId || null,
-          categoryId: null, // Custom formulations don't have categories
+          categoryId: categoryId, // Always use "Custom Innovations" category for customer-generated formulas
           isActive: false // Pending approval
         });
         console.log(`✅ Formulation saved to database: ${savedFormulation.id}`);
