@@ -149,12 +149,19 @@ export default function AIFormulator() {
   });
 
   const onSubmit = (data: FormulatorData) => {
-    console.log('📤 Form submitted with data:', {
-      customerName: data.customerName,
-      email: data.email,
-      country: data.country,
-      productName: data.productName
+    console.log('📤 Form submitted with FULL data:', JSON.stringify(data, null, 2));
+    console.log('🔍 Form watch values:', {
+      customerName: form.watch('customerName'),
+      email: form.watch('email'),
+      country: form.watch('country'),
+      productName: form.watch('productName')
     });
+    console.log('🔍 Form formState:', {
+      isDirty: form.formState.isDirty,
+      isValid: form.formState.isValid,
+      errors: form.formState.errors
+    });
+    
     if (!isCaptchaVerified) {
       toast({
         title: "Captcha Required",
