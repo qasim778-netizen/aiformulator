@@ -17,9 +17,9 @@ import SignInDialog from "@/components/signin-dialog";
 import { Captcha } from "@/components/ui/captcha";
 
 const formulatorSchema = z.object({
-  customerName: z.string().default(""),
-  email: z.string().default(""),
-  country: z.string().default(""),
+  customerName: z.string().optional().default("").transform(val => val || ""),
+  email: z.string().optional().default("").transform(val => val || ""),
+  country: z.string().optional().default("").transform(val => val || ""),
   productName: z.string().min(1, "Product name is required"),
   productDescription: z.string().min(10, "Product description must be at least 10 characters"),
   productType: z.enum(["liquid", "cream", "gel", "powder", "paste", "foam"]),
@@ -216,7 +216,11 @@ export default function AIFormulator() {
                       <FormControl>
                         <Input 
                           placeholder="Your full name" 
-                          {...field} 
+                          value={field.value || ""}
+                          onChange={(e) => {
+                            field.onChange(e.target.value);
+                          }}
+                          onBlur={field.onBlur}
                           data-testid="input-customer-name"
                         />
                       </FormControl>
@@ -234,8 +238,12 @@ export default function AIFormulator() {
                       <FormControl>
                         <Input 
                           type="email"
-                          placeholder="your@email.com" 
-                          {...field} 
+                          placeholder="your@email.com"
+                          value={field.value || ""}
+                          onChange={(e) => {
+                            field.onChange(e.target.value);
+                          }}
+                          onBlur={field.onBlur}
                           data-testid="input-email"
                         />
                       </FormControl>
@@ -252,8 +260,12 @@ export default function AIFormulator() {
                       <FormLabel>Country (Optional)</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder="e.g., United States" 
-                          {...field} 
+                          placeholder="e.g., United States"
+                          value={field.value || ""}
+                          onChange={(e) => {
+                            field.onChange(e.target.value);
+                          }}
+                          onBlur={field.onBlur}
                           data-testid="input-country"
                         />
                       </FormControl>
