@@ -510,27 +510,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User formulation request not found" });
       }
 
-      // Get all formulations and filter by the request's sessionId or formulationId
+      // Get all user requests and formulations
+      const allRequests = await storage.getUserFormulationRequests();
       const allFormulations = await storage.getAllFormulations();
       
-      // Get formData to extract customer info
+      // Extract customer email from the request's formData
       const formData = (request.formData || {}) as any;
       const customerEmail = formData?.email;
       
-      // Filter formulations related to this request
-      const relatedFormulas = allFormulations.filter((f: any) => {
-        // Include the formulation linked to this request
-        if (request.formulationId && f.id === request.formulationId) {
-          return true;
+      // Find all requests from the same customer (by email)
+      const customerRequests = allRequests.filter((r: any) => {
+        try {
+          const rFormData = (r.formData || {}) as any;
+          return rFormData?.email === customerEmail;
+        } catch {
+          return false;
         }
-        // Include any formulations created in the same session
-        if (request.sessionId && f.sessionId === request.sessionId) {
-          return true;
-        }
-        return false;
       });
+      
+      // Collect all formulation IDs from all customer requests
+      const formulationIds = new Set<string>();
+      customerRequests.forEach((r: any) => {
+        if (r.formulationId) {
+          formulationIds.add(r.formulationId);
+        }
+      });
+      
+      // Get formulations matching those IDs
+      const relatedFormulas = allFormulations.filter((f: any) => formulationIds.has(f.id));
 
-      console.log(`Found ${relatedFormulas.length} formulas for request ${req.params.id} with sessionId ${request.sessionId}`);
+      console.log(`Found ${relatedFormulas.length} formulas for customer ${customerEmail} from ${customerRequests.length} requests`);
       res.json(relatedFormulas || []);
     } catch (error) {
       console.error("Error fetching generated formulas:", error);
