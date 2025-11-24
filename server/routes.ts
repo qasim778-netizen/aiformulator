@@ -2124,9 +2124,9 @@ Allow: /disclaimer`;
         inferredCategory.toLowerCase().includes(cat.name.toLowerCase().split(' ')[0])
       );
       
-      // If no matching category found, use a default category
+      // If no matching category found, use "Custom Innovations" as default
       if (!selectedCategory) {
-        selectedCategory = categories.find(cat => cat.name.includes('Construction Material')) || categories[0];
+        selectedCategory = categories.find(cat => cat.name.includes('Custom Innovations')) || categories.find(cat => cat.name.includes('Construction Material')) || categories[0];
       }
       
       const categoryId = selectedCategory?.id || categories[0]?.id;
