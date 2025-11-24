@@ -4,14 +4,18 @@ import { Card, CardContent } from '@/components/ui/card'
 import type { UserFormulationRequest } from '@shared/schema'
 
 export default function GeneratedFormulasTab() {
-  const { data: requests = [], isLoading } = useQuery<UserFormulationRequest[]>({
+  const { data: requestsData, isLoading, error } = useQuery({
     queryKey: ['/api/admin/user-formulations'],
     queryFn: async () => {
       const response = await fetch('/api/admin/user-formulations')
       if (!response.ok) throw new Error('Failed to fetch formulations')
-      return response.json()
+      const data = await response.json()
+      console.log('GeneratedFormulasTab received data:', data, 'Type:', Array.isArray(data) ? 'array' : typeof data)
+      return data
     },
   })
+  
+  const requests = Array.isArray(requestsData) ? requestsData : []
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -30,11 +34,12 @@ export default function GeneratedFormulasTab() {
     )
   }
 
-  if (requests.length === 0) {
+  if (!isLoading && requests.length === 0) {
     return (
       <Card className="bg-white rounded-lg shadow-md">
         <CardContent className="p-12 text-center">
           <p className="text-gray-500 text-lg">No customer-generated formulation requests yet</p>
+          {error && <p className="text-red-500 text-sm mt-2">{error?.message}</p>}
         </CardContent>
       </Card>
     )
@@ -60,19 +65,24 @@ export default function GeneratedFormulasTab() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {requests.map((request) => (
-              <tr key={request.id} className="hover:bg-gray-50 transition">
-                <td className="px-6 py-4 text-sm text-gray-600">{request.productName}</td>
-                <td className="px-6 py-4">
-                  <Badge className={`${getStatusColor(request.status)} border-0`}>
-                    {request.status?.charAt(0).toUpperCase() + request.status?.slice(1)}
-                  </Badge>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'N/A'}
-                </td>
-              </tr>
-            ))}
+            {requests.map((request: any) => {
+              const productName = request.productName || request.product_name || 'Unknown'
+              const status = request.status || 'pending'
+              const createdAt = request.createdAt || request.created_at
+              return (
+                <tr key={request.id} className="hover:bg-gray-50 transition">
+                  <td className="px-6 py-4 text-sm text-gray-600">{productName}</td>
+                  <td className="px-6 py-4">
+                    <Badge className={`${getStatusColor(status)} border-0`}>
+                      {status?.charAt(0).toUpperCase() + status?.slice(1)}
+                    </Badge>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {createdAt ? new Date(createdAt).toLocaleDateString() : 'N/A'}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
