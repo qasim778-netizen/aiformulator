@@ -2014,23 +2014,11 @@ Allow: /disclaimer`;
         }
       };
 
-      // Determine category for storage purposes only (doesn't constrain AI generation)
-      const inferredCategory = determineProductCategory(productType, productDescription, specialRequirements);
-      console.log(`📂 Inferred category for storage: ${inferredCategory}`);
-      
-      // Get category ID based on inferred category or use a default
+      // Always use "Custom Innovations" category for customer-generated formulations
       const categories = await storage.getCategories();
-      let selectedCategory = categories.find(cat => 
-        cat.name.toLowerCase().includes(inferredCategory.toLowerCase()) || 
-        inferredCategory.toLowerCase().includes(cat.name.toLowerCase().split(' ')[0])
-      );
-      
-      // If no matching category found, use "Custom Innovations" as default
-      if (!selectedCategory) {
-        selectedCategory = categories.find(cat => cat.name.includes('Custom Innovations')) || categories.find(cat => cat.name.includes('Construction Material')) || categories[0];
-      }
-      
-      const categoryId = selectedCategory?.id || categories[0]?.id;
+      const customInnovationsCategory = categories.find(cat => cat.name === 'Custom Innovations');
+      const categoryId = customInnovationsCategory?.id || categories[0]?.id;
+      console.log(`📂 Using "Custom Innovations" category for customer-generated formula`);
 
       // Save formulation to database with isActive: false (pending approval)
       // Add SEO fields to custom formulation  
