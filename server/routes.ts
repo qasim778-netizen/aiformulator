@@ -213,95 +213,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Forgot password endpoint
-  app.post('/api/forgot-password', async (req, res) => {
-    try {
-      const { email } = req.body;
-      console.log('[ForgotPassword] Request received for email:', email);
-      
-      if (!email) {
-        return res.status(400).json({ message: "Email is required" });
-      }
-
-      const user = await storage.getUserByEmail(email);
-      console.log('[ForgotPassword] User found:', !!user);
-      
-      if (!user) {
-        // For security, don't reveal whether email exists
-        return res.json({ message: "If email exists, reset link has been sent" });
-      }
-
-      // Generate a reset token (valid for 1 hour)
-      const resetToken = crypto.randomBytes(32).toString('hex');
-      const expiry = new Date(Date.now() + 3600000); // 1 hour from now
-
-      await storage.setPasswordResetToken(user.id, resetToken, expiry);
-      console.log('[ForgotPassword] Reset token generated and stored');
-
-      // Send reset email via SendGrid
-      try {
-        console.log('[ForgotPassword] Attempting to get SendGrid client...');
-        const { client, fromEmail } = await getSendGridClient();
-        console.log('[ForgotPassword] SendGrid client obtained, from email:', fromEmail);
-        
-        const resetLink = `${process.env.VITE_APP_URL || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
-        console.log('[ForgotPassword] Reset link:', resetLink);
-        
-        const emailPayload = {
-          to: email,
-          from: fromEmail,
-          subject: 'Reset Your Password - AI Formulator',
-          html: `
-            <h2>Password Reset Request</h2>
-            <p>We received a request to reset your password. Click the link below to set a new password:</p>
-            <p><a href="${resetLink}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a></p>
-            <p>This link expires in 1 hour.</p>
-            <p>If you didn't request this, please ignore this email.</p>
-          `
-        };
-        
-        console.log('[ForgotPassword] Sending email payload...');
-        const result = await client.send(emailPayload);
-        console.log(`[ForgotPassword] Password reset email sent successfully to ${email}`, result);
-      } catch (emailError: any) {
-        console.error("[ForgotPassword] Failed to send email:", emailError.message || emailError);
-        console.error("[ForgotPassword] Full error:", emailError);
-        // Don't fail the request if email fails - still return success for security
-      }
-
-      res.json({ message: "If email exists, reset link has been sent" });
-    } catch (error: any) {
-      console.error("[ForgotPassword] Forgot password error:", error);
-      res.status(500).json({ message: "Failed to process request" });
-    }
-  });
-
-  // Reset password endpoint
-  app.post('/api/reset-password', async (req, res) => {
-    try {
-      const { token, password } = req.body;
-      
-      if (!token || !password) {
-        return res.status(400).json({ message: "Token and password are required" });
-      }
-
-      const user = await storage.getUserByResetToken(token);
-      if (!user) {
-        return res.status(400).json({ message: "Invalid or expired reset link" });
-      }
-
-      // Hash new password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Update password and clear reset token
-      await storage.updateUserPasswordReset(user.id, hashedPassword);
-
-      res.json({ message: "Password has been reset successfully" });
-    } catch (error: any) {
-      console.error("Reset password error:", error);
-      res.status(500).json({ message: "Failed to reset password" });
-    }
-  });
+  // Password reset endpoints disabled - requires implementation in storage layer
+  // TODO: Implement setPasswordResetToken, getUserByResetToken, updateUserPasswordReset in storage
 
   // Auth routes
   app.get('/api/auth/user', async (req: any, res) => {
@@ -1518,7 +1431,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const formulation = await storage.createFormulation({
         ...formulationData,
         categoryId: finalCategoryId,
-        userId: req.session?.userId
+        userId: (req as any).session?.userId
       });
       
       res.status(201).json(formulation);
@@ -1544,7 +1457,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const formulation = await storage.createFormulation({
         ...formulationData,
         categoryId,
-        userId: req.session?.userId
+        userId: (req as any).session?.userId
       });
       
       res.status(201).json(formulation);
