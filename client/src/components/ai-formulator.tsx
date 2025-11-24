@@ -17,9 +17,9 @@ import SignInDialog from "@/components/signin-dialog";
 import { Captcha } from "@/components/ui/captcha";
 
 const formulatorSchema = z.object({
-  customerName: z.string().nullable().default(""),
-  email: z.string().nullable().default(""),
-  country: z.string().nullable().default(""),
+  customerName: z.string().default(""),
+  email: z.string().default(""),
+  country: z.string().default(""),
   productName: z.string().min(1, "Product name is required"),
   productDescription: z.string().min(10, "Product description must be at least 10 characters"),
   productType: z.enum(["liquid", "cream", "gel", "powder", "paste", "foam"]),
