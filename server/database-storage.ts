@@ -280,8 +280,12 @@ export class DatabaseStorage implements IStorage {
       .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
       .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
     
-    // Return only the base slug without category name
-    return baseSlug;
+    // Don't add -formula suffix if it already contains 'formula'
+    if (baseSlug.includes('formula')) {
+      return baseSlug;
+    }
+    
+    return baseSlug + '-formula';
   }
 
   // AI Generation tracking methods (in-memory for demo)
