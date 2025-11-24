@@ -502,6 +502,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get generated formulas for a user formulation request
+  app.get('/api/admin/user-formulations/:id/formulas', requireAdmin, async (req: any, res) => {
+    try {
+      const request = await storage.getUserFormulationRequest(req.params.id);
+      if (!request) {
+        return res.status(404).json({ message: "User formulation request not found" });
+      }
+
+      // Get all formulations
+      const allFormulations = await storage.getAllFormulations();
+      
+      // Filter formulations related to this request
+      const relatedFormulas = allFormulations.filter((f: any) => {
+        // Include the formulation linked to this request
+        if (request.formulationId && f.id === request.formulationId) {
+          return true;
+        }
+        // Include any other formulations created during the same session
+        if (request.sessionId && f.sessionId === request.sessionId) {
+          return true;
+        }
+        return false;
+      });
+
+      res.json(relatedFormulas || []);
+    } catch (error) {
+      console.error("Error fetching generated formulas:", error);
+      res.status(500).json({ message: "Failed to fetch generated formulas" });
+    }
+  });
+
   // Object Storage routes for image uploads
   app.post("/api/objects/upload", async (req, res) => {
     try {

@@ -1,17 +1,20 @@
 import { useState } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { Trash2, CheckCircle } from 'lucide-react'
+import { Trash2, CheckCircle, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast'
 import { queryClient, apiRequest } from '@/lib/queryClient'
-import type { UserFormulationRequest } from '@shared/schema'
+import type { UserFormulationRequest, Formulation } from '@shared/schema'
 
 export default function GeneratedFormulasTab() {
   const [selectedRequest, setSelectedRequest] = useState<UserFormulationRequest | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const [generatedFormulasOpen, setGeneratedFormulasOpen] = useState(false)
+  const [generatedFormulas, setGeneratedFormulas] = useState<Formulation[]>([])
+  const [loadingFormulas, setLoadingFormulas] = useState(false)
   const { toast } = useToast()
 
   const { data: requests = [], isLoading } = useQuery<UserFormulationRequest[]>({
@@ -53,6 +56,25 @@ export default function GeneratedFormulasTab() {
       case 'rejected': return 'bg-red-100 text-red-800'
       case 'pending': return 'bg-yellow-100 text-yellow-800'
       default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const handleViewGeneratedFormulas = async (request: UserFormulationRequest) => {
+    setSelectedRequest(request)
+    setLoadingFormulas(true)
+    try {
+      const response = await fetch(`/api/admin/user-formulations/${request.id}/formulas`)
+      if (response.ok) {
+        const formulas = await response.json()
+        setGeneratedFormulas(formulas)
+        setGeneratedFormulasOpen(true)
+      } else {
+        toast({ title: 'Failed to fetch generated formulas', variant: 'destructive' })
+      }
+    } catch (error) {
+      toast({ title: 'Error fetching formulas', variant: 'destructive' })
+    } finally {
+      setLoadingFormulas(false)
     }
   }
 
@@ -125,6 +147,17 @@ export default function GeneratedFormulasTab() {
                   <Button
                     variant="ghost"
                     size="sm"
+                    onClick={() => handleViewGeneratedFormulas(request)}
+                    disabled={loadingFormulas}
+                    className="text-blue-600 hover:text-blue-800"
+                    data-testid="button-view-formulas"
+                    title="View generated formulas"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => deleteRequest.mutate(request.id)}
                     disabled={deleteRequest.isPending}
                     className="text-red-600 hover:text-red-800"
@@ -138,6 +171,50 @@ export default function GeneratedFormulasTab() {
           </tbody>
         </table>
       </div>
+
+      {/* Generated Formulas Dialog */}
+      <Dialog open={generatedFormulasOpen} onOpenChange={setGeneratedFormulasOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Generated Formulas - {selectedRequest?.productName}</DialogTitle>
+            <DialogDescription>
+              Total formulas generated: {generatedFormulas.length}
+            </DialogDescription>
+          </DialogHeader>
+
+          {generatedFormulas.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">No formulas generated yet</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {generatedFormulas.map((formula, index) => (
+                <div key={formula.id} className="border rounded-lg p-4 hover:bg-gray-50 transition">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900">{index + 1}. {formula.name}</h4>
+                      <p className="text-sm text-gray-500 mt-1">ID: {formula.id}</p>
+                    </div>
+                    <Badge className={formula.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+                      {formula.isActive ? 'Active' : 'Inactive'}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={() => setGeneratedFormulasOpen(false)}
+              data-testid="button-close-formulas"
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Details Dialog */}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
