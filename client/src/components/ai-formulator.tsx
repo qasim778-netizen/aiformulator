@@ -17,9 +17,9 @@ import SignInDialog from "@/components/signin-dialog";
 import { Captcha } from "@/components/ui/captcha";
 
 const formulatorSchema = z.object({
-  customerName: z.string().optional().default("").transform(val => val || ""),
-  email: z.string().optional().default("").transform(val => val || ""),
-  country: z.string().optional().default("").transform(val => val || ""),
+  customerName: z.string().nullable().default(""),
+  email: z.string().nullable().default(""),
+  country: z.string().nullable().default(""),
   productName: z.string().min(1, "Product name is required"),
   productDescription: z.string().min(10, "Product description must be at least 10 characters"),
   productType: z.enum(["liquid", "cream", "gel", "powder", "paste", "foam"]),
@@ -216,11 +216,7 @@ export default function AIFormulator() {
                       <FormControl>
                         <Input 
                           placeholder="Your full name" 
-                          value={field.value || ""}
-                          onChange={(e) => {
-                            field.onChange(e.target.value);
-                          }}
-                          onBlur={field.onBlur}
+                          {...field}
                           data-testid="input-customer-name"
                         />
                       </FormControl>
@@ -239,11 +235,7 @@ export default function AIFormulator() {
                         <Input 
                           type="email"
                           placeholder="your@email.com"
-                          value={field.value || ""}
-                          onChange={(e) => {
-                            field.onChange(e.target.value);
-                          }}
-                          onBlur={field.onBlur}
+                          {...field}
                           data-testid="input-email"
                         />
                       </FormControl>
@@ -261,11 +253,7 @@ export default function AIFormulator() {
                       <FormControl>
                         <Input 
                           placeholder="e.g., United States"
-                          value={field.value || ""}
-                          onChange={(e) => {
-                            field.onChange(e.target.value);
-                          }}
-                          onBlur={field.onBlur}
+                          {...field}
                           data-testid="input-country"
                         />
                       </FormControl>
