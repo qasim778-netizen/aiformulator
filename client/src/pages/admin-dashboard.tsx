@@ -1,16 +1,25 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Download, Heart, FlaskConical } from "lucide-react";
+import { Users, Download, Heart, FlaskConical, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import GeneratedFormulasTab from "@/components/admin/generated-formulas-tab";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [viewFormulasOpen, setViewFormulasOpen] = useState(false);
+  const [userFormulas, setUserFormulas] = useState<any[]>([]);
+  const [loadingFormulas, setLoadingFormulas] = useState(false);
+  const { toast } = useToast();
 
   const { data: users, isLoading: loadingUsers } = useQuery<any[]>({
     queryKey: ['/api/admin/users'],
@@ -31,6 +40,31 @@ export default function AdminDashboard() {
     queryKey: ['/api/admin/user-formulations'],
     enabled: !!user?.isAdmin,
   });
+
+  const handleViewUserFormulas = async (userData: any) => {
+    setSelectedUser(userData);
+    setLoadingFormulas(true);
+    try {
+      const userRequest = generatedFormulas?.find((req: any) => req.userId === userData.id);
+      if (userRequest) {
+        const response = await fetch(`/api/admin/user-formulations/${userRequest.id}/generated`);
+        if (response.ok) {
+          const formulas = await response.json();
+          setUserFormulas(formulas);
+          setViewFormulasOpen(true);
+        } else {
+          toast({ title: 'Failed to fetch generated formulas', variant: 'destructive' });
+        }
+      } else {
+        setUserFormulas([]);
+        setViewFormulasOpen(true);
+      }
+    } catch (error) {
+      toast({ title: 'Error fetching formulas', variant: 'destructive' });
+    } finally {
+      setLoadingFormulas(false);
+    }
+  };
 
   if (!user) {
     return (
@@ -124,31 +158,45 @@ export default function AdminDashboard() {
                           <th className="text-left p-3 font-semibold">Country</th>
                           <th className="text-left p-3 font-semibold">Joined</th>
                           <th className="text-left p-3 font-semibold">Admin</th>
+                          <th className="text-left p-3 font-semibold">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {users.map((user: any, index: number) => (
+                        {users.map((userData: any, index: number) => (
                           <tr 
-                            key={user.id} 
+                            key={userData.id} 
                             className="border-b border-gray-200 hover:bg-gray-50"
                             data-testid={`row-user-${index}`}
                           >
                             <td className="p-3" data-testid={`text-user-name-${index}`}>
-                              {user.firstName && user.lastName 
-                                ? `${user.firstName} ${user.lastName}` 
-                                : user.firstName || 'N/A'}
+                              {userData.firstName && userData.lastName 
+                                ? `${userData.firstName} ${userData.lastName}` 
+                                : userData.firstName || 'N/A'}
                             </td>
                             <td className="p-3" data-testid={`text-user-email-${index}`}>
-                              {user.email}
+                              {userData.email}
                             </td>
                             <td className="p-3" data-testid={`text-user-country-${index}`}>
-                              {user.country || 'N/A'}
+                              {userData.country || 'N/A'}
                             </td>
                             <td className="p-3" data-testid={`text-user-joined-${index}`}>
-                              {user.createdAt ? format(new Date(user.createdAt), 'MMM dd, yyyy') : 'N/A'}
+                              {userData.createdAt ? format(new Date(userData.createdAt), 'MMM dd, yyyy') : 'N/A'}
                             </td>
                             <td className="p-3" data-testid={`text-user-admin-${index}`}>
-                              {user.isAdmin ? '✓' : ''}
+                              {userData.isAdmin ? '✓' : ''}
+                            </td>
+                            <td className="p-3">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleViewUserFormulas(userData)}
+                                disabled={loadingFormulas}
+                                className="text-blue-600 hover:text-blue-800"
+                                data-testid={`button-view-user-formulas-${index}`}
+                                title="View generated formulas"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
                             </td>
                           </tr>
                         ))}
@@ -316,6 +364,51 @@ export default function AdminDashboard() {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* User Formulas Dialog */}
+        <Dialog open={viewFormulasOpen} onOpenChange={setViewFormulasOpen}>
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Generated Formulas for {selectedUser?.firstName || 'User'}</DialogTitle>
+              <DialogDescription>
+                Total formulas generated: {userFormulas.length}
+              </DialogDescription>
+            </DialogHeader>
+
+            {userFormulas.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No formulas generated yet</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {userFormulas.map((formula: any) => (
+                  <div key={formula.id} className="border rounded-lg p-4 hover:bg-gray-50 transition">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900">{formula.name}</h4>
+                        <p className="text-sm text-gray-600 mt-1">Category: {formula.categoryId ? 'Custom' : 'Generated'}</p>
+                        <p className="text-sm text-gray-500 mt-1">Created: {new Date(formula.createdAt || '').toLocaleDateString()}</p>
+                      </div>
+                      <Badge className={formula.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+                        {formula.isActive ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-4 border-t">
+              <Button
+                variant="outline"
+                onClick={() => setViewFormulasOpen(false)}
+                data-testid="button-close-user-formulas"
+              >
+                Close
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
