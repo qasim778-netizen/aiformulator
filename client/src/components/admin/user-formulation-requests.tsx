@@ -157,10 +157,6 @@ export default function UserFormulationRequests() {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div>
-                        <Label className="text-sm text-gray-600">Category</Label>
-                        <p className="text-sm font-medium">{request.productCategory}</p>
-                      </div>
-                      <div>
                         <Label className="text-sm text-gray-600">Consistency Type</Label>
                         <p className="text-sm font-medium">{request.consistencyType || "Not specified"}</p>
                       </div>
