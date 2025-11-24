@@ -64,7 +64,13 @@ export default function AIFormulator() {
       // Get logo settings from localStorage
       const logoSettings = JSON.parse(localStorage.getItem('ai_formulator_logo_settings') || '{}');
       
-      const payload = { ...data, logoSettings };
+      const payload = {
+        ...data,
+        customerName: data.customerName || "",
+        email: data.email || "",
+        country: data.country || "",
+        logoSettings
+      };
       console.log('📡 Sending payload to backend:', {
         customerName: payload.customerName,
         email: payload.email,
