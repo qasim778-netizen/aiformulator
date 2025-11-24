@@ -2160,9 +2160,9 @@ Allow: /disclaimer`;
         
         const userRequest: any = {
           sessionId: req.sessionID || 'anonymous',
-          customerName: debugName || null,
-          email: debugEmail || null,
-          country: debugCountry || null,
+          customerName: debugName.length > 0 ? debugName : null,
+          email: debugEmail.length > 0 ? debugEmail : null,
+          country: debugCountry.length > 0 ? debugCountry : null,
           productName,
           productCategory: categoryName,
           consistencyType: viscosity || undefined,

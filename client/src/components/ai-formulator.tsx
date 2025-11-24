@@ -64,12 +64,20 @@ export default function AIFormulator() {
       // Get logo settings from localStorage
       const logoSettings = JSON.parse(localStorage.getItem('ai_formulator_logo_settings') || '{}');
       
+      const payload = { ...data, logoSettings };
+      console.log('📡 Sending payload to backend:', {
+        customerName: payload.customerName,
+        email: payload.email,
+        country: payload.country,
+        productName: payload.productName
+      });
+      
       const response = await fetch("/api/ai/custom-formulation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...data, logoSettings }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -135,6 +143,12 @@ export default function AIFormulator() {
   });
 
   const onSubmit = (data: FormulatorData) => {
+    console.log('📤 Form submitted with data:', {
+      customerName: data.customerName,
+      email: data.email,
+      country: data.country,
+      productName: data.productName
+    });
     if (!isCaptchaVerified) {
       toast({
         title: "Captcha Required",
