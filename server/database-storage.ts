@@ -87,7 +87,21 @@ export class DatabaseStorage implements IStorage {
         return this.mapDbFormulationToFormulation(formulation);
       }
       
-      // If no exact match, try to find by generated slug from name (with and without category)
+      // Try variations of the slug (with -formula, -formulation suffixes)
+      const slugVariations = [
+        slug,
+        slug.endsWith('-formula') ? slug : slug + '-formula',
+        slug.endsWith('-formulation') ? slug : slug + '-formulation',
+      ];
+      
+      for (const variation of slugVariations) {
+        const [result] = await db.select().from(formulationsTable).where(eq(formulationsTable.slug, variation));
+        if (result) {
+          return this.mapDbFormulationToFormulation(result);
+        }
+      }
+      
+      // If no exact match, try to find by generated slug from name
       const allFormulations = await db.select().from(formulationsTable);
       for (const f of allFormulations) {
         const generatedSlug = this.generateSlugFromName(f.name);
@@ -280,12 +294,8 @@ export class DatabaseStorage implements IStorage {
       .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
       .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
     
-    // Don't add -formula suffix if it already contains 'formula'
-    if (baseSlug.includes('formula')) {
-      return baseSlug;
-    }
-    
-    return baseSlug + '-formula';
+    // Return only the base slug without category name
+    return baseSlug;
   }
 
   // AI Generation tracking methods (in-memory for demo)
