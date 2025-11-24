@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Eye, User, Clock, ChevronRight, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { User, Clock, Eye, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -15,9 +13,6 @@ import type { UserFormulationRequest } from "@shared/schema";
 export default function UserFormulationRequests() {
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [selectedRequest, setSelectedRequest] = useState<UserFormulationRequest | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [adminNotes, setAdminNotes] = useState("");
   const { toast } = useToast();
 
   // Force cache invalidation on component mount
@@ -45,21 +40,6 @@ export default function UserFormulationRequests() {
     },
     staleTime: 0, // Always refetch
     gcTime: 0, // Don't cache
-  });
-
-  const updateStatus = useMutation({
-    mutationFn: ({ id, status, adminNotes }: { id: string; status: string; adminNotes?: string }) =>
-      apiRequest("PATCH", `/api/admin/user-formulation-requests/${id}/status`, { status, adminNotes }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/user-formulation-requests"] });
-      toast({ title: "Request status updated successfully" });
-      setDialogOpen(false);
-      setSelectedRequest(null);
-      setAdminNotes("");
-    },
-    onError: () => {
-      toast({ title: "Failed to update request status", variant: "destructive" });
-    },
   });
 
   const deleteRequest = useMutation({
@@ -97,16 +77,6 @@ export default function UserFormulationRequests() {
         </Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
-  const handleStatusUpdate = (status: string) => {
-    if (selectedRequest) {
-      updateStatus.mutate({
-        id: selectedRequest.id,
-        status,
-        adminNotes: adminNotes.trim() || undefined,
-      });
     }
   };
 
@@ -237,88 +207,16 @@ export default function UserFormulationRequests() {
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <Dialog open={dialogOpen && selectedRequest?.id === request.id} onOpenChange={(open) => {
-                      setDialogOpen(open);
-                      if (!open) {
-                        setSelectedRequest(null);
-                        setAdminNotes("");
-                      }
-                    }}>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedRequest(request);
-                            setAdminNotes(request.adminNotes || "");
-                          }}
-                          data-testid={`button-review-request-${request.id}`}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          Review
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle>Review User Formulation Request</DialogTitle>
-                          <DialogDescription>
-                            Update the status and add admin notes for this formulation request.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div>
-                            <Label className="text-base font-medium">Product Details</Label>
-                            <div className="bg-gray-50 p-4 rounded-lg mt-2 space-y-2">
-                              <p><strong>Product Name:</strong> {request.productName}</p>
-                              <p><strong>Category:</strong> {request.productCategory}</p>
-                              <p><strong>Consistency:</strong> {request.consistencyType || "Not specified"}</p>
-                              <p><strong>Viscosity:</strong> {request.viscosity || "Not specified"}</p>
-                              <p><strong>pH Level:</strong> {request.phLevel || "Not specified"}</p>
-                              <p><strong>Shelf Life:</strong> {request.shelfLife || "Not specified"}</p>
-                            </div>
-                          </div>
-
-                          <div>
-                            <Label htmlFor="admin-notes">Admin Notes</Label>
-                            <Textarea
-                              id="admin-notes"
-                              value={adminNotes}
-                              onChange={(e) => setAdminNotes(e.target.value)}
-                              placeholder="Add your review notes here..."
-                              className="mt-1"
-                              rows={4}
-                            />
-                          </div>
-
-                          <div className="flex items-center space-x-2">
-                            <Button
-                              onClick={() => handleStatusUpdate("approved")}
-                              disabled={updateStatus.isPending}
-                              className="bg-green-600 hover:bg-green-700"
-                            >
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              Approve
-                            </Button>
-                            <Button
-                              onClick={() => handleStatusUpdate("reviewed")}
-                              disabled={updateStatus.isPending}
-                              variant="outline"
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              Mark as Reviewed
-                            </Button>
-                            <Button
-                              onClick={() => handleStatusUpdate("rejected")}
-                              disabled={updateStatus.isPending}
-                              variant="destructive"
-                            >
-                              <XCircle className="h-4 w-4 mr-1" />
-                              Reject
-                            </Button>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteRequest.mutate(request.id)}
+                      disabled={deleteRequest.isPending}
+                      data-testid={`button-delete-request-${request.id}`}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <XCircle className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </CardContent>
