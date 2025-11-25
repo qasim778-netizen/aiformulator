@@ -1856,6 +1856,11 @@ Allow: /disclaimer`;
     console.log('🔥 Custom formulation endpoint hit!');
     console.log('Full request body:', JSON.stringify(req.body, null, 2));
     const startTime = Date.now();
+    
+    // Capture user ID if authenticated
+    let authenticatedUserId = (req as any).session?.userId || null;
+    console.log(`🔐 Authenticated User ID: ${authenticatedUserId || 'Not logged in'}`);
+    
     try {
       const {
         customerName,
@@ -2082,7 +2087,7 @@ Allow: /disclaimer`;
         console.log('📝 Customer Info Received:', { name: debugName, email: debugEmail, country: debugCountry });
         
         const userRequest: any = {
-          userId: (req as any).session?.userId || null, // Store authenticated user ID
+          userId: authenticatedUserId, // Store authenticated user ID (captured at line start)
           sessionId: req.sessionID || 'anonymous',
           customerName: debugName.length > 0 ? debugName : null,
           email: debugEmail.length > 0 ? debugEmail : null,
