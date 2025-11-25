@@ -182,6 +182,11 @@ export class DatabaseStorage implements IStorage {
 
   async deleteFormulation(id: string): Promise<boolean> {
     try {
+      // First delete any related user_formulation_requests (cascade delete)
+      const deleteRequestsQuery = `DELETE FROM user_formulation_requests WHERE formulation_id = $1`;
+      await sql(deleteRequestsQuery, [id]);
+      
+      // Then delete the formulation
       const query = `DELETE FROM formulations WHERE id = $1`;
       const result = await sql(query, [id]);
       return Array.isArray(result) ? result.length > 0 : (result as any).rowCount > 0;
