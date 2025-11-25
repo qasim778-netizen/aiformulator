@@ -724,7 +724,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/formulations", isAdmin, async (req, res) => {
+  app.post("/api/formulations", requireAdmin, async (req, res) => {
     try {
       const validatedData = insertFormulationSchema.parse(req.body);
       const formulation = await storage.createFormulation(validatedData);
@@ -747,7 +747,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/formulations/:id", isAdmin, async (req, res) => {
+  app.delete("/api/formulations/:id", requireAdmin, async (req, res) => {
     try {
       const success = await storage.deleteFormulation(req.params.id);
       if (!success) {
