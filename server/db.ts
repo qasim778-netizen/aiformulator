@@ -3,7 +3,7 @@ import { neon } from "@neondatabase/serverless";
 import { pgTable, text, boolean, timestamp, uuid, jsonb, integer, varchar } from "drizzle-orm/pg-core";
 
 // Database connection
-const sql = neon(process.env.DATABASE_URL!);
+export const sql = neon(process.env.DATABASE_URL!);
 export const db = drizzle(sql);
 
 // Users table

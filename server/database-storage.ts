@@ -1,5 +1,5 @@
-import { eq, desc, and, sql } from "drizzle-orm";
-import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable, formulationContentTable, sampleProductsTable, usersTable } from "./db";
+import { eq, desc, and, sql as drizzleSql } from "drizzle-orm";
+import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable, formulationContentTable, sampleProductsTable, usersTable, sql } from "./db";
 import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage, UserFormulationRequest, InsertUserFormulationRequest, FormulationContent, InsertFormulationContent, SampleProduct, InsertSampleProduct } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
 import crypto from "crypto";
@@ -893,38 +893,48 @@ export class DatabaseStorage implements IStorage {
 
   async createUserFormulationRequest(requestData: InsertUserFormulationRequest): Promise<UserFormulationRequest> {
     try {
-      // Build the insert query manually to ensure userId is included
-      const insertData: any = {
-        id: sql`gen_random_uuid()`,
-        user_id: requestData.userId || null,
-        session_id: requestData.sessionId || 'unknown-session',
-        customer_name: requestData.customerName || null,
-        email: requestData.email || null,
-        country: requestData.country || null,
-        product_name: requestData.productName,
-        product_category: requestData.productCategory,
-        consistency_type: requestData.consistencyType || null,
-        viscosity: requestData.viscosity || null,
-        ph_level: requestData.phLevel || null,
-        shelf_life: requestData.shelfLife || null,
-        special_properties: requestData.specialProperties ? JSON.stringify(requestData.specialProperties) : null,
-        budget_category: requestData.budgetCategory || null,
-        production_volume: requestData.productionVolume || null,
-        regulatory_requirements: requestData.regulatoryRequirements ? JSON.stringify(requestData.regulatoryRequirements) : null,
-        additional_notes: requestData.additionalNotes || null,
-        form_data: JSON.stringify(requestData.formData),
-        formulation_id: requestData.formulationId || null,
-        status: requestData.status || 'pending',
-        admin_notes: null,
-        ip_address: null,
-        user_agent: null,
-        created_at: sql`now()`,
-        reviewed_at: null,
-        reviewed_by: null
-      };
+      // Use Neon client directly with parameterized query to bypass Drizzle ORM
+      const sessionId = requestData.sessionId || 'unknown-session';
+      const query = `
+        INSERT INTO user_formulation_requests (
+          id, user_id, session_id, customer_name, email, country, product_name, product_category,
+          consistency_type, viscosity, ph_level, shelf_life, special_properties, budget_category,
+          production_volume, regulatory_requirements, additional_notes, form_data, formulation_id,
+          status, admin_notes, ip_address, user_agent, created_at, reviewed_at, reviewed_by
+        ) VALUES (
+          gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19,
+          null, null, null, now(), null, null
+        )
+        RETURNING *;
+      `;
       
-      const [request] = await db.insert(userFormulationRequestsTable).values(insertData).returning();
-      return request;
+      const result = await sql(query, [
+        requestData.userId || null,
+        sessionId,
+        requestData.customerName || null,
+        requestData.email || null,
+        requestData.country || null,
+        requestData.productName,
+        requestData.productCategory,
+        requestData.consistencyType || null,
+        requestData.viscosity || null,
+        requestData.phLevel || null,
+        requestData.shelfLife || null,
+        requestData.specialProperties ? JSON.stringify(requestData.specialProperties) : null,
+        requestData.budgetCategory || null,
+        requestData.productionVolume || null,
+        requestData.regulatoryRequirements ? JSON.stringify(requestData.regulatoryRequirements) : null,
+        requestData.additionalNotes || null,
+        JSON.stringify(requestData.formData),
+        requestData.formulationId || null,
+        requestData.status || 'pending'
+      ]);
+      
+      const records = result as UserFormulationRequest[];
+      if (!records || records.length === 0) {
+        throw new Error("No record returned from insert");
+      }
+      return records[0];
     } catch (error) {
       console.error("Failed to create user formulation request:", error);
       throw new Error("Failed to create user formulation request");
