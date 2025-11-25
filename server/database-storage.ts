@@ -893,7 +893,9 @@ export class DatabaseStorage implements IStorage {
 
   async createUserFormulationRequest(requestData: InsertUserFormulationRequest): Promise<UserFormulationRequest> {
     try {
+      console.log(`🗄️  INSERTING USER REQUEST:`, JSON.stringify({ userId: requestData.userId, productName: requestData.productName }, null, 2));
       const [request] = await db.insert(userFormulationRequestsTable).values(requestData).returning();
+      console.log(`🗄️  INSERTED USER REQUEST - RETURNED:`, JSON.stringify({ userId: request.userId, productName: request.productName, id: request.id }, null, 2));
       return request;
     } catch (error) {
       console.error("Failed to create user formulation request:", error);
