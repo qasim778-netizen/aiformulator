@@ -85,12 +85,17 @@ const requireAuth = (req: any, res: any, next: any) => {
 
 // Admin-only authentication middleware
 const requireAdmin = async (req: any, res: any, next: any) => {
-  if (!req.session.userId) {
+  // Support both session auth (custom login) and OAuth auth (Replit)
+  const userId = req.session?.userId || req.user?.id;
+  console.log("Admin middleware check - userId:", userId, "req.user:", req.user?.id, "req.session.userId:", req.session?.userId);
+  
+  if (!userId) {
     return res.status(401).json({ message: "Unauthorized - Please log in" });
   }
   
   try {
-    const user = await storage.getUserById(req.session.userId);
+    const user = await storage.getUserById(userId);
+    console.log("Admin middleware - user found:", !!user, "isAdmin:", user?.isAdmin);
     if (!user || !user.isAdmin) {
       return res.status(403).json({ message: "Forbidden - Admin access required" });
     }
