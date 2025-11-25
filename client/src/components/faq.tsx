@@ -94,21 +94,6 @@ export default function FAQ() {
             </div>
           ))}
         </div>
-
-        {/* CTA Section */}
-        <div className="text-center border-t border-[#E5E7EB] pt-12 sm:pt-16">
-          <p className="text-[#6B7280] text-base sm:text-lg mb-6">
-            Still have questions? We're here to help!
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
-            <button className="px-6 sm:px-8 py-3 sm:py-4 bg-[#4A90E2] text-white font-semibold rounded-lg hover:bg-[#2563eb] transition-all duration-300 shadow-md hover:shadow-lg">
-              Contact Support
-            </button>
-            <button className="px-6 sm:px-8 py-3 sm:py-4 border-2 border-[#4A90E2] text-[#4A90E2] font-semibold rounded-lg hover:bg-[#F8FBFF] transition-all duration-300">
-              Email Us
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   )
