@@ -2107,9 +2107,8 @@ Allow: /disclaimer`;
           formulationId: savedFormulation.id
         };
 
-        console.log(`📋 USER REQUEST BEFORE INSERT:`, JSON.stringify({ userId: userRequest.userId, productName: userRequest.productName, email: userRequest.email }, null, 2));
-        const savedRequest = await storage.createUserFormulationRequest(userRequest);
-        console.log(`✅ User formulation request saved for admin review (userId: ${savedRequest.userId})`);
+        await storage.createUserFormulationRequest(userRequest);
+        console.log(`✅ User formulation request saved for admin review (userId: ${userRequest.userId})`);
       } catch (requestError) {
         console.error('Failed to save user formulation request:', requestError);
         // Continue - this is not critical to the user experience
