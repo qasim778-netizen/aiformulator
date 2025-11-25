@@ -742,7 +742,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/formulations/:id", async (req, res) => {
+  app.delete("/api/formulations/:id", isAdmin, async (req, res) => {
     try {
       const success = await storage.deleteFormulation(req.params.id);
       if (!success) {
