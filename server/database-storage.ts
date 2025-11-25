@@ -181,8 +181,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteFormulation(id: string): Promise<boolean> {
-    const result = await db.delete(formulationsTable).where(eq(formulationsTable.id, id));
-    return result.rowCount > 0;
+    try {
+      const query = `DELETE FROM formulations WHERE id = $1`;
+      const result = await sql(query, [id]);
+      return Array.isArray(result) ? result.length > 0 : (result as any).rowCount > 0;
+    } catch (error) {
+      console.error('Failed to delete formulation:', error);
+      return false;
+    }
   }
 
   // Admin formulation methods
