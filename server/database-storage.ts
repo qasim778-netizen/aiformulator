@@ -188,8 +188,10 @@ export class DatabaseStorage implements IStorage {
       
       // Then delete the formulation
       const query = `DELETE FROM formulations WHERE id = $1`;
-      const result = await sql(query, [id]);
-      return Array.isArray(result) ? result.length > 0 : (result as any).rowCount > 0;
+      await sql(query, [id]);
+      
+      // If we got here, deletion succeeded (no error thrown)
+      return true;
     } catch (error) {
       console.error('Failed to delete formulation:', error);
       return false;
