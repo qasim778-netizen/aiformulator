@@ -872,9 +872,41 @@ export class DatabaseStorage implements IStorage {
   }
 
   // User Formulation Requests methods
-  async getUserFormulationRequests(): Promise<UserFormulationRequest[]> {
+  async getUserFormulationRequests(): Promise<any[]> {
     try {
-      return await db.select().from(userFormulationRequestsTable).orderBy(desc(userFormulationRequestsTable.createdAt));
+      // Use Neon client directly to join with users table and get user emails
+      const query = `
+        SELECT 
+          ufr.id,
+          ufr.user_id,
+          u.email as user_email,
+          ufr.customer_name,
+          ufr.email as customer_email,
+          ufr.country,
+          ufr.product_name,
+          ufr.product_category,
+          ufr.consistency_type,
+          ufr.viscosity,
+          ufr.ph_level,
+          ufr.shelf_life,
+          ufr.special_properties,
+          ufr.budget_category,
+          ufr.production_volume,
+          ufr.regulatory_requirements,
+          ufr.additional_notes,
+          ufr.form_data,
+          ufr.formulation_id,
+          ufr.status,
+          ufr.admin_notes,
+          ufr.created_at,
+          ufr.reviewed_at,
+          ufr.reviewed_by
+        FROM user_formulation_requests ufr
+        LEFT JOIN users u ON ufr.user_id = u.id
+        ORDER BY ufr.created_at DESC
+      `;
+      const results = await sql(query);
+      return results as any[];
     } catch (error) {
       console.log("User formulation requests table not yet available, returning empty array");
       return [];

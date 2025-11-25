@@ -59,19 +59,25 @@ export default function GeneratedFormulasTab() {
         <table className="w-full">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User Email</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {requests.map((request: any) => {
+              const userEmail = request.user_email || request.email || 'Guest'
               const productName = request.productName || request.product_name || 'Unknown'
+              const category = request.product_category || request.productCategory || 'N/A'
               const status = request.status || 'pending'
               const createdAt = request.createdAt || request.created_at
               return (
                 <tr key={request.id} className="hover:bg-gray-50 transition">
+                  <td className="px-6 py-4 text-sm text-gray-600 font-medium">{userEmail}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{productName}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{category}</td>
                   <td className="px-6 py-4">
                     <Badge className={`${getStatusColor(status)} border-0`}>
                       {status?.charAt(0).toUpperCase() + status?.slice(1)}
