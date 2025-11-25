@@ -897,7 +897,7 @@ export class DatabaseStorage implements IStorage {
       const insertData: any = {
         id: sql`gen_random_uuid()`,
         user_id: requestData.userId || null,
-        session_id: requestData.sessionId,
+        session_id: requestData.sessionId || 'unknown-session',
         customer_name: requestData.customerName || null,
         email: requestData.email || null,
         country: requestData.country || null,
