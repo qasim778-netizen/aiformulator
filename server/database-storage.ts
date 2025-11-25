@@ -894,7 +894,38 @@ export class DatabaseStorage implements IStorage {
   async createUserFormulationRequest(requestData: InsertUserFormulationRequest): Promise<UserFormulationRequest> {
     try {
       console.log(`🗄️  INSERTING USER REQUEST:`, JSON.stringify({ userId: requestData.userId, productName: requestData.productName }, null, 2));
-      const [request] = await db.insert(userFormulationRequestsTable).values(requestData).returning();
+      
+      // Build the insert query manually to ensure userId is included
+      const insertData: any = {
+        id: sql`gen_random_uuid()`,
+        user_id: requestData.userId || null,
+        session_id: requestData.sessionId,
+        customer_name: requestData.customerName || null,
+        email: requestData.email || null,
+        country: requestData.country || null,
+        product_name: requestData.productName,
+        product_category: requestData.productCategory,
+        consistency_type: requestData.consistencyType || null,
+        viscosity: requestData.viscosity || null,
+        ph_level: requestData.phLevel || null,
+        shelf_life: requestData.shelfLife || null,
+        special_properties: requestData.specialProperties ? JSON.stringify(requestData.specialProperties) : null,
+        budget_category: requestData.budgetCategory || null,
+        production_volume: requestData.productionVolume || null,
+        regulatory_requirements: requestData.regulatoryRequirements ? JSON.stringify(requestData.regulatoryRequirements) : null,
+        additional_notes: requestData.additionalNotes || null,
+        form_data: JSON.stringify(requestData.formData),
+        formulation_id: requestData.formulationId || null,
+        status: requestData.status || 'pending',
+        admin_notes: null,
+        ip_address: null,
+        user_agent: null,
+        created_at: sql`now()`,
+        reviewed_at: null,
+        reviewed_by: null
+      };
+      
+      const [request] = await db.insert(userFormulationRequestsTable).values(insertData).returning();
       console.log(`🗄️  INSERTED USER REQUEST - RETURNED:`, JSON.stringify({ userId: request.userId, productName: request.productName, id: request.id }, null, 2));
       return request;
     } catch (error) {
