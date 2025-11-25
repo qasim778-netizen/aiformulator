@@ -5,6 +5,7 @@ import AIFormulatorWizard from '@/components/ai-formulator-wizard'
 import HowItWorks from '@/components/how-it-works'
 import WhyChooseFormulator from '@/components/why-choose-formulator'
 import SampleFormulations from '@/components/sample-formulations'
+import { GlobalReachSection } from '@/components/global-reach'
 import FAQ from '@/components/faq'
 
 export default function Home() {
@@ -69,6 +70,13 @@ export default function Home() {
         {!isWizardActive && (
           <div className="mt-12 sm:mt-16 lg:mt-20">
             <SampleFormulations />
+          </div>
+        )}
+
+        {/* Global Reach Section */}
+        {!isWizardActive && (
+          <div className="mt-12 sm:mt-16 lg:mt-20">
+            <GlobalReachSection />
           </div>
         )}
 
