@@ -2869,6 +2869,111 @@ Allow: /disclaimer`;
     }
   });
 
+  // AI Page Content Generator
+  app.post("/api/admin/generate-full-page", isAdmin, async (req, res) => {
+    try {
+      const { productName, category } = req.body;
+      if (!productName || !category) {
+        return res.status(400).json({ message: "Product name and category are required" });
+      }
+
+      const { generateCategorySuggestions } = await import("./services/openai");
+      
+      const systemPrompt = `You are an expert formulation page creator for AIFormulator.
+
+Your task is to generate a complete formulation page in ONE SINGLE BLOCK of text. No splitting. No fields. No JSON. No multi-part output.
+
+RULES:
+1. Start with a short "Page Strategy" (5–7 lines).
+2. Generate the ENTIRE formulation page in this order:
+
+■ Page Strategy  
+■ Title  
+■ Entity Classification (Category, Type, Application, Industry)  
+■ Product Overview  
+■ Key Features  
+■ Applications  
+■ Technical Advantages  
+■ Ingredient Breakdown (concept only, no percentages)  
+■ Manufacturing Guide  
+■ Packaging Suggestions  
+■ Quality Control Checklist  
+■ Safety Notes  
+■ Storage Guidelines  
+■ Troubleshooting  
+■ FAQs  
+■ CTA  
+■ Internal Link (use selected category in URL)
+
+3. ALL content must be returned as ONE SINGLE TEXT BLOCK.
+
+4. Use clean professional English.
+5. No tables, no emojis, no percentages.
+6. Do not break output into fields; everything must be a continuous page.
+
+CTA Template:
+"Download the complete formulation file for the full ingredient percentages, detailed process steps, QC parameters, and manufacturing notes."`;
+
+      const userPrompt = `Generate a complete formulation page for: ${productName}
+Category: ${category}
+
+Create ONE continuous page block with all sections combined. No splitting, no JSON, just pure page content.`;
+
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ],
+          temperature: 0.2,
+          max_tokens: 3000
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`OpenAI API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const content = data.choices[0]?.message?.content || "";
+
+      res.json({ content });
+    } catch (error) {
+      console.error("Failed to generate full page:", error);
+      res.status(500).json({ message: "Failed to generate page content", error: String(error) });
+    }
+  });
+
+  // Save Formulation Page Content
+  app.post("/api/formulation-page-content", requireAuth, async (req: any, res) => {
+    try {
+      const { formulationId, content } = req.body;
+      if (!formulationId || !content) {
+        return res.status(400).json({ message: "Formulation ID and content are required" });
+      }
+
+      // For now, we'll store this in a simple data structure or log it
+      // In production, this would save to the database
+      const page = await storage.createPage({
+        formulationId,
+        title: "Formulation Page",
+        content,
+        author: req.session?.userId || req.user?.id || "admin"
+      });
+
+      res.json({ message: "Page content saved successfully", page });
+    } catch (error) {
+      console.error("Failed to save page content:", error);
+      res.status(500).json({ message: "Failed to save page content", error: String(error) });
+    }
+  });
+
   // WebSocket server for real-time chat
   // Admin Management - Grant Admin Rights
   app.post("/api/admin/grant-rights", async (req, res) => {
