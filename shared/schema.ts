@@ -53,6 +53,26 @@ export const formulations = pgTable("formulations", {
   slugIndex: index("formulation_slug_idx").on(table.slug), // Index for SEO URL lookups
 }));
 
+// Formulation Content table - admin-managed page content for each formulation
+export const formulationContent = pgTable("formulation_content", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  formulationId: uuid("formulation_id").notNull().references(() => formulations.id).unique(), // One content per formulation
+  overviewTitle: text("overview_title"),
+  overviewContent: text("overview_content"), // Rich HTML content
+  benefitsTitle: text("benefits_title"),
+  benefitsContent: text("benefits_content"), // Rich HTML content
+  applicationsTitle: text("applications_title"),
+  applicationsContent: text("applications_content"), // Rich HTML content
+  usageTitle: text("usage_title"),
+  usageContent: text("usage_content"), // Rich HTML content
+  safetyTitle: text("safety_title"),
+  safetyContent: text("safety_content"), // Rich HTML content
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+}, (table) => ({
+  formulationIndex: index("formulation_content_formulation_idx").on(table.formulationId),
+}));
+
 // Generated Formulations table - AI-generated master formulations for admin use
 export const generatedFormulations = pgTable("generated_formulations", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -83,6 +103,121 @@ export const userNotes = pgTable("user_notes", {
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
 });
 
+// Pages table for custom content
+export const pages = pgTable("pages", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  content: text("content").notNull(),
+  metaDescription: text("meta_description"),
+  keywords: text("keywords"),
+  isPublished: boolean("is_published").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+}, (table) => ({
+  slugIndex: index("pages_slug_idx").on(table.slug),
+}));
+
+// Blog posts table
+export const blogPosts = pgTable("blog_posts", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  content: text("content").notNull(),
+  excerpt: text("excerpt"),
+  author: text("author"),
+  featuredImage: text("featured_image"),
+  metaDescription: text("meta_description"),
+  keywords: text("keywords"),
+  isPublished: boolean("is_published").notNull().default(false),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+}, (table) => ({
+  slugIndex: index("blog_posts_slug_idx").on(table.slug),
+  publishedIndex: index("blog_posts_published_idx").on(table.isPublished),
+}));
+
+// User table
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: text("email").notNull().unique(),
+  password: text("password"),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  country: text("country"),
+  profileImageUrl: text("profile_image_url"),
+  isAdmin: boolean("is_admin").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+}, (table) => ({
+  emailIndex: index("users_email_idx").on(table.email),
+}));
+
+// User formulation requests table
+export const userFormulationRequests = pgTable("user_formulation_requests", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  formulationId: uuid("formulation_id").references(() => formulations.id),
+  productName: text("product_name"),
+  email: text("email"),
+  customerName: text("customer_name"),
+  productCategory: text("product_category"),
+  productDescription: text("product_description"),
+  formData: text("form_data"), // JSON string of entire form submission
+  status: text("status").notNull().default("pending"),
+  adminNotes: text("admin_notes"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewedBy: varchar("reviewed_by"),
+});
+
+// User downloads tracking
+export const userDownloads = pgTable("user_downloads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  formulationId: varchar("formulation_id").notNull(),
+  formulationName: text("formulation_name").notNull(), // Denormalized for quick access
+  categoryName: text("category_name").notNull(), // Denormalized for quick access
+  downloadedAt: timestamp("downloaded_at").notNull().default(sql`now()`),
+}, (table) => ({
+  userIndex: index("user_downloads_user_idx").on(table.userId),
+  formulationIndex: index("user_downloads_formulation_idx").on(table.formulationId),
+  downloadedAtIndex: index("user_downloads_date_idx").on(table.downloadedAt),
+}));
+
+export type UserDownload = typeof userDownloads.$inferSelect;
+
+// User favorites table - tracks user's favorite formulations
+export const userFavorites = pgTable("user_favorites", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  formulationId: varchar("formulation_id").notNull(),
+  addedAt: timestamp("added_at").notNull().default(sql`now()`),
+}, (table) => ({
+  userIndex: index("user_favorites_user_idx").on(table.userId),
+  formulationIndex: index("user_favorites_formulation_idx").on(table.formulationId),
+  uniqueFavorite: index("user_favorites_unique_idx").on(table.userId, table.formulationId),
+}));
+
+export type UserFavorite = typeof userFavorites.$inferSelect;
+
+// Sample Products table for homepage showcase
+export const sampleProducts = pgTable("sample_products", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  image: text("image").notNull(),
+  link: text("link").notNull(),
+  category: text("category").notNull().default("General"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+});
+
+// Schemas
 export const insertCategorySchema = createInsertSchema(categories).omit({
   id: true,
   createdAt: true,
@@ -124,6 +259,23 @@ export const insertFormulationSchema = createInsertSchema(formulations).omit({
   userId: true,
 });
 
+export const insertFormulationContentSchema = createInsertSchema(formulationContent).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).partial({
+  overviewTitle: true,
+  overviewContent: true,
+  benefitsTitle: true,
+  benefitsContent: true,
+  applicationsTitle: true,
+  applicationsContent: true,
+  usageTitle: true,
+  usageContent: true,
+  safetyTitle: true,
+  safetyContent: true,
+});
+
 export const insertGeneratedFormulationSchema = createInsertSchema(generatedFormulations).omit({
   id: true,
   createdAt: true,
@@ -132,7 +284,6 @@ export const insertGeneratedFormulationSchema = createInsertSchema(generatedForm
   category: true,
 });
 
-// Export insert schemas
 export const insertProductPropertiesSchema = createInsertSchema(productProperties).omit({
   id: true,
   createdAt: true,
@@ -145,19 +296,55 @@ export const insertUserNoteSchema = createInsertSchema(userNotes).omit({
   updatedAt: true,
 });
 
-// Export types
+export const insertPageSchema = createInsertSchema(pages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).partial({
+  metaDescription: true,
+  keywords: true,
+});
+
+export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).partial({
+  excerpt: true,
+  author: true,
+  featuredImage: true,
+  metaDescription: true,
+  keywords: true,
+  publishedAt: true,
+});
+
+export const insertSampleProductSchema = createInsertSchema(sampleProducts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Types
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertFormulation = z.infer<typeof insertFormulationSchema>;
 export type Formulation = typeof formulations.$inferSelect;
+export type InsertFormulationContent = z.infer<typeof insertFormulationContentSchema>;
+export type FormulationContent = typeof formulationContent.$inferSelect;
 export type InsertGeneratedFormulation = z.infer<typeof insertGeneratedFormulationSchema>;
 export type GeneratedFormulation = typeof generatedFormulations.$inferSelect;
 export type InsertProductProperties = z.infer<typeof insertProductPropertiesSchema>;
 export type ProductProperties = typeof productProperties.$inferSelect;
 export type InsertUserNote = z.infer<typeof insertUserNoteSchema>;
 export type UserNote = typeof userNotes.$inferSelect;
+export type InsertPage = z.infer<typeof insertPageSchema>;
+export type Page = typeof pages.$inferSelect;
+export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertSampleProduct = z.infer<typeof insertSampleProductSchema>;
+export type SampleProduct = typeof sampleProducts.$inferSelect;
 
-// Chat and pages schemas
+// Chat
 export type ChatMessage = {
   id: string;
   role: "user" | "assistant";
@@ -167,7 +354,7 @@ export type ChatMessage = {
 
 export type InsertChatMessage = Omit<ChatMessage, "id" | "timestamp">;
 
-// Signup/Login schemas
+// Auth schemas
 export const signupSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -194,3 +381,6 @@ export type User = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type InsertUserFormulationRequest = typeof userFormulationRequests.$inferInsert;
+export type UserFormulationRequest = typeof userFormulationRequests.$inferSelect;

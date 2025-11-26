@@ -2870,6 +2870,89 @@ Allow: /disclaimer`;
   });
 
   // WebSocket server for real-time chat
+  // Master Formulation Generator endpoints
+  app.post("/api/admin/generate-formulation", requireAdmin, async (req, res) => {
+    try {
+      const { productName, category } = req.body;
+      if (!productName?.trim()) {
+        return res.status(400).json({ message: "Product name is required" });
+      }
+
+      const systemPrompt = `You are an expert chemical formulation writer for AIFormulator.
+You generate extremely professional, structured, 100% original formulation pages.
+
+RULES:
+1. Always start with a short "Page Strategy" (5–7 lines maximum) describing entity classification, page structure, Google AI Overview alignment, keyword plan, and tone.
+2. Generate these sections in order: Title, Entity Block (Category, Type, Application, Industry), Product Overview, Key Features, Applications, Technical Advantages, Ingredient Breakdown (no percentages), Manufacturing Guide (clean, simple steps), Packaging Suggestions, Quality Control Checklist, Safety Notes, Storage Details, Troubleshooting Guide, FAQs, CTA, Internal Link.
+3. Do NOT include: Images, Tables, Emojis, Marketing hype, Repetitive wording, Percentage-based formulas.
+4. Tone Guide: Car Care → Professional Detailing, Home Care → Consumer Friendly, Cosmetics → Soft Technical, Adhesives → Industrial, Baby Care → Safety Focused.
+5. CTA Format: "Download the complete formulation file for full ingredient percentages, process details, QC parameters, and manufacturing notes."
+6. Produce clean, professional, section-based output suitable for React display.`;
+
+      const openai = new (await import('openai')).default({ apiKey: process.env.OPENAI_API_KEY });
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Generate a professional formulation page for: ${productName} (Category: ${category})` }
+        ],
+        temperature: 0.2,
+        max_tokens: 3000
+      });
+
+      const content = response.choices[0].message.content || "Failed to generate content";
+      res.json({ content });
+    } catch (error) {
+      console.error("Failed to generate formulation:", error);
+      res.status(500).json({ message: "Failed to generate formulation" });
+    }
+  });
+
+  app.post("/api/admin/save-generated-formulation", requireAdmin, async (req, res) => {
+    try {
+      const { productName, category, content } = req.body;
+      if (!productName?.trim() || !content?.trim()) {
+        return res.status(400).json({ message: "Product name and content are required" });
+      }
+
+      const userId = req.session?.userId || req.user?.id;
+      const saved = await storage.createGeneratedFormulation({
+        productName: productName.trim(),
+        category: category || "Custom Innovations",
+        content: content.trim(),
+        createdBy: userId
+      });
+
+      res.json(saved);
+    } catch (error) {
+      console.error("Failed to save formulation:", error);
+      res.status(500).json({ message: "Failed to save formulation" });
+    }
+  });
+
+  app.get("/api/admin/generated-formulations", requireAdmin, async (req, res) => {
+    try {
+      const formulations = await storage.getGeneratedFormulations();
+      res.json(formulations);
+    } catch (error) {
+      console.error("Failed to fetch formulations:", error);
+      res.status(500).json({ message: "Failed to fetch formulations" });
+    }
+  });
+
+  app.delete("/api/admin/generated-formulations/:id", requireAdmin, async (req, res) => {
+    try {
+      const success = await storage.deleteGeneratedFormulation(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Formulation not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      console.error("Failed to delete formulation:", error);
+      res.status(500).json({ message: "Failed to delete formulation" });
+    }
+  });
+
   // Admin Management - Grant Admin Rights
   app.post("/api/admin/grant-rights", async (req, res) => {
     try {

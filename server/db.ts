@@ -160,6 +160,16 @@ export const formulationContentTable = pgTable("formulation_content", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Generated Formulations table for AI-generated master formulations
+export const generatedFormulationsTable = pgTable("generated_formulations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  productName: text("product_name").notNull(),
+  category: text("category").notNull().default("Custom Innovations"),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdBy: varchar("created_by"),
+});
+
 // Sample Products table for homepage showcase
 export const sampleProductsTable = pgTable("sample_products", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -181,6 +191,7 @@ export type DbPage = typeof pagesTable.$inferSelect;
 export type DbBlogPost = typeof blogPostsTable.$inferSelect;
 export type DbUserFormulationRequest = typeof userFormulationRequestsTable.$inferSelect;
 export type DbFormulationContent = typeof formulationContentTable.$inferSelect;
+export type DbGeneratedFormulation = typeof generatedFormulationsTable.$inferSelect;
 export type DbSampleProduct = typeof sampleProductsTable.$inferSelect;
 export type DbUser = typeof usersTable.$inferSelect;
 export type InsertDbCategory = typeof categoriesTable.$inferInsert;
