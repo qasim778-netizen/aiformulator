@@ -2995,13 +2995,28 @@ Create ONE continuous page block with all sections combined. No splitting, no JS
 
       // Save formulation page content with slug generated from formulationId
       const slug = `formulation-${formulationId.substring(0, 8)}`;
-      const page = await storage.createPage({
-        slug,
-        title: "Formulation Page Content",
-        content,
-        metaDescription: "Custom formulation page content",
-        isActive: true
-      });
+      
+      // Check if page already exists
+      const existingPage = await storage.getPageBySlug(slug);
+      
+      let page;
+      if (existingPage) {
+        // Update existing page
+        page = await storage.updatePage(existingPage.id, {
+          content,
+          metaDescription: "Custom formulation page content",
+          isActive: true
+        });
+      } else {
+        // Create new page
+        page = await storage.createPage({
+          slug,
+          title: "Formulation Page Content",
+          content,
+          metaDescription: "Custom formulation page content",
+          isActive: true
+        });
+      }
 
       res.json({ message: "Page content saved successfully", page });
     } catch (error) {
