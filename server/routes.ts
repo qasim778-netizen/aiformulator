@@ -2911,22 +2911,15 @@ Allow: /disclaimer`;
         }
       }
 
-      const systemPrompt = `Create a complete formulation webpage. Output ONLY HTML markup.
+      const systemPrompt = `You will output ONLY HTML. Nothing else. No markdown. No text outside tags.
 
-Use ONLY: <h2> <p> <ul> <li> <ol> <strong> <br>
+For "${productName}" in "${categoryName}", output this exact structure with content filled in:
 
-Output exactly:
-<h2>Page Strategy</h2><p>Strategic overview text here.</p><h2>Title</h2><p>${productName}</p><h2>Entity Classification</h2><p><strong>Category:</strong> ${categoryName}<br><strong>Type:</strong> Product type<br><strong>Application:</strong> Use case<br><strong>Industry:</strong> Industry</p><h2>Product Overview</h2><p>Detailed product description.</p><h2>Key Features</h2><ul><li>Feature 1</li><li>Feature 2</li><li>Feature 3</li></ul><h2>Applications</h2><p>Where product is used.</p><h2>Technical Advantages</h2><ul><li>Advantage 1</li><li>Advantage 2</li><li>Advantage 3</li></ul><h2>Ingredient Breakdown</h2><p>Ingredient description.</p><h2>Manufacturing Guide</h2><ol><li>Step 1</li><li>Step 2</li><li>Step 3</li></ol><h2>Packaging Suggestions</h2><p>Packaging info.</p><h2>Quality Control Checklist</h2><ul><li>QC 1</li><li>QC 2</li><li>QC 3</li></ul><h2>Safety Notes</h2><p>Safety info.</p><h2>Storage Guidelines</h2><p>Storage conditions.</p><h2>Troubleshooting</h2><ul><li><strong>Issue:</strong> Problem - <strong>Fix:</strong> Solution</li></ul><h2>FAQs</h2><p><strong>Q:</strong> Question?<br><strong>A:</strong> Answer.</p><h2>Call to Action</h2><p>Download formulation file.</p><h2>Internal Link</h2><p>Visit <strong>AIFormulator.com/formulations/${categorySlug}</strong></p>
+<h2>Page Strategy</h2><p>2-3 sentences about this product's strategic value</p><h2>Title</h2><p>${productName}</p><h2>Entity Classification</h2><p><strong>Category:</strong> ${categoryName}<br><strong>Type:</strong> product type for this item<br><strong>Application:</strong> how it's used<br><strong>Industry:</strong> industry segment</p><h2>Product Overview</h2><p>2 paragraphs describing this product specifically</p><h2>Key Features</h2><ul><li>Feature specific to ${productName}</li><li>Another feature</li><li>Third feature</li></ul><h2>Applications</h2><p>1 paragraph on how this is applied</p><h2>Technical Advantages</h2><ul><li>Advantage 1</li><li>Advantage 2</li><li>Advantage 3</li></ul><h2>Ingredient Breakdown</h2><p>1 paragraph on ingredients concept</p><h2>Manufacturing Guide</h2><ol><li>Step 1</li><li>Step 2</li><li>Step 3</li></ol><h2>Packaging</h2><p>Packaging recommendations</p><h2>Quality Control</h2><ul><li>QC test 1</li><li>QC test 2</li></ul><h2>Safety</h2><p>Safety info</p><h2>Storage</h2><p>Storage conditions</p><h2>Troubleshooting</h2><ul><li><strong>Issue:</strong> Problem - <strong>Fix:</strong> Solution</li></ul><h2>FAQs</h2><p><strong>Q:</strong> Question<br><strong>A:</strong> Answer</p><h2>Call to Action</h2><p>Download full file</p>
 
-RULES:
-1. Every <h2> tag MUST be followed directly by content tag
-2. NO markdown, NO plain text outside tags
-3. NO empty lines or line breaks between tags
-4. Fill each section with relevant content for: ${productName} in ${categoryName}`;
+Output EXACTLY this structure. Replace placeholders with content. NO other text.`;
 
-      const userPrompt = `Generate HTML page for: ${productName} (Category: ${categoryName})
-
-Output ONLY HTML. No explanation. Fill each section with specific relevant content for this product.`;
+      const userPrompt = `Output HTML for: ${productName} category: ${categoryName}. Fill in each section. NO other text.`;
 
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
@@ -2940,7 +2933,7 @@ Output ONLY HTML. No explanation. Fill each section with specific relevant conte
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt }
           ],
-          temperature: 0.05,
+          temperature: 0,
           max_tokens: 3000
         })
       });
