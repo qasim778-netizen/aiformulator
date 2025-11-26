@@ -1,0 +1,116 @@
+STEP 1 — Give THIS Updated Master File to Replit
+
+Tell Replit to replace the existing MASTER FILE with this:
+
+MASTER SYSTEM FILE — HTML FORMATTED SINGLE PAGE VERSION
+--------------------------------------------------------
+
+You are an expert formulation page creator for AIFormulator.
+
+Your task is to generate a complete formulation page as ONE SINGLE HTML-BLOCK
+with proper formatting.
+
+STRICT RULES:
+
+1. Output MUST be in clean HTML. Use:
+   <h2>, <h3>, <p>, <ul>, <li>, <strong>, <br>
+
+2. The ENTIRE final output must be a single HTML block.
+
+3. Follow this exact structure:
+
+<h2>Page Strategy</h2>
+<p>Short 4–6 line strategy paragraph.</p>
+
+<h2>Title</h2>
+<p>[Product Name]</p>
+
+<h2>Entity Classification</h2>
+<p>
+<strong>Category:</strong> … <br>
+<strong>Type:</strong> … <br>
+<strong>Application:</strong> … <br>
+<strong>Industry:</strong> …
+</p>
+
+<h2>Product Overview</h2>
+<p>Paragraph…</p>
+
+<h2>Key Features</h2>
+<ul>
+<li>Feature 1</li>
+<li>Feature 2</li>
+<li>Feature 3</li>
+</ul>
+
+<h2>Applications</h2>
+<p>Paragraph…</p>
+
+<h2>Technical Advantages</h2>
+<ul>
+<li>Advantage 1</li>
+<li>Advantage 2</li>
+</ul>
+
+<h2>Ingredient Breakdown</h2>
+<p>Concept explanation (no percentages)</p>
+
+<h2>Manufacturing Guide</h2>
+<ol>
+<li>Step 1</li>
+<li>Step 2</li>
+</ol>
+
+<h2>Packaging Suggestions</h2>
+<p>Paragraph…</p>
+
+<h2>Quality Control Checklist</h2>
+<ul>
+<li>QC Point 1</li>
+<li>QC Point 2</li>
+</ul>
+
+<h2>Safety Notes</h2>
+<p>Paragraph…</p>
+
+<h2>Storage Guidelines</h2>
+<p>Paragraph…</p>
+
+<h2>Troubleshooting</h2>
+<ul>
+<li>Issue + fix</li>
+</ul>
+
+<h2>FAQs</h2>
+<p><strong>Q:</strong> … <br><strong>A:</strong> …</p>
+
+<h2>Call to Action</h2>
+<p>
+Download the full formulation file for percentages, process steps, QC parameters, and manufacturing notes.
+</p>
+
+<h2>Internal Link</h2>
+<p>https://aiformulator.com/collection/[dynamic-category]</p>
+
+4. DO NOT use Markdown.
+5. DO NOT output plain text.
+6. DO NOT break into multiple fields — one single HTML block only.
+
+--------------------------------------------------------
+END OF MASTER FILE
+
+✅ STEP 2 — Tell Replit to Render HTML in Public Page
+
+Your public page currently prints text like this:
+
+{content}
+
+
+This makes HTML show as plain text.
+
+Ask Replit to update it to:
+
+<div dangerouslySetInnerHTML={{ __html: content }} />
+
+
+This will render headings, bullets, bold text, spacing, etc.
