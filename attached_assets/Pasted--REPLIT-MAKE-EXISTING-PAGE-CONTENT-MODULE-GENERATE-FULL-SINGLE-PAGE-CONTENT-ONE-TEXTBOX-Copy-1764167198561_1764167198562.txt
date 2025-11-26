@@ -1,0 +1,212 @@
+🚀 REPLIT — MAKE EXISTING PAGE CONTENT MODULE GENERATE FULL SINGLE-PAGE CONTENT (ONE TEXTBOX)
+⭐ Copy-Paste EXACTLY as written ⭐
+🔥 PROJECT TITLE:
+
+Upgrade Existing Admin Page Content Module → Add Single-Page AI Generator
+
+📌 PURPOSE
+
+Inside my existing admin page:
+
+👉 /admin/page-content
+
+I already have:
+
+Category selector
+
+Product selector
+
+HTML content editor (single textarea for full page content)
+
+SAVE button
+
+I want to add ONE AI button that:
+
+✔ Generates the FULL formulation page in ONE SINGLE OUTPUT
+✔ Fills the ONE existing textarea
+✔ No sections, no multiple inputs, no multi-block editing
+✔ Admin simply edits + clicks SAVE
+
+This means:
+
+❌ DO NOT create new fields
+❌ DO NOT create section editors
+❌ DO NOT break page into parts
+
+✔ Only generate ONE full-page block
+✔ Place generated content inside existing HTML textarea
+
+📌 WHAT TO ADD INSIDE THE EXISTING MODULE
+
+Inside /admin/page-content, above the textarea, add this button:
+
+[Generate Full Page with AI]
+
+Button Requirements:
+
+Color: #2E8B9C
+
+Rounded-xl
+
+Full width (if mobile)
+
+Shows spinner while generating
+
+📌 BUTTON ACTION FLOW
+
+When admin clicks:
+
+1️⃣ Collect:
+
+Category (selected)
+
+Product Name (selected)
+
+2️⃣ Send to backend:
+POST /api/admin/generate-full-page
+
+
+Body:
+
+{
+  productName: "...",
+  category: "..."
+}
+
+3️⃣ Backend uses MASTER FILE
+
+→ Generates the entire page as ONE single HTML-ready block.
+
+4️⃣ Response returns:
+{ content: "<h2>Product Overview...</h2> ... (entire page block)" }
+
+5️⃣ Fill the existing textarea with the returned full page content.
+
+Admin can manually edit → then click Save (existing save button).
+
+NO new UI.
+NO new save logic.
+NO new database table.
+
+📌 BACKEND ENDPOINT (NODE)
+
+Create new API:
+
+POST /api/admin/generate-full-page
+
+
+Backend must:
+
+Use GPT-5.1
+
+Use temperature 0.2
+
+Use my MASTER SYSTEM FILE (below)
+
+Return:
+
+{ content: "FULL PAGE CONTENT IN ONE BLOCK" }
+
+
+No splitting.
+No multiple fields.
+
+📌 GENERATED FORMAT SHOULD BE: ONE BIG PAGE
+
+Single-page output example structure:
+
+Page Strategy
+
+Title
+
+Entity Block
+
+Product Overview
+
+Key Features
+
+Applications
+
+Technical Advantages
+
+Ingredient Breakdown
+
+Manufacturing Guide
+
+QC Checklist
+
+Safety Notes
+
+Storage
+
+Troubleshooting
+
+FAQs
+
+CTA
+
+Internal Link
+
+ALL inside one text block.
+
+📌 MASTER SYSTEM FILE FOR BACKEND
+
+Paste this EXACTLY into system prompt:
+
+MASTER SYSTEM FILE — SINGLE PAGE VERSION
+----------------------------------------
+
+You are an expert formulation page creator for AIFormulator.
+
+Your task is to generate a complete formulation page in ONE SINGLE BLOCK of text. No splitting. No fields. No JSON. No multi-part output.
+
+RULES:
+
+1. Start with a short “Page Strategy” (5–7 lines).
+2. Generate the ENTIRE formulation page in this order:
+
+■ Page Strategy  
+■ Title  
+■ Entity Classification (Category, Type, Application, Industry)  
+■ Product Overview  
+■ Key Features  
+■ Applications  
+■ Technical Advantages  
+■ Ingredient Breakdown (concept only, no percentages)  
+■ Manufacturing Guide  
+■ Packaging Suggestions  
+■ Quality Control Checklist  
+■ Safety Notes  
+■ Storage Guidelines  
+■ Troubleshooting  
+■ FAQs  
+■ CTA  
+■ Internal Link (use selected category in URL)
+
+3. ALL content must be returned as ONE SINGLE TEXT BLOCK.
+
+4. Use clean professional English.
+5. No tables, no emojis, no percentages.
+6. Do not break output into fields; everything must be a continuous page.
+
+CTA Template:
+“Download the complete formulation file for the full ingredient percentages, detailed process steps, QC parameters, and manufacturing notes.”
+
+----------------------------------------
+END OF MASTER FILE
+
+📌 SUMMARY FOR REPLIT DEVELOPER
+✔ Use existing module
+✔ Add 1 button
+✔ Generate full page as 1 block
+✔ Auto-fill textarea
+✔ Admin presses existing SAVE button
+✔ Done
+
+No new pages.
+No new tables.
+No multi-section fields.
+
+✅ END OF REPLIT PROMPT
+
+(This is the final requirement. Build EXACTLY as described.)

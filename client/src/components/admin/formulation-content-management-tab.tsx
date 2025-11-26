@@ -5,7 +5,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FormulationContentForm from "@/components/admin/formulation-content-form";
+import PageContentGenerator from "@/components/admin/page-content-generator";
 import type { Formulation, Category } from "@shared/schema";
 
 export default function FormulationContentManagementTab() {
@@ -104,13 +106,30 @@ export default function FormulationContentManagementTab() {
             </div>
 
             {selectedFormulation && (
-              <FormulationContentForm
-                formulationId={selectedFormulation.id}
-                formulationName={selectedFormulation.name}
-                onSuccess={() => {
-                  setSelectedFormulationId("");
-                }}
-              />
+              <Tabs defaultValue="auto-generate" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="auto-generate">Auto-Generate Full Page</TabsTrigger>
+                  <TabsTrigger value="manual-edit">Manual Edit Sections</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="auto-generate">
+                  <PageContentGenerator
+                    formulationId={selectedFormulation.id}
+                    formulationName={selectedFormulation.name}
+                    category={selectedCategory}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="manual-edit">
+                  <FormulationContentForm
+                    formulationId={selectedFormulation.id}
+                    formulationName={selectedFormulation.name}
+                    onSuccess={() => {
+                      setSelectedFormulationId("");
+                    }}
+                  />
+                </TabsContent>
+              </Tabs>
             )}
           </div>
         </CardContent>
