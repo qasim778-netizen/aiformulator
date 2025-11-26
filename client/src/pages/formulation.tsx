@@ -419,15 +419,8 @@ export default function FormulationPage() {
 
             
             
-            {/* Custom Admin-Generated Content - Show if available */}
-            {formulation?.customPageContent && (
-              <div className="prose prose-lg max-w-none mb-8 text-gray-700 leading-relaxed">
-                <div dangerouslySetInnerHTML={{ __html: formulation.customPageContent }} />
-              </div>
-            )}
-
-            {/* Technical Specifications Section - Only show if NO custom content */}
-            {!formulation?.customPageContent && (
+            {/* Technical Specifications Section */}
+            {(
             <div className="mb-8">
               <div className="bg-white border border-gray-300 rounded-sm">
                 <div className="grid grid-cols-1 lg:grid-cols-3 divide-x divide-gray-300">
@@ -507,8 +500,8 @@ export default function FormulationPage() {
             </div>
             )}
 
-            {/* Product Images & Auto-Generated Content - Only show if NO custom content */}
-            {!formulation?.customPageContent && (
+            {/* Product Images & Auto-Generated Content */}
+            {(
               <>
                 {(formulation.image || category?.name === "Cleaning Products") && (
                   <div className="mb-8">
