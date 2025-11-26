@@ -2870,7 +2870,21 @@ Allow: /disclaimer`;
   });
 
   // AI Page Content Generator
-  app.post("/api/admin/generate-full-page", isAdmin, async (req, res) => {
+  app.post("/api/admin/generate-full-page", async (req, res) => {
+    // Support both session auth (email/password) and OAuth auth
+    const userId = req.session?.userId || (req.user as any)?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized - Please log in" });
+    }
+    
+    try {
+      const user = await storage.getUserById(userId) || await storage.getUserByEmail((req.user as any)?.claims?.email);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Forbidden - Admin access required" });
+      }
+    } catch (error) {
+      console.error("Admin check error:", error);
+    }
     try {
       const { productName, category } = req.body;
       if (!productName || !category) {
