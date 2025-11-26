@@ -1979,6 +1979,11 @@ export class MemStorage implements IStorage {
     return Array.from(this.pages.values()).find(page => page.slug === slug);
   }
 
+  async getPageByFormulationId(formulationId: string): Promise<Page | undefined> {
+    const slug = `formulation-${formulationId.substring(0, 8)}`;
+    return Array.from(this.pages.values()).find(page => page.slug === slug);
+  }
+
   async createPage(pageData: InsertPage): Promise<Page> {
     const id = randomUUID();
     const page: Page = {

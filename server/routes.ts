@@ -718,7 +718,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Formulation not found" });
       }
       
-      res.json(formulation);
+      // Get custom page content if it exists
+      const pageContent = await storage.getPageByFormulationId(formulation.id);
+      
+      // Return formulation with optional page content
+      const response = {
+        ...formulation,
+        customPageContent: pageContent?.content || null
+      };
+      
+      res.json(response);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch formulation" });
     }
