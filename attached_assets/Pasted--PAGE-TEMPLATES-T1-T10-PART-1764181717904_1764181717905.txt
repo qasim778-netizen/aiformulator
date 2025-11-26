@@ -1,0 +1,268 @@
+=====================================================================
+PAGE TEMPLATES (T1–T10)
+PART 3 — FULL TEMPLATES T1 to T5
+=====================================================================
+
+IMPORTANT:
+After the Page Strategy section, insert ONE template from this list
+based on Category Mapping (T1–T10).
+After the template, insert ONE AI Overview Structure (S1–S6).
+
+Each template MUST be output in pure HTML.
+
+=====================================================================
+TEMPLATE T1 — CLASSIC TECHNICAL OVERVIEW
+=====================================================================
+
+<h2>Product Snapshot</h2>
+<p>Provide a clear and concise explanation of what the product is, its primary purpose, and the core functionality it delivers.</p>
+
+<h2>Entity Details</h2>
+<p>
+<strong>Category:</strong> [category] <br>
+<strong>Type:</strong> [product type] <br>
+<strong>Application:</strong> [usage context] <br>
+<strong>Industry:</strong> [industry segment]
+</p>
+
+<h2>What This Formulation Does</h2>
+<p>Explain the functional objective of the formulation and the results it aims to deliver in practical use.</p>
+
+<h2>Key Performance Features</h2>
+<ul>
+<li>Feature 1 describing performance.</li>
+<li>Feature 2 adding functional value.</li>
+<li>Feature 3 reinforcing advantage.</li>
+</ul>
+
+<h2>Recommended Use Areas</h2>
+<p>Describe the surfaces, materials, environments, or conditions where the product performs best.</p>
+
+<h2>How It Works</h2>
+<p>Explain the high-level scientific reasoning or functional mechanism behind the formulation.</p>
+
+<h2>Conceptual Ingredient Layout</h2>
+<p>Provide a conceptual breakdown of ingredient groups (no percentages).</p>
+
+<h2>Basic Processing Route</h2>
+<ol>
+<li>Processing step 1.</li>
+<li>Processing step 2.</li>
+<li>Processing step 3.</li>
+</ol>
+
+<h2>Quality Considerations</h2>
+<ul>
+<li>QC checkpoint 1.</li>
+<li>QC checkpoint 2.</li>
+</ul>
+
+<h2>Safety & Handling</h2>
+<p>Summarize safety handling appropriate for the product’s category.</p>
+
+<h2>Storage & Shelf Life</h2>
+<p>State suitable storage conditions and shelf stability.</p>
+
+<h2>Common Issues & Fixes</h2>
+<ul>
+<li><strong>Issue:</strong> Describe a common issue.<br><strong>Fix:</strong> Provide the corrective measure.</li>
+</ul>
+
+=====================================================================
+TEMPLATE T2 — PROBLEM–SOLUTION MODEL (CONSUMER + CLEANING FRIENDLY)
+=====================================================================
+
+<h2>The Problem</h2>
+<p>Explain the real-world problem this formulation is designed to solve.</p>
+
+<h2>Why This Problem Happens</h2>
+<p>Describe the technical or everyday reason behind the issue.</p>
+
+<h2>The Solution</h2>
+<p>Explain clearly how the formulation fixes the issue and why it works well.</p>
+
+<h2>Who Should Use This Product</h2>
+<p>Describe target users, skill level, and environment of usage.</p>
+
+<h2>Benefits at a Glance</h2>
+<ul>
+<li>Benefit 1.</li>
+<li>Benefit 2.</li>
+<li>Benefit 3.</li>
+</ul>
+
+<h2>Underlying Science</h2>
+<p>Explain the mechanism through accessible, non-technical language.</p>
+
+<h2>Functional Ingredient Groups</h2>
+<p>Describe functional ingredient families (no percentages).</p>
+
+<h2>How to Use</h2>
+<ol>
+<li>Usage step 1.</li>
+<li>Usage step 2.</li>
+<li>Usage step 3.</li>
+</ol>
+
+<h2>Compatibility</h2>
+<p>Surfaces, materials, or fabrics where the product performs well.</p>
+
+<h2>Maintenance / Re-Application</h2>
+<p>Describe how often the product should be reapplied or maintained.</p>
+
+<h2>Safety Focus</h2>
+<p>Provide category-appropriate safety tips.</p>
+
+<h2>Storage & Disposal</h2>
+<p>Describe safe storage and disposal guidelines.</p>
+
+<h2>FAQs</h2>
+<p><strong>Q:</strong> Question 1?<br><strong>A:</strong> Answer.</p>
+<p><strong>Q:</strong> Question 2?<br><strong>A:</strong> Answer.</p>
+
+=====================================================================
+TEMPLATE T3 — TECHNICAL DATA SHEET (TDS-STYLE, INDUSTRIAL)
+=====================================================================
+
+<h2>Technical Identity</h2>
+<p>
+<strong>Category:</strong> [category] <br>
+<strong>Product Type:</strong> [type] <br>
+<strong>Industry:</strong> [industry] <br>
+<strong>Application:</strong> [use case]
+</p>
+
+<h2>Product Description</h2>
+<p>Deliver a sharp technical summary outlining purpose and performance scope.</p>
+
+<h2>Key Technical Highlights</h2>
+<ul>
+<li>Highlight 1.</li>
+<li>Highlight 2.</li>
+<li>Highlight 3.</li>
+</ul>
+
+<h2>Recommended Substrates / Materials</h2>
+<p>List compatible materials or surfaces.</p>
+
+<h2>Conceptual Composition</h2>
+<p>Explain ingredient roles (solvents, binders, polymers, surfactants, etc.).</p>
+
+<h2>Processing & Application Method</h2>
+<ol>
+<li>Prepare materials and equipment.</li>
+<li>Apply according to standard technical guidance.</li>
+<li>Complete curing or finishing.</li>
+</ol>
+
+<h2>Relevant QC Parameters</h2>
+<ul>
+<li>QC parameter 1.</li>
+<li>QC parameter 2.</li>
+</ul>
+
+<h2>Performance Notes</h2>
+<p>Describe how the product performs under typical industrial conditions.</p>
+
+<h2>Health & Safety Information</h2>
+<p>Provide general safety precautions suitable for industrial environments.</p>
+
+<h2>Storage & Stability</h2>
+<p>Describe storage conditions and stability expectations.</p>
+
+<h2>Troubleshooting Guide</h2>
+<ul>
+<li><strong>Issue:</strong> Example problem.<br><strong>Fix:</strong> Recommended correction.</li>
+</ul>
+
+=====================================================================
+TEMPLATE T4 — BENEFIT-LED COSMETIC + PERSONAL CARE STYLE
+=====================================================================
+
+<h2>Why This Formulation Matters</h2>
+<p>Explain the core value this product brings to personal, cosmetic, or gentle-care users.</p>
+
+<h2>Who It Is Designed For</h2>
+<p>Describe user type and their needs (skin type, hair type, baby care requirements, pet sensitivity, etc.).</p>
+
+<h2>Core Benefits</h2>
+<ul>
+<li>Benefit 1 related to sensory feel or visible results.</li>
+<li>Benefit 2 related to comfort or soothing effect.</li>
+<li>Benefit 3 related to prolonged protection or conditioning.</li>
+</ul>
+
+<h2>How the Formula Works</h2>
+<p>Explain the mechanism of action in gentle, user-friendly language.</p>
+
+<h2>Key Functional Components</h2>
+<p>Describe main ingredient groups such as surfactants, emollients, oils, conditioners.</p>
+
+<h2>How to Use</h2>
+<ol>
+<li>Step 1.</li>
+<li>Step 2.</li>
+</ol>
+
+<h2>Routine Integration</h2>
+<p>Describe how this product fits into a daily or weekly personal care routine.</p>
+
+<h2>Dermatological / Safety Considerations</h2>
+<p>Provide mild safety recommendations and patch-test suggestions.</p>
+
+<h2>Storage & Product Care</h2>
+<p>Explain how to maintain quality and shelf stability after opening.</p>
+
+<h2>Common Questions</h2>
+<p><strong>Q:</strong> Question?<br><strong>A:</strong> Answer.</p>
+
+=====================================================================
+TEMPLATE T5 — PROCESS-FIRST MANUFACTURING TEMPLATE
+=====================================================================
+
+<h2>Process-Oriented Summary</h2>
+<p>Explain the production-focused nature of this formulation, emphasizing simplicity, stability, and scaling.</p>
+
+<h2>Intended Area of Use</h2>
+<p>Describe where the product fits in an industrial or production environment.</p>
+
+<h2>Functional Performance Targets</h2>
+<ul>
+<li>Performance target 1.</li>
+<li>Performance target 2.</li>
+<li>Performance target 3.</li>
+</ul>
+
+<h2>Conceptual Formulation Architecture</h2>
+<p>Break down formulation blocks and why they are used.</p>
+
+<h2>Manufacturing Procedure</h2>
+<ol>
+<li>Mixing sequence including charging and premixing.</li>
+<li>Heating/cooling/shear steps if required.</li>
+<li>Final adjustments and finishing.</li>
+</ol>
+
+<h2>Critical Process Controls</h2>
+<ul>
+<li>Process control 1.</li>
+<li>Process control 2.</li>
+</ul>
+
+<h2>Quality Control & Release Criteria</h2>
+<p>Describe conceptual QC checks like appearance, viscosity, stability, solids (NO numbers).</p>
+
+<h2>Safety During Production</h2>
+<p>Provide safety handling and PPE suggestions appropriate for plant environments.</p>
+
+<h2>Storage, Transport & Handling</h2>
+<p>Describe handling guidance for bulk storage or shipping.</p>
+
+<h2>Typical Issues in Production</h2>
+<ul>
+<li><strong>Issue:</strong> Common manufacturing problem.<br><strong>Fix:</strong> Provide practical correction.</li>
+</ul>
+
+=====================================================================
+*END OF PART 3 (T1–T5)*
+=====================================================================

@@ -2961,75 +2961,344 @@ Provide 5-7 sentences explaining:
 • how variation maintains uniqueness
 </p>
 
-<h2>Entity Classification</h2>
-<p>
-<strong>Category:</strong> ${categoryName}<br>
-<strong>Type:</strong> Specific product type derived from ${productName}<br>
-<strong>Application:</strong> Primary use case and application<br>
-<strong>Industry:</strong> Industry segment (consumer, industrial, professional, etc.)
-</p>
+=====================================================================
+PAGE TEMPLATE SELECTION (ONE OF T1-T10) BASED ON CATEGORY MAPPING
+=====================================================================
 
-<h2>Product Overview</h2>
-<p>Write a clear, compelling overview of ${productName}, its purpose, performance expectations, and core functional benefits. 3-5 sentences.</p>
+Category Mapping:
+- GROUP A (baby, infant, kids, child) → T2, T4, T10
+- GROUP B (skin, hair, beauty, grooming, shampoo, lotion, cream, wash) → T1, T4, T7, T10
+- GROUP C (cleaning, detergent, toilet, laundry, disinfectant, fabric, floor) → T2, T6, T7
+- GROUP D (car, auto, vehicle, tire, polish, shoe, leather) → T1, T3, T6
+- GROUP E (adhesive, sealant, epoxy, grout, tile, stone, construction, cement) → T3, T5, T8
+- GROUP F (industrial, 3d printing, filament, resin, coating, polymer, paint) → T3, T5, T9
+- GROUP G (agriculture, agro, water treatment, pest, mosquito, mite) → T2, T8, T9
+- GROUP H (pet, veterinary, dog, cat, animal) → T2, T4, T7
+- GROUP I (herbal, organic, essential oil, aromatherapy, natural) → T2, T4, T9, T10
+- GROUP J (default/other) → Any T1-T10
 
-<h2>Key Features</h2>
+Pick ONE randomly from the category group above, then INSERT it below:
+
+T1 — CLASSIC TECHNICAL OVERVIEW:
+<h2>Product Snapshot</h2>
+<p>Provide a clear and concise explanation of what ${productName} is, its primary purpose, and core functionality it delivers.</p>
+<h2>Entity Details</h2>
+<p><strong>Category:</strong> ${categoryName}<br><strong>Type:</strong> Specific product type<br><strong>Application:</strong> Usage context<br><strong>Industry:</strong> Industry segment</p>
+<h2>What This Formulation Does</h2>
+<p>Explain the functional objective and results it aims to deliver in practical use.</p>
+<h2>Key Performance Features</h2>
 <ul>
-<li>Feature 1: Specific benefit or characteristic of ${productName}</li>
-<li>Feature 2: Another key selling point</li>
-<li>Feature 3: Distinctive advantage or property</li>
+<li>Feature 1 describing performance.</li>
+<li>Feature 2 adding functional value.</li>
+<li>Feature 3 reinforcing advantage.</li>
 </ul>
-
-<h2>Applications</h2>
-<p>Explain where, when, and how ${productName} is used. Cover primary and secondary use cases in 3-5 lines.</p>
-
-<h2>Technical Advantages</h2>
-<ul>
-<li>Technical advantage 1: Specific performance metric or property</li>
-<li>Technical advantage 2: Another technical benefit</li>
-<li>Technical advantage 3: Additional technical distinction</li>
-</ul>
-
-<h2>Ingredient Breakdown</h2>
-<p>Provide a conceptual explanation of key ingredient categories, their roles, and why they matter. Do NOT include exact percentages.</p>
-
-<h2>Manufacturing Guide</h2>
+<h2>Recommended Use Areas</h2>
+<p>Describe surfaces, materials, environments where the product performs best.</p>
+<h2>How It Works</h2>
+<p>Explain the scientific reasoning or functional mechanism behind the formulation.</p>
+<h2>Conceptual Ingredient Layout</h2>
+<p>Provide conceptual breakdown of ingredient groups (no percentages).</p>
+<h2>Basic Processing Route</h2>
 <ol>
-<li>Step 1: Initial phase description</li>
-<li>Step 2: Processing phase description</li>
-<li>Step 3: Finishing or quality phase description</li>
+<li>Processing step 1.</li>
+<li>Processing step 2.</li>
+<li>Processing step 3.</li>
 </ol>
-
-<h2>Packaging Suggestions</h2>
-<p>Describe suitable packaging materials, sizes, labeling requirements, and storage format recommendations for ${productName}.</p>
-
-<h2>Quality Control Checklist</h2>
+<h2>Quality Considerations</h2>
 <ul>
-<li>QC Parameter 1: Specific measurement or test</li>
-<li>QC Parameter 2: Another quality metric</li>
-<li>QC Parameter 3: Additional quality check</li>
+<li>QC checkpoint 1.</li>
+<li>QC checkpoint 2.</li>
+</ul>
+<h2>Safety & Handling</h2>
+<p>Summarize safety handling appropriate for the product's category.</p>
+<h2>Storage & Shelf Life</h2>
+<p>State suitable storage conditions and shelf stability.</p>
+<h2>Common Issues & Fixes</h2>
+<ul>
+<li><strong>Issue:</strong> Describe a common issue.<br><strong>Fix:</strong> Provide the corrective measure.</li>
 </ul>
 
-<h2>Safety Notes</h2>
-<p>Write 3-4 lines covering safety precautions, handling instructions, first-aid notes, and any warnings relevant to ${productName}.</p>
-
-<h2>Storage Guidelines</h2>
-<p>Explain proper storage temperature, humidity, container type, shelf stability, and longevity expectations for ${productName}.</p>
-
-<h2>Troubleshooting</h2>
+T2 — PROBLEM–SOLUTION MODEL (CONSUMER + CLEANING FRIENDLY):
+<h2>The Problem</h2>
+<p>Explain the real-world problem ${productName} is designed to solve.</p>
+<h2>Why This Problem Happens</h2>
+<p>Describe the technical or everyday reason behind the issue.</p>
+<h2>The Solution</h2>
+<p>Explain clearly how the formulation fixes the issue and why it works well.</p>
+<h2>Who Should Use This Product</h2>
+<p>Describe target users, skill level, and environment of usage.</p>
+<h2>Benefits at a Glance</h2>
 <ul>
-<li><strong>Issue:</strong> Common problem description<br><strong>Fix:</strong> Solution approach</li>
-<li><strong>Issue:</strong> Another potential issue<br><strong>Fix:</strong> Resolution steps</li>
+<li>Benefit 1.</li>
+<li>Benefit 2.</li>
+<li>Benefit 3.</li>
 </ul>
-
+<h2>Underlying Science</h2>
+<p>Explain the mechanism through accessible, non-technical language.</p>
+<h2>Functional Ingredient Groups</h2>
+<p>Describe functional ingredient families (no percentages).</p>
+<h2>How to Use</h2>
+<ol>
+<li>Usage step 1.</li>
+<li>Usage step 2.</li>
+<li>Usage step 3.</li>
+</ol>
+<h2>Compatibility</h2>
+<p>Surfaces, materials, or fabrics where ${productName} performs well.</p>
+<h2>Maintenance / Re-Application</h2>
+<p>Describe how often the product should be reapplied or maintained.</p>
+<h2>Safety Focus</h2>
+<p>Provide category-appropriate safety tips.</p>
+<h2>Storage & Disposal</h2>
+<p>Describe safe storage and disposal guidelines.</p>
 <h2>FAQs</h2>
-<p>
-<strong>Q:</strong> How is ${productName} different from alternatives?<br>
-<strong>A:</strong> Answer highlighting unique selling proposition.
-</p>
-<p>
-<strong>Q:</strong> What is the recommended shelf life?<br>
-<strong>A:</strong> Specific shelf life and storage conditions.
-</p>
+<p><strong>Q:</strong> Question 1?<br><strong>A:</strong> Answer.</p>
+<p><strong>Q:</strong> Question 2?<br><strong>A:</strong> Answer.</p>
+
+T3 — TECHNICAL DATA SHEET (TDS-STYLE, INDUSTRIAL):
+<h2>Technical Identity</h2>
+<p><strong>Category:</strong> ${categoryName}<br><strong>Product Type:</strong> Specific type<br><strong>Industry:</strong> Industry segment<br><strong>Application:</strong> Use case</p>
+<h2>Product Description</h2>
+<p>Deliver a sharp technical summary outlining purpose and performance scope.</p>
+<h2>Key Technical Highlights</h2>
+<ul>
+<li>Highlight 1.</li>
+<li>Highlight 2.</li>
+<li>Highlight 3.</li>
+</ul>
+<h2>Recommended Substrates / Materials</h2>
+<p>List compatible materials or surfaces.</p>
+<h2>Conceptual Composition</h2>
+<p>Explain ingredient roles (solvents, binders, polymers, surfactants, etc.).</p>
+<h2>Processing & Application Method</h2>
+<ol>
+<li>Prepare materials and equipment.</li>
+<li>Apply according to standard technical guidance.</li>
+<li>Complete curing or finishing.</li>
+</ol>
+<h2>Relevant QC Parameters</h2>
+<ul>
+<li>QC parameter 1.</li>
+<li>QC parameter 2.</li>
+</ul>
+<h2>Performance Notes</h2>
+<p>Describe how ${productName} performs under typical industrial conditions.</p>
+<h2>Health & Safety Information</h2>
+<p>Provide general safety precautions suitable for industrial environments.</p>
+<h2>Storage & Stability</h2>
+<p>Describe storage conditions and stability expectations.</p>
+<h2>Troubleshooting Guide</h2>
+<ul>
+<li><strong>Issue:</strong> Example problem.<br><strong>Fix:</strong> Recommended correction.</li>
+</ul>
+
+T4 — BENEFIT-LED COSMETIC + PERSONAL CARE STYLE:
+<h2>Why This Formulation Matters</h2>
+<p>Explain the core value ${productName} brings to personal, cosmetic, or gentle-care users.</p>
+<h2>Who It Is Designed For</h2>
+<p>Describe user type and their needs (skin type, hair type, baby requirements, pet sensitivity, etc.).</p>
+<h2>Core Benefits</h2>
+<ul>
+<li>Benefit 1 related to sensory feel or visible results.</li>
+<li>Benefit 2 related to comfort or soothing effect.</li>
+<li>Benefit 3 related to prolonged protection or conditioning.</li>
+</ul>
+<h2>How the Formula Works</h2>
+<p>Explain the mechanism of action in gentle, user-friendly language.</p>
+<h2>Key Functional Components</h2>
+<p>Describe main ingredient groups such as surfactants, emollients, oils, conditioners.</p>
+<h2>How to Use</h2>
+<ol>
+<li>Step 1.</li>
+<li>Step 2.</li>
+</ol>
+<h2>Routine Integration</h2>
+<p>Describe how ${productName} fits into a daily or weekly personal care routine.</p>
+<h2>Dermatological / Safety Considerations</h2>
+<p>Provide mild safety recommendations and patch-test suggestions.</p>
+<h2>Storage & Product Care</h2>
+<p>Explain how to maintain quality and shelf stability after opening.</p>
+<h2>Common Questions</h2>
+<p><strong>Q:</strong> Question?<br><strong>A:</strong> Answer.</p>
+
+T5 — PROCESS-FIRST MANUFACTURING TEMPLATE:
+<h2>Process-Oriented Summary</h2>
+<p>Explain the production-focused nature of ${productName}, emphasizing simplicity, stability, and scaling.</p>
+<h2>Intended Area of Use</h2>
+<p>Describe where the product fits in an industrial or production environment.</p>
+<h2>Functional Performance Targets</h2>
+<ul>
+<li>Performance target 1.</li>
+<li>Performance target 2.</li>
+<li>Performance target 3.</li>
+</ul>
+<h2>Conceptual Formulation Architecture</h2>
+<p>Break down formulation blocks and why they are used.</p>
+<h2>Manufacturing Procedure</h2>
+<ol>
+<li>Mixing sequence including charging and premixing.</li>
+<li>Heating/cooling/shear steps if required.</li>
+<li>Final adjustments and finishing.</li>
+</ol>
+<h2>Critical Process Controls</h2>
+<ul>
+<li>Process control 1.</li>
+<li>Process control 2.</li>
+</ul>
+<h2>Quality Control & Release Criteria</h2>
+<p>Describe conceptual QC checks like appearance, viscosity, stability, solids (NO numbers).</p>
+<h2>Safety During Production</h2>
+<p>Provide safety handling and PPE suggestions appropriate for plant environments.</p>
+<h2>Storage, Transport & Handling</h2>
+<p>Describe handling guidance for bulk storage or shipping.</p>
+<h2>Typical Issues in Production</h2>
+<ul>
+<li><strong>Issue:</strong> Common manufacturing problem.<br><strong>Fix:</strong> Provide practical correction.</li>
+</ul>
+
+T6 — PERFORMANCE-FIRST DURABILITY TEMPLATE:
+<h2>Performance Promise</h2>
+<p>Describe the specific performance benchmark ${productName} is engineered to achieve.</p>
+<h2>Application Context</h2>
+<p>Define surfaces, environments, or conditions where performance is critical.</p>
+<h2>Durability & Longevity</h2>
+<ul>
+<li>Durability aspect 1.</li>
+<li>Durability aspect 2.</li>
+<li>Durability aspect 3.</li>
+</ul>
+<h2>Key Performance Metrics</h2>
+<p>Describe conceptual performance indicators (no numbers).</p>
+<h2>Testing & Verification</h2>
+<p>Explain how performance is validated.</p>
+<h2>Comparison to Alternatives</h2>
+<p>Highlight why ${productName} delivers better results than conventional options.</p>
+<h2>Application Guide</h2>
+<ol>
+<li>Preparation step.</li>
+<li>Application step.</li>
+<li>Curing or maintenance step.</li>
+</ol>
+<h2>Environmental Impact</h2>
+<p>Note sustainability or eco-friendly aspects if relevant.</p>
+<h2>Maintenance Schedule</h2>
+<p>Describe recommended maintenance intervals.</p>
+<h2>Warranty & Performance Guarantee</h2>
+<p>Outline expected performance durability range.</p>
+
+T7 — USER-EXPERIENCE (UX) FRIENDLY TEMPLATE:
+<h2>What You'll Experience</h2>
+<p>Describe the user experience with ${productName} from first use onwards.</p>
+<h2>Getting Started</h2>
+<p>Simple steps to begin using ${productName}.</p>
+<h2>Sensory Qualities</h2>
+<ul>
+<li>Texture or feel description.</li>
+<li>Scent or odor profile.</li>
+<li>Visual appearance or finish.</li>
+</ul>
+<h2>Day-to-Day Usage</h2>
+<p>Explain typical daily or routine integration.</p>
+<h2>Results Timeline</h2>
+<p>When users can expect to see or feel results.</p>
+<h2>Personalization Tips</h2>
+<ul>
+<li>Customization option 1.</li>
+<li>Customization option 2.</li>
+</ul>
+<h2>Troubleshooting User Issues</h2>
+<ul>
+<li><strong>Concern:</strong> User problem.<br><strong>Solution:</strong> Simple fix.</li>
+</ul>
+<h2>Community Insights</h2>
+<p>Share common user feedback or success stories.</p>
+<h2>Sustainability Note</h2>
+<p>Highlight eco or ethical usage aspects.</p>
+<h2>When to Reorder</h2>
+<p>Guidance on product lifecycle and replenishment.</p>
+
+T8 — REGULATORY & COMPLIANCE TEMPLATE:
+<h2>Regulatory Status</h2>
+<p>Define compliance framework for ${productName} (industry standards, regulations).</p>
+<h2>Certification & Approvals</h2>
+<p>List relevant certifications or approvals.</p>
+<h2>Safety & Compliance Notes</h2>
+<p>Highlight compliance-critical information.</p>
+<h2>Ingredient Disclosure</h2>
+<p>Conceptual ingredient categories compliant with regulations.</p>
+<h2>Usage Instructions (Regulatory Required)</h2>
+<ol>
+<li>Regulated usage step 1.</li>
+<li>Regulated usage step 2.</li>
+</ol>
+<h2>Warnings & Precautions</h2>
+<ul>
+<li>Required warning 1.</li>
+<li>Required warning 2.</li>
+</ul>
+<h2>Disposal Guidelines</h2>
+<p>Regulatory-compliant disposal instructions.</p>
+<h2>Quality Assurance</h2>
+<p>Explain testing and compliance verification methods.</p>
+<h2>Record Keeping</h2>
+<p>Recommend documentation for audit trails if applicable.</p>
+<h2>Contact & Support</h2>
+<p>Regulatory support or complaint process information.</p>
+
+T9 — INNOVATION & FUTURE-FOCUSED TEMPLATE:
+<h2>Innovation Story</h2>
+<p>Explain the breakthrough or innovation behind ${productName}.</p>
+<h2>Problem Solved</h2>
+<p>Describe what challenge this innovation addresses.</p>
+<h2>Novel Approach</h2>
+<p>Highlight what makes the formulation different or cutting-edge.</p>
+<h2>Technology or Science Behind It</h2>
+<p>Explain the scientific foundation in accessible terms.</p>
+<h2>Applications Now & Future</h2>
+<ul>
+<li>Current application 1.</li>
+<li>Emerging application 2.</li>
+<li>Future potential use.</li>
+</ul>
+<h2>Performance Advantages</h2>
+<p>List benefits from the innovation.</p>
+<h2>Scalability & Production</h2>
+<p>Explain how the innovation scales for production.</p>
+<h2>Sustainability & Impact</h2>
+<p>Describe positive environmental or social impact.</p>
+<h2>Development Pathway</h2>
+<p>Share vision for continued innovation or improvement.</p>
+<h2>Getting Access</h2>
+<p>Information on availability and adoption.</p>
+
+T10 — HOLISTIC & WELLNESS TEMPLATE:
+<h2>Wellness Philosophy</h2>
+<p>Explain the holistic approach behind ${productName}.</p>
+<h2>Ingredients with Purpose</h2>
+<p>Highlight natural, organic, or ethically sourced components.</p>
+<h2>Benefits for Mind, Body, or Home</h2>
+<ul>
+<li>Physical or sensory benefit.</li>
+<li>Emotional or psychological benefit.</li>
+<li>Environmental or lifestyle benefit.</li>
+</ul>
+<h2>How to Incorporate Into Your Routine</h2>
+<ol>
+<li>Integration step 1.</li>
+<li>Integration step 2.</li>
+</ol>
+<h2>Sourcing & Ethics</h2>
+<p>Describe sourcing philosophy and ethical considerations.</p>
+<h2>Sustainability Commitment</h2>
+<p>Explain environmental responsibility practices.</p>
+<h2>User Stories & Testimonials</h2>
+<p>Share meaningful user experiences with ${productName}.</p>
+<h2>Safety & Purity</h2>
+<p>Highlight testing, safety, and purity standards.</p>
+<h2>Long-Term Benefits</h2>
+<p>Describe cumulative wellness benefits with continued use.</p>
+<h2>Community & Connection</h2>
+<p>Invite users into a community centered around wellness.</p>
 
 =====================================================================
 AI OVERVIEW STRUCTURE SELECTION (ONE OF S1-S6)
