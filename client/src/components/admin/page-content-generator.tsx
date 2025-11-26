@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2, Save, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +22,22 @@ export default function PageContentGenerator({
 }: PageContentGeneratorProps) {
   const [content, setContent] = useState(initialContent);
   const { toast } = useToast();
+
+  // Load saved page content for this formulation
+  const { data: formulation } = useQuery({
+    queryKey: ["/api/formulations", formulationId],
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/formulations/${formulationId}`);
+      return await response.json();
+    },
+  });
+
+  // Update content when formulation's custom page content is loaded
+  useEffect(() => {
+    if (formulation?.customPageContent) {
+      setContent(formulation.customPageContent);
+    }
+  }, [formulation?.customPageContent]);
 
   const generateMutation = useMutation({
     mutationFn: async () => {
