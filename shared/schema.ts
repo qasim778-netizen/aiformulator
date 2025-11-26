@@ -53,83 +53,14 @@ export const formulations = pgTable("formulations", {
   slugIndex: index("formulation_slug_idx").on(table.slug), // Index for SEO URL lookups
 }));
 
-// Formulation Content table - admin-managed page content for each formulation
-export const formulationContent = pgTable("formulation_content", {
+// Generated Formulations table - AI-generated master formulations for admin use
+export const generatedFormulations = pgTable("generated_formulations", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  formulationId: uuid("formulation_id").notNull().references(() => formulations.id).unique(), // One content per formulation
-  overviewTitle: text("overview_title"),
-  overviewContent: text("overview_content"), // Rich HTML content
-  benefitsTitle: text("benefits_title"),
-  benefitsContent: text("benefits_content"), // Rich HTML content
-  applicationsTitle: text("applications_title"),
-  applicationsContent: text("applications_content"), // Rich HTML content
-  usageTitle: text("usage_title"),
-  usageContent: text("usage_content"), // Rich HTML content
-  safetyTitle: text("safety_title"),
-  safetyContent: text("safety_content"), // Rich HTML content
+  productName: text("product_name").notNull(),
+  category: text("category").notNull().default("Custom Innovations"),
+  content: text("content").notNull(), // Full generated formulation content
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
-  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
-}, (table) => ({
-  formulationIndex: index("formulation_content_formulation_idx").on(table.formulationId),
-}));
-
-export const insertCategorySchema = createInsertSchema(categories).omit({
-  id: true,
-  createdAt: true,
-}).partial({
-  image: true, // Make image optional for insert
-  slug: true,  // slug is auto-generated
-  seoTitle: true,
-  metaDescription: true,
-  keywords: true,
-});
-
-export const insertFormulationSchema = createInsertSchema(formulations).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-}).extend({
-  slug: z.string().optional(), // Allow manual slug editing, auto-generated if not provided
-  seoTitle: z.string().optional(),
-  metaDescription: z.string().optional(),
-  keywords: z.string().optional(),
-  image: z.string().optional(),
-  imageAlt: z.string().optional(),
-  imageFilename: z.string().optional(),
-  viscosity: z.string().optional(),
-  certification: z.string().optional(),
-}).partial({
-  // Make these fields optional for form submission
-  slug: true,
-  categoryId: true, // Allow custom formulations without category
-  viscosity: true,
-  certification: true,
-  image: true,
-  imageAlt: true,
-  imageFilename: true,
-  seoTitle: true,
-  metaDescription: true,
-  keywords: true,
-  pdfPath: true, // File paths are optional
-  textPath: true,
-  userId: true, // User ID is optional
-});
-
-export const insertFormulationContentSchema = createInsertSchema(formulationContent).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-}).partial({
-  overviewTitle: true,
-  overviewContent: true,
-  benefitsTitle: true,
-  benefitsContent: true,
-  applicationsTitle: true,
-  applicationsContent: true,
-  usageTitle: true,
-  usageContent: true,
-  safetyTitle: true,
-  safetyContent: true,
+  createdBy: varchar("created_by"), // Admin user ID who generated it
 });
 
 // Product special properties table for dynamic properties based on product type
@@ -152,6 +83,55 @@ export const userNotes = pgTable("user_notes", {
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
 });
 
+export const insertCategorySchema = createInsertSchema(categories).omit({
+  id: true,
+  createdAt: true,
+}).partial({
+  image: true,
+  slug: true,
+  seoTitle: true,
+  metaDescription: true,
+  keywords: true,
+});
+
+export const insertFormulationSchema = createInsertSchema(formulations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  slug: z.string().optional(),
+  seoTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+  keywords: z.string().optional(),
+  image: z.string().optional(),
+  imageAlt: z.string().optional(),
+  imageFilename: z.string().optional(),
+  viscosity: z.string().optional(),
+  certification: z.string().optional(),
+}).partial({
+  slug: true,
+  categoryId: true,
+  viscosity: true,
+  certification: true,
+  image: true,
+  imageAlt: true,
+  imageFilename: true,
+  seoTitle: true,
+  metaDescription: true,
+  keywords: true,
+  pdfPath: true,
+  textPath: true,
+  userId: true,
+});
+
+export const insertGeneratedFormulationSchema = createInsertSchema(generatedFormulations).omit({
+  id: true,
+  createdAt: true,
+}).partial({
+  createdBy: true,
+  category: true,
+});
+
 // Export insert schemas
 export const insertProductPropertiesSchema = createInsertSchema(productProperties).omit({
   id: true,
@@ -165,238 +145,52 @@ export const insertUserNoteSchema = createInsertSchema(userNotes).omit({
   updatedAt: true,
 });
 
+// Export types
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertFormulation = z.infer<typeof insertFormulationSchema>;
 export type Formulation = typeof formulations.$inferSelect;
-export type InsertFormulationContent = z.infer<typeof insertFormulationContentSchema>;
-export type FormulationContent = typeof formulationContent.$inferSelect;
+export type InsertGeneratedFormulation = z.infer<typeof insertGeneratedFormulationSchema>;
+export type GeneratedFormulation = typeof generatedFormulations.$inferSelect;
 export type InsertProductProperties = z.infer<typeof insertProductPropertiesSchema>;
 export type ProductProperties = typeof productProperties.$inferSelect;
 export type InsertUserNote = z.infer<typeof insertUserNoteSchema>;
 export type UserNote = typeof userNotes.$inferSelect;
 
-// Session storage table for Replit Auth
-export const sessions = pgTable(
-  "sessions",
-  {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
-    expire: timestamp("expire").notNull(),
-  },
-  (table) => [index("IDX_session_expire").on(table.expire)],
-);
+// Chat and pages schemas
+export type ChatMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: Date;
+};
 
-// User storage table for Replit Auth
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email").unique().notNull(),
-  password: varchar("password").notNull(), // Hashed password using bcrypt
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  country: varchar("country"), // User's country
-  profileImageUrl: varchar("profile_image_url"),
-  isAdmin: boolean("is_admin").notNull().default(false),
-  resetToken: varchar("reset_token"), // Password reset token
-  resetTokenExpiry: timestamp("reset_token_expiry"), // Token expiration time
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+export type InsertChatMessage = Omit<ChatMessage, "id" | "timestamp">;
 
-export type UpsertUser = typeof users.$inferInsert;
-export type User = typeof users.$inferSelect;
-
-// Signup schema for user registration
+// Signup/Login schemas
 export const signupSchema = z.object({
   email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string(),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().optional(),
-  country: z.string().min(1, "Country is required"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  firstName: z.string().optional(),
+});
+
+export const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string(),
 });
 
 export type SignupInput = z.infer<typeof signupSchema>;
-
-// Login schema
-export const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
-});
-
 export type LoginInput = z.infer<typeof loginSchema>;
 
-// Chat messages table for human farmulator chat
-export const chatMessages = pgTable("chat_messages", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  sessionId: varchar("session_id").notNull(),
-  message: text("message").notNull(),
-  senderType: varchar("sender_type").notNull(), // 'user' or 'admin'
-  senderName: varchar("sender_name"),
-  timestamp: timestamp("timestamp").defaultNow(),
-});
-
-export type ChatMessage = typeof chatMessages.$inferSelect;
-export type InsertChatMessage = typeof chatMessages.$inferInsert;
-
-// User formulation requests table - tracks user interests and custom formulation requests
-export const userFormulationRequests = pgTable("user_formulation_requests", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id), // Link to authenticated user
-  sessionId: varchar("session_id").notNull(), // Session ID to group requests from same user
-  customerName: text("customer_name"), // Customer full name
-  email: text("email"), // Customer email address
-  country: text("country"), // Customer country
-  productName: text("product_name").notNull(),
-  productCategory: text("product_category").notNull(),
-  consistencyType: text("consistency_type"),
-  viscosity: text("viscosity"),
-  phLevel: text("ph_level"),
-  shelfLife: text("shelf_life"),
-  specialProperties: jsonb("special_properties"), // Array of selected special properties
-  budgetCategory: text("budget_category"),
-  productionVolume: text("production_volume"),
-  regulatoryRequirements: jsonb("regulatory_requirements"), // Array of regulatory requirements
-  additionalNotes: text("additional_notes"),
-  formData: jsonb("form_data").notNull(), // Complete form data for reference
-  formulationId: uuid("formulation_id").references(() => formulations.id), // Link to generated formulation if created
-  status: text("status").notNull().default("pending"), // pending, reviewed, approved, rejected
-  adminNotes: text("admin_notes"), // Admin comments/notes about this request
-  ipAddress: text("ip_address"), // For analytics and spam prevention
-  userAgent: text("user_agent"), // Browser info for analytics
-  createdAt: timestamp("created_at").notNull().default(sql`now()`),
-  reviewedAt: timestamp("reviewed_at"), // When admin reviewed this request
-  reviewedBy: varchar("reviewed_by"), // Admin who reviewed this
-}, (table) => ({
-  userIndex: index("user_requests_user_idx").on(table.userId),
-  sessionIndex: index("user_requests_session_idx").on(table.sessionId),
-  categoryIndex: index("user_requests_category_idx").on(table.productCategory),
-  statusIndex: index("user_requests_status_idx").on(table.status),
-  createdAtIndex: index("user_requests_created_idx").on(table.createdAt),
-}));
-
-export const insertUserFormulationRequestSchema = createInsertSchema(userFormulationRequests).omit({
-  id: true,
-  createdAt: true,
-  reviewedAt: true,
-  reviewedBy: true,
-});
-
-export type InsertUserFormulationRequest = z.infer<typeof insertUserFormulationRequestSchema>;
-export type UserFormulationRequest = typeof userFormulationRequests.$inferSelect;
-
-// Pages content management table
-export const pages = pgTable("pages", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  slug: text("slug").notNull().unique(), // e.g., "about", "faq", "terms-of-service", "privacy-policy", "disclaimer"
-  title: text("title").notNull(),
-  content: text("content").notNull(), // HTML content
-  metaDescription: text("meta_description"),
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().default(sql`now()`),
-  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
-});
-
-export const insertPageSchema = createInsertSchema(pages).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export type InsertPage = z.infer<typeof insertPageSchema>;
-export type Page = typeof pages.$inferSelect;
-
-// Blog posts table
-export const blogPosts = pgTable("blog_posts", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  title: text("title").notNull(),
-  slug: text("slug").notNull().unique(), // SEO-friendly URL slug
-  excerpt: text("excerpt"), // Short description for preview
-  content: text("content").notNull(), // Full HTML content
-  featuredImage: text("featured_image"), // Optional featured image URL
-  metaDescription: text("meta_description"), // SEO meta description
-  keywords: text("keywords"), // SEO keywords (comma-separated)
-  authorName: text("author_name").notNull().default("AI Formulator Team"),
-  isPublished: boolean("is_published").notNull().default(false),
-  publishedAt: timestamp("published_at"),
-  createdAt: timestamp("created_at").notNull().default(sql`now()`),
-  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
-}, (table) => ({
-  slugIndex: index("blog_post_slug_idx").on(table.slug), // Index for SEO URL lookups
-  publishedIndex: index("blog_post_published_idx").on(table.isPublished, table.publishedAt),
-}));
-
-export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  publishedAt: true,
-}).extend({
-  publishedAt: z.union([z.date(), z.string(), z.null()]).transform((val) => {
-    if (val === null || val === undefined) return null;
-    if (typeof val === 'string') {
-      if (val === '') return null;
-      return new Date(val);
-    }
-    return val;
-  }).nullable().optional(),
-});
-
-export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
-export type BlogPost = typeof blogPosts.$inferSelect;
-
-// User downloads table - tracks formulation PDF downloads
-export const userDownloads = pgTable("user_downloads", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  formulationId: varchar("formulation_id").notNull(),
-  formulationName: text("formulation_name").notNull(), // Denormalized for quick access
-  categoryName: text("category_name").notNull(), // Denormalized for quick access
-  downloadedAt: timestamp("downloaded_at").notNull().default(sql`now()`),
-}, (table) => ({
-  userIndex: index("user_downloads_user_idx").on(table.userId),
-  formulationIndex: index("user_downloads_formulation_idx").on(table.formulationId),
-  downloadedAtIndex: index("user_downloads_date_idx").on(table.downloadedAt),
-}));
-
-export type UserDownload = typeof userDownloads.$inferSelect;
-
-// User favorites table - tracks user's favorite formulations
-export const userFavorites = pgTable("user_favorites", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  formulationId: varchar("formulation_id").notNull(),
-  addedAt: timestamp("added_at").notNull().default(sql`now()`),
-}, (table) => ({
-  userIndex: index("user_favorites_user_idx").on(table.userId),
-  formulationIndex: index("user_favorites_formulation_idx").on(table.formulationId),
-  // Unique constraint: a user can only favorite a formulation once
-  uniqueFavorite: index("user_favorites_unique_idx").on(table.userId, table.formulationId),
-}));
-
-export type UserFavorite = typeof userFavorites.$inferSelect;
-
-// Sample Products table for homepage showcase
-export const sampleProducts = pgTable("sample_products", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  image: text("image").notNull(),
-  link: text("link").notNull(),
-  category: text("category").notNull().default("General"),
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().default(sql`now()`),
-  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
-});
-
-export const insertSampleProductSchema = createInsertSchema(sampleProducts).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export type InsertSampleProduct = z.infer<typeof insertSampleProductSchema>;
-export type SampleProduct = typeof sampleProducts.$inferSelect;
+// User type
+export type User = {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  country?: string;
+  profileImageUrl?: string;
+  isAdmin: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};

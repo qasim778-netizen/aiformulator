@@ -1,0 +1,248 @@
+🚀 REPLIT — BUILD MASTER FORMULATION GENERATOR (REACT + NODE VERSION)
+Copy–paste EXACTLY as provided
+📌 SECTION 1 — OBJECTIVE
+
+Build a complete internal tool called:
+
+Master Formulation Generator
+
+Inside my existing AIFormulator Admin Dashboard (React frontend + Node backend).
+
+Admin enters a product name → clicks Generate → system produces a full formulation page following my MASTER FILE → admin can copy/save/export.
+
+📌 SECTION 2 — WHERE TO ADD IT
+
+Create a new admin page:
+
+👉 /admin/master-generator
+
+In the sidebar, add:
+
+Master Generator
+
+Style must match EXACTLY the existing admin (same as /admin/page-content).
+
+📌 SECTION 3 — FRONTEND UI REQUIREMENTS (REACT)
+
+Build a clean, professional React page with these sections:
+
+🔹 HEADER
+Master Formulation Generator
+
+🔹 INPUT CARD
+
+A white card with:
+
+Input box:
+Placeholder → “Enter product name…”
+
+Dropdown (optional):
+Category (Car Care, Home Care, Cosmetic, Adhesive, Industrial)
+
+Generate button:
+Color: #2E8B9C
+Full-width on mobile
+Rounded-xl
+Shadow: md
+
+🔹 LOADING STATE
+
+Show:
+
+Generating your formulation file… please wait 4–6 seconds.
+
+
+Inside a soft grey alert box.
+
+🔹 OUTPUT CARD
+
+A large card with:
+
+background: #F7F7F7
+
+rounded-xl
+
+border-left: 4px solid #2E8B9C
+
+text: dark grey
+
+padding: 24px
+
+monospace/regular readable text
+
+supports long content scroll
+
+🔹 ACTION BUTTONS UNDER OUTPUT
+
+Buttons:
+
+Copy Content (dark grey)
+
+Save Draft (primary teal #2E8B9C)
+
+Export PDF (yellow #FFB100)
+
+Spacing: 16px
+Rounded
+Shadow
+
+📌 SECTION 4 — BACKEND REQUIREMENTS (NODE.JS)
+
+Create backend endpoint:
+
+POST /api/admin/generate-formulation
+
+
+Request body:
+
+{ productName: "Car Polish Gloss Enhancer" }
+
+
+Response:
+
+{ content: "FULL FORMULATION PAGE GENERATED" }
+
+
+Use:
+
+Model: gpt-5.1
+
+Temperature: 0.2
+
+System prompt = Master System File (included below)
+
+📌 SECTION 5 — DATA STORAGE
+
+Create a database table:
+
+generated_formulations
+
+Columns:
+
+id
+
+product_name
+
+content (long text)
+
+created_at datetime
+
+Add a second admin page:
+
+➡️ Admin → Generated Formulas
+
+Columns:
+
+Product Name
+
+Date
+
+View
+
+Copy
+
+Delete
+
+📌 SECTION 6 — SECURITY
+
+Only admin roles can access
+
+Use existing admin auth system
+
+Protect backend endpoints
+
+📌 SECTION 7 — OUTPUT FORMAT
+
+The generated formulation page should be:
+
+✔ Fully readable
+✔ Section-based
+✔ HTML + plain text friendly
+✔ No Payhip formatting rules
+✔ No Payhip bullet symbols
+✔ No special characters required
+✔ Directly usable inside front-end page builder
+
+📌 SECTION 8 — OVERALL FLOW
+
+Admin opens /admin/master-generator
+
+Types product name
+
+Clicks Generate
+
+Output appears in large box
+
+Admin can:
+
+Copy content
+
+Save to database
+
+Export PDF
+
+Admin can later view all saved formulations in the “Generated Formulas” page
+
+✅ SECTION 9 — MASTER SYSTEM FILE (REACT-OPTIMIZED VERSION)
+
+Paste this into backend system prompt EXACTLY:
+
+MASTER SYSTEM FILE — REACT VERSION
+----------------------------------
+
+You are an expert chemical formulation writer for AIFormulator.
+You generate extremely professional, structured, 100% original formulation pages.
+
+RULES:
+1. Always start with a short “Page Strategy” (5–7 lines maximum) describing:
+   - Entity classification
+   - Page structure
+   - Google AI Overview alignment
+   - Keyword plan
+   - Tone
+
+2. After strategy, generate these page sections in order:
+   - Title
+   - Entity Block (Category, Type, Application, Industry)
+   - Product Overview
+   - Key Features
+   - Applications
+   - Technical Advantages
+   - Ingredient Breakdown (no percentages)
+   - Manufacturing Guide (clean, simple steps)
+   - Packaging Suggestions
+   - Quality Control Checklist
+   - Safety Notes
+   - Storage Details
+   - Troubleshooting Guide
+   - Frequently Asked Questions
+   - CTA
+   - Internal Link (example collection URL)
+
+3. Do NOT include:
+   - Images
+   - Tables
+   - Emojis
+   - Marketing hype
+   - Repetitive wording
+   - Percentage-based formulas
+
+4. Tone Guide:
+   - Car Care → Professional Detailing
+   - Home Care → Consumer Friendly
+   - Cosmetics → Soft Technical
+   - Adhesives → Industrial
+   - Baby Care → Safety Focused
+
+5. CTA Format (Always at bottom):
+   “Download the complete formulation file for full ingredient percentages, process details, QC parameters, and manufacturing notes.”
+
+6. ALWAYS produce clean, professional, section-based output suitable for React display.
+
+
+----------------------------------
+END OF MASTER SYSTEM FILE
+
+❗ END OF REPLIT PROMPT
+
+Build exactly as described.
