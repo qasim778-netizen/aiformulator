@@ -1493,7 +1493,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const formulationWithSEO = addSEOFields({
             ...formulationData,
             categoryId,
-            userId: req.session?.passport?.user?.id || (req as any).user?.id
+            userId: (req.session as any)?.passport?.user?.id || (req as any).user?.id
           }, category.name);
           
           const formulation = await storage.createFormulation(formulationWithSEO);
@@ -1573,7 +1573,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const formulationWithSEO = addSEOFields({
             ...formulationData,
             categoryId: finalCategoryId,
-            userId: req.session?.passport?.user?.id || (req as any).user?.id
+            userId: (req.session as any)?.passport?.user?.id || (req as any).user?.id
           }, categoryName);
           
           const formulation = await storage.createFormulation(formulationWithSEO);
@@ -2881,7 +2881,7 @@ Allow: /disclaimer`;
   // AI Page Content Generator
   app.post("/api/admin/generate-full-page", async (req, res) => {
     // Support both session auth (email/password) and OAuth auth
-    const userId = req.session?.userId || (req.user as any)?.id;
+    const userId = (req.session as any)?.userId || (req.user as any)?.id;
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized - Please log in" });
     }
