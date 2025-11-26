@@ -419,7 +419,17 @@ export default function FormulationPage() {
 
             
             
-            {/* Formula Content Hidden - Only Available in PDF Download */}
+            {/* Admin-Generated Page Content - Display if available */}
+            {formulation?.customPageContent && (
+              <div className="mb-8 prose prose-lg max-w-none">
+                <div 
+                  className="text-gray-700"
+                  dangerouslySetInnerHTML={{ __html: formulation.customPageContent }} 
+                />
+              </div>
+            )}
+
+            {/* Formula Details Hidden - Only Available in PDF Download */}
             <div className="mb-8">
               <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg">
                 <h2 className="text-xl font-semibold text-blue-900 mb-4">Complete Formulation Details</h2>
