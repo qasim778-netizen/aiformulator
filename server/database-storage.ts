@@ -1,5 +1,5 @@
 import { eq, desc, and, sql as drizzleSql } from "drizzle-orm";
-import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable, formulationContentTable, generatedFormulationsTable, sampleProductsTable, usersTable, sql } from "./db";
+import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable, formulationContentTable, sampleProductsTable, usersTable, sql } from "./db";
 import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage, UserFormulationRequest, InsertUserFormulationRequest, FormulationContent, InsertFormulationContent, SampleProduct, InsertSampleProduct } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
 import crypto from "crypto";
@@ -1144,49 +1144,6 @@ export class DatabaseStorage implements IStorage {
       return result.rowCount > 0;
     } catch (error) {
       console.error("Failed to delete sample product:", error);
-      return false;
-    }
-  }
-
-  // Generated Formulations CRUD
-  async getGeneratedFormulations(): Promise<any[]> {
-    try {
-      const results = await db
-        .select()
-        .from(generatedFormulationsTable)
-        .orderBy(desc(generatedFormulationsTable.createdAt));
-      return results;
-    } catch (error) {
-      console.error("Failed to fetch generated formulations:", error);
-      return [];
-    }
-  }
-
-  async createGeneratedFormulation(data: { productName: string; category: string; content: string; createdBy?: string }): Promise<any> {
-    try {
-      const [created] = await db
-        .insert(generatedFormulationsTable)
-        .values({
-          productName: data.productName,
-          category: data.category || "Custom Innovations",
-          content: data.content,
-          createdBy: data.createdBy,
-        })
-        .returning();
-      return created;
-    } catch (error) {
-      console.error("Failed to create generated formulation:", error);
-      throw error;
-    }
-  }
-
-  async deleteGeneratedFormulation(id: string): Promise<boolean> {
-    try {
-      const deleteRequestsQuery = `DELETE FROM generated_formulations WHERE id = $1`;
-      await sql(deleteRequestsQuery, [id]);
-      return true;
-    } catch (error) {
-      console.error("Failed to delete generated formulation:", error);
       return false;
     }
   }

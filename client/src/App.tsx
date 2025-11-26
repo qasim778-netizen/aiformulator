@@ -29,7 +29,6 @@ import LoginPage from "@/pages/login";
 import ForgotPasswordPage from "@/pages/forgot-password";
 import ResetPasswordPage from "@/pages/reset-password";
 import AdminDashboard from "@/pages/admin-dashboard";
-import MasterGeneratorPage from "@/pages/admin-master-generator";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 
@@ -44,7 +43,6 @@ function Router() {
       <Route path="/formulation-confirmation/:id" component={FormulationConfirmation} />
       <Route path="/admin" component={Admin} />
       <Route path="/admin/products" component={AdminProducts} />
-      <Route path="/admin/master-generator" component={MasterGeneratorPage} />
       <Route path="/admin/user-activity" component={AdminDashboard} />
       <Route path="/my-account" component={MyAccountPage} />
       <Route path="/signup" component={SignupPage} />
