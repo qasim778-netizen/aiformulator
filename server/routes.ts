@@ -2913,98 +2913,103 @@ Allow: /disclaimer`;
 
       const systemPrompt = `You are an expert formulation page creator for AIFormulator.
 
-Your task is to generate a complete formulation page as ONE SINGLE HTML-BLOCK with proper formatting.
+Your ONLY task: Generate a complete formulation page as ONE SINGLE HTML BLOCK. Nothing else. No explanation. No text outside HTML tags.
 
-STRICT RULES:
+CRITICAL RULES - FOLLOW EXACTLY:
 
-1. Output MUST be in clean HTML. Use:
-   <h2>, <h3>, <p>, <ul>, <li>, <strong>, <br>
+1. Output EVERY SECTION using these HTML tags ONLY:
+   - <h2> for section titles
+   - <p> for paragraphs
+   - <ul><li> for bullet lists
+   - <ol><li> for numbered lists
+   - <strong> for bold text
+   - <br> for line breaks
 
-2. The ENTIRE final output must be a single HTML block.
-
-3. Follow this exact structure:
+2. REQUIRED STRUCTURE (in this exact order):
 
 <h2>Page Strategy</h2>
-<p>Short 4–6 line strategy paragraph.</p>
+<p>Write 4-6 lines explaining the product's strategic position and benefits.</p>
 
 <h2>Title</h2>
 <p>${productName}</p>
 
 <h2>Entity Classification</h2>
-<p>
-<strong>Category:</strong> ${categoryName} <br>
-<strong>Type:</strong> [Specific product type] <br>
-<strong>Application:</strong> [Primary application] <br>
-<strong>Industry:</strong> [Industry segment]
-</p>
+<p><strong>Category:</strong> ${categoryName} <br><strong>Type:</strong> [Product type] <br><strong>Application:</strong> [Use case] <br><strong>Industry:</strong> [Sector]</p>
 
 <h2>Product Overview</h2>
-<p>Detailed paragraph about the product and its benefits.</p>
+<p>2-3 paragraphs describing the product, its composition, and key benefits.</p>
 
 <h2>Key Features</h2>
 <ul>
-<li>Feature 1</li>
-<li>Feature 2</li>
-<li>Feature 3</li>
+<li>Feature with brief description</li>
+<li>Feature with brief description</li>
+<li>Feature with brief description</li>
+<li>Feature with brief description</li>
 </ul>
 
 <h2>Applications</h2>
-<p>Detailed paragraph about applications.</p>
+<p>2-3 paragraphs about where and how this product is used.</p>
 
 <h2>Technical Advantages</h2>
 <ul>
-<li>Advantage 1</li>
-<li>Advantage 2</li>
+<li>Advantage 1 with explanation</li>
+<li>Advantage 2 with explanation</li>
+<li>Advantage 3 with explanation</li>
 </ul>
 
 <h2>Ingredient Breakdown</h2>
-<p>Concept explanation (no percentages).</p>
+<p>Explain the concept of key ingredients. NO PERCENTAGES. General description only.</p>
 
 <h2>Manufacturing Guide</h2>
 <ol>
-<li>Step 1</li>
-<li>Step 2</li>
-<li>Step 3</li>
+<li>First manufacturing step</li>
+<li>Second manufacturing step</li>
+<li>Third manufacturing step</li>
+<li>Fourth manufacturing step</li>
 </ol>
 
 <h2>Packaging Suggestions</h2>
-<p>Detailed paragraph about packaging recommendations.</p>
+<p>Recommended packaging types, sizes, and materials for this product.</p>
 
 <h2>Quality Control Checklist</h2>
 <ul>
-<li>QC Point 1</li>
-<li>QC Point 2</li>
+<li>QC parameter 1 - what to check</li>
+<li>QC parameter 2 - what to check</li>
+<li>QC parameter 3 - what to check</li>
 </ul>
 
 <h2>Safety Notes</h2>
-<p>Safety information and precautions.</p>
+<p>Safety information, precautions, and handling requirements.</p>
 
 <h2>Storage Guidelines</h2>
-<p>Storage conditions and shelf life information.</p>
+<p>Storage temperature, humidity, container recommendations, and shelf life information.</p>
 
 <h2>Troubleshooting</h2>
 <ul>
-<li><strong>Issue:</strong> Problem description - <strong>Fix:</strong> Solution</li>
+<li><strong>Issue:</strong> Description - <strong>Fix:</strong> Solution</li>
+<li><strong>Issue:</strong> Description - <strong>Fix:</strong> Solution</li>
 </ul>
 
 <h2>FAQs</h2>
-<p><strong>Q:</strong> Common question? <br><strong>A:</strong> Answer here.</p>
+<p><strong>Q:</strong> Common question about the product? <br><strong>A:</strong> Detailed answer to the question.</p>
 
 <h2>Call to Action</h2>
-<p>Download the full formulation file for percentages, process steps, QC parameters, and manufacturing notes.</p>
+<p>Download the full formulation file for exact ingredient percentages, detailed process steps, QC parameters, and manufacturing notes.</p>
 
 <h2>Internal Link</h2>
 <p>For more formulations in this category, visit <strong>AIFormulator.com/formulations/${categorySlug}</strong></p>
 
-4. DO NOT use Markdown.
-5. DO NOT output plain text.
-6. DO NOT break into multiple fields — one single HTML block only.
-7. Use proper HTML line breaks (<br>) and spacing for readability.`;
+ABSOLUTE REQUIREMENTS:
+- Output ONLY HTML. No markdown. No asterisks. No dashes as formatting.
+- EVERY section MUST have both <h2> heading AND content below it.
+- Use <br> for line breaks within paragraphs, NOT empty lines.
+- NO line breaks between tags unless specified.
+- Generate ALL sections above. Do not skip any.
+- One continuous HTML block, start with <h2>Page Strategy</h2> and end with </p>.`;
 
-      const userPrompt = `Generate a complete formulation page for: ${productName}
-Category: ${categoryName}
+      const userPrompt = `Generate formulation page for: "${productName}" in category "${categoryName}".
 
-Create ONE continuous page block with all sections combined. No splitting, no JSON, just pure page content.`;
+Output ONLY the HTML block. Nothing else. Start with <h2>Page Strategy</h2> and include all required sections. Use the structure provided.`;
 
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
