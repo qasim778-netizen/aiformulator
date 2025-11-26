@@ -735,6 +735,18 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async getPageByFormulationId(formulationId: string): Promise<Page | undefined> {
+    try {
+      const { pages } = await import("@shared/schema");
+      const slug = `formulation-${formulationId.substring(0, 8)}`;
+      const [page] = await db.select().from(pages).where(eq(pages.slug, slug));
+      return page;
+    } catch (error) {
+      console.log("Pages table not yet available, returning undefined");
+      return undefined;
+    }
+  }
+
   async createPage(pageData: InsertPage): Promise<Page> {
     try {
       const { pages } = await import("@shared/schema");

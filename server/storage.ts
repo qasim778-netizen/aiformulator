@@ -83,6 +83,7 @@ export interface IStorage {
   // Pages Content Management
   getPages(): Promise<Page[]>;
   getPageBySlug(slug: string): Promise<Page | undefined>;
+  getPageByFormulationId(formulationId: string): Promise<Page | undefined>;
   createPage(page: InsertPage): Promise<Page>;
   updatePage(id: string, page: Partial<InsertPage>): Promise<Page | undefined>;
   deletePage(id: string): Promise<boolean>;
