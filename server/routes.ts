@@ -1484,7 +1484,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const formulationWithSEO = addSEOFields({
             ...formulationData,
             categoryId,
-            userId: req.session?.userId
+            userId: req.session?.passport?.user?.id || (req as any).user?.id
           }, category.name);
           
           const formulation = await storage.createFormulation(formulationWithSEO);
@@ -1564,7 +1564,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const formulationWithSEO = addSEOFields({
             ...formulationData,
             categoryId: finalCategoryId,
-            userId: req.session?.userId
+            userId: req.session?.passport?.user?.id || (req as any).user?.id
           }, categoryName);
           
           const formulation = await storage.createFormulation(formulationWithSEO);
@@ -2958,13 +2958,14 @@ Create ONE continuous page block with all sections combined. No splitting, no JS
         return res.status(400).json({ message: "Formulation ID and content are required" });
       }
 
-      // For now, we'll store this in a simple data structure or log it
-      // In production, this would save to the database
+      // Save formulation page content with slug generated from formulationId
+      const slug = `formulation-${formulationId.substring(0, 8)}`;
       const page = await storage.createPage({
-        formulationId,
-        title: "Formulation Page",
+        slug,
+        title: "Formulation Page Content",
         content,
-        author: req.session?.userId || req.user?.id || "admin"
+        metaDescription: "Custom formulation page content",
+        isActive: true
       });
 
       res.json({ message: "Page content saved successfully", page });
