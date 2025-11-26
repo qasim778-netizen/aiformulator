@@ -2886,13 +2886,19 @@ Allow: /disclaimer`;
       console.error("Admin check error:", error);
     }
     try {
-      const { productName, category } = req.body;
+      let { productName, category } = req.body;
       if (!productName || !category) {
         return res.status(400).json({ message: "Product name and category are required" });
       }
 
-      const { generateCategorySuggestions } = await import("./services/openai");
-      
+      // If category is a UUID, resolve it to the category name
+      if (category.includes('-') && category.length === 36) {
+        const categoryObj = await storage.getCategory(category);
+        if (categoryObj) {
+          category = categoryObj.name;
+        }
+      }
+
       const systemPrompt = `You are an expert formulation page creator for AIFormulator.
 
 Your task is to generate a complete formulation page in ONE SINGLE BLOCK of text. No splitting. No fields. No JSON. No multi-part output.
