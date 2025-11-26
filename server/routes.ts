@@ -718,16 +718,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Formulation not found" });
       }
       
-      // Get custom page content if it exists
-      const pageContent = await storage.getPageByFormulationId(formulation.id);
-      
-      // Return formulation with optional page content
-      const response = {
-        ...formulation,
-        customPageContent: pageContent?.content || null
-      };
-      
-      res.json(response);
+      // Return formulation without page content (page content is admin-only)
+      res.json(formulation);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch formulation" });
     }
@@ -3535,8 +3527,8 @@ Output ONLY the HTML block. Nothing else. No text outside tags.`;
     }
   });
 
-  // Save Formulation Page Content
-  app.post("/api/formulation-page-content", requireAuth, async (req: any, res) => {
+  // Save Formulation Page Content (Admin only)
+  app.post("/api/formulation-page-content", requireAdmin, async (req: any, res) => {
     try {
       const { formulationId, content } = req.body;
       if (!formulationId || !content) {
