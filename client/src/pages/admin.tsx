@@ -427,6 +427,12 @@ export default function AdminPage() {
             >
               Generated Formulas
             </button>
+            <Link href="/admin/master-generator">
+              <a className={`py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors`}
+                data-testid="admin-master-generator-link">
+                🤖 Master Generator
+              </a>
+            </Link>
           </nav>
         </div>
 
