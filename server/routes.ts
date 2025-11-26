@@ -2891,11 +2891,14 @@ Allow: /disclaimer`;
         return res.status(400).json({ message: "Product name and category are required" });
       }
 
-      // If category is a UUID, resolve it to the category name
+      // If category is a UUID, resolve it to the category name and slug
+      let categoryName = category;
+      let categorySlug = "";
       if (category.includes('-') && category.length === 36) {
         const categoryObj = await storage.getCategory(category);
         if (categoryObj) {
-          category = categoryObj.name;
+          categoryName = categoryObj.name;
+          categorySlug = categoryObj.slug;
         }
       }
 
@@ -2923,7 +2926,7 @@ RULES:
 ■ Troubleshooting  
 ■ FAQs  
 ■ CTA  
-■ Internal Link (use selected category in URL)
+■ Internal Link (use category slug: ${categorySlug})
 
 3. ALL content must be returned as ONE SINGLE TEXT BLOCK.
 
@@ -2932,10 +2935,13 @@ RULES:
 6. Do not break output into fields; everything must be a continuous page.
 
 CTA Template:
-"Download the complete formulation file for the full ingredient percentages, detailed process steps, QC parameters, and manufacturing notes."`;
+"Download the complete formulation file for the full ingredient percentages, detailed process steps, QC parameters, and manufacturing notes."
+
+Internal Link Format:
+"For more formulations in this category, visit AIFormulator.com/formulations/${categorySlug}"`;
 
       const userPrompt = `Generate a complete formulation page for: ${productName}
-Category: ${category}
+Category: ${categoryName}
 
 Create ONE continuous page block with all sections combined. No splitting, no JSON, just pure page content.`;
 
