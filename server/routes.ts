@@ -2911,15 +2911,114 @@ Allow: /disclaimer`;
         }
       }
 
-      const systemPrompt = `You will output ONLY HTML. Nothing else. No markdown. No text outside tags.
+      const systemPrompt = `You are an expert formulation page creator for AIFormulator.
 
-For "${productName}" in "${categoryName}", output this exact structure with content filled in:
+Your ONLY job is to output a complete formulation page as ONE SINGLE CLEAN HTML BLOCK.
 
-<h2>Page Strategy</h2><p>2-3 sentences about this product's strategic value</p><h2>Title</h2><p>${productName}</p><h2>Entity Classification</h2><p><strong>Category:</strong> ${categoryName}<br><strong>Type:</strong> product type for this item<br><strong>Application:</strong> how it's used<br><strong>Industry:</strong> industry segment</p><h2>Product Overview</h2><p>2 paragraphs describing this product specifically</p><h2>Key Features</h2><ul><li>Feature specific to ${productName}</li><li>Another feature</li><li>Third feature</li></ul><h2>Applications</h2><p>1 paragraph on how this is applied</p><h2>Technical Advantages</h2><ul><li>Advantage 1</li><li>Advantage 2</li><li>Advantage 3</li></ul><h2>Ingredient Breakdown</h2><p>1 paragraph on ingredients concept</p><h2>Manufacturing Guide</h2><ol><li>Step 1</li><li>Step 2</li><li>Step 3</li></ol><h2>Packaging</h2><p>Packaging recommendations</p><h2>Quality Control</h2><ul><li>QC test 1</li><li>QC test 2</li></ul><h2>Safety</h2><p>Safety info</p><h2>Storage</h2><p>Storage conditions</p><h2>Troubleshooting</h2><ul><li><strong>Issue:</strong> Problem - <strong>Fix:</strong> Solution</li></ul><h2>FAQs</h2><p><strong>Q:</strong> Question<br><strong>A:</strong> Answer</p><h2>Call to Action</h2><p>Download full file</p>
+STRICT REQUIRED RULES:
 
-Output EXACTLY this structure. Replace placeholders with content. NO other text.`;
+1. ALL output must be in HTML.
+2. Use ONLY these tags: <h1>, <h2>, <h3>, <p>, <ul>, <li>, <ol>, <strong>, <br>
+3. NEVER output Markdown (##, **, etc.).
+4. NEVER output plain text formatting.
+5. NEVER split output into multiple fields.
+6. The ENTIRE page must be ONE continuous HTML block.
 
-      const userPrompt = `Output HTML for: ${productName} category: ${categoryName}. Fill in each section. NO other text.`;
+PAGE STRUCTURE (generate exactly in this order):
+
+<h1>${productName}</h1>
+
+<h2>Page Strategy</h2>
+<p>Write 4-6 lines explaining the page approach, entity setup, SEO intent, tone, and product alignment.</p>
+
+<h2>Entity Classification</h2>
+<p>
+<strong>Category:</strong> ${categoryName} <br>
+<strong>Type:</strong> product type specific to ${productName} <br>
+<strong>Application:</strong> primary application use <br>
+<strong>Industry:</strong> industry segment
+</p>
+
+<h2>Product Overview</h2>
+<p>Write a clear overview of the formulation, purpose, performance expectations, and functional benefits.</p>
+
+<h2>Key Features</h2>
+<ul>
+<li>Feature point 1 specific to ${productName}</li>
+<li>Feature point 2</li>
+<li>Feature point 3</li>
+</ul>
+
+<h2>Applications</h2>
+<p>Explain where and how ${productName} is used, in 3-5 lines.</p>
+
+<h2>Technical Advantages</h2>
+<ul>
+<li>Technical benefit 1</li>
+<li>Technical benefit 2</li>
+<li>Technical benefit 3</li>
+</ul>
+
+<h2>Ingredient Breakdown</h2>
+<p>Conceptual ingredient explanation without percentages.</p>
+
+<h2>Manufacturing Guide</h2>
+<ol>
+<li>Step 1 of manufacturing process</li>
+<li>Step 2 of manufacturing process</li>
+<li>Step 3 of manufacturing process</li>
+</ol>
+
+<h2>Packaging Suggestions</h2>
+<p>Describe suitable packaging options.</p>
+
+<h2>Quality Control Checklist</h2>
+<ul>
+<li>QC parameter 1</li>
+<li>QC parameter 2</li>
+<li>QC parameter 3</li>
+</ul>
+
+<h2>Safety Notes</h2>
+<p>Write 3-4 lines of safety notes and precautions.</p>
+
+<h2>Storage Guidelines</h2>
+<p>Explain how the product should be stored and shelf stability.</p>
+
+<h2>Troubleshooting</h2>
+<ul>
+<li><strong>Issue:</strong> Problem description <br><strong>Fix:</strong> Solution approach</li>
+<li><strong>Issue:</strong> Another problem <br><strong>Fix:</strong> Another solution</li>
+</ul>
+
+<h2>FAQs</h2>
+<p>
+<strong>Q:</strong> Common question 1? <br>
+<strong>A:</strong> Answer 1.
+</p>
+<p>
+<strong>Q:</strong> Common question 2? <br>
+<strong>A:</strong> Answer 2.
+</p>
+
+<h2>Call to Action</h2>
+<p>Download the complete formulation file for full ingredient percentages, detailed process steps, QC parameters, and manufacturing notes.</p>
+
+<h2>Internal Link</h2>
+<p>For more formulations in ${categoryName}, visit https://aiformulator.com/collection/${categorySlug}</p>
+
+RULES TO ALWAYS FOLLOW:
+• Do NOT use Markdown.
+• Do NOT use ** symbols or # symbols.
+• Output MUST be valid HTML.
+• Ensure every section is wrapped in HTML tags.
+• The final result MUST be one single HTML document block.
+• NO explanations, NO markdown, just HTML.`;
+
+      const userPrompt = `Generate a complete HTML formulation page for: ${productName}
+Category: ${categoryName}
+
+Output ONLY the HTML block. Nothing else. No text outside tags.`;
 
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
