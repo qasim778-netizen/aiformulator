@@ -3031,6 +3031,153 @@ Provide 5-7 sentences explaining:
 <strong>A:</strong> Specific shelf life and storage conditions.
 </p>
 
+=====================================================================
+AI OVERVIEW STRUCTURE SELECTION (ONE OF S1-S6)
+=====================================================================
+
+Based on category "${categoryName}", SELECT ONE of these structures:
+
+Determine category group from name:
+- GROUP A (baby, infant, kids, child) → Pick S1 or S3
+- GROUP B (skin, hair, beauty, grooming, shampoo, lotion) → Pick S1, S3, or S5
+- GROUP C (cleaning, detergent, laundry) → Pick S2 or S5
+- GROUP D (car, auto, polish, shoe, leather) → Pick S2 or S4
+- GROUP E (adhesive, sealant, epoxy, grout, construction) → Pick S2, S4, or S6
+- GROUP F (industrial, 3d printing, resin, coating) → Pick S4 or S6
+- GROUP G (agriculture, agro, water treatment, pest) → Pick S2 or S6
+- GROUP H (pet, veterinary, dog, cat) → Pick S1 or S5
+- GROUP I (herbal, organic, essential oil, aromatherapy) → Pick S1, S3, or S5
+- GROUP J (default) → Pick any S1-S6
+
+Now INSERT ONE of these structures (pick the most appropriate based on category):
+
+S1 STRUCTURE:
+<h2>What It Is</h2>
+<p>Explain clearly what this product is, its functional role, and context of use.</p>
+<h2>Why It Matters</h2>
+<p>Describe the need or problem this formulation addresses.</p>
+<h2>How It Works</h2>
+<p>Explain the scientific or functional mechanism in simple language.</p>
+<h2>Risks or Limitations</h2>
+<p>Discuss realistic limitations, precautions, and performance variation scenarios.</p>
+<h2>Tips for Best Results</h2>
+<ul>
+<li>Practical tip 1.</li>
+<li>Practical tip 2.</li>
+<li>Practical tip 3.</li>
+</ul>
+<h2>Key Questions</h2>
+<p><strong>Q:</strong> Common question 1?<br><strong>A:</strong> Short answer.</p>
+<p><strong>Q:</strong> Common question 2?<br><strong>A:</strong> Short answer.</p>
+
+S2 STRUCTURE:
+<h2>The Real-World Problem</h2>
+<p>Describe the actual issue users face that this formulation solves.</p>
+<h2>Why This Problem Occurs</h2>
+<p>Explain the technical or scientific reason behind the problem.</p>
+<h2>The Formulation Solution</h2>
+<p>Describe how this formulation solves the problem and its benefits.</p>
+<h2>The Science Behind the Formula</h2>
+<p>Explain the scientific reasoning behind the formulation's performance.</p>
+<h2>How to Use It</h2>
+<ol>
+<li>Usage step 1.</li>
+<li>Usage step 2.</li>
+<li>Usage step 3.</li>
+</ol>
+<h2>Safety Considerations</h2>
+<p>Explain precautions, safe handling, and basic protection guidelines.</p>
+
+S3 STRUCTURE:
+<h2>Summary</h2>
+<p>Provide high-level summary of purpose, application, and key performance ideas.</p>
+<h2>Main Benefits</h2>
+<ul>
+<li>Benefit 1.</li>
+<li>Benefit 2.</li>
+<li>Benefit 3.</li>
+</ul>
+<h2>Key Components</h2>
+<p>Explain functional ingredient groups and their roles.</p>
+<h2>Mechanism of Action</h2>
+<p>Describe how the formulation delivers results through chemistry or physical interaction.</p>
+<h2>Recommended Usage Routine</h2>
+<ol>
+<li>Routine step 1.</li>
+<li>Routine step 2.</li>
+</ol>
+<h2>Warnings</h2>
+<p>Provide category-appropriate cautions and operational notes.</p>
+
+S4 STRUCTURE:
+<h2>Definition</h2>
+<p>Define the product precisely, including its functional identity and application category.</p>
+<h2>Material / Ingredient Logic</h2>
+<p>Describe the major ingredient groups and why they are included.</p>
+<h2>Process Overview</h2>
+<ol>
+<li>Process step 1.</li>
+<li>Process step 2.</li>
+<li>Process step 3.</li>
+</ol>
+<h2>Expected Performance</h2>
+<p>Explain how the product behaves in typical environments or conditions.</p>
+<h2>QC Considerations</h2>
+<ul>
+<li>QC parameter 1.</li>
+<li>QC parameter 2.</li>
+</ul>
+<h2>Troubleshooting Guide</h2>
+<ul>
+<li><strong>Issue:</strong> Example problem.<br><strong>Fix:</strong> Matching correction.</li>
+</ul>
+
+S5 STRUCTURE:
+<h2>Overview</h2>
+<p>Provide a simple description of the product and its main purpose.</p>
+<h2>Use Cases</h2>
+<ul>
+<li>Use case 1.</li>
+<li>Use case 2.</li>
+<li>Use case 3.</li>
+</ul>
+<h2>Instructions</h2>
+<ol>
+<li>Instruction step 1.</li>
+<li>Instruction step 2.</li>
+<li>Instruction step 3.</li>
+</ol>
+<h2>Compatibility</h2>
+<p>List relevant surfaces, materials, or environments where the product is compatible.</p>
+<h2>Storage</h2>
+<p>Explain suitable storage conditions for maintaining quality.</p>
+<h2>FAQs</h2>
+<p><strong>Q:</strong> Question 1?<br><strong>A:</strong> Answer.</p>
+<p><strong>Q:</strong> Question 2?<br><strong>A:</strong> Answer.</p>
+
+S6 STRUCTURE:
+<h2>Key Insight</h2>
+<p>Provide high-level insight into what makes this formulation useful or technically important.</p>
+<h2>Breakdown of Components</h2>
+<p>Explain conceptual ingredient blocks and what each contributes.</p>
+<h2>Steps to Use or Manufacture</h2>
+<ol>
+<li>Step 1.</li>
+<li>Step 2.</li>
+<li>Step 3.</li>
+</ol>
+<h2>Critical Metrics</h2>
+<ul>
+<li>Metric 1.</li>
+<li>Metric 2.</li>
+</ul>
+<h2>Expected Outcomes</h2>
+<p>Describe the performance or result a user should expect.</p>
+<h2>Next Steps</h2>
+<p>Suggest follow-up actions or complementary processes.</p>
+
+=====================================================================
+
 <h2>Call to Action</h2>
 <p>Download the complete formulation file for full ingredient percentages, detailed process steps, QC parameters, and manufacturing specifications.</p>
 

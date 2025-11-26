@@ -1,0 +1,187 @@
+=====================================================================
+AI OVERVIEW STRUCTURES (S1–S6) — FULL EXPANDED HTML VERSIONS
+=====================================================================
+
+IMPORTANT:
+After the PAGE STRATEGY section and before the FINAL CTA, insert
+ONE of the following AI Overview Structures based on the Category Group.
+
+Each structure MUST be output in pure HTML.
+
+=====================================================================
+S1 — WHAT → WHY → HOW → RISKS → TIPS → FAQ
+=====================================================================
+
+<h2>What It Is</h2>
+<p>Explain clearly what this product is, what functional role it plays, and in which context it is typically used.</p>
+
+<h2>Why It Matters</h2>
+<p>Describe the need, purpose, or problem this formulation addresses in real-world or consumer scenarios.</p>
+
+<h2>How It Works</h2>
+<p>Explain the scientific or functional mechanism behind the formulation in simple, accessible language.</p>
+
+<h2>Risks or Limitations</h2>
+<p>Discuss realistic limitations, precautions, and scenarios where performance may vary.</p>
+
+<h2>Tips for Best Results</h2>
+<ul>
+<li>Practical tip 1.</li>
+<li>Practical tip 2.</li>
+<li>Practical tip 3.</li>
+</ul>
+
+<h2>Key Questions</h2>
+<p><strong>Q:</strong> Common question 1?<br><strong>A:</strong> Short answer.</p>
+<p><strong>Q:</strong> Common question 2?<br><strong>A:</strong> Short answer.</p>
+<p><strong>Q:</strong> Common question 3?<br><strong>A:</strong> Short answer.</p>
+
+=====================================================================
+S2 — PROBLEM → CAUSE → SOLUTION → SCIENCE → USE → SAFETY
+=====================================================================
+
+<h2>The Real-World Problem</h2>
+<p>Describe the actual issue users face that this formulation is meant to solve.</p>
+
+<h2>Why This Problem Occurs</h2>
+<p>Explain the technical or scientific reason behind the problem.</p>
+
+<h2>The Formulation Solution</h2>
+<p>Describe how this formulation solves that problem and what benefits it brings.</p>
+
+<h2>The Science Behind the Formula</h2>
+<p>Offer a concise explanation of the scientific or material reasoning behind the formulation’s performance.</p>
+
+<h2>How to Use It</h2>
+<ol>
+<li>Usage step 1.</li>
+<li>Usage step 2.</li>
+<li>Usage step 3.</li>
+</ol>
+
+<h2>Safety Considerations</h2>
+<p>Explain relevant precautions, safe handling notes, and basic protection guidelines.</p>
+
+=====================================================================
+S3 — SUMMARY → BENEFITS → COMPONENTS → MECHANISM → ROUTINE → WARNINGS
+=====================================================================
+
+<h2>Summary</h2>
+<p>Provide a high-level summary describing purpose, intended application, and key performance ideas.</p>
+
+<h2>Main Benefits</h2>
+<ul>
+<li>Benefit 1.</li>
+<li>Benefit 2.</li>
+<li>Benefit 3.</li>
+</ul>
+
+<h2>Key Components</h2>
+<p>Explain functional ingredient groups and their conceptual roles.</p>
+
+<h2>Mechanism of Action</h2>
+<p>Describe how the formulation delivers results through chemistry or physical interaction.</p>
+
+<h2>Recommended Usage Routine</h2>
+<ol>
+<li>Routine step 1.</li>
+<li>Routine step 2.</li>
+</ol>
+
+<h2>Warnings</h2>
+<p>Provide category-appropriate cautions and operational notes.</p>
+
+=====================================================================
+S4 — DEFINITION → MATERIALS → PROCESS → PERFORMANCE → QC → TROUBLESHOOTING
+=====================================================================
+
+<h2>Definition</h2>
+<p>Define the product precisely, including its functional identity and application category.</p>
+
+<h2>Material / Ingredient Logic</h2>
+<p>Describe the major ingredient groups and why they are included.</p>
+
+<h2>Process Overview</h2>
+<ol>
+<li>Process step 1.</li>
+<li>Process step 2.</li>
+<li>Process step 3.</li>
+</ol>
+
+<h2>Expected Performance</h2>
+<p>Explain how the product behaves in typical environments or surfacing conditions.</p>
+
+<h2>QC Considerations</h2>
+<ul>
+<li>QC parameter 1.</li>
+<li>QC parameter 2.</li>
+</ul>
+
+<h2>Troubleshooting</h2>
+<ul>
+<li><strong>Issue:</strong> Example problem.<br><strong>Fix:</strong> Matching correction.</li>
+</ul>
+
+=====================================================================
+S5 — OVERVIEW → USE CASES → INSTRUCTIONS → COMPATIBILITY → STORAGE → FAQS
+=====================================================================
+
+<h2>Overview</h2>
+<p>Provide a simple description of the product and its main purpose.</p>
+
+<h2>Use Cases</h2>
+<ul>
+<li>Use case 1.</li>
+<li>Use case 2.</li>
+<li>Use case 3.</li>
+</ul>
+
+<h2>Instructions</h2>
+<ol>
+<li>Instruction step 1.</li>
+<li>Instruction step 2.</li>
+<li>Instruction step 3.</li>
+</ol>
+
+<h2>Compatibility</h2>
+<p>List relevant surfaces, materials, or environments where the product is compatible.</p>
+
+<h2>Storage</h2>
+<p>Explain suitable storage conditions for maintaining quality.</p>
+
+<h2>FAQs</h2>
+<p><strong>Q:</strong> Question 1?<br><strong>A:</strong> Answer.</p>
+<p><strong>Q:</strong> Question 2?<br><strong>A:</strong> Answer.</p>
+
+=====================================================================
+S6 — KEY INSIGHT → BREAKDOWN → STEPS → METRICS → OUTCOMES → NEXT STEPS
+=====================================================================
+
+<h2>Key Insight</h2>
+<p>Provide a high-level insight into what makes this formulation useful or technically important.</p>
+
+<h2>Breakdown of Components</h2>
+<p>Explain conceptual ingredient blocks and what each contributes.</p>
+
+<h2>Steps to Use or Manufacture</h2>
+<ol>
+<li>Step 1.</li>
+<li>Step 2.</li>
+<li>Step 3.</li>
+</ol>
+
+<h2>Critical Metrics</h2>
+<ul>
+<li>Metric 1.</li>
+<li>Metric 2.</li>
+</ul>
+
+<h2>Expected Outcomes</h2>
+<p>Describe the performance or result a user should expect.</p>
+
+<h2>Next Steps</h2>
+<p>Suggest follow-up actions or complementary processes.</p>
+
+=====================================================================
+*END OF PART 2*
+=====================================================================
