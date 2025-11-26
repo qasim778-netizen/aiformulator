@@ -23,21 +23,14 @@ export default function PageContentGenerator({
   const [content, setContent] = useState(initialContent);
   const { toast } = useToast();
 
-  // Load saved page content for this formulation
-  const { data: formulation } = useQuery({
-    queryKey: ["/api/formulations", formulationId],
-    queryFn: async () => {
-      const response = await apiRequest("GET", `/api/formulations/${formulationId}`);
-      return await response.json();
-    },
-  });
-
-  // Update content when formulation's custom page content is loaded
+  // Update content when initialContent prop changes
   useEffect(() => {
-    if (formulation?.customPageContent) {
-      setContent(formulation.customPageContent);
+    if (initialContent) {
+      setContent(initialContent);
+    } else {
+      setContent("");
     }
-  }, [formulation?.customPageContent]);
+  }, [initialContent, formulationId]);
 
   const generateMutation = useMutation({
     mutationFn: async () => {

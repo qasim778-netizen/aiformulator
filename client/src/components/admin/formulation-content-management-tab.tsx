@@ -116,7 +116,8 @@ export default function FormulationContentManagementTab() {
                   <PageContentGenerator
                     formulationId={selectedFormulation.id}
                     formulationName={selectedFormulation.name}
-                    category={selectedCategory}
+                    category={selectedFormulation.categoryId || ""}
+                    initialContent={(selectedFormulation as any)?.customPageContent || ""}
                   />
                 </TabsContent>
                 
