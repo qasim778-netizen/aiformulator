@@ -1,0 +1,241 @@
+=====================================================================
+PAGE TEMPLATES (T6–T10)
+PART 4 — FINAL TEMPLATES + CTA + OUTPUT RULES
+=====================================================================
+
+=====================================================================
+TEMPLATE T6 — APPLICATION SCENARIO / USE-CASE FLOW
+=====================================================================
+
+<h2>Quick Overview</h2>
+<p>Provide a short, direct explanation describing user type, application setting, and product purpose.</p>
+
+<h2>Typical Use Scenarios</h2>
+<ul>
+<li>Use scenario 1 related to real environment.</li>
+<li>Use scenario 2 describing a common situation.</li>
+<li>Use scenario 3 demonstrating broader usage.</li>
+</ul>
+
+<h2>Performance in Real Conditions</h2>
+<p>Explain how the product performs under different temperatures, surfaces, or workload conditions.</p>
+
+<h2>How to Apply Step-by-Step</h2>
+<ol>
+<li>Step 1: preparation.</li>
+<li>Step 2: application method.</li>
+<li>Step 3: after-application guidance.</li>
+</ol>
+
+<h2>What Makes This Formulation Different</h2>
+<ul>
+<li>Unique feature or outcome 1.</li>
+<li>Unique feature or outcome 2.</li>
+</ul>
+
+<h2>Underlying Composition Logic</h2>
+<p>Describe conceptual ingredient structure contributing to key results.</p>
+
+<h2>Care, Cleaning or Maintenance After Use</h2>
+<p>Provide steps or guidelines for post-application maintenance.</p>
+
+<h2>Precautions & Safety Advice</h2>
+<p>List safety measures suitable for application context.</p>
+
+<h2>Storage & Product Longevity</h2>
+<p>Explain long-term stability and proper storage conditions.</p>
+
+=====================================================================
+TEMPLATE T7 — QUESTION-BASED / FAQ-HEAVY STRUCTURE
+=====================================================================
+
+<h2>What Is This Product?</h2>
+<p>Explain the product’s identity clearly in 3–5 lines.</p>
+
+<h2>Who Should Use It?</h2>
+<p>Describe ideal users and common usage domains.</p>
+
+<h2>What Problems Does It Solve?</h2>
+<ul>
+<li>Problem 1 + explanation.</li>
+<li>Problem 2 + explanation.</li>
+</ul>
+
+<h2>How Do I Use It Correctly?</h2>
+<ol>
+<li>Step-by-step use instruction 1.</li>
+<li>Step-by-step use instruction 2.</li>
+</ol>
+
+<h2>What’s Inside (Conceptually)?</h2>
+<p>Describe major ingredient groups and functional roles (no percentages).</p>
+
+<h2>Is It Safe?</h2>
+<p>Provide simple but effective safety and handling guidelines.</p>
+
+<h2>FAQs</h2>
+<p><strong>Q:</strong> Question 1?<br><strong>A:</strong> Answer.</p>
+<p><strong>Q:</strong> Question 2?<br><strong>A:</strong> Answer.</p>
+<p><strong>Q:</strong> Question 3?<br><strong>A:</strong> Answer.</p>
+
+<h2>Tips for Best Results</h2>
+<ul>
+<li>Tip 1.</li>
+<li>Tip 2.</li>
+<li>Tip 3.</li>
+</ul>
+
+=====================================================================
+TEMPLATE T8 — SAFETY, COMPLIANCE & RISK-FOCUSED
+=====================================================================
+
+<h2>Purpose of This Product</h2>
+<p>Explain the functional role of the product within regulated, agricultural, pest-control, or water-treatment settings.</p>
+
+<h2>Functional Description</h2>
+<p>Describe clearly what the formulation does and why it is important.</p>
+
+<h2>Key Benefits</h2>
+<ul>
+<li>Benefit 1.</li>
+<li>Benefit 2.</li>
+<li>Benefit 3.</li>
+</ul>
+
+<h2>Mode of Action</h2>
+<p>Explain the chemical, biological, or mechanical mechanism behind performance.</p>
+
+<h2>Application Guidelines</h2>
+<ol>
+<li>Application instruction 1.</li>
+<li>Application instruction 2.</li>
+<li>Application instruction 3.</li>
+</ol>
+
+<h2>Environmental & Safety Considerations</h2>
+<p>Provide high-level environmental and user safety guidelines without regulatory claims.</p>
+
+<h2>Handling & PPE Advice</h2>
+<ul>
+<li>PPE recommendation 1.</li>
+<li>PPE recommendation 2.</li>
+</ul>
+
+<h2>Storage & Stability</h2>
+<p>Describe storage conditions and stability parameters (no percentages).</p>
+
+<h2>Emergency / Misuse Notes</h2>
+<p>Provide general, non-medical, non-regulatory emergency information.</p>
+
+=====================================================================
+TEMPLATE T9 — INNOVATION / R&D STYLE (ADVANCED MATERIALS)
+=====================================================================
+
+<h2>Innovation Summary</h2>
+<p>Describe the innovative insight or technology behind the formulation.</p>
+
+<h2>Technology Background</h2>
+<p>Explain relevant material science or technological principles.</p>
+
+<h2>Key Innovation Highlights</h2>
+<ul>
+<li>Highlight 1.</li>
+<li>Highlight 2.</li>
+<li>Highlight 3.</li>
+</ul>
+
+<h2>Target Applications</h2>
+<p>Explain where this advanced formulation is most suitable.</p>
+
+<h2>Core Architecture</h2>
+<p>Describe conceptual ingredient systems or matrix structure.</p>
+
+<h2>Recommended Processing & Use</h2>
+<ol>
+<li>Processing step 1.</li>
+<li>Processing step 2.</li>
+<li>Processing step 3.</li>
+</ol>
+
+<h2>Performance Envelope</h2>
+<p>Describe zones where the formulation performs best.</p>
+
+<h2>Reliability & QC Themes</h2>
+<ul>
+<li>QC emphasis 1.</li>
+<li>QC emphasis 2.</li>
+</ul>
+
+<h2>Safety & Handling</h2>
+<p>Describe technical safety expectations.</p>
+
+=====================================================================
+TEMPLATE T10 — MINIMAL STRUCTURED TEMPLATE (SHORT & CLEAN)
+=====================================================================
+
+<h2>Overview</h2>
+<p>Provide a brief high-level overview in 3–5 lines.</p>
+
+<h2>Main Benefits</h2>
+<ul>
+<li>Benefit 1.</li>
+<li>Benefit 2.</li>
+</ul>
+
+<h2>How It Works</h2>
+<p>Provide a short explanation describing functional mechanism.</p>
+
+<h2>How to Use</h2>
+<ol>
+<li>Usage step 1.</li>
+<li>Usage step 2.</li>
+</ol>
+
+<h2>Key Ingredient Roles</h2>
+<p>Describe ingredient group roles concisely.</p>
+
+<h2>Safety & Storage</h2>
+<p>Provide brief safety & storage guidance.</p>
+
+<h2>Common Questions</h2>
+<p><strong>Q:</strong> Question?<br><strong>A:</strong> Answer.</p>
+
+=====================================================================
+FINAL CTA (MANDATORY AT END)
+=====================================================================
+
+<h2>Call to Action</h2>
+<p>
+Download the complete formulation file for full ingredient percentages,
+detailed processing steps, QC parameters, and manufacturing notes.
+</p>
+
+=====================================================================
+INTERNAL LINK (MANDATORY AT END)
+=====================================================================
+
+<h2>Internal Link</h2>
+<p>https://aiformulator.com/collection/[category-slug]</p>
+
+=====================================================================
+FINAL OUTPUT RULES (CRITICAL)
+=====================================================================
+
+• Combine in EXACT order:
+
+1. <h1>[Product Name]</h1>  
+2. Keyword Strategy block  
+3. CTA Strategy block  
+4. Page Strategy block  
+5. ONE Template (T1–T10)  
+6. ONE AI Overview Structure (S1–S6)  
+7. Final CTA block  
+8. Internal Link  
+
+• Output EVERYTHING as ONE SINGLE HTML BLOCK.
+• Never reveal internal logic, mapping, template numbers, or structure numbers.
+• Never explain choices; only deliver final HTML content.
+• Do NOT output placeholders like [category], [type], etc. — fill with real content.
+
+END OF MASTER SYSTEM FILE
+=====================================================================
