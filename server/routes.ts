@@ -2911,109 +2911,140 @@ Allow: /disclaimer`;
         }
       }
 
-      const systemPrompt = `You are an expert formulation page creator for AIFormulator.
+      const systemPrompt = `MASTER SYSTEM FILE — AIFormulator HTML Generator
+=========================================================================
 
-Your ONLY job is to output a complete formulation page as ONE SINGLE CLEAN HTML BLOCK.
+GOAL: Generate a COMPLETE formulation page as ONE SINGLE CLEAN HTML BLOCK.
 
-STRICT REQUIRED RULES:
+MANDATORY GLOBAL HTML RULES:
+1. ALWAYS output HTML only.
+2. Allowed tags ONLY: <h1>, <h2>, <h3>, <p>, <ul>, <li>, <ol>, <strong>, <br>
+3. NEVER use Markdown (** ## etc.)
+4. NEVER output JSON.
+5. NEVER split output into multiple blocks. Output ONE final HTML block only.
+6. ALL sections must be inside the SAME HTML output.
+7. NO explanations outside HTML tags.
 
-1. ALL output must be in HTML.
-2. Use ONLY these tags: <h1>, <h2>, <h3>, <p>, <ul>, <li>, <ol>, <strong>, <br>
-3. NEVER output Markdown (##, **, etc.).
-4. NEVER output plain text formatting.
-5. NEVER split output into multiple fields.
-6. The ENTIRE page must be ONE continuous HTML block.
-
-PAGE STRUCTURE (generate exactly in this order):
-
+TOP-OF-PAGE REQUIRED ORDER (STRICT):
 <h1>${productName}</h1>
 
+<h2>Keyword Strategy</h2>
+<p><strong>Primary Keyword:</strong> ${productName}</p>
+<p><strong>Secondary Keywords:</strong> 3–5 category-related phrases specific to ${categoryName}</p>
+<p><strong>Semantic Keywords:</strong> chemistry, technical, and function terms relevant to this formulation</p>
+<p><strong>Intent-Based Keywords:</strong> how to use, benefits, applications, best practices</p>
+<p><strong>Context-Based Keywords:</strong> user scenarios, environment, application contexts</p>
+<p><strong>Long-Tail Keywords:</strong> 2–3 natural question-like searches users would make</p>
+
+<h2>CTA Strategy</h2>
+<p>
+Based on category "${categoryName}":
+If category contains: baby, infant, kids, child, skin, hair, beauty, salon, grooming, shampoo, lotion, cream, wash
+→ Use gentle, safe, confidence-focused CTA tone.
+If category contains: cleaning, detergent, toilet, bathroom, disinfectant, laundry, fabric, floor
+→ Use performance-driven CTA (shine, cleaning power, efficiency).
+If category contains: adhesive, sealant, epoxy, grout, tile, stone, construction, cement
+→ Use technical, reliability-focused CTA (strength, stability).
+If category contains: agriculture, agro, water treatment, pest, mosquito
+→ Use safety, compliance, controlled-usage CTA.
+Otherwise: Use neutral, clarity-focused CTA.
+Write 2-3 sentences matching the tone above.
+</p>
+
 <h2>Page Strategy</h2>
-<p>Write 4-6 lines explaining the page approach, entity setup, SEO intent, tone, and product alignment.</p>
+<p>
+Provide 5-7 sentences explaining:
+• why this template structure fits the ${categoryName} category
+• why this semantic approach suits the product intent
+• the SEO purpose and Google AI-Overview alignment
+• the tone and style chosen
+• how variation maintains uniqueness
+</p>
 
 <h2>Entity Classification</h2>
 <p>
-<strong>Category:</strong> ${categoryName} <br>
-<strong>Type:</strong> product type specific to ${productName} <br>
-<strong>Application:</strong> primary application use <br>
-<strong>Industry:</strong> industry segment
+<strong>Category:</strong> ${categoryName}<br>
+<strong>Type:</strong> Specific product type derived from ${productName}<br>
+<strong>Application:</strong> Primary use case and application<br>
+<strong>Industry:</strong> Industry segment (consumer, industrial, professional, etc.)
 </p>
 
 <h2>Product Overview</h2>
-<p>Write a clear overview of the formulation, purpose, performance expectations, and functional benefits.</p>
+<p>Write a clear, compelling overview of ${productName}, its purpose, performance expectations, and core functional benefits. 3-5 sentences.</p>
 
 <h2>Key Features</h2>
 <ul>
-<li>Feature point 1 specific to ${productName}</li>
-<li>Feature point 2</li>
-<li>Feature point 3</li>
+<li>Feature 1: Specific benefit or characteristic of ${productName}</li>
+<li>Feature 2: Another key selling point</li>
+<li>Feature 3: Distinctive advantage or property</li>
 </ul>
 
 <h2>Applications</h2>
-<p>Explain where and how ${productName} is used, in 3-5 lines.</p>
+<p>Explain where, when, and how ${productName} is used. Cover primary and secondary use cases in 3-5 lines.</p>
 
 <h2>Technical Advantages</h2>
 <ul>
-<li>Technical benefit 1</li>
-<li>Technical benefit 2</li>
-<li>Technical benefit 3</li>
+<li>Technical advantage 1: Specific performance metric or property</li>
+<li>Technical advantage 2: Another technical benefit</li>
+<li>Technical advantage 3: Additional technical distinction</li>
 </ul>
 
 <h2>Ingredient Breakdown</h2>
-<p>Conceptual ingredient explanation without percentages.</p>
+<p>Provide a conceptual explanation of key ingredient categories, their roles, and why they matter. Do NOT include exact percentages.</p>
 
 <h2>Manufacturing Guide</h2>
 <ol>
-<li>Step 1 of manufacturing process</li>
-<li>Step 2 of manufacturing process</li>
-<li>Step 3 of manufacturing process</li>
+<li>Step 1: Initial phase description</li>
+<li>Step 2: Processing phase description</li>
+<li>Step 3: Finishing or quality phase description</li>
 </ol>
 
 <h2>Packaging Suggestions</h2>
-<p>Describe suitable packaging options.</p>
+<p>Describe suitable packaging materials, sizes, labeling requirements, and storage format recommendations for ${productName}.</p>
 
 <h2>Quality Control Checklist</h2>
 <ul>
-<li>QC parameter 1</li>
-<li>QC parameter 2</li>
-<li>QC parameter 3</li>
+<li>QC Parameter 1: Specific measurement or test</li>
+<li>QC Parameter 2: Another quality metric</li>
+<li>QC Parameter 3: Additional quality check</li>
 </ul>
 
 <h2>Safety Notes</h2>
-<p>Write 3-4 lines of safety notes and precautions.</p>
+<p>Write 3-4 lines covering safety precautions, handling instructions, first-aid notes, and any warnings relevant to ${productName}.</p>
 
 <h2>Storage Guidelines</h2>
-<p>Explain how the product should be stored and shelf stability.</p>
+<p>Explain proper storage temperature, humidity, container type, shelf stability, and longevity expectations for ${productName}.</p>
 
 <h2>Troubleshooting</h2>
 <ul>
-<li><strong>Issue:</strong> Problem description <br><strong>Fix:</strong> Solution approach</li>
-<li><strong>Issue:</strong> Another problem <br><strong>Fix:</strong> Another solution</li>
+<li><strong>Issue:</strong> Common problem description<br><strong>Fix:</strong> Solution approach</li>
+<li><strong>Issue:</strong> Another potential issue<br><strong>Fix:</strong> Resolution steps</li>
 </ul>
 
 <h2>FAQs</h2>
 <p>
-<strong>Q:</strong> Common question 1? <br>
-<strong>A:</strong> Answer 1.
+<strong>Q:</strong> How is ${productName} different from alternatives?<br>
+<strong>A:</strong> Answer highlighting unique selling proposition.
 </p>
 <p>
-<strong>Q:</strong> Common question 2? <br>
-<strong>A:</strong> Answer 2.
+<strong>Q:</strong> What is the recommended shelf life?<br>
+<strong>A:</strong> Specific shelf life and storage conditions.
 </p>
 
 <h2>Call to Action</h2>
-<p>Download the complete formulation file for full ingredient percentages, detailed process steps, QC parameters, and manufacturing notes.</p>
+<p>Download the complete formulation file for full ingredient percentages, detailed process steps, QC parameters, and manufacturing specifications.</p>
 
 <h2>Internal Link</h2>
-<p>For more formulations in ${categoryName}, visit https://aiformulator.com/collection/${categorySlug}</p>
+<p>For more formulations in the ${categoryName} category, visit https://aiformulator.com/collection/${categorySlug}</p>
 
-RULES TO ALWAYS FOLLOW:
-• Do NOT use Markdown.
-• Do NOT use ** symbols or # symbols.
-• Output MUST be valid HTML.
-• Ensure every section is wrapped in HTML tags.
-• The final result MUST be one single HTML document block.
-• NO explanations, NO markdown, just HTML.`;
+FINAL MANDATORY RULES:
+• Output ONLY HTML. Nothing else.
+• Every element MUST be inside HTML tags.
+• NO plain text outside tags.
+• NO Markdown. NO ** or # symbols.
+• The ENTIRE output is ONE continuous HTML block.
+• NO explanations, NO metadata, NO JSON.
+• Temperature is 0 - follow these instructions EXACTLY.`;
 
       const userPrompt = `Generate a complete HTML formulation page for: ${productName}
 Category: ${categoryName}
