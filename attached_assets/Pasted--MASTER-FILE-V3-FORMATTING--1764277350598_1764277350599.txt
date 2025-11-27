@@ -1,0 +1,116 @@
+======================================================================
+MASTER FILE V3 — FORMATTING UPGRADE (BULLETS + BOLD + NUMBERING)
+======================================================================
+
+Some sections MUST use bullet points or numbered lists instead of paragraphs
+to improve clarity and make the page more readable.
+
+APPLY THE FOLLOWING RULES:
+
+======================================================================
+INGREDIENT FUNCTIONS — FORMAT RULE
+======================================================================
+
+Replace normal paragraphs with this structure:
+
+<h2>Ingredient Functions</h2>
+<ul>
+<li><strong>[Ingredient Group Name Example: Surfactants]</strong> — Explain the function in 2–3 sentences.</li>
+<li><strong>[Solvents]</strong> — 2–3 sentence explanation.</li>
+<li><strong>[Conditioners / Emollients]</strong> — 2–3 sentence explanation.</li>
+<li><strong>[Polymers / Rheology Modifiers]</strong> — 2–3 sentence explanation.</li>
+<li><strong>[Fragrance / Additives]</strong> — 2–3 sentence explanation.</li>
+</ul>
+
+======================================================================
+HOW IT WORKS — FORMAT RULE
+======================================================================
+
+Use a step-based explanation:
+
+<h2>How It Works</h2>
+<ol>
+<li><strong>Interaction Step:</strong> Explain the first stage of how the formula works (2–3 sentences).</li>
+<li><strong>Breakdown/Action Step:</strong> Explain the functional mechanism in 2–3 sentences.</li>
+<li><strong>Final Result:</strong> Explain what the user observes at the end (2–3 sentences).</li>
+</ol>
+
+======================================================================
+PRODUCT TYPES / VARIANTS — FORMAT RULE
+======================================================================
+
+Use bullet points AND bold variant names:
+
+<h2>Product Types / Variants</h2>
+<ul>
+<li><strong>Ready-to-Use Spray:</strong> 2–3 sentences explaining what makes it different.</li>
+<li><strong>Concentrated Version:</strong> 2–3 sentences.</li>
+<li><strong>Low-Foam Option:</strong> 2–3 sentences.</li>
+<li><strong>Fragrance Variants:</strong> 2–3 sentences.</li>
+<li><strong>Professional-Grade Variant:</strong> 2–3 sentences.</li>
+</ul>
+
+======================================================================
+PERFORMANCE ADVANTAGES — OPTIONAL BOLD RULE
+======================================================================
+
+Highlight the technical strengths:
+
+<h2>Performance Advantages</h2>
+<ul>
+<li><strong>Fast Action:</strong> 2–3 sentences.</li>
+<li><strong>Material Safety:</strong> 2–3 sentences.</li>
+<li><strong>Long-Lasting Performance:</strong> 2–3 sentences.</li>
+<li><strong>Category-Specific Benefit:</strong> 2–3 sentences.</li>
+</ul>
+
+======================================================================
+SAFETY NOTES — BULLET FORMAT
+======================================================================
+
+Use bullets for better readability:
+
+<ul>
+<li><strong>Protective Handling:</strong> 2–3 sentences.</li>
+<li><strong>Avoid Mixing with Incompatible Chemicals:</strong> 2–3 sentences.</li>
+<li><strong>Keep Away from Children & Pets:</strong> 2–3 sentences.</li>
+<li><strong>Ventilation Notes:</strong> 2–3 sentences.</li>
+</ul>
+
+======================================================================
+WHEN TO USE PARAGRAPHS
+======================================================================
+
+Use PARAGRAPHS for:
+• Overview  
+• Problems This Product Solves  
+• Industry Applications  
+• Storage & Stability  
+
+Use BULLETS or NUMBERING for:
+• Ingredient Functions  
+• Product Types / Variants  
+• Performance Advantages  
+• Safety Notes  
+• Application Steps  
+• How It Works  
+
+======================================================================
+BOLDING RULES
+======================================================================
+
+Bold ONLY:
+• Ingredient group names  
+• Product variant names  
+• Key action verbs  
+• Important technical concepts  
+
+Examples:
+<strong>Surfactants</strong>  
+<strong>Polymers</strong>  
+<strong>Concentrated Version</strong>  
+<strong>Gloss Protection</strong>  
+
+======================================================================
+END OF FORMATTING UPGRADE
+======================================================================

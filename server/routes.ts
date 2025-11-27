@@ -3133,33 +3133,30 @@ to make the formulation attractive for intended users. (120–200 words)
 
 SECTION 4 — HOW IT WORKS:
 <h2>How It Works</h2>
-<p>
-Explain the functional or scientific mechanism in non-academic but informed way.
-Describe how active components, surfactants, polymers, resins, conditioners, or
-chelating agents interact with surfaces, soils, fibers, or substrates. Stay
-understandable to non-specialists but technically credible. Align with category.
-(120–200 words, 4–7 sentences)
-</p>
+<ol>
+<li><strong>Interaction Step:</strong> Explain the first stage of how the formula works (2–3 sentences).</li>
+<li><strong>Breakdown/Action Step:</strong> Explain the functional mechanism in 2–3 sentences.</li>
+<li><strong>Final Result:</strong> Explain what the user observes at the end (2–3 sentences).</li>
+</ol>
 
 SECTION 5 — INGREDIENT FUNCTIONS:
 <h2>Ingredient Functions</h2>
-<p>
-Break the formulation into functional ingredient groups and explain what each
-does, without percentages. For example: cleaning agents, solvents, emulsifiers,
-rheology modifiers, anti-corrosion additives, conditioners, emollients, or
-fragrance. Highlight how groups support overall performance and stability.
-Make this a conceptual map, not a detailed recipe. (120–200 words, 4–7 sentences)
-</p>
+<ul>
+<li><strong>[Ingredient Group Name Example: Surfactants]</strong> — Explain the function in 2–3 sentences.</li>
+<li><strong>[Solvents]</strong> — 2–3 sentence explanation.</li>
+<li><strong>[Conditioners / Emollients]</strong> — 2–3 sentence explanation.</li>
+<li><strong>[Polymers / Rheology Modifiers]</strong> — 2–3 sentence explanation.</li>
+<li><strong>[Fragrance / Additives]</strong> — 2–3 sentence explanation.</li>
+</ul>
 
 SECTION 6 — PERFORMANCE ADVANTAGES:
 <h2>Performance Advantages</h2>
-<p>
-Explain what makes this formulation stand out compared to generic solutions.
-Discuss faster action, better compatibility, reduced residue, enhanced gloss,
-improved durability, safer profile, or better end-user experience. Adapt emphasis
-to category: shine for car care, mildness for beauty, robust adhesion for
-construction, reliability for industrial. (120–200 words, 4–7 sentences)
-</p>
+<ul>
+<li><strong>Fast Action:</strong> 2–3 sentences.</li>
+<li><strong>Material Safety:</strong> 2–3 sentences.</li>
+<li><strong>Long-Lasting Performance:</strong> 2–3 sentences.</li>
+<li><strong>Category-Specific Benefit:</strong> 2–3 sentences.</li>
+</ul>
 
 SECTION 7 — APPLICATION INSTRUCTIONS:
 <h2>Application Instructions</h2>
@@ -3196,13 +3193,13 @@ full-scale use. Help users judge whether product fits their use case.
 
 SECTION 9 — PRODUCT TYPES / VARIANTS:
 <h2>Product Types / Variants</h2>
-<p>
-Explain possible variants of this formulation from the same core technology.
-For example: ready-to-use spray vs concentrate, low-foam vs high-foam, fragrance
-options, color options, or packaging for professional vs household users. Make
-clear the core concept can be tuned for different markets and methods without
-revealing percentages. (120–200 words, 4–7 sentences)
-</p>
+<ul>
+<li><strong>Ready-to-Use Spray:</strong> 2–3 sentences explaining what makes it different.</li>
+<li><strong>Concentrated Version:</strong> 2–3 sentences.</li>
+<li><strong>Low-Foam Option:</strong> 2–3 sentences.</li>
+<li><strong>Fragrance Variants:</strong> 2–3 sentences.</li>
+<li><strong>Professional-Grade Variant:</strong> 2–3 sentences.</li>
+</ul>
 
 SECTION 10 — INDUSTRY APPLICATIONS:
 <h2>Industry Applications</h2>
@@ -3217,14 +3214,12 @@ formulation is a good fit and what operational advantage it offers.
 
 SECTION 11 — SAFETY NOTES:
 <h2>Safety Notes</h2>
-<p>
-Provide general safety guidance appropriate for the category. Mention practical
-precautions such as wearing gloves or eye protection when needed, keeping away
-from children and pets, avoiding ingestion, and not mixing with incompatible
-chemicals (e.g., oxidizing agents or bleach). Keep tone responsible but not
-fear-inducing. Avoid regulatory or medical claims. Reinforce responsible,
-professional handling. (120–200 words, 4–7 sentences)
-</p>
+<ul>
+<li><strong>Protective Handling:</strong> 2–3 sentences.</li>
+<li><strong>Avoid Mixing with Incompatible Chemicals:</strong> 2–3 sentences.</li>
+<li><strong>Keep Away from Children & Pets:</strong> 2–3 sentences.</li>
+<li><strong>Ventilation Notes:</strong> 2–3 sentences.</li>
+</ul>
 
 SECTION 12 — STORAGE & STABILITY:
 <h2>Storage & Stability</h2>
