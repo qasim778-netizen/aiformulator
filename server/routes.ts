@@ -3250,23 +3250,30 @@ containers tightly sealed. Provide typical qualitative shelf-life expectation
 any sensitivity to freezing, excessive heat, or moisture. (120–200 words, 4–7 sentences)
 </p>
 
-SECTION 13 — FAQS (MINIMUM 3):
+SECTION 13 — FAQS (FORMULATION-FOCUSED ONLY):
 <h2>FAQs</h2>
 <p>
-<strong>Q:</strong> Ask a common practical question about how or where to use the product.<br>
-<strong>A:</strong> Provide a clear, helpful answer tailored to the category.
+<strong>Q:</strong> What is the typical <strong>pH</strong> range of this formulation, and can it be adjusted?<br>
+<strong>A:</strong> Provide a detailed explanation of its expected pH range, why this pH is required for stability or performance, and how minor adjustments can be made safely if needed.
 </p>
 <p>
-<strong>Q:</strong> Ask about compatibility, safety, or performance expectations.<br>
-<strong>A:</strong> Give a reassuring, realistic answer with actionable advice.
+<strong>Q:</strong> What should the final <strong>viscosity or thickness</strong> of the product feel like?<br>
+<strong>A:</strong> Explain the target viscosity, how rheology modifiers influence thickness, and how to fine-tune it based on equipment, climate, or application method.
 </p>
 <p>
-<strong>Q:</strong> Ask about storage, re-use, or troubleshooting if first result unsatisfactory.<br>
-<strong>A:</strong> Provide guidance about adjusting use conditions or when to re-test on small area.
+<strong>Q:</strong> Can any of the ingredients be <strong>substituted</strong> with more affordable or regionally available materials?<br>
+<strong>A:</strong> Provide guidance on safe substitutions, compatible functional alternatives, and which components must remain unchanged for performance.
 </p>
 <p>
-Optionally, add a fourth FAQ where helpful, ensuring question and answer remain
-unique and relevant to this product category. (120–200 words total)
+<strong>Q:</strong> How does this formulation maintain <strong>stability</strong> during storage or transport?<br>
+<strong>A:</strong> Explain the stability behavior, interactions between functional groups, and any ideal storage conditions for manufacturer confidence.
+</p>
+<p>
+<strong>Q:</strong> What are the major <strong>cost-driving ingredients</strong> in this formulation and how can overall cost be optimized?<br>
+<strong>A:</strong> Describe which raw materials contribute most to cost and suggest strategies for reducing cost without harming performance.
+</p>
+<p>
+Optionally, you may add a sixth FAQ if relevant, as long as it stays technical and formulation-focused, not consumer/product usage focused.
 </p>
 
 ======================================================================
