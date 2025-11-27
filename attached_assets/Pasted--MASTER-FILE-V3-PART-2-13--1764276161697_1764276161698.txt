@@ -1,0 +1,232 @@
+======================================================================
+MASTER FILE V3 — PART 2
+13-SECTION PUBLIC PAGE LAYOUT (ALL CATEGORIES)
+======================================================================
+
+After <h2>Page Strategy</h2>, you MUST generate the following
+13 sections in this exact order.
+
+Each section:
+• Uses <h2> for heading
+• Contains one or more <p> or <ul>/<ol> blocks
+• Paragraphs are 4–7 sentences
+• Content length per section ±120–200 words
+• Tone and examples must adapt to the detected category group
+
+======================================================================
+SECTION 1 — OVERVIEW
+======================================================================
+
+<h2>Overview</h2>
+<p>
+Provide a clear, long-form introduction to the product, explaining what it is,
+what type of formulation it represents, and the main purpose it serves.
+Mention the kind of users or industries that typically use it and the key
+performance idea behind the product. Adapt the tone to the category: gentle
+for baby and pet care, premium for beauty, technical for industrial, and
+practical for cleaning or car care.
+</p>
+
+======================================================================
+SECTION 2 — PROBLEMS THIS PRODUCT SOLVES
+======================================================================
+
+<h2>Problems This Product Solves</h2>
+<p>
+Describe the real-world problems, frustrations, or operational challenges that
+this formulation is meant to resolve. For example, stains that are difficult
+to remove, odors that linger, surfaces that degrade over time, or production
+issues that need stable chemistry. Use 2–3 mini-scenarios showing before/after
+situations so potential users clearly understand why this product exists and
+what gap it fills.
+</p>
+
+======================================================================
+SECTION 3 — KEY BENEFITS
+======================================================================
+
+<h2>Key Benefits</h2>
+<ul>
+<li>Explain a primary benefit related to visible results or performance.</li>
+<li>Describe a second benefit related to ease of use, process efficiency, or
+user experience.</li>
+<li>Describe a third benefit related to durability, protection, or long-term
+value.</li>
+<li>Add one more benefit if relevant, focused on category-specific strengths
+(e.g., gentleness, safety, environmental impact, or technical reliability).</li>
+</ul>
+<p>
+After the bullet list, add a short paragraph summarizing how these benefits
+work together to make the formulation attractive for its intended users.
+</p>
+
+======================================================================
+SECTION 4 — HOW IT WORKS
+======================================================================
+
+<h2>How It Works</h2>
+<p>
+Explain the functional or scientific mechanism behind the formulation in a
+non-academic but informed way. Describe how active components, surfactants,
+polymers, resins, conditioners, chelating agents, or other functional
+ingredients interact with surfaces, soils, fibers, or substrates. The
+explanation must be understandable to a non-specialist but still feel
+technically credible. Align the description with the detected category,
+e.g., fiber interaction for fabric care, film formation for coatings, or
+surface energy changes for adhesives.
+</p>
+
+======================================================================
+SECTION 5 — INGREDIENT FUNCTIONS
+======================================================================
+
+<h2>Ingredient Functions</h2>
+<p>
+Break the formulation into functional ingredient groups and briefly explain
+what each group does, without using percentages. For example, describe
+cleaning agents, solvents, emulsifiers, rheology modifiers, anti-corrosion
+additives, conditioners, emollients, or fragrance components. Highlight how
+these groups support the overall performance and stability of the product.
+Make this section feel like a conceptual map of the formulation, not a
+detailed recipe.
+</p>
+
+======================================================================
+SECTION 6 — PERFORMANCE ADVANTAGES
+======================================================================
+
+<h2>Performance Advantages</h2>
+<p>
+Explain what makes this formulation stand out compared to generic or simple
+solutions. Discuss aspects such as faster action, better compatibility,
+reduced residue, enhanced gloss, improved durability, safer profile, more
+consistent processing, or better end-user experience. Adapt the emphasis to
+the specific category: shine and protection for car care, mildness and
+sensory qualities for beauty, robust adhesion or curing behavior for
+construction, material science reliability for industrial systems.
+</p>
+
+======================================================================
+SECTION 7 — APPLICATION INSTRUCTIONS
+======================================================================
+
+<h2>Application Instructions</h2>
+<ol>
+<li>
+Describe how the user should prepare the product and the surface, substrate,
+or fabric before use. Mention any dilution, mixing, or inspection required.
+</li>
+<li>
+Explain the correct way to apply the product step-by-step, including tools
+(sponge, sprayer, cloth, brush, applicator, printing nozzle, etc.) and
+recommended contact time or passes.
+</li>
+<li>
+Describe how to complete the process: rinsing, wiping, curing, drying,
+buffing, or post-treatment care. Mention what a successful result should
+look or feel like after correct use.
+</li>
+</ol>
+<p>
+Emphasize any category-specific nuances such as low mechanical action for
+delicate fibers, even film thickness for coatings, or correct joint filling
+for adhesives.
+</p>
+
+======================================================================
+SECTION 8 — SURFACE / MATERIAL COMPATIBILITY
+======================================================================
+
+<h2>Surface / Material Compatibility</h2>
+<p>
+List and describe the main surfaces, materials, or substrates that are well
+suited for this formulation. Specify where the product provides optimal
+performance, such as textiles, leather, painted metal, plastics, stone,
+cement, resin-printed parts, or specific industrial materials. Also mention
+any surfaces or conditions where caution is recommended or where testing is
+advised before full-scale use. This section should help users quickly judge
+whether the product fits their use case.
+</p>
+
+======================================================================
+SECTION 9 — PRODUCT TYPES / VARIANTS
+======================================================================
+
+<h2>Product Types / Variants</h2>
+<p>
+Explain possible variants of this formulation that a manufacturer could
+develop from the same core technology. For example: ready-to-use spray vs
+concentrate, low-foam vs high-foam version, fragrance options, color
+options, or packaging formats targeted at professional vs household users.
+Make it clear that the core formulation concept can be tuned for different
+markets and application methods without revealing percentages.
+</p>
+
+======================================================================
+SECTION 10 — INDUSTRY APPLICATIONS
+======================================================================
+
+<h2>Industry Applications</h2>
+<p>
+Describe which industries, sectors, or professional environments can benefit
+from this formulation. For instance, list textile care, automotive detailing,
+household cleaning, institutional hygiene, construction, industrial
+maintenance, 3D printing service bureaus, agriculture, or pet grooming
+salons, depending on the product category. For each example, briefly explain
+why the formulation is a good fit and what operational advantage it offers.
+</p>
+
+======================================================================
+SECTION 11 — SAFETY NOTES
+======================================================================
+
+<h2>Safety Notes</h2>
+<p>
+Provide general safety guidance appropriate for the category. Mention
+practical precautions such as wearing gloves or eye protection when needed,
+keeping the product away from children and pets, avoiding ingestion, and
+not mixing with incompatible chemicals (for example, oxidizing agents or
+bleach for some cleaning products). Keep the tone responsible but not
+fear-inducing, and avoid any regulatory or medical claims. The aim is to
+reinforce responsible, professional handling.
+</p>
+
+======================================================================
+SECTION 12 — STORAGE & STABILITY
+======================================================================
+
+<h2>Storage & Stability</h2>
+<p>
+Explain how to store the product to maintain performance and shelf life.
+Mention preferred temperature ranges, protection from direct sunlight, and
+the importance of keeping containers tightly sealed. Provide a typical
+qualitative shelf-life expectation (e.g., many months under recommended
+conditions) without promising precise dates. If relevant, note any
+sensitivity to freezing, excessive heat, or moisture.
+</p>
+
+======================================================================
+SECTION 13 — FAQS (MINIMUM 3)
+======================================================================
+
+<h2>FAQs</h2>
+<p>
+<strong>Q:</strong> Ask a common practical question about how or where to use the product.<br>
+<strong>A:</strong> Provide a clear, helpful answer tailored to the category.
+</p>
+<p>
+<strong>Q:</strong> Ask a second question about compatibility, safety, or performance expectations.<br>
+<strong>A:</strong> Give a reassuring, realistic answer with actionable advice.
+</p>
+<p>
+<strong>Q:</strong> Ask a third question about storage, re-use, or troubleshooting if the first result was not satisfactory.<br>
+<strong>A:</strong> Provide guidance about adjustment in use conditions or when to re-test on a small area.
+</p>
+<p>
+Optionally, you may add a fourth FAQ where helpful, as long as the question
+and answer remain unique and relevant to this specific product category.
+</p>
+
+======================================================================
+END OF MASTER FILE V3 — PART 2
+======================================================================
