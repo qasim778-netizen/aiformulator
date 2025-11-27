@@ -1,0 +1,316 @@
+======================================================================
+MASTER FILE V3 — FULL VERSION (FINAL MERGED WITH GOOGLE INTENT ENGINE)
+======================================================================
+
+This file controls how ANY formulation page is generated from the admin panel.
+It ensures:
+• Long (1500–2000 word) professional pages  
+• Fully SEO-safe  
+• Non-repetitive  
+• Category-specific tone  
+• Bullet/number formatting  
+• Clean HTML  
+• Auto-rotating internal link styles  
+• Google search-intent matching  
+• AI Overview compatibility  
+
+======================================================================
+PART 1 — GLOBAL RULES + KEYWORD STRATEGY + CTA STRATEGY + PAGE STRATEGY
+======================================================================
+
+GLOBAL RULES:
+1. Output MUST be in pure HTML. No markdown. No placeholders.
+2. All paragraphs MUST use:
+   <p style="text-align: justify;">
+3. Bullet sections (ul/li) and numbered lists (ol/li) MUST NOT be justified.
+4. Headings <h1>, <h2>, <h3> always left-aligned.
+5. Total public content length target: 1500–2000 words.
+6. No repeated sentences across sections or products.
+7. No medical or regulatory claims.
+8. No consumer “how to use product” instructions.
+9. Entire content must feel expert-level.
+
+======================================================================
+ADMIN-ONLY SECTIONS
+======================================================================
+
+ADMIN SECTION 1 — Keyword Strategy  
+Create a 6-layer keyword strategy:
+• Primary Keyword  
+• Secondary Keyword  
+• Semantic Keywords  
+• Context Keywords  
+• Industry Keywords  
+• Supporting Keywords  
+
+ADMIN SECTION 2 — CTA Strategy  
+Include:
+• Conversion message  
+• Audience targeting  
+• Emotional trigger  
+• Category hook  
+
+ADMIN SECTION 3 — Page Strategy  
+Include:
+• Entity classification  
+• Structure pattern  
+• Category tone  
+• Duplicate-avoidance plan  
+• Image plan (no images in output)  
+• CTA selection  
+• Internal link style selection  
+
+======================================================================
+GOOGLE SEARCH INTENT ENGINE (MUST APPLY TO ALL SECTIONS)
+======================================================================
+
+Before writing any section, infer and embed REAL user search intent based on:
+• “How to” formulation problems  
+• Ingredient doubts  
+• Viscosity/pH troubleshooting  
+• Cost optimization queries  
+• Stability problems  
+• Substitution questions  
+• Manufacturing sequence errors  
+• Compatibility questions  
+• Industry-specific use situations  
+
+Rules:
+1) DO NOT copy Google content — only infer real search intent.  
+2) Each section must contain at least one intent-driven insight.  
+3) FAQs must reflect People-Also-Ask patterns but rewritten uniquely.  
+4) Intent language must be varied across products to avoid duplication.  
+5) This engine influences:  
+   • Problems Solved  
+   • Ingredient Functions  
+   • Performance Advantages  
+   • Variants  
+   • FAQs  
+
+======================================================================
+PART 2 — PUBLIC PAGE STRUCTURE (13 SECTIONS)
+======================================================================
+
+Generate the following in strict order:
+
+1. Overview (paragraph)
+2. Problems This Product Solves (paragraph)
+3. Key Benefits (paragraph)
+4. How It Works (numbered list)
+5. Ingredient Functions (bullets with bold group names)
+6. Performance Advantages (bullets)
+7. Application Instructions (paragraph OR bullets)
+8. Surface / Material Compatibility (paragraph OR bullets)
+9. Product Types / Variants (bullets)
+10. Industry Applications (bullets)
+11. Safety Notes (bullets)
+12. Storage & Stability (paragraph)
+13. FAQs — formulation-focused (min 5)
+
+======================================================================
+FORMATTING RULES (GLOBAL)
+======================================================================
+
+TEXT JUSTIFICATION:
+• Only paragraphs <p> use text-align: justify.  
+• Bullets & numbered lists must stay left-aligned.  
+• No centered or right-aligned text.
+
+INGREDIENT FUNCTIONS FORMAT:
+<h2>Ingredient Functions</h2>
+<ul>
+<li><strong>[Group]</strong> — description.</li>
+...
+</ul>
+
+HOW IT WORKS FORMAT:
+<ol>
+<li><strong>Initial Interaction:</strong> 2–3 sentences.</li>
+<li><strong>Active Breakdown:</strong> 2–3 sentences.</li>
+<li><strong>End Result:</strong> 2–3 sentences.</li>
+</ol>
+
+VARIANTS FORMAT:
+<ul>
+<li><strong>Ready-to-Use Spray</strong> — 2–3 sentences.</li>
+<li><strong>Concentrated Version</strong> — 2–3 sentences.</li>
+<li><strong>Low-Foam Version</strong> — 2–3 sentences.</li>
+<li><strong>Fragrance Variants</strong> — 2–3 sentences.</li>
+<li><strong>Professional-Grade Variant</strong> — 2–3 sentences.</li>
+</ul>
+
+INDUSTRY APPLICATIONS FORMAT:
+<ul>
+<li><strong>[Industry #1]</strong> — 2–3 sentences.</li>
+<li><strong>[Industry #2]</strong> — 2–3 sentences.</li>
+<li><strong>[Industry #3]</strong> — 2–3 sentences.</li>
+</ul>
+
+SAFETY NOTES FORMAT:
+<ul>
+<li><strong>[Safety Point]</strong> — 2–3 sentences.</li>
+</ul>
+
+======================================================================
+PART 3 — CATEGORY TONE ENGINE
+======================================================================
+
+GROUP A — Baby/Gentle Care:
+Soft, mild tone.
+
+GROUP B — Beauty/Skin/Hair:
+Premium, sensory tone.
+
+GROUP C — Cleaning/Detergent:
+Practical, functional tone.
+
+GROUP D — Car/Shoe/Leather:
+Professional detailing tone.
+
+GROUP E — Adhesives/Construction:
+Engineering tone.
+
+GROUP F — Industrial/3D Printing:
+Material science tone.
+
+GROUP G — Pest/Agriculture:
+Safety + compliance tone.
+
+GROUP H — Pet Care:
+Gentle, pet-friendly tone.
+
+GROUP I — Herbal/Organic:
+Botanical, eco-aware tone.
+
+GROUP J — Default:
+Professional, technical tone.
+
+======================================================================
+ANTI-DUPLICATION ENGINE
+======================================================================
+
+Rules:
+• NEVER reuse sentences across products.  
+• Rotate vocabulary & synonyms.  
+• All paragraphs = 4–7 sentences.  
+• FAQs must always be unique.  
+• Benefits must vary per product.  
+• Examples & scenarios must be product-specific.  
+• Sentence structures must rotate.
+
+======================================================================
+FAQ SYSTEM — FORMULATION-FOCUSED (MINIMUM 5)
+======================================================================
+
+<h2>FAQs</h2>
+
+<p style="text-align: justify;">
+<strong>Q: What is the recommended pH range for this formulation?</strong><br>
+<strong>A:</strong> Explain ideal pH, why it matters, stability behavior, and how minor adjustments can be made.
+</p>
+
+<p style="text-align: justify%;">
+<strong>Q: What should the viscosity or thickness feel like?</strong><br>
+<strong>A:</strong> Describe target viscosity, how mixing/shear/temperature affect it, and tuning methods.
+</p>
+
+<p style="text-align: justify;">
+<strong>Q: Can any ingredients be substituted?</strong><br>
+<strong>A:</strong> Explain safe substitutions, cost-saving ingredients, and critical materials that cannot be replaced.
+</p>
+
+<p style="text-align: justify;">
+<strong>Q: How stable is this formulation during storage?</strong><br>
+<strong>A:</strong> Explain expected stability, packaging influences, and environmental factors.
+</p>
+
+<p style="text-align: justify;">
+<strong>Q: What are the main cost drivers?</strong><br>
+<strong>A:</strong> Identify expensive components and mention optimization strategies.
+</p>
+
+<p style="text-align: justify;">
+<strong>Q: What is the expected shelf life?</strong><br>
+<strong>A:</strong> Explain typical shelf-life behavior and factors affecting durability.
+</p>
+
+======================================================================
+PART 4 — INTERNAL LINK SYSTEM (3 VARIANTS + ROTATION LOGIC)
+======================================================================
+
+Use ONE of these styles per page:
+
+-------------------------
+OPTION A — SEO Context Link
+-------------------------
+<h2>Recommended Resource</h2>
+<p style="text-align: justify;">
+For manufacturers exploring related formulations in this category,
+visit our <a href="https://aiformulator.com/collection/[category-slug]">
+<strong>complete category portfolio</strong></a> for more high-performance products.
+</p>
+
+-------------------------
+OPTION B — Clean CTA Link
+-------------------------
+<h2>Explore More Formulations</h2>
+<p style="text-align: justify;">
+Browse additional formulations in this category to build a broader product lineup.
+<br>
+<a href="https://aiformulator.com/collection/[category-slug]"><strong>Browse Category →</strong></a>
+</p>
+
+-------------------------
+OPTION C — Minimal Footer Link
+-------------------------
+<p style="margin-top: 25px; text-align: left;">
+<a href="https://aiformulator.com/collection/[category-slug]">← Back to Category Page</a>
+</p>
+
+ROTATION RULE:
+• Baby/Beauty/Organic → Option A  
+• Cleaning/Car/Shoe/Pet → Option B  
+• Adhesives/Industrial/3D → Option C  
+• Others → random choice  
+
+======================================================================
+PART 5 — FINAL CTA (MANDATORY)
+======================================================================
+
+<h2>Call to Action</h2>
+<p style="text-align: justify;">
+Download the complete formulation file to access exact ingredient percentages,
+manufacturing instructions, mixing sequence, QC parameters, scaling guidance,
+and full professional documentation.
+</p>
+
+======================================================================
+FINAL OUTPUT ORDER (EXTREMELY IMPORTANT)
+======================================================================
+
+1. <h1>[Product Name]</h1>
+2. Keyword Strategy (admin)
+3. CTA Strategy (admin)
+4. Page Strategy (admin)
+
+--- PUBLIC SECTION ---
+5. Overview  
+6. Problems This Product Solves  
+7. Key Benefits  
+8. How It Works  
+9. Ingredient Functions  
+10. Performance Advantages  
+11. Application Instructions  
+12. Surface / Material Compatibility  
+13. Product Types / Variants  
+14. Industry Applications  
+15. Safety Notes  
+16. Storage & Stability  
+17. FAQs  
+18. Final CTA  
+19. Internal Link (one of A/B/C)
+--- END PUBLIC SECTION ---
+
+======================================================================
+END OF MASTER FILE V3 — FINAL MERGED VERSION
+======================================================================
