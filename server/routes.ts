@@ -678,9 +678,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         allFormulations = allFormulations.filter(f => f.isActive);
       }
       
-      const totalItems = allFormulations.length;
+      // Add generated page content to each formulation
+      const formulationsWithContent = await Promise.all(
+        allFormulations.map(async (formulation) => {
+          const pageContent = await storage.getPageByFormulationId(formulation.id);
+          return {
+            ...formulation,
+            customPageContent: pageContent?.content || null
+          };
+        })
+      );
+      
+      const totalItems = formulationsWithContent.length;
       const totalPages = Math.ceil(totalItems / limit);
-      const formulations = allFormulations.slice(offset, offset + limit);
+      const formulations = formulationsWithContent.slice(offset, offset + limit);
       
       if (req.query.paginated === 'true') {
         res.json({
