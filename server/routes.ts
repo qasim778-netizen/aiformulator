@@ -3092,6 +3092,27 @@ CONTENT UNIQUENESS RULES
 6) Avoid repeating benefits across multiple products.
 
 ======================================================================
+TEXT ALIGNMENT RULES
+======================================================================
+
+1. All <p> paragraphs MUST include:
+   <p style="text-align: justify;">
+
+2. Bullet lists <ul><li> and numbered lists <ol><li> MUST remain left-aligned.
+   • Do NOT justify list items.
+   • Do NOT apply text-align:center or text-align:right anywhere.
+
+3. Headings <h1>, <h2>, <h3> MUST remain default left-aligned.
+
+4. Industry Applications, Ingredient Functions, Product Variants,
+   Performance Advantages, Safety Notes:
+   • Bullet format only
+   • NO justification on bullet lists
+
+5. Large sections such as Overview, Problems Solved,
+   Storage & Stability MUST have justified paragraphs.
+
+======================================================================
 13-SECTION PUBLIC PAGE LAYOUT (ALL CATEGORIES)
 ======================================================================
 
