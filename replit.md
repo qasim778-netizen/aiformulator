@@ -79,24 +79,6 @@ The application is configured for both development and production environments:
 - **React Hook Form**: Performant forms with easy validation integration
 - **OpenAI API**: AI-powered formulation generation and optional name optimization
 
-## Recent Changes (November 27, 2025)
-
-### Fixed Issues
-1. **Formulation Page Content Loading (FIXED)**
-   - Issue: Editing generated formulation pages showed blank fields
-   - Solution: Added database fetch query to FormulationContentForm component using React Query
-   - Form now properly loads existing page content from database when opened for editing
-   - File: `client/src/components/admin/formulation-content-form.tsx`
-
-2. **Internal Link Rotation Logic (UPDATED)**
-   - Enhanced Master System File V3 with intelligent rotation pattern
-   - Internal links now use two-step rotation system:
-     - STEP 1: Determines category group (Baby/Beauty → A, Cleaning/Pet Care → B, Industrial/Adhesives → C)
-     - STEP 2: Applies ASCII-based rotation using product name (first letter ASCII value MOD 3)
-   - Prevents repetition across multiple pages in same category
-   - Example: "Pet Dental Care" (P, ASCII 80 MOD 3 = 2) rotates from Option B to Option A
-   - File: `server/routes.ts` (lines 3389-3420, Master System File V3)
-
 ## Key Features
 
 ### Automatic SEO Name Optimization
