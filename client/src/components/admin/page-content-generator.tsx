@@ -23,14 +23,25 @@ export default function PageContentGenerator({
   const [content, setContent] = useState(initialContent);
   const { toast } = useToast();
 
-  // Update content when initialContent prop changes
+  // Fetch saved page content from database
+  const { data: savedContent } = useQuery<{ content: string } | null>({
+    queryKey: ["/api/formulation-page-content", formulationId],
+    queryFn: async () => {
+      try {
+        const response = await apiRequest("GET", `/api/formulation-page-content/${formulationId}`);
+        if (response.status === 404) return null;
+        return response.json();
+      } catch (e) {
+        return null;
+      }
+    },
+  });
+
+  // Update content when initialContent prop changes or saved content is fetched
   useEffect(() => {
-    if (initialContent) {
-      setContent(initialContent);
-    } else {
-      setContent("");
-    }
-  }, [initialContent, formulationId]);
+    const contentToUse = savedContent?.content || initialContent || "";
+    setContent(contentToUse);
+  }, [initialContent, formulationId, savedContent]);
 
   const generateMutation = useMutation({
     mutationFn: async () => {
