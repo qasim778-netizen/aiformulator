@@ -3203,14 +3203,12 @@ SECTION 9 — PRODUCT TYPES / VARIANTS:
 
 SECTION 10 — INDUSTRY APPLICATIONS:
 <h2>Industry Applications</h2>
-<p>
-Describe which industries, sectors, or professional environments can benefit.
-For instance: textile care, automotive detailing, household cleaning, institutional
-hygiene, construction, industrial maintenance, 3D printing, agriculture, or pet
-grooming, depending on category. For each example, briefly explain why the
-formulation is a good fit and what operational advantage it offers.
-(120–200 words, 4–7 sentences)
-</p>
+<ul>
+<li><strong>[Industry Name #1]</strong> — 2–3 sentences explaining how the product is used in this sector and why it provides operational advantages.</li>
+<li><strong>[Industry Name #2]</strong> — 2–3 sentences describing typical use cases, workflow compatibility, and performance benefits for this industry.</li>
+<li><strong>[Industry Name #3]</strong> — 2–3 sentences outlining practical value, efficiency improvements, or performance reliability for this sector.</li>
+<li><strong>[Industry Name #4 — optional]</strong> — Only include when the product clearly supports an additional sector. Provide a unique, detailed 2–3 sentence explanation.</li>
+</ul>
 
 SECTION 11 — SAFETY NOTES:
 <h2>Safety Notes</h2>
