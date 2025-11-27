@@ -3390,13 +3390,28 @@ ROTATION LOGIC (IMPORTANT)
 ======================================================================
 
 RULE:
-Select ONE internal link option per page using the following system:
+Select ONE internal link option per page using this two-step system:
 
-• If product belongs to Baby, Beauty, Skin, Hair, Organic categories → use OPTION A  
-• If product belongs to Cleaning, Car Care, Shoe Care, Pet Care → use OPTION B  
-• If product belongs to Industrial, Adhesives, Sealants, Construction, 3D Printing → use OPTION C  
+STEP 1 — Determine category group:
+• GROUP A (preferred): Baby, Beauty, Skin, Hair, Organic → use OPTION A  
+• GROUP B (preferred): Cleaning, Car Care, Shoe Care, Pet Care → use OPTION B  
+• GROUP C (preferred): Industrial, Adhesives, Sealants, Construction, 3D Printing → use OPTION C  
+• If category does not match any group → GROUP J (use random selection below)
 
-If category does not match any group → randomly choose A, B, or C.
+STEP 2 — Apply rotation within group:
+To prevent repetition across multiple pages in the same category:
+1. Take the first letter of the product name (e.g., "Pet Dental Care" = P)
+2. Calculate: (ASCII value of first letter) MOD 3 = rotation offset (0, 1, or 2)
+3. Apply rotation offset:
+   - Offset 0: Use PREFERRED option for this group
+   - Offset 1: Use the NEXT option (A→B, B→C, C→A)
+   - Offset 2: Use the LAST option (A→C, B→A, C→B)
+
+EXAMPLE:
+Product: "Pet Dental Care" (starts with P, ASCII 80)
+Category: Pet Care (GROUP B, preferred OPTION B)
+Calculation: 80 MOD 3 = 2
+Result: Offset 2, so use B→A → Use OPTION A instead
 
 DO NOT mention rotation or rules in output.
 DO NOT output more than one internal link block.
