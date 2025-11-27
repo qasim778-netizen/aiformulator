@@ -3350,13 +3350,56 @@ scaling advice, and QC parameters used by professional formulators.
 </p>
 
 ======================================================================
-INTERNAL LINK BLOCK (MANDATORY)
+INTERNAL LINK BLOCK — 3 VARIANTS (ROTATING STYLE)
 ======================================================================
 
-<h2>Internal Link</h2>
-<p>
-https://aiformulator.com/collection/${categorySlug}
+Use ONE of the following three styles for internal linking. Rotate styles
+across pages to prevent repetition and create natural link patterns.
+
+-------------------------------------------
+INTERNAL LINK — OPTION A (SEO Context Link)
+-------------------------------------------
+<h2>Recommended Resource</h2>
+<p style="text-align: justify;">
+For manufacturers exploring advanced formulations in this category,
+visit our <a href="https://aiformulator.com/collection/${categorySlug}">
+<strong>complete category portfolio</strong></a> to discover additional high-performance
+products and expand your formulation library.
 </p>
+
+-------------------------------------------
+INTERNAL LINK — OPTION B (Clean CTA Link)
+-------------------------------------------
+<h2>Explore More Formulations</h2>
+<p style="text-align: justify;">
+Browse additional formulations in this category to build a broader product range.
+<br>
+<a href="https://aiformulator.com/collection/${categorySlug}">
+<strong>Browse Category →</strong></a>
+</p>
+
+-------------------------------------------
+INTERNAL LINK — OPTION C (Minimal Professional Footer)
+-------------------------------------------
+<p style="margin-top: 25px; text-align: left;">
+<a href="https://aiformulator.com/collection/${categorySlug}">← Back to Category Page</a>
+</p>
+
+======================================================================
+ROTATION LOGIC (IMPORTANT)
+======================================================================
+
+RULE:
+Select ONE internal link option per page using the following system:
+
+• If product belongs to Baby, Beauty, Skin, Hair, Organic categories → use OPTION A  
+• If product belongs to Cleaning, Car Care, Shoe Care, Pet Care → use OPTION B  
+• If product belongs to Industrial, Adhesives, Sealants, Construction, 3D Printing → use OPTION C  
+
+If category does not match any group → randomly choose A, B, or C.
+
+DO NOT mention rotation or rules in output.
+DO NOT output more than one internal link block.
 
 ======================================================================
 FINAL OUTPUT ASSEMBLY ORDER
