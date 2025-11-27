@@ -3239,10 +3239,26 @@ FINAL OUTPUT ORDER (EXTREMELY IMPORTANT)
 END OF MASTER FILE V3 — FINAL MERGED VERSION
 ======================================================================`;
 
-      const userPrompt = `Generate a complete HTML formulation page for: ${productName}
+      const userPrompt = `MANDATORY: Generate a complete HTML formulation page for: ${productName}
 Category: ${categoryName}
 
-Output ONLY the HTML block. Nothing else. No text outside tags.`;
+CRITICAL OUTPUT ORDER (MUST FOLLOW EXACTLY):
+
+1) <h1>${productName}</h1>
+
+2) ADMIN-ONLY SECTIONS (ALWAYS INCLUDE):
+   <h2>Keyword Strategy</h2>
+   (6-layer keyword strategy: Primary, Secondary, Semantic, Context, Industry, Supporting)
+   
+   <h2>CTA Strategy</h2>
+   (Conversion message, audience targeting, emotional trigger, category hook)
+   
+   <h2>Page Strategy</h2>
+   (Entity classification, structure pattern, category tone, duplication avoidance)
+
+3) PUBLIC 13-SECTION CONTENT (Overview through FAQs + Final CTA + Internal Link)
+
+Output ONLY pure HTML. No markdown. No placeholders. No text outside tags.`;
 
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
