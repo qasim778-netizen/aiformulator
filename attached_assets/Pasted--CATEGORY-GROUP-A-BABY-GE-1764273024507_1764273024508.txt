@@ -1,0 +1,366 @@
+======================================================================
+CATEGORY GROUP A — BABY & GENTLE CARE (8-Section Layout)
+======================================================================
+
+<h2>Overview</h2>
+<p>Provide a gentle, parent-friendly introduction explaining what the product is, its purpose, and why it is suitable for sensitive baby skin.</p>
+
+<h2>Gentle Care Benefits</h2>
+<ul>
+<li>Benefit 1 focused on mild cleansing or hydration.</li>
+<li>Benefit 2 emphasizing softness or nourishment.</li>
+<li>Benefit 3 highlighting dermatological gentleness.</li>
+</ul>
+
+<h2>How the Formula Works</h2>
+<p>Explain, in soft language, how mild surfactants, emollients, or conditioning agents work together to offer safe performance.</p>
+
+<h2>Key Ingredients Explained</h2>
+<p>Break down ingredient groups such as mild surfactants, moisturizers, protective oils — without percentages.</p>
+
+<h2>How to Use</h2>
+<ol>
+<li>Step 1 explaining product preparation or dispensing.</li>
+<li>Step 2 describing gentle application.</li>
+<li>Step 3 describing rinsing or drying.</li>
+</ol>
+
+<h2>Safety for Sensitive Skin</h2>
+<p>Suggest patch-test practice, eye safety, and appropriate usage for infants or kids.</p>
+
+<h2>Storage & Shelf Life</h2>
+<p>Give simple storage guidance for heat, sunlight, and moisture protection.</p>
+
+<h2>Common Questions</h2>
+<p><strong>Q:</strong> Question 1?<br><strong>A:</strong> Answer.</p>
+
+
+======================================================================
+CATEGORY GROUP B — SKIN / HAIR / BEAUTY / GROOMING
+======================================================================
+
+<h2>Overview</h2>
+<p>Introduce the cosmetic or personal-care purpose of the formulation and the results it aims to deliver.</p>
+
+<h2>Cosmetic Benefits</h2>
+<ul>
+<li>Benefit 1 describing visible improvement.</li>
+<li>Benefit 2 describing sensory feel.</li>
+<li>Benefit 3 describing long-term performance.</li>
+</ul>
+
+<h2>Active Mechanism</h2>
+<p>Explain how active ingredients or conditioning agents work on hair or skin.</p>
+
+<h2>Ingredient Roles</h2>
+<p>Describe the conceptual function of key surfactants, emollients, oils, or actives.</p>
+
+<h2>How to Use</h2>
+<ol>
+<li>Usage step 1.</li>
+<li>Usage step 2.</li>
+<li>Usage step 3.</li>
+</ol>
+
+<h2>Skin/Hair Compatibility</h2>
+<p>Describe suitable skin types, hair types, or environmental conditions.</p>
+
+<h2>Safety Notes</h2>
+<p>Provide cosmetic safety considerations including patch-testing and eye safety.</p>
+
+<h2>FAQs</h2>
+<p><strong>Q:</strong> Question?<br><strong>A:</strong> Answer.</p>
+
+
+======================================================================
+CATEGORY GROUP C — CLEANING & DETERGENT PRODUCTS
+======================================================================
+
+<h2>Purpose & Overview</h2>
+<p>Clearly explain what cleaning task the formulation is designed for and the expected performance.</p>
+
+<h2>Key Cleaning Benefits</h2>
+<ul>
+<li>Benefit 1 focusing on soil or stain removal.</li>
+<li>Benefit 2 focusing on shine or brightness.</li>
+<li>Benefit 3 focusing on hygiene or freshness.</li>
+</ul>
+
+<h2>How It Works</h2>
+<p>Explain how surfactants, solvents, builders, or acids/alkalis work together for cleaning efficiency.</p>
+
+<h2>Application Instructions</h2>
+<ol>
+<li>Explain the proper dilution or direct-use method.</li>
+<li>Describe recommended application or scrubbing process.</li>
+<li>Provide rinsing or drying instructions.</li>
+</ol>
+
+<h2>Surface Compatibility</h2>
+<p>List materials where the product is ideal or should be avoided.</p>
+
+<h2>Performance Notes</h2>
+<p>Explain how temperature, water hardness, contact time, or agitation influence cleaning.</p>
+
+<h2>Safety Precautions</h2>
+<p>Provide simple household safety practices: gloves, ventilation, and eye safety.</p>
+
+<h2>Storage</h2>
+<p>Describe storage conditions for detergent stability.</p>
+
+
+======================================================================
+CATEGORY GROUP D — CAR / AUTO / SHOE / LEATHER CARE
+======================================================================
+
+<h2>Product Overview</h2>
+<p>Describe the detailing or protective purpose of the formulation and who typically uses it.</p>
+
+<h2>Shine & Performance Benefits</h2>
+<ul>
+<li>Benefit 1 related to gloss or shine.</li>
+<li>Benefit 2 related to protection from dust or cracking.</li>
+<li>Benefit 3 related to longevity or durability.</li>
+</ul>
+
+<h2>How the Formula Works</h2>
+<p>Explain how polymers, waxes, conditioning agents, or cleaners interact with surfaces.</p>
+
+<h2>Application Steps</h2>
+<ol>
+<li>Step 1: surface prep.</li>
+<li>Step 2: product application.</li>
+<li>Step 3: buffing, drying, or curing.</li>
+</ol>
+
+<h2>Material Compatibility</h2>
+<p>List suitable surfaces (paint, rubber, vinyl, leather, etc.).</p>
+
+<h2>Protection & Durability Notes</h2>
+<p>Describe weather resistance, wear resistance, or UV protection.</p>
+
+<h2>Safety & Handling</h2>
+<p>Provide safe usage guidelines appropriate for automotive or shoe-care chemicals.</p>
+
+<h2>Storage</h2>
+<p>Simple storage guidelines for heat or sunlight exposure.</p>
+
+
+======================================================================
+CATEGORY GROUP E — ADHESIVES / SEALANTS / CONSTRUCTION
+======================================================================
+
+<h2>Technical Overview</h2>
+<p>Explain the adhesive/sealant’s functional identity and the type of joints or gaps it is designed for.</p>
+
+<h2>Bonding Features</h2>
+<ul>
+<li>Strength or flexibility benefit 1.</li>
+<li>Cure or drying benefit 2.</li>
+<li>Durability or environmental resistance benefit 3.</li>
+</ul>
+
+<h2>Mechanism of Adhesion</h2>
+<p>Explain how polymers, resins, or curing chemistry provide bonding strength.</p>
+
+<h2>Substrate Compatibility</h2>
+<p>List surfaces where bonding is ideal (metal, plastic, ceramic, stone, etc.).</p>
+
+<h2>Application Procedure</h2>
+<ol>
+<li>Joint preparation.</li>
+<li>Dispensing or spreading method.</li>
+<li>Curing or clamping notes.</li>
+</ol>
+
+<h2>Curing / Drying Notes</h2>
+<p>Explain temperature or humidity effects.</p>
+
+<h2>Safety & PPE</h2>
+<p>List essential safety equipment and ventilation requirements.</p>
+
+<h2>Storage & Stability</h2>
+<p>Describe shelf life and suitable storage temperatures.</p>
+
+
+======================================================================
+CATEGORY GROUP F — INDUSTRIAL / 3D PRINTING / RESINS / COATINGS
+======================================================================
+
+<h2>Product Identity</h2>
+<p>Describe what the formulation is, the industrial domain it belongs to, and its intended technical application.</p>
+
+<h2>Technical Performance</h2>
+<ul>
+<li>Mechanical or physical performance trait 1.</li>
+<li>Material performance trait 2.</li>
+<li>Environmental resistance trait 3.</li>
+</ul>
+
+<h2>Material Science Background</h2>
+<p>Explain the polymer, resin, or composite science underlying the formulation.</p>
+
+<h2>Processing / Printing Guidelines</h2>
+<ol>
+<li>Equipment preparation.</li>
+<li>Processing or printing conditions.</li>
+<li>Post-processing or curing.</li>
+</ol>
+
+<h2>Performance Envelope</h2>
+<p>Describe the operational limits or ideal working conditions.</p>
+
+<h2>QC & Reliability Notes</h2>
+<p>List conceptual QA/QC checkpoints for industrial users.</p>
+
+<h2>Safety & Handling</h2>
+<p>Provide industrial-grade safety expectations.</p>
+
+<h2>Storage</h2>
+<p>Describe bulk storage or drum-handling notes.</p>
+
+
+======================================================================
+CATEGORY GROUP G — AGRICULTURE / WATER TREATMENT / PEST CONTROL
+======================================================================
+
+<h2>Purpose & Overview</h2>
+<p>Describe the task the formulation performs in agricultural or water-treatment settings.</p>
+
+<h2>Mechanism of Action</h2>
+<p>Explain how active components work — without medical or regulatory claims.</p>
+
+<h2>Application Guidelines</h2>
+<ol>
+<li>Dilution or preparation.</li>
+<li>Spraying or dosing method.</li>
+<li>Coverage or contact time.</li>
+</ol>
+
+<h2>Coverage & Compatibility</h2>
+<p>List crops, surfaces, or systems where use is appropriate.</p>
+
+<h2>Environmental & Safety Notes</h2>
+<p>Provide responsible handling, PPE, and environmental guidance.</p>
+
+<h2>Storage & Stability</h2>
+<p>Describe stability in varying temperatures or humidity.</p>
+
+<h2>Emergency Notes</h2>
+<p>Simple non-medical, non-regulatory emergency response suggestions.</p>
+
+<h2>FAQs</h2>
+<p><strong>Q:</strong> Question?<br><strong>A:</strong> Answer.</p>
+
+
+======================================================================
+CATEGORY GROUP H — PET CARE (NON-MEDICINAL)
+======================================================================
+
+<h2>Overview</h2>
+<p>Describe the pet-care purpose of the formulation and expected effect on fur/skin surfaces.</p>
+
+<h2>Benefits for Pets</h2>
+<ul>
+<li>Benefit 1 related to fur/coat.</li>
+<li>Benefit 2 related to odor control.</li>
+<li>Benefit 3 related to comfort.</li>
+</ul>
+
+<h2>How the Formula Works</h2>
+<p>Explain how mild actives and conditioners work together safely for pets.</p>
+
+<h2>Usage Instructions</h2>
+<ol>
+<li>Pre-wetting or prep.</li>
+<li>Application method.</li>
+<li>Rinse or dry guidance.</li>
+</ol>
+
+<h2>Safety for Pets</h2>
+<p>List category-appropriate safety notes (no medical claims).</p>
+
+<h2>Storage</h2>
+<p>Provide safe storage/handling advice.</p>
+
+<h2>FAQs</h2>
+<p><strong>Q:</strong> Question?<br><strong>A:</strong> Answer.</p>
+
+<h2>Product Care Tips</h2>
+<p>Give simple usage and storage tips.</p>
+
+
+======================================================================
+CATEGORY GROUP I — HERBAL / ORGANIC / AROMATHERAPY
+======================================================================
+
+<h2>Overview</h2>
+<p>Introduce the herbal/natural purpose of the formulation.</p>
+
+<h2>Natural Benefits</h2>
+<ul>
+<li>Benefit 1 related to natural cleansing or soothing.</li>
+<li>Benefit 2 related to fragrance or relaxation.</li>
+<li>Benefit 3 related to botanical support.</li>
+</ul>
+
+<h2>Botanical Mechanisms</h2>
+<p>Explain how natural oils or extracts contribute functionally.</p>
+
+<h2>Ingredient Roles</h2>
+<p>Break down emollients, essential oils, or herbal extracts.</p>
+
+<h2>How to Use</h2>
+<ol>
+<li>Step 1.</li>
+<li>Step 2.</li>
+<li>Step 3.</li>
+</ol>
+
+<h2>Precautions</h2>
+<p>List safety notes for natural products.</p>
+
+<h2>Storage</h2>
+<p>Explain storage conditions for essential oil–based formulations.</p>
+
+<h2>FAQs</h2>
+<p><strong>Q:</strong> Question?<br><strong>A:</strong> Answer.</p>
+
+
+======================================================================
+CATEGORY GROUP J — DEFAULT (8-section basic layout)
+======================================================================
+
+<h2>Overview</h2>
+<p>Provide a flexible general-purpose introduction to the product.</p>
+
+<h2>Key Features</h2>
+<ul>
+<li>Feature 1.</li>
+<li>Feature 2.</li>
+<li>Feature 3.</li>
+</ul>
+
+<h2>How It Works</h2>
+<p>Explain the functional mechanism.</p>
+
+<h2>Application</h2>
+<ol>
+<li>Step 1.</li>
+<li>Step 2.</li>
+<li>Step 3.</li>
+</ol>
+
+<h2>Compatibility</h2>
+<p>Surfaces or materials suitable for the product.</p>
+
+<h2>Safety Notes</h2>
+<p>General safety guidance.</p>
+
+<h2>Storage</h2>
+<p>Storage conditions.</p>
+
+<h2>FAQs</h2>
+<p><strong>Q:</strong> Question?<br><strong>A:</strong> Answer.</p>
+
+END OF PART 2
