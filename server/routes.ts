@@ -2911,593 +2911,554 @@ Allow: /disclaimer`;
         }
       }
 
-      const systemPrompt = `MASTER SYSTEM FILE — AIFormulator HTML Generator
-=========================================================================
+      const systemPrompt = `MASTER SYSTEM FILE V2 — AIFormulator Category-Based Generator
+======================================================================
+GOAL:
+Generate a complete, professional formulation page as ONE clean HTML block.
+Admin sees Keyword Strategy + CTA Strategy at top. Users will see main body only.
 
-GOAL: Generate a COMPLETE formulation page as ONE SINGLE CLEAN HTML BLOCK.
+======================================================================
+GLOBAL HTML RULES
+======================================================================
 
-MANDATORY GLOBAL HTML RULES:
-1. ALWAYS output HTML only.
-2. Allowed tags ONLY: <h1>, <h2>, <h3>, <p>, <ul>, <li>, <ol>, <strong>, <br>
-3. NEVER use Markdown (** ## etc.)
-4. NEVER output JSON.
-5. NEVER split output into multiple blocks. Output ONE final HTML block only.
-6. ALL sections must be inside the SAME HTML output.
-7. NO explanations outside HTML tags.
+1) Output ONLY valid HTML.
+2) Allowed tags: <h1>, <h2>, <h3>, <p>, <ul>, <li>, <ol>, <strong>, <br>
+3) NO Markdown (no **, no ##)
+4) NO JSON
+5) NO codeblocks
+6) NO multiple blocks — final output MUST be ONE SINGLE HTML document
+7) NEVER show template names, internal rules, or category logic
 
-TOP-OF-PAGE REQUIRED ORDER (STRICT):
-<h1>${productName}</h1>
+======================================================================
+TOP OF PAGE — STRICT SEQUENCE
+======================================================================
+
+Every generated page MUST begin with:
+
+<h1>[Product Name]</h1>
 
 <h2>Keyword Strategy</h2>
-<p><strong>Primary Keyword:</strong> ${productName}</p>
-<p><strong>Secondary Keywords:</strong> 3–5 category-related phrases specific to ${categoryName}</p>
-<p><strong>Semantic Keywords:</strong> chemistry, technical, and function terms relevant to this formulation</p>
-<p><strong>Intent-Based Keywords:</strong> how to use, benefits, applications, best practices</p>
-<p><strong>Context-Based Keywords:</strong> user scenarios, environment, application contexts</p>
-<p><strong>Long-Tail Keywords:</strong> 2–3 natural question-like searches users would make</p>
+<p><strong>Primary Keyword:</strong> ...</p>
+<p><strong>Secondary Keywords:</strong> ...</p>
+<p><strong>Semantic Keywords:</strong> ...</p>
+<p><strong>Intent-Based Keywords:</strong> ...</p>
+<p><strong>Context-Based Keywords:</strong> ...</p>
+<p><strong>Long-Tail Keywords:</strong> ...</p>
 
 <h2>CTA Strategy</h2>
-<p>
-Based on category "${categoryName}":
-If category contains: baby, infant, kids, child, skin, hair, beauty, salon, grooming, shampoo, lotion, cream, wash
-→ Use gentle, safe, confidence-focused CTA tone.
-If category contains: cleaning, detergent, toilet, bathroom, disinfectant, laundry, fabric, floor
-→ Use performance-driven CTA (shine, cleaning power, efficiency).
-If category contains: adhesive, sealant, epoxy, grout, tile, stone, construction, cement
-→ Use technical, reliability-focused CTA (strength, stability).
-If category contains: agriculture, agro, water treatment, pest, mosquito
-→ Use safety, compliance, controlled-usage CTA.
-Otherwise: Use neutral, clarity-focused CTA.
-Write 2-3 sentences matching the tone above.
-</p>
+<p>Explain selected CTA tone based on product category (2–3 lines).</p>
 
 <h2>Page Strategy</h2>
 <p>
-Provide 5-7 sentences explaining:
-• why this template structure fits the ${categoryName} category
-• why this semantic approach suits the product intent
-• the SEO purpose and Google AI-Overview alignment
-• the tone and style chosen
-• how variation maintains uniqueness
+Explain why this category layout is selected, the SEO purpose, tone, and structure.
+(4–6 lines)
 </p>
 
-=====================================================================
-PAGE TEMPLATE SELECTION (ONE OF T1-T10) BASED ON CATEGORY MAPPING
-=====================================================================
+======================================================================
+CATEGORY DETECTION LOGIC
+======================================================================
 
-Category Mapping:
-- GROUP A (baby, infant, kids, child) → T2, T4, T10
-- GROUP B (skin, hair, beauty, grooming, shampoo, lotion, cream, wash) → T1, T4, T7, T10
-- GROUP C (cleaning, detergent, toilet, laundry, disinfectant, fabric, floor) → T2, T6, T7
-- GROUP D (car, auto, vehicle, tire, polish, shoe, leather) → T1, T3, T6
-- GROUP E (adhesive, sealant, epoxy, grout, tile, stone, construction, cement) → T3, T5, T8
-- GROUP F (industrial, 3d printing, filament, resin, coating, polymer, paint) → T3, T5, T9
-- GROUP G (agriculture, agro, water treatment, pest, mosquito, mite) → T2, T8, T9
-- GROUP H (pet, veterinary, dog, cat, animal) → T2, T4, T7
-- GROUP I (herbal, organic, essential oil, aromatherapy, natural) → T2, T4, T9, T10
-- GROUP J (default/other) → Any T1-T10
+Convert category to lowercase.
+Match using these keywords:
 
-Pick ONE randomly from the category group above, then INSERT it below:
+GROUP A — Baby & Gentle Care  
+(baby, kids, child, infant, baby wash, baby lotion)
 
-T1 — CLASSIC TECHNICAL OVERVIEW:
-<h2>Product Snapshot</h2>
-<p>Provide a clear and concise explanation of what ${productName} is, its primary purpose, and core functionality it delivers.</p>
-<h2>Entity Details</h2>
-<p><strong>Category:</strong> ${categoryName}<br><strong>Type:</strong> Specific product type<br><strong>Application:</strong> Usage context<br><strong>Industry:</strong> Industry segment</p>
-<h2>What This Formulation Does</h2>
-<p>Explain the functional objective and results it aims to deliver in practical use.</p>
-<h2>Key Performance Features</h2>
+GROUP B — Skin / Hair / Beauty  
+(shampoo, skin, hair, beauty, grooming, men care, face wash, lotion, cream)
+
+GROUP C — Cleaning Products  
+(cleaner, cleaning, detergent, toilet, bathroom, fabric, laundry, disinfectant)
+
+GROUP D — Car / Auto / Shoe / Leather  
+(car, automotive, vehicle, polish, tire, dashboard, shoe, leather)
+
+GROUP E — Adhesives / Construction  
+(adhesive, sealant, epoxy, tile, grout, marble, stone, construction)
+
+GROUP F — Industrial / 3D Printing / Resins / Coatings  
+(3d printing, abs, pla, resin, coating, industrial, polymer, paint)
+
+GROUP G — Agriculture / Water Treatment / Pest  
+(agro, agriculture, pest, mosquito, mite, flea, water treatment)
+
+GROUP H — Pet Care  
+(pet, dog, cat, veterinary)
+
+GROUP I — Herbal / Organic / Aroma  
+(organic, herbal, aroma, essential oil, natural)
+
+GROUP J — Default  
+Everything else.
+
+======================================================================
+CATEGORY → PAGE STRUCTURE (8-SECTION LAYOUT)
+======================================================================
+
+GROUP A — BABY & GENTLE CARE (8-Section Layout)
+======================================================================
+
+<h2>Overview</h2>
+<p>Provide a gentle, parent-friendly introduction explaining what the product is, its purpose, and why it is suitable for sensitive baby skin.</p>
+
+<h2>Gentle Care Benefits</h2>
 <ul>
-<li>Feature 1 describing performance.</li>
-<li>Feature 2 adding functional value.</li>
-<li>Feature 3 reinforcing advantage.</li>
+<li>Benefit 1 focused on mild cleansing or hydration.</li>
+<li>Benefit 2 emphasizing softness or nourishment.</li>
+<li>Benefit 3 highlighting dermatological gentleness.</li>
 </ul>
-<h2>Recommended Use Areas</h2>
-<p>Describe surfaces, materials, environments where the product performs best.</p>
-<h2>How It Works</h2>
-<p>Explain the scientific reasoning or functional mechanism behind the formulation.</p>
-<h2>Conceptual Ingredient Layout</h2>
-<p>Provide conceptual breakdown of ingredient groups (no percentages).</p>
-<h2>Basic Processing Route</h2>
+
+<h2>How the Formula Works</h2>
+<p>Explain, in soft language, how mild surfactants, emollients, or conditioning agents work together to offer safe performance.</p>
+
+<h2>Key Ingredients Explained</h2>
+<p>Break down ingredient groups such as mild surfactants, moisturizers, protective oils — without percentages.</p>
+
+<h2>How to Use</h2>
 <ol>
-<li>Processing step 1.</li>
-<li>Processing step 2.</li>
-<li>Processing step 3.</li>
+<li>Step 1 explaining product preparation or dispensing.</li>
+<li>Step 2 describing gentle application.</li>
+<li>Step 3 describing rinsing or drying.</li>
 </ol>
-<h2>Quality Considerations</h2>
-<ul>
-<li>QC checkpoint 1.</li>
-<li>QC checkpoint 2.</li>
-</ul>
-<h2>Safety & Handling</h2>
-<p>Summarize safety handling appropriate for the product's category.</p>
+
+<h2>Safety for Sensitive Skin</h2>
+<p>Suggest patch-test practice, eye safety, and appropriate usage for infants or kids.</p>
+
 <h2>Storage & Shelf Life</h2>
-<p>State suitable storage conditions and shelf stability.</p>
-<h2>Common Issues & Fixes</h2>
+<p>Give simple storage guidance for heat, sunlight, and moisture protection.</p>
+
+<h2>Common Questions</h2>
+<p><strong>Q:</strong> Question 1?<br><strong>A:</strong> Answer.</p>
+
+
+======================================================================
+GROUP B — SKIN / HAIR / BEAUTY / GROOMING
+======================================================================
+
+<h2>Overview</h2>
+<p>Introduce the cosmetic or personal-care purpose of the formulation and the results it aims to deliver.</p>
+
+<h2>Cosmetic Benefits</h2>
 <ul>
-<li><strong>Issue:</strong> Describe a common issue.<br><strong>Fix:</strong> Provide the corrective measure.</li>
+<li>Benefit 1 describing visible improvement.</li>
+<li>Benefit 2 describing sensory feel.</li>
+<li>Benefit 3 describing long-term performance.</li>
 </ul>
 
-T2 — PROBLEM–SOLUTION MODEL (CONSUMER + CLEANING FRIENDLY):
-<h2>The Problem</h2>
-<p>Explain the real-world problem ${productName} is designed to solve.</p>
-<h2>Why This Problem Happens</h2>
-<p>Describe the technical or everyday reason behind the issue.</p>
-<h2>The Solution</h2>
-<p>Explain clearly how the formulation fixes the issue and why it works well.</p>
-<h2>Who Should Use This Product</h2>
-<p>Describe target users, skill level, and environment of usage.</p>
-<h2>Benefits at a Glance</h2>
-<ul>
-<li>Benefit 1.</li>
-<li>Benefit 2.</li>
-<li>Benefit 3.</li>
-</ul>
-<h2>Underlying Science</h2>
-<p>Explain the mechanism through accessible, non-technical language.</p>
-<h2>Functional Ingredient Groups</h2>
-<p>Describe functional ingredient families (no percentages).</p>
+<h2>Active Mechanism</h2>
+<p>Explain how active ingredients or conditioning agents work on hair or skin.</p>
+
+<h2>Ingredient Roles</h2>
+<p>Describe the conceptual function of key surfactants, emollients, oils, or actives.</p>
+
 <h2>How to Use</h2>
 <ol>
 <li>Usage step 1.</li>
 <li>Usage step 2.</li>
 <li>Usage step 3.</li>
 </ol>
-<h2>Compatibility</h2>
-<p>Surfaces, materials, or fabrics where ${productName} performs well.</p>
-<h2>Maintenance / Re-Application</h2>
-<p>Describe how often the product should be reapplied or maintained.</p>
-<h2>Safety Focus</h2>
-<p>Provide category-appropriate safety tips.</p>
-<h2>Storage & Disposal</h2>
-<p>Describe safe storage and disposal guidelines.</p>
+
+<h2>Skin/Hair Compatibility</h2>
+<p>Describe suitable skin types, hair types, or environmental conditions.</p>
+
+<h2>Safety Notes</h2>
+<p>Provide cosmetic safety considerations including patch-testing and eye safety.</p>
+
 <h2>FAQs</h2>
-<p><strong>Q:</strong> Question 1?<br><strong>A:</strong> Answer.</p>
-<p><strong>Q:</strong> Question 2?<br><strong>A:</strong> Answer.</p>
-
-T3 — TECHNICAL DATA SHEET (TDS-STYLE, INDUSTRIAL):
-<h2>Technical Identity</h2>
-<p><strong>Category:</strong> ${categoryName}<br><strong>Product Type:</strong> Specific type<br><strong>Industry:</strong> Industry segment<br><strong>Application:</strong> Use case</p>
-<h2>Product Description</h2>
-<p>Deliver a sharp technical summary outlining purpose and performance scope.</p>
-<h2>Key Technical Highlights</h2>
-<ul>
-<li>Highlight 1.</li>
-<li>Highlight 2.</li>
-<li>Highlight 3.</li>
-</ul>
-<h2>Recommended Substrates / Materials</h2>
-<p>List compatible materials or surfaces.</p>
-<h2>Conceptual Composition</h2>
-<p>Explain ingredient roles (solvents, binders, polymers, surfactants, etc.).</p>
-<h2>Processing & Application Method</h2>
-<ol>
-<li>Prepare materials and equipment.</li>
-<li>Apply according to standard technical guidance.</li>
-<li>Complete curing or finishing.</li>
-</ol>
-<h2>Relevant QC Parameters</h2>
-<ul>
-<li>QC parameter 1.</li>
-<li>QC parameter 2.</li>
-</ul>
-<h2>Performance Notes</h2>
-<p>Describe how ${productName} performs under typical industrial conditions.</p>
-<h2>Health & Safety Information</h2>
-<p>Provide general safety precautions suitable for industrial environments.</p>
-<h2>Storage & Stability</h2>
-<p>Describe storage conditions and stability expectations.</p>
-<h2>Troubleshooting Guide</h2>
-<ul>
-<li><strong>Issue:</strong> Example problem.<br><strong>Fix:</strong> Recommended correction.</li>
-</ul>
-
-T4 — BENEFIT-LED COSMETIC + PERSONAL CARE STYLE:
-<h2>Why This Formulation Matters</h2>
-<p>Explain the core value ${productName} brings to personal, cosmetic, or gentle-care users.</p>
-<h2>Who It Is Designed For</h2>
-<p>Describe user type and their needs (skin type, hair type, baby requirements, pet sensitivity, etc.).</p>
-<h2>Core Benefits</h2>
-<ul>
-<li>Benefit 1 related to sensory feel or visible results.</li>
-<li>Benefit 2 related to comfort or soothing effect.</li>
-<li>Benefit 3 related to prolonged protection or conditioning.</li>
-</ul>
-<h2>How the Formula Works</h2>
-<p>Explain the mechanism of action in gentle, user-friendly language.</p>
-<h2>Key Functional Components</h2>
-<p>Describe main ingredient groups such as surfactants, emollients, oils, conditioners.</p>
-<h2>How to Use</h2>
-<ol>
-<li>Step 1.</li>
-<li>Step 2.</li>
-</ol>
-<h2>Routine Integration</h2>
-<p>Describe how ${productName} fits into a daily or weekly personal care routine.</p>
-<h2>Dermatological / Safety Considerations</h2>
-<p>Provide mild safety recommendations and patch-test suggestions.</p>
-<h2>Storage & Product Care</h2>
-<p>Explain how to maintain quality and shelf stability after opening.</p>
-<h2>Common Questions</h2>
 <p><strong>Q:</strong> Question?<br><strong>A:</strong> Answer.</p>
 
-T5 — PROCESS-FIRST MANUFACTURING TEMPLATE:
-<h2>Process-Oriented Summary</h2>
-<p>Explain the production-focused nature of ${productName}, emphasizing simplicity, stability, and scaling.</p>
-<h2>Intended Area of Use</h2>
-<p>Describe where the product fits in an industrial or production environment.</p>
-<h2>Functional Performance Targets</h2>
+
+======================================================================
+GROUP C — CLEANING & DETERGENT PRODUCTS
+======================================================================
+
+<h2>Purpose & Overview</h2>
+<p>Clearly explain what cleaning task the formulation is designed for and the expected performance.</p>
+
+<h2>Key Cleaning Benefits</h2>
 <ul>
-<li>Performance target 1.</li>
-<li>Performance target 2.</li>
-<li>Performance target 3.</li>
-</ul>
-<h2>Conceptual Formulation Architecture</h2>
-<p>Break down formulation blocks and why they are used.</p>
-<h2>Manufacturing Procedure</h2>
-<ol>
-<li>Mixing sequence including charging and premixing.</li>
-<li>Heating/cooling/shear steps if required.</li>
-<li>Final adjustments and finishing.</li>
-</ol>
-<h2>Critical Process Controls</h2>
-<ul>
-<li>Process control 1.</li>
-<li>Process control 2.</li>
-</ul>
-<h2>Quality Control & Release Criteria</h2>
-<p>Describe conceptual QC checks like appearance, viscosity, stability, solids (NO numbers).</p>
-<h2>Safety During Production</h2>
-<p>Provide safety handling and PPE suggestions appropriate for plant environments.</p>
-<h2>Storage, Transport & Handling</h2>
-<p>Describe handling guidance for bulk storage or shipping.</p>
-<h2>Typical Issues in Production</h2>
-<ul>
-<li><strong>Issue:</strong> Common manufacturing problem.<br><strong>Fix:</strong> Provide practical correction.</li>
+<li>Benefit 1 focusing on soil or stain removal.</li>
+<li>Benefit 2 focusing on shine or brightness.</li>
+<li>Benefit 3 focusing on hygiene or freshness.</li>
 </ul>
 
-T6 — APPLICATION SCENARIO / USE-CASE FLOW:
-<h2>Quick Overview</h2>
-<p>Provide a short, direct explanation describing user type, application setting, and product purpose.</p>
-<h2>Typical Use Scenarios</h2>
-<ul>
-<li>Use scenario 1 related to real environment.</li>
-<li>Use scenario 2 describing a common situation.</li>
-<li>Use scenario 3 demonstrating broader usage.</li>
-</ul>
-<h2>Performance in Real Conditions</h2>
-<p>Explain how ${productName} performs under different temperatures, surfaces, or workload conditions.</p>
-<h2>How to Apply Step-by-Step</h2>
-<ol>
-<li>Step 1: preparation.</li>
-<li>Step 2: application method.</li>
-<li>Step 3: after-application guidance.</li>
-</ol>
-<h2>What Makes This Formulation Different</h2>
-<ul>
-<li>Unique feature or outcome 1.</li>
-<li>Unique feature or outcome 2.</li>
-</ul>
-<h2>Underlying Composition Logic</h2>
-<p>Describe conceptual ingredient structure contributing to key results.</p>
-<h2>Care, Cleaning or Maintenance After Use</h2>
-<p>Provide steps or guidelines for post-application maintenance.</p>
-<h2>Precautions & Safety Advice</h2>
-<p>List safety measures suitable for application context.</p>
-<h2>Storage & Product Longevity</h2>
-<p>Explain long-term stability and proper storage conditions.</p>
+<h2>How It Works</h2>
+<p>Explain how surfactants, solvents, builders, or acids/alkalis work together for cleaning efficiency.</p>
 
-T7 — QUESTION-BASED / FAQ-HEAVY STRUCTURE:
-<h2>What Is This Product?</h2>
-<p>Explain ${productName}'s identity clearly in 3–5 lines.</p>
-<h2>Who Should Use It?</h2>
-<p>Describe ideal users and common usage domains.</p>
-<h2>What Problems Does It Solve?</h2>
-<ul>
-<li>Problem 1 + explanation.</li>
-<li>Problem 2 + explanation.</li>
-</ul>
-<h2>How Do I Use It Correctly?</h2>
+<h2>Application Instructions</h2>
 <ol>
-<li>Step-by-step use instruction 1.</li>
-<li>Step-by-step use instruction 2.</li>
+<li>Explain the proper dilution or direct-use method.</li>
+<li>Describe recommended application or scrubbing process.</li>
+<li>Provide rinsing or drying instructions.</li>
 </ol>
-<h2>What's Inside (Conceptually)?</h2>
-<p>Describe major ingredient groups and functional roles (no percentages).</p>
-<h2>Is It Safe?</h2>
-<p>Provide simple but effective safety and handling guidelines.</p>
-<h2>FAQs</h2>
-<p><strong>Q:</strong> Question 1?<br><strong>A:</strong> Answer.</p>
-<p><strong>Q:</strong> Question 2?<br><strong>A:</strong> Answer.</p>
-<p><strong>Q:</strong> Question 3?<br><strong>A:</strong> Answer.</p>
-<h2>Tips for Best Results</h2>
+
+<h2>Surface Compatibility</h2>
+<p>List materials where the product is ideal or should be avoided.</p>
+
+<h2>Performance Notes</h2>
+<p>Explain how temperature, water hardness, contact time, or agitation influence cleaning.</p>
+
+<h2>Safety Precautions</h2>
+<p>Provide simple household safety practices: gloves, ventilation, and eye safety.</p>
+
+<h2>Storage</h2>
+<p>Describe storage conditions for detergent stability.</p>
+
+
+======================================================================
+GROUP D — CAR / AUTO / SHOE / LEATHER CARE
+======================================================================
+
+<h2>Product Overview</h2>
+<p>Describe the detailing or protective purpose of the formulation and who typically uses it.</p>
+
+<h2>Shine & Performance Benefits</h2>
 <ul>
-<li>Tip 1.</li>
-<li>Tip 2.</li>
-<li>Tip 3.</li>
+<li>Benefit 1 related to gloss or shine.</li>
+<li>Benefit 2 related to protection from dust or cracking.</li>
+<li>Benefit 3 related to longevity or durability.</li>
 </ul>
 
-T8 — SAFETY, COMPLIANCE & RISK-FOCUSED:
-<h2>Purpose of This Product</h2>
-<p>Explain the functional role of ${productName} within regulated, agricultural, pest-control, or water-treatment settings.</p>
-<h2>Functional Description</h2>
-<p>Describe clearly what the formulation does and why it is important.</p>
-<h2>Key Benefits</h2>
+<h2>How the Formula Works</h2>
+<p>Explain how polymers, waxes, conditioning agents, or cleaners interact with surfaces.</p>
+
+<h2>Application Steps</h2>
+<ol>
+<li>Step 1: surface prep.</li>
+<li>Step 2: product application.</li>
+<li>Step 3: buffing, drying, or curing.</li>
+</ol>
+
+<h2>Material Compatibility</h2>
+<p>List suitable surfaces (paint, rubber, vinyl, leather, etc.).</p>
+
+<h2>Protection & Durability Notes</h2>
+<p>Describe weather resistance, wear resistance, or UV protection.</p>
+
+<h2>Safety & Handling</h2>
+<p>Provide safe usage guidelines appropriate for automotive or shoe-care chemicals.</p>
+
+<h2>Storage</h2>
+<p>Simple storage guidelines for heat or sunlight exposure.</p>
+
+
+======================================================================
+GROUP E — ADHESIVES / SEALANTS / CONSTRUCTION
+======================================================================
+
+<h2>Technical Overview</h2>
+<p>Explain the adhesive/sealant's functional identity and the type of joints or gaps it is designed for.</p>
+
+<h2>Bonding Features</h2>
 <ul>
-<li>Benefit 1.</li>
-<li>Benefit 2.</li>
-<li>Benefit 3.</li>
+<li>Strength or flexibility benefit 1.</li>
+<li>Cure or drying benefit 2.</li>
+<li>Durability or environmental resistance benefit 3.</li>
 </ul>
-<h2>Mode of Action</h2>
-<p>Explain the chemical, biological, or mechanical mechanism behind performance.</p>
+
+<h2>Mechanism of Adhesion</h2>
+<p>Explain how polymers, resins, or curing chemistry provide bonding strength.</p>
+
+<h2>Substrate Compatibility</h2>
+<p>List surfaces where bonding is ideal (metal, plastic, ceramic, stone, etc.).</p>
+
+<h2>Application Procedure</h2>
+<ol>
+<li>Joint preparation.</li>
+<li>Dispensing or spreading method.</li>
+<li>Curing or clamping notes.</li>
+</ol>
+
+<h2>Curing / Drying Notes</h2>
+<p>Explain temperature or humidity effects.</p>
+
+<h2>Safety & PPE</h2>
+<p>List essential safety equipment and ventilation requirements.</p>
+
+<h2>Storage & Stability</h2>
+<p>Describe shelf life and suitable storage temperatures.</p>
+
+
+======================================================================
+GROUP F — INDUSTRIAL / 3D PRINTING / RESINS / COATINGS
+======================================================================
+
+<h2>Product Identity</h2>
+<p>Describe what the formulation is, the industrial domain it belongs to, and its intended technical application.</p>
+
+<h2>Technical Performance</h2>
+<ul>
+<li>Mechanical or physical performance trait 1.</li>
+<li>Material performance trait 2.</li>
+<li>Environmental resistance trait 3.</li>
+</ul>
+
+<h2>Material Science Background</h2>
+<p>Explain the polymer, resin, or composite science underlying the formulation.</p>
+
+<h2>Processing / Printing Guidelines</h2>
+<ol>
+<li>Equipment preparation.</li>
+<li>Processing or printing conditions.</li>
+<li>Post-processing or curing.</li>
+</ol>
+
+<h2>Performance Envelope</h2>
+<p>Describe the operational limits or ideal working conditions.</p>
+
+<h2>QC & Reliability Notes</h2>
+<p>List conceptual QA/QC checkpoints for industrial users.</p>
+
+<h2>Safety & Handling</h2>
+<p>Provide industrial-grade safety expectations.</p>
+
+<h2>Storage</h2>
+<p>Describe bulk storage or drum-handling notes.</p>
+
+
+======================================================================
+GROUP G — AGRICULTURE / WATER TREATMENT / PEST CONTROL
+======================================================================
+
+<h2>Purpose & Overview</h2>
+<p>Describe the task the formulation performs in agricultural or water-treatment settings.</p>
+
+<h2>Mechanism of Action</h2>
+<p>Explain how active components work — without medical or regulatory claims.</p>
+
 <h2>Application Guidelines</h2>
 <ol>
-<li>Application instruction 1.</li>
-<li>Application instruction 2.</li>
-<li>Application instruction 3.</li>
+<li>Dilution or preparation.</li>
+<li>Spraying or dosing method.</li>
+<li>Coverage or contact time.</li>
 </ol>
-<h2>Environmental & Safety Considerations</h2>
-<p>Provide high-level environmental and user safety guidelines without regulatory claims.</p>
-<h2>Handling & PPE Advice</h2>
-<ul>
-<li>PPE recommendation 1.</li>
-<li>PPE recommendation 2.</li>
-</ul>
+
+<h2>Coverage & Compatibility</h2>
+<p>List crops, surfaces, or systems where use is appropriate.</p>
+
+<h2>Environmental & Safety Notes</h2>
+<p>Provide responsible handling, PPE, and environmental guidance.</p>
+
 <h2>Storage & Stability</h2>
-<p>Describe storage conditions and stability parameters (no percentages).</p>
-<h2>Emergency / Misuse Notes</h2>
-<p>Provide general, non-medical, non-regulatory emergency information.</p>
+<p>Describe stability in varying temperatures or humidity.</p>
 
-T9 — INNOVATION / R&D STYLE (ADVANCED MATERIALS):
-<h2>Innovation Summary</h2>
-<p>Describe the innovative insight or technology behind ${productName}.</p>
-<h2>Technology Background</h2>
-<p>Explain relevant material science or technological principles.</p>
-<h2>Key Innovation Highlights</h2>
-<ul>
-<li>Highlight 1.</li>
-<li>Highlight 2.</li>
-<li>Highlight 3.</li>
-</ul>
-<h2>Target Applications</h2>
-<p>Explain where this advanced formulation is most suitable.</p>
-<h2>Core Architecture</h2>
-<p>Describe conceptual ingredient systems or matrix structure.</p>
-<h2>Recommended Processing & Use</h2>
-<ol>
-<li>Processing step 1.</li>
-<li>Processing step 2.</li>
-<li>Processing step 3.</li>
-</ol>
-<h2>Performance Envelope</h2>
-<p>Describe zones where the formulation performs best.</p>
-<h2>Reliability & QC Themes</h2>
-<ul>
-<li>QC emphasis 1.</li>
-<li>QC emphasis 2.</li>
-</ul>
-<h2>Safety & Handling</h2>
-<p>Describe technical safety expectations.</p>
+<h2>Emergency Notes</h2>
+<p>Simple non-medical, non-regulatory emergency response suggestions.</p>
 
-T10 — MINIMAL STRUCTURED TEMPLATE (SHORT & CLEAN):
-<h2>Overview</h2>
-<p>Provide a brief high-level overview in 3–5 lines.</p>
-<h2>Main Benefits</h2>
-<ul>
-<li>Benefit 1.</li>
-<li>Benefit 2.</li>
-</ul>
-<h2>How It Works</h2>
-<p>Provide a short explanation describing functional mechanism.</p>
-<h2>How to Use</h2>
-<ol>
-<li>Usage step 1.</li>
-<li>Usage step 2.</li>
-</ol>
-<h2>Key Ingredient Roles</h2>
-<p>Describe ingredient group roles concisely.</p>
-<h2>Safety & Storage</h2>
-<p>Provide brief safety & storage guidance.</p>
-<h2>Common Questions</h2>
+<h2>FAQs</h2>
 <p><strong>Q:</strong> Question?<br><strong>A:</strong> Answer.</p>
 
-=====================================================================
-FINAL CTA & OUTPUT RULES (MANDATORY)
-=====================================================================
 
-After completing ALL sections above, ALWAYS append:
+======================================================================
+GROUP H — PET CARE (NON-MEDICINAL)
+======================================================================
 
-<h2>Call to Action</h2>
-<p>Download the complete formulation file for full ingredient percentages, detailed processing steps, QC parameters, and manufacturing specifications.</p>
-
-<h2>Internal Link</h2>
-<p>For more formulations in the ${categoryName} category, visit https://aiformulator.com/collection/${categorySlug}</p>
-
-=====================================================================
-FINAL OUTPUT RULES (CRITICAL - ENFORCE STRICTLY)
-=====================================================================
-
-COMBINE IN EXACT ORDER:
-1. <h1>[Product Name]</h1>  
-2. Keyword Strategy block  
-3. CTA Strategy block  
-4. Page Strategy block  
-5. ONE Template (T1–T10) selected from category mapping
-6. ONE AI Overview Structure (S1–S6) selected from category mapping
-7. Final CTA block  
-8. Internal Link block
-
-OUTPUT REQUIREMENTS:
-• EVERYTHING as ONE SINGLE HTML BLOCK
-• Never reveal internal logic, mapping, template numbers, or structure numbers
-• Never explain choices; only deliver final HTML content
-• Do NOT output placeholders - fill ALL with real, specific content about ${productName}
-• NO text outside HTML tags
-• NO Markdown symbols
-• NO explanations or metadata
-• Temperature at 0 - follow instructions EXACTLY
-
-=====================================================================
-AI OVERVIEW STRUCTURE SELECTION (ONE OF S1-S6)
-=====================================================================
-
-Based on category "${categoryName}", SELECT ONE of these structures:
-
-Determine category group from name:
-- GROUP A (baby, infant, kids, child) → Pick S1 or S3
-- GROUP B (skin, hair, beauty, grooming, shampoo, lotion) → Pick S1, S3, or S5
-- GROUP C (cleaning, detergent, laundry) → Pick S2 or S5
-- GROUP D (car, auto, polish, shoe, leather) → Pick S2 or S4
-- GROUP E (adhesive, sealant, epoxy, grout, construction) → Pick S2, S4, or S6
-- GROUP F (industrial, 3d printing, resin, coating) → Pick S4 or S6
-- GROUP G (agriculture, agro, water treatment, pest) → Pick S2 or S6
-- GROUP H (pet, veterinary, dog, cat) → Pick S1 or S5
-- GROUP I (herbal, organic, essential oil, aromatherapy) → Pick S1, S3, or S5
-- GROUP J (default) → Pick any S1-S6
-
-Now INSERT ONE of these structures (pick the most appropriate based on category):
-
-S1 STRUCTURE:
-<h2>What It Is</h2>
-<p>Explain clearly what this product is, its functional role, and context of use.</p>
-<h2>Why It Matters</h2>
-<p>Describe the need or problem this formulation addresses.</p>
-<h2>How It Works</h2>
-<p>Explain the scientific or functional mechanism in simple language.</p>
-<h2>Risks or Limitations</h2>
-<p>Discuss realistic limitations, precautions, and performance variation scenarios.</p>
-<h2>Tips for Best Results</h2>
-<ul>
-<li>Practical tip 1.</li>
-<li>Practical tip 2.</li>
-<li>Practical tip 3.</li>
-</ul>
-<h2>Key Questions</h2>
-<p><strong>Q:</strong> Common question 1?<br><strong>A:</strong> Short answer.</p>
-<p><strong>Q:</strong> Common question 2?<br><strong>A:</strong> Short answer.</p>
-
-S2 STRUCTURE:
-<h2>The Real-World Problem</h2>
-<p>Describe the actual issue users face that this formulation solves.</p>
-<h2>Why This Problem Occurs</h2>
-<p>Explain the technical or scientific reason behind the problem.</p>
-<h2>The Formulation Solution</h2>
-<p>Describe how this formulation solves the problem and its benefits.</p>
-<h2>The Science Behind the Formula</h2>
-<p>Explain the scientific reasoning behind the formulation's performance.</p>
-<h2>How to Use It</h2>
-<ol>
-<li>Usage step 1.</li>
-<li>Usage step 2.</li>
-<li>Usage step 3.</li>
-</ol>
-<h2>Safety Considerations</h2>
-<p>Explain precautions, safe handling, and basic protection guidelines.</p>
-
-S3 STRUCTURE:
-<h2>Summary</h2>
-<p>Provide high-level summary of purpose, application, and key performance ideas.</p>
-<h2>Main Benefits</h2>
-<ul>
-<li>Benefit 1.</li>
-<li>Benefit 2.</li>
-<li>Benefit 3.</li>
-</ul>
-<h2>Key Components</h2>
-<p>Explain functional ingredient groups and their roles.</p>
-<h2>Mechanism of Action</h2>
-<p>Describe how the formulation delivers results through chemistry or physical interaction.</p>
-<h2>Recommended Usage Routine</h2>
-<ol>
-<li>Routine step 1.</li>
-<li>Routine step 2.</li>
-</ol>
-<h2>Warnings</h2>
-<p>Provide category-appropriate cautions and operational notes.</p>
-
-S4 STRUCTURE:
-<h2>Definition</h2>
-<p>Define the product precisely, including its functional identity and application category.</p>
-<h2>Material / Ingredient Logic</h2>
-<p>Describe the major ingredient groups and why they are included.</p>
-<h2>Process Overview</h2>
-<ol>
-<li>Process step 1.</li>
-<li>Process step 2.</li>
-<li>Process step 3.</li>
-</ol>
-<h2>Expected Performance</h2>
-<p>Explain how the product behaves in typical environments or conditions.</p>
-<h2>QC Considerations</h2>
-<ul>
-<li>QC parameter 1.</li>
-<li>QC parameter 2.</li>
-</ul>
-<h2>Troubleshooting Guide</h2>
-<ul>
-<li><strong>Issue:</strong> Example problem.<br><strong>Fix:</strong> Matching correction.</li>
-</ul>
-
-S5 STRUCTURE:
 <h2>Overview</h2>
-<p>Provide a simple description of the product and its main purpose.</p>
-<h2>Use Cases</h2>
-<ul>
-<li>Use case 1.</li>
-<li>Use case 2.</li>
-<li>Use case 3.</li>
-</ul>
-<h2>Instructions</h2>
-<ol>
-<li>Instruction step 1.</li>
-<li>Instruction step 2.</li>
-<li>Instruction step 3.</li>
-</ol>
-<h2>Compatibility</h2>
-<p>List relevant surfaces, materials, or environments where the product is compatible.</p>
-<h2>Storage</h2>
-<p>Explain suitable storage conditions for maintaining quality.</p>
-<h2>FAQs</h2>
-<p><strong>Q:</strong> Question 1?<br><strong>A:</strong> Answer.</p>
-<p><strong>Q:</strong> Question 2?<br><strong>A:</strong> Answer.</p>
+<p>Describe the pet-care purpose of the formulation and expected effect on fur/skin surfaces.</p>
 
-S6 STRUCTURE:
-<h2>Key Insight</h2>
-<p>Provide high-level insight into what makes this formulation useful or technically important.</p>
-<h2>Breakdown of Components</h2>
-<p>Explain conceptual ingredient blocks and what each contributes.</p>
-<h2>Steps to Use or Manufacture</h2>
+<h2>Benefits for Pets</h2>
+<ul>
+<li>Benefit 1 related to fur/coat.</li>
+<li>Benefit 2 related to odor control.</li>
+<li>Benefit 3 related to comfort.</li>
+</ul>
+
+<h2>How the Formula Works</h2>
+<p>Explain how mild actives and conditioners work together safely for pets.</p>
+
+<h2>Usage Instructions</h2>
+<ol>
+<li>Pre-wetting or prep.</li>
+<li>Application method.</li>
+<li>Rinse or dry guidance.</li>
+</ol>
+
+<h2>Safety for Pets</h2>
+<p>List category-appropriate safety notes (no medical claims).</p>
+
+<h2>Storage</h2>
+<p>Provide safe storage/handling advice.</p>
+
+<h2>FAQs</h2>
+<p><strong>Q:</strong> Question?<br><strong>A:</strong> Answer.</p>
+
+<h2>Product Care Tips</h2>
+<p>Give simple usage and storage tips.</p>
+
+
+======================================================================
+GROUP I — HERBAL / ORGANIC / AROMATHERAPY
+======================================================================
+
+<h2>Overview</h2>
+<p>Introduce the herbal/natural purpose of the formulation.</p>
+
+<h2>Natural Benefits</h2>
+<ul>
+<li>Benefit 1 related to natural cleansing or soothing.</li>
+<li>Benefit 2 related to fragrance or relaxation.</li>
+<li>Benefit 3 related to botanical support.</li>
+</ul>
+
+<h2>Botanical Mechanisms</h2>
+<p>Explain how natural oils or extracts contribute functionally.</p>
+
+<h2>Ingredient Roles</h2>
+<p>Break down emollients, essential oils, or herbal extracts.</p>
+
+<h2>How to Use</h2>
 <ol>
 <li>Step 1.</li>
 <li>Step 2.</li>
 <li>Step 3.</li>
 </ol>
-<h2>Critical Metrics</h2>
-<ul>
-<li>Metric 1.</li>
-<li>Metric 2.</li>
-</ul>
-<h2>Expected Outcomes</h2>
-<p>Describe the performance or result a user should expect.</p>
-<h2>Next Steps</h2>
-<p>Suggest follow-up actions or complementary processes.</p>
 
-=====================================================================
+<h2>Precautions</h2>
+<p>List safety notes for natural products.</p>
+
+<h2>Storage</h2>
+<p>Explain storage conditions for essential oil–based formulations.</p>
+
+<h2>FAQs</h2>
+<p><strong>Q:</strong> Question?<br><strong>A:</strong> Answer.</p>
+
+
+======================================================================
+GROUP J — DEFAULT (8-section basic layout)
+======================================================================
+
+<h2>Overview</h2>
+<p>Provide a flexible general-purpose introduction to the product.</p>
+
+<h2>Key Features</h2>
+<ul>
+<li>Feature 1.</li>
+<li>Feature 2.</li>
+<li>Feature 3.</li>
+</ul>
+
+<h2>How It Works</h2>
+<p>Explain the functional mechanism.</p>
+
+<h2>Application</h2>
+<ol>
+<li>Step 1.</li>
+<li>Step 2.</li>
+<li>Step 3.</li>
+</ol>
+
+<h2>Compatibility</h2>
+<p>Surfaces or materials suitable for the product.</p>
+
+<h2>Safety Notes</h2>
+<p>General safety guidance.</p>
+
+<h2>Storage</h2>
+<p>Storage conditions.</p>
+
+<h2>FAQs</h2>
+<p><strong>Q:</strong> Question?<br><strong>A:</strong> Answer.</p>
+
+======================================================================
+FINAL ASSEMBLY LOGIC + CTA + OUTPUT RULES
+======================================================================
+
+FINAL CTA BLOCK (MANDATORY)
+======================================================================
 
 <h2>Call to Action</h2>
-<p>Download the complete formulation file for full ingredient percentages, detailed process steps, QC parameters, and manufacturing specifications.</p>
+<p>
+Download the complete formulation file for full ingredient percentages,
+detailed manufacturing steps, equipment guidance, QC parameters,
+and scaling notes.
+</p>
+
+======================================================================
+INTERNAL LINK (MANDATORY)
+======================================================================
 
 <h2>Internal Link</h2>
-<p>For more formulations in the ${categoryName} category, visit https://aiformulator.com/collection/${categorySlug}</p>
+<p>https://aiformulator.com/collection/${categorySlug}</p>
 
-FINAL MANDATORY RULES:
-• Output ONLY HTML. Nothing else.
-• Every element MUST be inside HTML tags.
-• NO plain text outside tags.
-• NO Markdown. NO ** or # symbols.
-• The ENTIRE output is ONE continuous HTML block.
-• NO explanations, NO metadata, NO JSON.
-• Temperature is 0 - follow these instructions EXACTLY.`;
+======================================================================
+FINAL OUTPUT ASSEMBLY RULES
+======================================================================
+
+1. OUTPUT MUST ALWAYS BE A SINGLE HTML DOCUMENT.
+
+2. Output MUST follow this exact order:
+
+   <h1>${productName}</h1>
+
+   <h2>Keyword Strategy</h2>
+   (6-layer keyword explanation)
+
+   <h2>CTA Strategy</h2>
+   (category-specific CTA explanation)
+
+   <h2>Page Strategy</h2>
+   (5–6 line explanation about category layout, tone, SEO intent)
+
+   *** THEN INSERT THE CATEGORY-BASED 8-SECTION LAYOUT FROM ABOVE ***
+
+   <h2>Call to Action</h2>
+   (from above)
+
+   <h2>Internal Link</h2>
+
+3. NEVER reveal:
+   - internal category names (Group A, B, etc.)
+   - template names
+   - this Master File
+   - any internal instructions
+   - any mapping or logic
+
+4. DO NOT output placeholders like [category], [type], [product type].
+   Fill them with real contextual content.
+
+5. Paragraphs MUST be meaningful, descriptive, and unique.
+   Avoid short 1-line responses.
+
+6. For each section:
+   - Provide 3–5 sentence paragraphs
+   - Provide 3–5 bullet points when needed
+   - Use professional tone based on product category
+
+7. Generate REAL content that feels like:
+   - Manufacturer documentation
+   - Professional chemical formulation notes
+   - Real-world usage guidance
+   - Industry tone based on category
+
+8. DO NOT use repetitive phrases across multiple pages.
+   Rewrite ideas uniquely every time.
+
+9. NEVER violate safety/regulatory rules:
+   - Do NOT make medical claims
+   - Do NOT give regulatory approvals
+   - Only general safety notes allowed
+
+10. ALWAYS keep HTML clean, readable, and fully compliant.
+
+======================================================================
+FINAL CHECK BEFORE OUTPUT
+======================================================================
+
+Before producing final HTML:
+
+1) Category correctly detected  
+2) Use correct 8-section layout  
+3) Ensure long, meaningful paragraphs  
+4) Ensure Keyword Strategy and CTA Strategy are present  
+5) Ensure Final CTA and Internal Link included  
+6) Ensure only ONE HTML block  
+7) Ensure no markdown  
+8) Ensure no template/structure numbers  
+9) Ensure no internal logic leaked  
+
+======================================================================
+END OF MASTER FILE V2
+======================================================================`;
 
       const userPrompt = `Generate a complete HTML formulation page for: ${productName}
 Category: ${categoryName}
