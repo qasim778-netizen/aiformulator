@@ -1,6 +1,7 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,22 +27,52 @@ export default function FormulationContentForm({
 }: FormulationContentFormProps) {
   const { toast } = useToast();
 
+  // Fetch existing content from database
+  const { data: fetchedContent } = useQuery<FormulationContent | null>({
+    queryKey: ["/api/formulation-content", formulationId],
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/formulation-content/${formulationId}`);
+      if (response.status === 404) return null;
+      return response.json();
+    },
+  });
+
   const form = useForm<InsertFormulationContent>({
     resolver: zodResolver(insertFormulationContentSchema),
     defaultValues: {
       formulationId,
-      overviewTitle: existingContent?.overviewTitle || "Product Overview",
-      overviewContent: existingContent?.overviewContent || "",
-      benefitsTitle: existingContent?.benefitsTitle || "Key Benefits",
-      benefitsContent: existingContent?.benefitsContent || "",
-      applicationsTitle: existingContent?.applicationsTitle || "Applications",
-      applicationsContent: existingContent?.applicationsContent || "",
-      usageTitle: existingContent?.usageTitle || "Usage Instructions",
-      usageContent: existingContent?.usageContent || "",
-      safetyTitle: existingContent?.safetyTitle || "Safety Information",
-      safetyContent: existingContent?.safetyContent || "",
+      overviewTitle: "Product Overview",
+      overviewContent: "",
+      benefitsTitle: "Key Benefits",
+      benefitsContent: "",
+      applicationsTitle: "Applications",
+      applicationsContent: "",
+      usageTitle: "Usage Instructions",
+      usageContent: "",
+      safetyTitle: "Safety Information",
+      safetyContent: "",
     },
   });
+
+  // Update form when fetched content arrives
+  useEffect(() => {
+    const content = fetchedContent || existingContent;
+    if (content) {
+      form.reset({
+        formulationId,
+        overviewTitle: content.overviewTitle || "Product Overview",
+        overviewContent: content.overviewContent || "",
+        benefitsTitle: content.benefitsTitle || "Key Benefits",
+        benefitsContent: content.benefitsContent || "",
+        applicationsTitle: content.applicationsTitle || "Applications",
+        applicationsContent: content.applicationsContent || "",
+        usageTitle: content.usageTitle || "Usage Instructions",
+        usageContent: content.usageContent || "",
+        safetyTitle: content.safetyTitle || "Safety Information",
+        safetyContent: content.safetyContent || "",
+      });
+    }
+  }, [fetchedContent, existingContent, formulationId, form]);
 
   const submitMutation = useMutation({
     mutationFn: async (data: InsertFormulationContent) => {
