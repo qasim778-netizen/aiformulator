@@ -103,6 +103,31 @@ export default function PageContentGenerator({
     saveMutation.mutate();
   };
 
+  // Extract strategies from content
+  const extractStrategies = (html: string) => {
+    const keywordMatch = html.match(/<h2>Keyword Strategy<\/h2>([\s\S]*?)(?=<h2>|$)/i);
+    const ctaMatch = html.match(/<h2>CTA Strategy<\/h2>([\s\S]*?)(?=<h2>|$)/i);
+    const pageMatch = html.match(/<h2>Page Strategy<\/h2>([\s\S]*?)(?=<h2>|$)/i);
+
+    const extractText = (match: RegExpMatchArray | null) => {
+      if (!match) return "";
+      const text = match[1]
+        .replace(/<[^>]*>/g, "")
+        .replace(/&nbsp;/g, " ")
+        .trim()
+        .substring(0, 200);
+      return text;
+    };
+
+    return {
+      keywordStrategy: extractText(keywordMatch),
+      ctaStrategy: extractText(ctaMatch),
+      pageStrategy: extractText(pageMatch),
+    };
+  };
+
+  const strategies = extractStrategies(content);
+
   return (
     <div className="space-y-4">
       <Card>
@@ -115,6 +140,24 @@ export default function PageContentGenerator({
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Page Strategy Info */}
+          {content && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              {strategies.pageStrategy && (
+                <div>
+                  <h4 className="font-semibold text-sm text-blue-900 mb-2">📋 Page Strategy</h4>
+                  <p className="text-sm text-blue-800">{strategies.pageStrategy}...</p>
+                </div>
+              )}
+              {strategies.keywordStrategy && (
+                <div>
+                  <h4 className="font-semibold text-sm text-blue-900 mb-2">🔑 Keyword Strategy</h4>
+                  <p className="text-sm text-blue-800">{strategies.keywordStrategy}...</p>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Generate Button */}
           <Button
             onClick={() => generateMutation.mutate()}

@@ -3527,6 +3527,20 @@ Output ONLY the HTML block. Nothing else. No text outside tags.`;
     }
   });
 
+  // Fetch Formulation Page Content (Admin)
+  app.get("/api/formulation-page-content/:formulationId", async (req, res) => {
+    try {
+      const page = await storage.getPageByFormulationId(req.params.formulationId);
+      if (!page) {
+        return res.status(404).json({ message: "Content not found" });
+      }
+      res.json({ content: page.content });
+    } catch (error: any) {
+      console.error("Failed to fetch page content:", error);
+      res.status(500).json({ message: "Failed to fetch page content" });
+    }
+  });
+
   // WebSocket server for real-time chat
   // Admin Management - Grant Admin Rights
   app.post("/api/admin/grant-rights", async (req, res) => {
