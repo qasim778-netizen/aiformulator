@@ -3621,31 +3621,16 @@ Output ONLY the HTML block. Nothing else. No text outside tags.`;
         manufacturingSteps = "Standard manufacturing: (1) Raw Material Preparation - Prepare and measure all ingredients, (2) Mixing - Combine components according to formula, (3) Quality Verification - Test formulation properties, (4) Packaging - Fill into final containers";
       }
 
-      // Generate 4 images with optimized prompts
+      // Generate 1 main branding image only
       const imagePrompts = [
         {
           name: "image1",
           prompt: `Create a clean, minimal "Main Thumbnail Image" for a product formulation page using full AIFormulator branding. Brand colors: Yellow #FFB100, Teal #2E8B9C, Black #000000, White background. Flat 2D digital illustration, clean vector shapes, centered composition. Layout: Center - simple bold icon representing "${formulationName}" in solid black/teal with thick outline. Below icon - large bold product title in black. Under title - one-line category tag in teal showing the product domain (e.g., "Car Care Product Formulation" or "Cosmetic Formulation" or "Cleaning Formulation"). Bottom-right corner - small AIFormulator scientist avatar logo with clean white outline. Optional: thin yellow #FFB100 line or dot accent behind/around icon. Very high clarity, no clutter, pure white background. Square 1:1 ratio, professional product thumbnail style.`,
           summary: "Main Branding Thumbnail Image"
-        },
-        {
-          name: "image2",
-          prompt: `Create a professional "Technical Illustration" diagram for a product formulation showing 3 key technical features. Style: Flat 2D vector icons with uniform line thickness, minimal modern design, highly readable. Background: Light off-white #F7F5F2 (clean, premium, chemical-industry aesthetic). Top: Bold heading "KEY FEATURES" in black. Below: Three feature boxes arranged horizontally, each containing: simple black line icon representing a key benefit, short bold feature title, one-line technical explanation. Use teal #2E8B9C for section dividers or accents. Include ${categoryIcon} symbol integrated into design. Small AIFormulator scientist logo at bottom center. No photo realism, no gradients. Professional and consistent vector style. Square 1:1 ratio.`,
-          summary: "Technical Features Illustration"
-        },
-        {
-          name: "image3",
-          prompt: `Create a clean, minimal "How It Works" technical diagram for a product formulation page using complete AIFormulator branding. Brand colors: Yellow #FFB100, Teal #2E8B9C, Black #000000. Background: Soft off-white #F7F5F2 (no texture, no shadows except very subtle). Style: Flat 2D vector icons, uniform line thickness, minimal modern chemical-process aesthetic, highly readable. Layout - Top: Bold heading "HOW IT WORKS" in black. Below: Horizontal sequence of 3-4 process steps, each showing: simple black line icon for the step, short bold step title, one-line explanation. Steps flow left-to-right with teal #2E8B9C arrows between them. Examples: (1) Penetration "Product wets and spreads", (2) Chemical Action "Active ingredients react", (3) Protection/Finish "Leaves protective layer" (auto-adjust per product type). Branding: Small AIFormulator scientist logo at bottom center. Thin yellow #FFB100 accent line under "HOW IT WORKS" title. Premium, minimal, scientific, easy to understand at a glance. Square 1:1 ratio, consistent with Image 1 and Image 2.`,
-          summary: "How It Works Process Diagram"
-        },
-        {
-          name: "image4",
-          prompt: `Create a clean, minimal "Manufacturing Flow" diagram for a product formulation page using full AIFormulator brand identity. Brand colors: Yellow #FFB100, Teal #2E8B9C, Black #000000. Background: Soft off-white #F7F5F2 (no gradients, no photo realism). Style: Flat 2D vector icons with bold process titles and small descriptive text, thick uniform outlines, clean chemical-industry aesthetic. Layout - Top center: Bold heading "MANUFACTURING FLOW" in black. Below: Horizontal sequence of 3-5 manufacturing steps. Each step includes: black line icon (clean vector), short bold title, one-line subtext describing the step. Steps: ${manufacturingSteps}. Use teal #2E8B9C arrows between each step for flow direction. Branding: Small AIFormulator scientist logo at bottom center. Thin yellow #FFB100 accent line under "MANUFACTURING FLOW" title. Professional, minimal, scientific, easy to understand at a glance. Square 1:1 ratio, consistent design system with Images 1-3.`,
-          summary: "Manufacturing Flow Process Diagram"
         }
       ];
 
-      const images: { image1Url?: string; image2Url?: string; image3Url?: string; image4Url?: string } = {};
+      const images: { image1Url?: string } = {};
       const errors = [];
 
       // Generate each image using OpenAI DALL-E
