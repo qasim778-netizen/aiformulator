@@ -1,359 +1,159 @@
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { insertFormulationContentSchema } from "@shared/schema";
-import type { FormulationContent, InsertFormulationContent } from "@shared/schema";
 
 interface FormulationContentFormProps {
   formulationId: string;
   formulationName: string;
-  existingContent?: FormulationContent | null;
+  category?: string;
   onSuccess: () => void;
 }
 
 export default function FormulationContentForm({
   formulationId,
   formulationName,
-  existingContent,
+  category = "",
   onSuccess
 }: FormulationContentFormProps) {
   const { toast } = useToast();
+  const [content, setContent] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch existing content from database
-  const { data: fetchedContent } = useQuery<FormulationContent | null>({
-    queryKey: ["/api/formulation-content", formulationId],
+  // Get category group for tone display
+  const getCategoryGroup = (categoryName: string) => {
+    const lower = categoryName.toLowerCase();
+    
+    if (/baby|kids|child|infant|baby wash|baby lotion/.test(lower)) 
+      return { group: "A", name: "Baby & Gentle Care", tone: "Gentle, reassuring, mild tone" };
+    if (/shampoo|skin|hair|face wash|cosmetic|beauty|scrub|lotion|cream/.test(lower)) 
+      return { group: "B", name: "Skin / Hair / Beauty / Grooming", tone: "Soft, premium, cosmetic-style tone" };
+    if (/cleaner|cleaning|toilet|fabric|laundry|all-purpose|detergent/.test(lower)) 
+      return { group: "C", name: "Cleaning / Detergent / Household", tone: "Practical, instructional, performance-focused tone" };
+    if (/car|automotive|vehicle|polish|tire|dashboard|shoe|leather/.test(lower)) 
+      return { group: "D", name: "Car / Auto / Shoe / Leather", tone: "Professional detailing tone" };
+    if (/adhesive|sealant|epoxy|tile|grout|marble|stone|construction/.test(lower)) 
+      return { group: "E", name: "Adhesives / Sealants / Construction", tone: "Technical, structural, engineering-oriented tone" };
+    if (/3d printing|filament|abs|pla|resin|polymer|industrial|coating/.test(lower)) 
+      return { group: "F", name: "Industrial / 3D Printing / Coatings / Resins", tone: "Material-science tone" };
+    if (/agro|agriculture|pest|mosquito|mite|flea|water treatment/.test(lower)) 
+      return { group: "G", name: "Agriculture / Water Treatment / Pest", tone: "Compliance-aware tone" };
+    if (/pet|dog|cat|pet spray|pet wash|deodorizer/.test(lower)) 
+      return { group: "H", name: "Pet Care", tone: "Friendly, pet-safe, reassuring tone" };
+    if (/organic|herbal|natural|essential oil|aroma/.test(lower)) 
+      return { group: "I", name: "Herbal / Organic / Aromatherapy", tone: "Natural, botanical, eco-friendly tone" };
+    
+    return { group: "J", name: "Default", tone: "Standard professional tone" };
+  };
+
+  const categoryGroup = getCategoryGroup(category);
+
+  // Fetch existing page content
+  const { isLoading: isFetching } = useQuery({
+    queryKey: ["/api/formulation-page-content", formulationId],
     queryFn: async () => {
-      const response = await apiRequest("GET", `/api/formulation-content/${formulationId}`);
-      if (response.status === 404) return null;
-      return response.json();
+      try {
+        const response = await apiRequest("GET", `/api/formulation-page-content/${formulationId}`);
+        if (response.status === 404) return null;
+        const data = await response.json();
+        if (data.content) {
+          setContent(data.content);
+        }
+        return data;
+      } catch (error) {
+        console.error("Error fetching content:", error);
+        return null;
+      }
     },
   });
 
-  const form = useForm<InsertFormulationContent>({
-    resolver: zodResolver(insertFormulationContentSchema),
-    defaultValues: {
-      formulationId,
-      overviewTitle: "Product Overview",
-      overviewContent: "",
-      benefitsTitle: "Key Benefits",
-      benefitsContent: "",
-      applicationsTitle: "Applications",
-      applicationsContent: "",
-      usageTitle: "Usage Instructions",
-      usageContent: "",
-      safetyTitle: "Safety Information",
-      safetyContent: "",
-    },
-  });
-
-  // Update form when fetched content arrives
-  useEffect(() => {
-    const content = fetchedContent || existingContent;
-    if (content) {
-      form.reset({
+  // Save mutation - reusing the same endpoint as auto-generate tab
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      if (!content.trim()) {
+        throw new Error("Content cannot be empty");
+      }
+      const response = await apiRequest("POST", "/api/formulation-page-content", {
         formulationId,
-        overviewTitle: content.overviewTitle || "Product Overview",
-        overviewContent: content.overviewContent || "",
-        benefitsTitle: content.benefitsTitle || "Key Benefits",
-        benefitsContent: content.benefitsContent || "",
-        applicationsTitle: content.applicationsTitle || "Applications",
-        applicationsContent: content.applicationsContent || "",
-        usageTitle: content.usageTitle || "Usage Instructions",
-        usageContent: content.usageContent || "",
-        safetyTitle: content.safetyTitle || "Safety Information",
-        safetyContent: content.safetyContent || "",
+        content
       });
-    }
-  }, [fetchedContent, existingContent, formulationId, form]);
-
-  const submitMutation = useMutation({
-    mutationFn: async (data: InsertFormulationContent) => {
-      const response = await apiRequest("POST", "/api/formulation-content", data);
       return await response.json();
     },
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "Formulation content saved successfully",
+        description: "Page content saved successfully",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/formulation-content", formulationId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/formulation-page-content", formulationId] });
       onSuccess();
     },
     onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to save formulation content",
+        title: "Save failed",
+        description: error.message || "Failed to save page content",
         variant: "destructive",
       });
     },
   });
 
-  const onSubmit = (data: InsertFormulationContent) => {
-    submitMutation.mutate(data);
+  const handleSave = () => {
+    saveMutation.mutate();
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Customize Page Content for: {formulationName}</h3>
-        <p className="text-sm text-gray-600">
-          Add custom content that will be displayed on the public formulation page instead of auto-generated content.
-        </p>
-      </div>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">
+            Manual Page Content Editor for: {formulationName}
+          </CardTitle>
+          <p className="text-sm text-gray-600 mt-2">
+            Edit the complete formulation page content in HTML format, then save.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Category Group & Tone Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+            <div>
+              <h4 className="font-semibold text-sm text-purple-900 mb-1">📂 Category Group</h4>
+              <p className="text-sm text-purple-800"><strong>Group {categoryGroup.group}:</strong> {categoryGroup.name}</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-sm text-purple-900 mb-1">🎯 Tone Style</h4>
+              <p className="text-sm text-purple-800">{categoryGroup.tone}</p>
+            </div>
+          </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Overview Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Product Overview</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="overviewTitle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Section Title</FormLabel>
-                    <FormControl>
-                      <input
-                        type="text"
-                        {...field}
-                        value={field.value || ""}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="e.g., Product Overview"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="overviewContent"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Content (HTML supported)</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        value={field.value || ""}
-                        placeholder="Add your custom overview content here..."
-                        rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
+          {/* Content Editor */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
+              Full Page Content (HTML supported)
+            </label>
+            <Textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Paste or edit your complete HTML page content here..."
+              rows={15}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary font-mono text-sm"
+              data-testid="textarea-page-content"
+            />
+            <p className="text-xs text-gray-500">
+              You can include HTML tags like &lt;h1&gt;, &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, etc.
+            </p>
+          </div>
 
-          {/* Benefits Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Key Benefits</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="benefitsTitle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Section Title</FormLabel>
-                    <FormControl>
-                      <input
-                        type="text"
-                        {...field}
-                        value={field.value || ""}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="e.g., Key Benefits"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="benefitsContent"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Content (HTML supported)</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        value={field.value || ""}
-                        placeholder="List the key benefits of this formulation..."
-                        rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Applications Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Applications</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="applicationsTitle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Section Title</FormLabel>
-                    <FormControl>
-                      <input
-                        type="text"
-                        {...field}
-                        value={field.value || ""}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="e.g., Applications"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="applicationsContent"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Content (HTML supported)</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        value={field.value || ""}
-                        placeholder="Describe the applications and use cases..."
-                        rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Usage Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Usage Instructions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="usageTitle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Section Title</FormLabel>
-                    <FormControl>
-                      <input
-                        type="text"
-                        {...field}
-                        value={field.value || ""}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="e.g., Usage Instructions"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="usageContent"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Content (HTML supported)</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        value={field.value || ""}
-                        placeholder="Provide detailed usage instructions..."
-                        rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Safety Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Safety Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="safetyTitle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Section Title</FormLabel>
-                    <FormControl>
-                      <input
-                        type="text"
-                        {...field}
-                        value={field.value || ""}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="e.g., Safety Information"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="safetyContent"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Content (HTML supported)</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        value={field.value || ""}
-                        placeholder="Add safety warnings and precautions..."
-                        rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Submit Button */}
+          {/* Save Button */}
           <Button
-            type="submit"
-            disabled={submitMutation.isPending}
-            className="w-full bg-primary hover:bg-primary/90 text-white"
-            data-testid="button-save-formulation-content"
+            onClick={handleSave}
+            disabled={saveMutation.isPending || isFetching || !content.trim()}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
+            data-testid="button-save-content"
           >
-            {submitMutation.isPending ? (
+            {saveMutation.isPending ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 Saving...
@@ -361,12 +161,12 @@ export default function FormulationContentForm({
             ) : (
               <>
                 <Save className="w-4 h-4 mr-2" />
-                Save Custom Content
+                Save Content
               </>
             )}
           </Button>
-        </form>
-      </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

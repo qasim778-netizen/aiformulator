@@ -135,6 +135,7 @@ export default function FormulationContentManagementTab() {
                   <FormulationContentForm
                     formulationId={selectedFormulation.id}
                     formulationName={selectedFormulation.name}
+                    category={selectedFormulation.categoryId || ""}
                     onSuccess={() => {
                       setSelectedFormulationId("");
                     }}
