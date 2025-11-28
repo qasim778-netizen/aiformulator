@@ -1,0 +1,66 @@
+Create a clean, minimal “Manufacturing Flow” diagram for a product formulation page using full AIFormulator brand identity.
+
+Brand Colors:
+- Yellow #FFB100 (primary accent)
+- Teal #2E8B9C (secondary accent)
+- Black #000000 (icons + headings)
+- Soft off-white background #F7F5F2
+
+Design Style:
+- Flat 2D vector icons
+- Bold process titles
+- Small descriptive text
+- Thick uniform icon outlines
+- Chemical-industry clean & technical feel
+- No gradients, no photo realism, no clutter
+
+Layout:
+Top center: Bold heading “MANUFACTURING FLOW” in black.
+
+Create a horizontal process sequence of 3–5 steps depending on product category.  
+Each step must include:
+- Black line icon (clean vector)  
+- Short bold title  
+- One-line subtext  
+
+Use teal (#2E8B9C) arrows between each step.
+
+Category-Wise Step Logic:
+(Automatically adapt based on product category)
+
+**For Liquids (cleaners, shampoos, polishes, gels):**
+1. **Mixing** – “Combine ingredients in mixing tank.”
+2. **Heating / Dissolving** – “Dissolve solids or activate surfactants.”  
+   (Use only if product requires heat.)
+3. **Homogenization** – “Blend until uniform emulsion.”
+4. **Cooling** – “Cool to target temperature.”
+5. **Filling** – “Fill product into bottles or containers.”
+
+**For Adhesives / Heavy Industrial Products:**
+1. **Base Charging** – “Load resin or binder into reactor.”
+2. **Additives Addition** – “Add fillers, pigments, catalysts.”
+3. **High-Shear Mixing** – “Mix until uniform viscosity.”
+4. **Quality Check** – “Verify viscosity & adhesion.”
+5. **Filling / Packaging**
+
+**For Powders:**
+1. **Dry Blending** – “Blend powders uniformly.”
+2. **Sieving** – “Remove lumps or oversize particles.”
+3. **Additives Mixing** – “Incorporate functional additives.”
+4. **Packing** – “Fill into bags or jars.”
+
+**For Emulsions (cosmetics, baby care, creams):**
+1. **Phase Preparation** – “Heat oil & water phases separately.”
+2. **Emulsification** – “Combine phases under shear.”
+3. **Homogenization** – “Create stable fine emulsion.”
+4. **Cooling & Perfume** – “Add perfume + sensitive ingredients.”
+5. **Filling** – “Fill into bottles or tubs.”
+
+Branding:
+- Add a small AIFormulator round logo at the bottom center.
+- Add a thin yellow #FFB100 accent line under the title.
+
+Output:
+- Square 1:1 ratio
+- High resolution
+- Same design system as Image 1 & Image 2
