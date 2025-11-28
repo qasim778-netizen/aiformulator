@@ -57,13 +57,34 @@ export default function FormulationConfirmation() {
     );
   }
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     if (!user) {
       setLocation('/login');
       return;
     }
-    if (formulation?.pdfUrl) {
-      window.location.href = formulation.pdfUrl;
+    if (!formulation?.id) return;
+    
+    try {
+      const response = await fetch(`/api/formulations/${formulation.id}/pdf`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to download PDF');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${formulation.name.replace(/\s+/g, '_')}_formulation.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('PDF download error:', error);
     }
   };
 
