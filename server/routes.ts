@@ -3565,6 +3565,146 @@ Output ONLY the HTML block. Nothing else. No text outside tags.`;
     }
   });
 
+  // Generate Strategy Images for Formulation (Admin only)
+  app.post("/api/admin/generate-strategy-images", requireAdmin, async (req: any, res) => {
+    try {
+      const { formulationId, formulationName, category } = req.body;
+      if (!formulationId || !formulationName) {
+        return res.status(400).json({ message: "Formulation ID and name are required" });
+      }
+
+      // Determine category group for tone-appropriate image descriptions
+      const categoryLower = category ? category.toLowerCase() : "";
+      let categoryGroup = "J";
+      let categoryIcon = "chemistry";
+
+      if (/baby|kids|child|infant/.test(categoryLower)) {
+        categoryGroup = "A";
+        categoryIcon = "baby bottle";
+      } else if (/shampoo|skin|hair|face|cosmetic|beauty|scrub|lotion|cream/.test(categoryLower)) {
+        categoryGroup = "B";
+        categoryIcon = "beauty product";
+      } else if (/cleaner|cleaning|toilet|fabric|laundry|detergent/.test(categoryLower)) {
+        categoryGroup = "C";
+        categoryIcon = "spray bottle";
+      } else if (/car|automotive|vehicle|polish|tire|shoe|leather/.test(categoryLower)) {
+        categoryGroup = "D";
+        categoryIcon = "car polish bottle";
+      } else if (/adhesive|sealant|epoxy|tile|grout|marble|stone|construction/.test(categoryLower)) {
+        categoryGroup = "E";
+        categoryIcon = "adhesive gun";
+      } else if (/3d printing|filament|abs|pla|resin|polymer|industrial|coating/.test(categoryLower)) {
+        categoryGroup = "F";
+        categoryIcon = "3D printing resin bottle";
+      } else if (/agro|agriculture|pest|mosquito|mite|flea|water treatment/.test(categoryLower)) {
+        categoryGroup = "G";
+        categoryIcon = "agricultural spray";
+      } else if (/pet|dog|cat|pet spray|pet wash|deodorizer/.test(categoryLower)) {
+        categoryGroup = "H";
+        categoryIcon = "pet care bottle";
+      } else if (/organic|herbal|natural|essential oil|aroma/.test(categoryLower)) {
+        categoryGroup = "I";
+        categoryIcon = "botanical essential oil";
+      }
+
+      // Generate 3 images with optimized prompts
+      const imagePrompts = [
+        {
+          name: "image1",
+          prompt: `Product branding image for "${formulationName}" (${category || "chemical formulation"}). Professional flat 2D icon/silhouette on pure white background. Include product name in bold text. Add ${categoryIcon} symbol. Use colors: Yellow #FFB100, Teal #2E8B9C, Black #1A1A1A. Minimal, clean, professional design. No background clutter. Perfect for e-commerce and search results.`,
+          summary: "Professional branding image"
+        },
+        {
+          name: "image2", 
+          prompt: `Technical illustration for "${formulationName}". Light grey background. Clean diagram showing 3 key features with checkmark icons: (1) High Performance, (2) Long Stability, (3) Material Safe. Include ${categoryIcon} symbol. Flat 2D style, minimal and professional, consistent visual design, 600x400px.`,
+          summary: "Technical features illustration"
+        },
+        {
+          name: "image3",
+          prompt: `Process flow diagram for "${formulationName}" showing how it works. Clean white/light grey background. Show 3-4 step mechanism: Step 1 → Step 2 → Step 3 (final result with checkmark). Use minimal shapes, arrows, simple labels. Include ${categoryIcon} symbol. Flat 2D style, professional and clear. Perfect for explaining product application or manufacturing process.`,
+          summary: "Process mechanism flowchart"
+        }
+      ];
+
+      const images: { image1Url?: string; image2Url?: string; image3Url?: string } = {};
+      const errors = [];
+
+      // Generate each image using OpenAI DALL-E
+      for (const imgConfig of imagePrompts) {
+        try {
+          const dalleResponse = await fetch("https://api.openai.com/v1/images/generations", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+              model: "dall-e-3",
+              prompt: imgConfig.prompt,
+              n: 1,
+              size: "1024x1024",
+              quality: "standard",
+              style: "natural"
+            })
+          });
+
+          if (!dalleResponse.ok) {
+            const errorText = await dalleResponse.text();
+            errors.push(`${imgConfig.name}: ${errorText}`);
+            continue;
+          }
+
+          const imageData = await dalleResponse.json();
+          const imageUrl = imageData.data?.[0]?.url;
+
+          if (imageUrl) {
+            (images as any)[`${imgConfig.name}Url`] = imageUrl;
+          } else {
+            errors.push(`${imgConfig.name}: No URL returned`);
+          }
+        } catch (error: any) {
+          errors.push(`${imgConfig.name}: ${error.message}`);
+        }
+      }
+
+      // Save image URLs to formulation content
+      if (Object.keys(images).length > 0) {
+        try {
+          const existingContent = await storage.getFormulationContent(formulationId);
+          
+          if (existingContent) {
+            await storage.updateFormulationContent(formulationId, images);
+          } else {
+            await storage.createFormulationContent({
+              formulationId,
+              ...images
+            });
+          }
+        } catch (saveError: any) {
+          console.error("Error saving image URLs:", saveError);
+          // Continue anyway - images were generated even if storage failed
+        }
+      }
+
+      if (errors.length > 0) {
+        console.warn("Image generation warnings:", errors);
+      }
+
+      res.json({
+        message: "Strategy images generated successfully",
+        images,
+        generatedCount: Object.keys(images).length,
+        errors: errors.length > 0 ? errors : undefined
+      });
+    } catch (error: any) {
+      console.error("Failed to generate strategy images:", error);
+      res.status(500).json({
+        message: "Failed to generate strategy images",
+        error: String(error)
+      });
+    }
+  });
+
   // WebSocket server for real-time chat
   // Admin Management - Grant Admin Rights
   app.post("/api/admin/grant-rights", async (req, res) => {
