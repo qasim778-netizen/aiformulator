@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FormulationContentForm from "@/components/admin/formulation-content-form";
 import PageContentGenerator from "@/components/admin/page-content-generator";
+import ImageStrategyGenerator from "@/components/admin/image-strategy-generator";
 import type { Formulation, Category } from "@shared/schema";
 
 export default function FormulationContentManagementTab() {
@@ -107,8 +108,9 @@ export default function FormulationContentManagementTab() {
 
             {selectedFormulation && (
               <Tabs defaultValue="auto-generate" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="auto-generate">Auto-Generate Full Page</TabsTrigger>
+                  <TabsTrigger value="images">Generate 3 Images</TabsTrigger>
                   <TabsTrigger value="manual-edit">Manual Edit Sections</TabsTrigger>
                 </TabsList>
                 
@@ -118,6 +120,14 @@ export default function FormulationContentManagementTab() {
                     formulationName={selectedFormulation.name}
                     category={selectedFormulation.categoryId || ""}
                     initialContent={(selectedFormulation as any)?.customPageContent || ""}
+                  />
+                </TabsContent>
+
+                <TabsContent value="images">
+                  <ImageStrategyGenerator
+                    formulationId={selectedFormulation.id}
+                    formulationName={selectedFormulation.name}
+                    category={selectedFormulation.categoryId || ""}
                   />
                 </TabsContent>
                 

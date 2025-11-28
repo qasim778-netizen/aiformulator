@@ -67,6 +67,9 @@ export const formulationContent = pgTable("formulation_content", {
   usageContent: text("usage_content"), // Rich HTML content
   safetyTitle: text("safety_title"),
   safetyContent: text("safety_content"), // Rich HTML content
+  image1Url: text("image1_url"), // Main Branding Image URL
+  image2Url: text("image2_url"), // Technical Illustration Image URL
+  image3Url: text("image3_url"), // Process/Mechanism Diagram Image URL
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
 }, (table) => ({
@@ -130,6 +133,9 @@ export const insertFormulationContentSchema = createInsertSchema(formulationCont
   usageContent: true,
   safetyTitle: true,
   safetyContent: true,
+  image1Url: true,
+  image2Url: true,
+  image3Url: true,
 });
 
 // Product special properties table for dynamic properties based on product type
