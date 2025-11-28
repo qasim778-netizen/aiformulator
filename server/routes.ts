@@ -3625,8 +3625,8 @@ Output ONLY the HTML block. Nothing else. No text outside tags.`;
       const imagePrompts = [
         {
           name: "image1",
-          prompt: `Create a clean, minimal "Main Thumbnail Image" for a product formulation page using full AIFormulator branding. Brand colors: Yellow #FFB100, Teal #2E8B9C, Black #000000, White background. Flat 2D digital illustration, clean vector shapes, centered composition. Layout: Center - simple bold icon representing "${formulationName}" in solid black/teal with thick outline. Below icon - large bold product title in black. Under title - one-line category tag in teal showing the product domain (e.g., "Car Care Product Formulation" or "Cosmetic Formulation" or "Cleaning Formulation"). Bottom-right corner - small AIFormulator scientist avatar logo with clean white outline. Optional: thin yellow #FFB100 line or dot accent behind/around icon. Very high clarity, no clutter, pure white background. Square 1:1 ratio, professional product thumbnail style.`,
-          summary: "Main Branding Thumbnail Image"
+          prompt: `Create a professional product mockup image for "${formulationName}". Style: High-quality, realistic product photography mockup. Composition: Left side - a full product bottle/container with white/cream exterior and a colored label band (use colors appropriate to product category: blue for car care, teal for cleaner, pink for beauty, green for organic, etc). The label band should have the product name in bold white text. Right side - a rounded rectangle card displaying the same product in miniature form with category title at top in white text, product name clearly visible at bottom. Background: Clean, professional grey or white gradient. Lighting: Professional product photography lighting with subtle shadows. Square 1:1 ratio, high resolution, mockup style presentation.`,
+          summary: "Professional Product Mockup"
         }
       ];
 
