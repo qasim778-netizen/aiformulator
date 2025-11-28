@@ -1,9 +1,11 @@
 import { Link, useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Download, FileText, Sparkles, User, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 interface FormulationData {
   id: string;
@@ -18,6 +20,8 @@ export default function FormulationConfirmation() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+  const { toast } = useToast();
+  const [isDownloading, setIsDownloading] = useState(false);
   const formulationId = params.id;
 
   // Fetch formulation data from API
@@ -59,32 +63,68 @@ export default function FormulationConfirmation() {
 
   const handleDownloadPDF = async () => {
     if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please log in to download your formulation PDF",
+        variant: "destructive",
+      });
       setLocation('/login');
       return;
     }
-    if (!formulation?.id) return;
+    if (!formulation?.id) {
+      toast({
+        title: "Error",
+        description: "Formulation data not available",
+        variant: "destructive",
+      });
+      return;
+    }
     
+    setIsDownloading(true);
     try {
+      console.log(`Starting PDF download for formulation: ${formulation.id}`);
       const response = await fetch(`/api/formulations/${formulation.id}/pdf`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
       
+      console.log(`PDF endpoint response status: ${response.status}`);
+      
       if (!response.ok) {
-        throw new Error('Failed to download PDF');
+        const errorText = await response.text();
+        console.error(`PDF endpoint error: ${errorText}`);
+        throw new Error(`Server error: ${response.statusText}`);
       }
       
       const blob = await response.blob();
+      console.log(`Received blob of size: ${blob.size} bytes`);
+      
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${formulation.name.replace(/\s+/g, '_')}_formulation.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${formulation.name.replace(/\s+/g, '_')}_formulation.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+      }, 100);
+      
+      toast({
+        title: "Success",
+        description: "Your formulation PDF has been downloaded",
+      });
+      console.log("PDF download completed successfully");
+    } catch (error: any) {
       console.error('PDF download error:', error);
+      toast({
+        title: "Download Failed",
+        description: error.message || "Failed to download PDF. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -152,11 +192,21 @@ export default function FormulationConfirmation() {
                   </div>
                   <Button 
                     onClick={handleDownloadPDF}
-                    className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-6 text-base sm:text-lg"
+                    disabled={isDownloading}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-6 text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     data-testid="button-download-pdf"
                   >
-                    <Download className="h-5 w-5 mr-2" />
-                    Download PDF
+                    {isDownloading ? (
+                      <>
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                        Generating PDF...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="h-5 w-5 mr-2" />
+                        Download PDF
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
