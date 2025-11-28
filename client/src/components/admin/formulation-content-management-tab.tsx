@@ -34,6 +34,12 @@ export default function FormulationContentManagementTab() {
   }, [formulations, searchQuery, selectedCategory]);
 
   const selectedFormulation = formulations.find(f => f.id === selectedFormulationId);
+  
+  // Get category name from ID
+  const getCategoryName = (categoryId: string): string => {
+    const category = categories.find(c => c.id === categoryId);
+    return category?.name ?? "";
+  };
 
   return (
     <div className="space-y-6">
@@ -118,7 +124,7 @@ export default function FormulationContentManagementTab() {
                   <PageContentGenerator
                     formulationId={selectedFormulation.id}
                     formulationName={selectedFormulation.name}
-                    category={selectedFormulation.categoryId || ""}
+                    category={getCategoryName(selectedFormulation.categoryId)}
                     initialContent={(selectedFormulation as any)?.customPageContent || ""}
                   />
                 </TabsContent>
@@ -127,7 +133,7 @@ export default function FormulationContentManagementTab() {
                   <ImageStrategyGenerator
                     formulationId={selectedFormulation.id}
                     formulationName={selectedFormulation.name}
-                    category={selectedFormulation.categoryId || ""}
+                    category={getCategoryName(selectedFormulation.categoryId)}
                   />
                 </TabsContent>
                 
@@ -135,7 +141,7 @@ export default function FormulationContentManagementTab() {
                   <FormulationContentForm
                     formulationId={selectedFormulation.id}
                     formulationName={selectedFormulation.name}
-                    category={selectedFormulation.categoryId || ""}
+                    category={getCategoryName(selectedFormulation.categoryId)}
                     onSuccess={() => {
                       setSelectedFormulationId("");
                     }}
