@@ -103,6 +103,32 @@ export default function PageContentGenerator({
     saveMutation.mutate();
   };
 
+  // Category-to-Group mapping
+  const getCategoryGroup = (categoryName: string) => {
+    const lower = categoryName.toLowerCase();
+    
+    if (/baby|kids|child|infant|baby wash|baby lotion/.test(lower)) 
+      return { group: "A", name: "Baby & Gentle Care", tone: "Gentle, reassuring, mild tone" };
+    if (/shampoo|skin|hair|face wash|cosmetic|beauty|scrub|lotion|cream/.test(lower)) 
+      return { group: "B", name: "Skin / Hair / Beauty / Grooming", tone: "Soft, premium, cosmetic-style tone" };
+    if (/cleaner|cleaning|toilet|fabric|laundry|all-purpose|detergent/.test(lower)) 
+      return { group: "C", name: "Cleaning / Detergent / Household", tone: "Practical, instructional, performance-focused tone" };
+    if (/car|automotive|vehicle|polish|tire|dashboard|shoe|leather/.test(lower)) 
+      return { group: "D", name: "Car / Auto / Shoe / Leather", tone: "Professional detailing tone" };
+    if (/adhesive|sealant|epoxy|tile|grout|marble|stone|construction/.test(lower)) 
+      return { group: "E", name: "Adhesives / Sealants / Construction", tone: "Technical, structural, engineering-oriented tone" };
+    if (/3d printing|filament|abs|pla|resin|polymer|industrial|coating/.test(lower)) 
+      return { group: "F", name: "Industrial / 3D Printing / Coatings / Resins", tone: "Material-science tone" };
+    if (/agro|agriculture|pest|mosquito|mite|flea|water treatment/.test(lower)) 
+      return { group: "G", name: "Agriculture / Water Treatment / Pest", tone: "Compliance-aware tone" };
+    if (/pet|dog|cat|pet spray|pet wash|deodorizer/.test(lower)) 
+      return { group: "H", name: "Pet Care", tone: "Friendly, pet-safe, reassuring tone" };
+    if (/organic|herbal|natural|essential oil|aroma/.test(lower)) 
+      return { group: "I", name: "Herbal / Organic / Aromatherapy", tone: "Natural, botanical, eco-friendly tone" };
+    
+    return { group: "J", name: "Default", tone: "Standard professional tone" };
+  };
+
   // Extract strategies from content
   const extractStrategies = (html: string) => {
     const keywordMatch = html.match(/<h2>Keyword Strategy<\/h2>([\s\S]*?)(?=<h2>|$)/i);
@@ -127,6 +153,7 @@ export default function PageContentGenerator({
   };
 
   const strategies = extractStrategies(content);
+  const categoryGroup = getCategoryGroup(category);
 
   return (
     <div className="space-y-4">
@@ -140,6 +167,18 @@ export default function PageContentGenerator({
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Category Group & Tone Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+            <div>
+              <h4 className="font-semibold text-sm text-purple-900 mb-1">📂 Category Group</h4>
+              <p className="text-sm text-purple-800"><strong>Group {categoryGroup.group}:</strong> {categoryGroup.name}</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-sm text-purple-900 mb-1">🎯 Tone Style</h4>
+              <p className="text-sm text-purple-800">{categoryGroup.tone}</p>
+            </div>
+          </div>
+
           {/* Page Strategy Info */}
           {content && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
