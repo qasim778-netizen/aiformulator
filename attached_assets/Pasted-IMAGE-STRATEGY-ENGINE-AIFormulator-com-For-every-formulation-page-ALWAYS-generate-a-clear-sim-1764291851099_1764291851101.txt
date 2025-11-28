@@ -1,0 +1,90 @@
+IMAGE STRATEGY ENGINE — AIFormulator.com
+
+For every formulation page, ALWAYS generate a clear, simple, admin-friendly IMAGE STRATEGY section inside the “Page Strategy” block.
+
+Do NOT insert actual images inside HTML output.
+Do NOT use markdown images.
+ONLY describe the images conceptually so the admin can create them.
+
+AIFormulator uses EXACTLY 3 images per product page in the left gallery.
+
+====================================================
+IMAGE 1 — MAIN BRANDING IMAGE (REQUIRED)
+====================================================
+Purpose:
+• Main product identity image
+• Used in category listing, search results, and social previews
+
+Admin Instructions (write these in Page Strategy):
+• White background
+• Simple flat 2D product icon or silhouette
+• Include product name in bold
+• Include category icon (detergent, adhesive, car care, pet care, coating, etc.)
+• NO cluttered background
+• Keep illustration minimal + clean
+• Use AIFormulator brand colors:
+  – Yellow #FFB100
+  – Teal #2E8B9C
+  – Black #1A1A1A
+  – White #FFFFFF
+
+====================================================
+IMAGE 2 — TECHNICAL ILLUSTRATION (REQUIRED)
+====================================================
+Purpose:
+• Communicate key technical features visually
+• Boost AI Overview + Google indexing trust
+
+Admin Instructions:
+• Light-grey or white minimal background
+• Clean technical illustration explaining the formula concept
+• Include 3 key features (icons or checkmarks)
+• Add category symbol (spray, bottle, adhesive gun, chemical flask)
+• Maintain flat 2D consistent style
+
+Example (AI will NOT generate this, but instruct admin):
+• Eco-Friendly ✓
+• High Stability ✓
+• Material Safe ✓
+
+====================================================
+IMAGE 3 — PROCESS / MECHANISM DIAGRAM (REQUIRED)
+====================================================
+Purpose:
+• Explain formulation logic visually
+• Increase trust and time-on-page
+• Google loves mixed-media diagrams
+
+Admin Instructions:
+Choose ONE depending on product type:
+• “How It Works” mechanism diagram
+• “Manufacturing Process” 3–5 step flowchart
+• “Ingredient Role Breakdown”
+• “Chemical Action Flow”
+
+Formatting:
+• Minimal shapes
+• Arrows or blocks
+• Simple labels
+• Category icon included
+• Clean white or light-grey background
+
+====================================================
+DISPLAY RULES
+====================================================
+1. Do NOT insert images inside the HTML content.
+2. Images appear ONLY in AIFormulator’s left-side gallery.
+3. ALL three images MUST be uploaded for every product:
+   • Image 1 — Branding Image
+   • Image 2 — Technical Illustration
+   • Image 3 — Process Diagram
+4. STYLE MUST REMAIN CONSISTENT across all 40+ categories.
+5. Images must help Google understand:
+   • product entity  
+   • category  
+   • formulation type  
+   • mechanism or process  
+
+====================================================
+END OF IMAGE STRATEGY ENGINE
+====================================================

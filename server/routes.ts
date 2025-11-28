@@ -2960,6 +2960,30 @@ Context-based, Long-tail)
 (Explain why this category layout is selected, SEO intent,
 and tone approach in 5–7 lines)
 
+<h3>Image Strategy Engine</h3>
+For every formulation page, include these admin instructions:
+
+IMAGE 1 — MAIN BRANDING IMAGE:
+• White background, simple flat 2D product icon or silhouette
+• Include product name in bold + category icon (detergent, adhesive, car care, pet, coating, etc.)
+• Use AIFormulator colors: Yellow #FFB100, Teal #2E8B9C, Black #1A1A1A, White #FFFFFF
+• Keep minimal + clean, no cluttered background
+
+IMAGE 2 — TECHNICAL ILLUSTRATION:
+• Light-grey or white minimal background
+• Clean technical illustration explaining formula concept
+• Include 3 key features (icons or checkmarks)
+• Add category symbol (spray, bottle, adhesive gun, chemical flask, etc.)
+• Maintain flat 2D consistent style
+
+IMAGE 3 — PROCESS/MECHANISM DIAGRAM:
+• Choose ONE: "How It Works" mechanism, manufacturing process flowchart, ingredient role breakdown, or chemical action flow
+• Minimal shapes with arrows/blocks, simple labels, category icon included
+• Clean white or light-grey background
+
+NOTE: Do NOT insert images in HTML. Images appear only in AIFormulator's left-side gallery.
+ALL three images MUST be uploaded for every product. Keep style consistent across all categories.
+
 THEN the 13-section public page begins.
 
 ======================================================================
