@@ -3607,7 +3607,21 @@ Output ONLY the HTML block. Nothing else. No text outside tags.`;
         categoryIcon = "botanical essential oil";
       }
 
-      // Generate 3 images with optimized prompts
+      // Determine product type for Manufacturing Flow steps
+      let manufacturingSteps = "";
+      if (/cleaner|shampoo|polish|gel|lotion|cream|liquid|spray|detergent/.test(categoryLower)) {
+        manufacturingSteps = "For liquid products: (1) Mixing - Combine ingredients in mixing tank, (2) Heating/Dissolving - Dissolve solids or activate surfactants, (3) Homogenization - Blend until uniform emulsion, (4) Cooling - Cool to target temperature, (5) Filling - Fill product into bottles";
+      } else if (/adhesive|sealant|epoxy|construction/.test(categoryLower)) {
+        manufacturingSteps = "For adhesive/industrial: (1) Base Charging - Load resin or binder into reactor, (2) Additives Addition - Add fillers, pigments, catalysts, (3) High-Shear Mixing - Mix until uniform viscosity, (4) Quality Check - Verify viscosity and adhesion, (5) Filling/Packaging";
+      } else if (/powder|dust|granule/.test(categoryLower)) {
+        manufacturingSteps = "For powder products: (1) Dry Blending - Blend powders uniformly, (2) Sieving - Remove lumps or oversize particles, (3) Additives Mixing - Incorporate functional additives, (4) Packing - Fill into bags or jars";
+      } else if (/cosmetic|beauty|baby|cream|emulsion|lotion/.test(categoryLower)) {
+        manufacturingSteps = "For emulsions/cosmetics: (1) Phase Preparation - Heat oil and water phases separately, (2) Emulsification - Combine phases under shear, (3) Homogenization - Create stable fine emulsion, (4) Cooling & Perfume - Add perfume and sensitive ingredients, (5) Filling - Fill into bottles or tubs";
+      } else {
+        manufacturingSteps = "Standard manufacturing: (1) Raw Material Preparation - Prepare and measure all ingredients, (2) Mixing - Combine components according to formula, (3) Quality Verification - Test formulation properties, (4) Packaging - Fill into final containers";
+      }
+
+      // Generate 4 images with optimized prompts
       const imagePrompts = [
         {
           name: "image1",
@@ -3623,10 +3637,15 @@ Output ONLY the HTML block. Nothing else. No text outside tags.`;
           name: "image3",
           prompt: `Create a clean, minimal "How It Works" technical diagram for a product formulation page using complete AIFormulator branding. Brand colors: Yellow #FFB100, Teal #2E8B9C, Black #000000. Background: Soft off-white #F7F5F2 (no texture, no shadows except very subtle). Style: Flat 2D vector icons, uniform line thickness, minimal modern chemical-process aesthetic, highly readable. Layout - Top: Bold heading "HOW IT WORKS" in black. Below: Horizontal sequence of 3-4 process steps, each showing: simple black line icon for the step, short bold step title, one-line explanation. Steps flow left-to-right with teal #2E8B9C arrows between them. Examples: (1) Penetration "Product wets and spreads", (2) Chemical Action "Active ingredients react", (3) Protection/Finish "Leaves protective layer" (auto-adjust per product type). Branding: Small AIFormulator scientist logo at bottom center. Thin yellow #FFB100 accent line under "HOW IT WORKS" title. Premium, minimal, scientific, easy to understand at a glance. Square 1:1 ratio, consistent with Image 1 and Image 2.`,
           summary: "How It Works Process Diagram"
+        },
+        {
+          name: "image4",
+          prompt: `Create a clean, minimal "Manufacturing Flow" diagram for a product formulation page using full AIFormulator brand identity. Brand colors: Yellow #FFB100, Teal #2E8B9C, Black #000000. Background: Soft off-white #F7F5F2 (no gradients, no photo realism). Style: Flat 2D vector icons with bold process titles and small descriptive text, thick uniform outlines, clean chemical-industry aesthetic. Layout - Top center: Bold heading "MANUFACTURING FLOW" in black. Below: Horizontal sequence of 3-5 manufacturing steps. Each step includes: black line icon (clean vector), short bold title, one-line subtext describing the step. Steps: ${manufacturingSteps}. Use teal #2E8B9C arrows between each step for flow direction. Branding: Small AIFormulator scientist logo at bottom center. Thin yellow #FFB100 accent line under "MANUFACTURING FLOW" title. Professional, minimal, scientific, easy to understand at a glance. Square 1:1 ratio, consistent design system with Images 1-3.`,
+          summary: "Manufacturing Flow Process Diagram"
         }
       ];
 
-      const images: { image1Url?: string; image2Url?: string; image3Url?: string } = {};
+      const images: { image1Url?: string; image2Url?: string; image3Url?: string; image4Url?: string } = {};
       const errors = [];
 
       // Generate each image using OpenAI DALL-E
