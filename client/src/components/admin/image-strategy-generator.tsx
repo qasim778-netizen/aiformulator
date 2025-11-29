@@ -92,7 +92,9 @@ export default function ImageStrategyGenerator({
           {generatedImages.image1Url && (
             <div className="p-4 bg-green-50 rounded-lg border border-green-200">
               <h4 className="font-semibold text-sm text-green-900 mb-3">✓ Social Media Post Generated</h4>
-              <img src={generatedImages.image1Url} alt="Social Media Post" className="w-full h-auto rounded border bg-white" />
+              <div className="overflow-auto bg-white rounded border min-h-[700px] flex items-center justify-center p-2">
+                <img src={generatedImages.image1Url} alt="Social Media Post" className="w-full h-auto rounded" />
+              </div>
             </div>
           )}
         </CardContent>
