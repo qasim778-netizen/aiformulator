@@ -20,6 +20,7 @@ import { optimizeFormulationName } from "./name-optimizer";
 import { savePDFFile, saveTextFile, generateTextContent } from "./file-storage";
 import bcrypt from "bcrypt";
 import { signupSchema, loginSchema } from "@shared/schema";
+import { validateFormulation, getValidationReport, getIngredientBreakdown, type ValidationResult } from "./formulation-validator";
 
 // SendGrid email helper function
 async function getSendGridClient() {
@@ -1337,6 +1338,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Formulation Validation API endpoint
+  app.post("/api/formulations/validate", async (req, res) => {
+    try {
+      const { ingredients, productType, phLevel } = req.body;
+      
+      if (!ingredients) {
+        return res.status(400).json({ message: "Ingredients JSON is required" });
+      }
+      
+      const ingredientsJson = typeof ingredients === 'string' 
+        ? ingredients 
+        : JSON.stringify(ingredients);
+      
+      const result = validateFormulation(ingredientsJson, productType, phLevel);
+      const report = getValidationReport(result);
+      const breakdown = getIngredientBreakdown(ingredientsJson);
+      
+      res.json({
+        validation: result,
+        report,
+        breakdown
+      });
+    } catch (error: any) {
+      console.error("Validation error:", error);
+      res.status(500).json({ message: error.message || "Failed to validate formulation" });
+    }
+  });
+  
+  app.get("/api/formulations/:id/validate", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const formulation = await storage.getFormulation(id);
+      
+      if (!formulation) {
+        return res.status(404).json({ message: "Formulation not found" });
+      }
+      
+      const result = validateFormulation(
+        formulation.ingredients, 
+        undefined, 
+        formulation.phLevel
+      );
+      const report = getValidationReport(result);
+      const breakdown = getIngredientBreakdown(formulation.ingredients);
+      
+      res.json({
+        formulationId: id,
+        formulationName: formulation.name,
+        validation: result,
+        report,
+        breakdown
+      });
+    } catch (error: any) {
+      console.error("Validation error:", error);
+      res.status(500).json({ message: error.message || "Failed to validate formulation" });
+    }
+  });
+
   // AI Generation endpoints (protected admin routes)
   app.post("/api/ai/generate-category", isAdmin, async (req, res) => {
     try {
@@ -1945,10 +2004,22 @@ Allow: /disclaimer`;
           instructionsType: typeof aiFormulation.instructions
         });
         
+        const ingredientsJson = typeof aiFormulation.ingredients === 'string' 
+          ? aiFormulation.ingredients 
+          : JSON.stringify(aiFormulation.ingredients || []);
+        
+        const validationResult = validateFormulation(ingredientsJson, productType, phLevel.toString());
+        console.log(`🔬 Formulation Validation:`, {
+          isValid: validationResult.isValid,
+          score: validationResult.overallScore,
+          issues: validationResult.issues.length,
+          warnings: validationResult.warnings.length
+        });
+        
         formulation = {
           name: optimizedName,
           description: aiFormulation.description || `Professional ${productType} formulation for ${productDescription}`,
-          ingredients: typeof aiFormulation.ingredients === 'string' ? aiFormulation.ingredients : JSON.stringify(aiFormulation.ingredients || []),
+          ingredients: ingredientsJson,
           instructions: typeof aiFormulation.instructions === 'string' ? aiFormulation.instructions : JSON.stringify(aiFormulation.instructions || []),
           usageInstructions: aiFormulation.usageInstructions || 'Apply as needed according to product instructions',
           phLevel: aiFormulation.phLevel || phLevel.toString(),
@@ -1960,8 +2031,10 @@ Allow: /disclaimer`;
           temperature: aiFormulation.temperature || "Room temperature (20-25°C)",
           equipment: aiFormulation.equipment || "Standard mixing equipment, pH meter, thermometer",
           certification: aiFormulation.certification || "Meets industry standards",
-          isActive: false // This will make it appear in pending approval
+          isActive: false
         };
+        
+        console.log(`✅ Formulation validation score: ${validationResult.overallScore}/100 (${validationResult.isValid ? 'VALID' : 'NEEDS REVIEW'})`);
         
       } catch (aiError) {
         console.error("AI generation failed, using fallback:", aiError);

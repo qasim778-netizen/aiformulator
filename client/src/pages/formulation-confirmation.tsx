@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Download, FileText, Sparkles, User, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { FormulationValidation } from '@/components/formulation-validation';
 
 interface FormulationData {
   id: string;
@@ -243,6 +244,14 @@ export default function FormulationConfirmation() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Validation Section */}
+        <div className="mb-6 sm:mb-8">
+          <FormulationValidation 
+            formulationId={parseInt(formulationId)} 
+            showFullReport={false}
+          />
+        </div>
 
         {/* Tips Section */}
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 border border-gray-200">
