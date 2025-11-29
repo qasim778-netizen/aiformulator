@@ -110,6 +110,93 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
     queryKey: ["/api/formulations"],
   });
   
+  // Auto-detect product type from product name
+  const detectProductType = (name: string): string | null => {
+    const lowerName = name.toLowerCase();
+    
+    // Liquid keywords - check first for explicit liquid mentions
+    const liquidKeywords = [
+      'liquid', 'serum', 'toner', 'oil', 'spray', 'mist', 'essence',
+      'lotion', 'cleanser', 'wash', 'rinse', 'solution', 'drops',
+      'shampoo', 'conditioner', 'bodywash', 'handwash', 'dishwash',
+      'floor cleaner', 'glass cleaner', 'all-purpose cleaner',
+      'fabric softener', 'bleach', 'disinfectant'
+    ];
+    
+    // Gel keywords
+    const gelKeywords = [
+      'gel', 'jelly', 'mask', 'pack', 'aloe', 'styling gel',
+      'shower gel', 'hair gel', 'sanitizer', 'hand sanitizer'
+    ];
+    
+    // Cream keywords
+    const creamKeywords = [
+      'cream', 'butter', 'balm', 'ointment', 'paste', 'pomade',
+      'moisturizer', 'emulsion', 'thick', 'rich', 'night cream',
+      'day cream', 'eye cream', 'hand cream', 'foot cream',
+      'body butter', 'lip balm', 'salve'
+    ];
+    
+    // Powder keywords (check these last as default for detergents)
+    const powderKeywords = [
+      'powder', 'dust', 'talc', 'foundation', 'compact', 'dry',
+      'granule', 'granular', 'setting powder', 'face powder',
+      'baby powder', 'talcum'
+    ];
+    
+    // Products that default to powder form if no modifier specified
+    const defaultPowderProducts = [
+      'detergent', 'washing powder', 'laundry', 'dishwasher'
+    ];
+    
+    // Check for explicit liquid mention first (highest priority)
+    for (const keyword of liquidKeywords) {
+      if (lowerName.includes(keyword)) {
+        return 'liquid';
+      }
+    }
+    
+    // Check for gel keywords
+    for (const keyword of gelKeywords) {
+      if (lowerName.includes(keyword)) {
+        return 'gel';
+      }
+    }
+    
+    // Check for cream keywords
+    for (const keyword of creamKeywords) {
+      if (lowerName.includes(keyword)) {
+        return 'cream';
+      }
+    }
+    
+    // Check for explicit powder keywords
+    for (const keyword of powderKeywords) {
+      if (lowerName.includes(keyword)) {
+        return 'powder';
+      }
+    }
+    
+    // Default powder products (like detergent without liquid modifier)
+    for (const keyword of defaultPowderProducts) {
+      if (lowerName.includes(keyword)) {
+        return 'powder';
+      }
+    }
+    
+    return null;
+  };
+  
+  // Auto-select product type when product name changes
+  useEffect(() => {
+    if (!formData.productName.trim()) return;
+    
+    const detectedType = detectProductType(formData.productName);
+    if (detectedType && detectedType !== formData.consistencyType) {
+      updateFormData({ consistencyType: detectedType });
+    }
+  }, [formData.productName]);
+  
   // Update suggestions when product name changes
   useEffect(() => {
     if (!formData.productName.trim()) {
