@@ -149,59 +149,93 @@ export async function generateBulkFormulations(categoryName: string, count: numb
         messages: [
           {
             role: "system",
-            content: `You are a professional chemical formulator with expertise in industrial manufacturing. Generate detailed commercial formulations for the given product types with professional-grade specifications.
+            content: `You are a senior industrial chemist with 20+ years of experience. Generate PRODUCTION-READY formulations that meet strict industrial standards.
 
-IMPORTANT: Return a JSON object with this exact structure:
+RETURN JSON with this exact structure:
 {
   "formulations": [
     {
       "name": "Product Name",
-      "description": "3-4 line professional description that introduces the product's purpose, mentions main function (e.g., soothing, cleansing, protecting), highlights key benefits for end users (e.g., reduces irritation, hydrates skin, improves shine), using simple non-technical language",
+      "description": "3-4 line professional description",
       "ingredients": [
         {
           "name": "Specific Ingredient Name",
           "inci": "Official INCI Name",
           "percentage": "X.X%",
-          "function": "Detailed function in formulation"
+          "function": "Detailed function"
         }
       ],
       "instructions": [
         {
-          "phase": "Specific Phase Name (e.g., Water Phase, Oil Phase, Final Processing)",
-          "steps": [
-            "Detailed step with specific temperatures and timing",
-            "Precise mixing instructions with equipment specifications", 
-            "Quality control checkpoints and parameters"
-          ]
+          "phase": "Phase Name",
+          "steps": ["Step 1", "Step 2", "Step 3"]
         }
       ],
-      "usageInstructions": "Detailed professional usage instructions with application methods and dosage",
-      "phLevel": "Specific pH value or tight range (e.g., 6.5, 10.2)",
-      "shelfLife": "Specific shelf life with storage conditions",
-      "viscosity": "Specific viscosity measurement or description",
-      "storageConditions": "Detailed storage requirements with temperature and humidity",
-      "batchSize": "Professional batch size (e.g., 500 kg, 1000 L)",
-      "processingTime": "Specific processing time with phases",
-      "temperature": "Exact temperature requirements for each phase",
-      "equipment": "Professional equipment list with specifications",
-      "certification": "Industry certifications and compliance standards",
+      "usageInstructions": "Detailed usage instructions",
+      "phLevel": "Specific pH value",
+      "shelfLife": "Shelf life with conditions",
+      "viscosity": "Viscosity specification",
+      "storageConditions": "Storage requirements",
+      "batchSize": "Batch size (e.g., 500 kg)",
+      "processingTime": "Processing time",
+      "temperature": "Temperature requirements",
+      "equipment": "Equipment list",
+      "certification": "Certifications",
       "isActive": true
     }
   ]
 }
 
-ENHANCED GUIDELINES:
-- Use authentic chemical ingredients with proper INCI nomenclature
-- Percentages must add up to exactly 100% with realistic proportions
-- Include category-specific ingredients (surfactants for cleaning, enzymes for detergents, emulsifiers for cosmetics)
-- Provide detailed multi-phase manufacturing processes
-- Ensure formulations meet industry safety and efficacy standards
-- Include specific technical parameters (pH, viscosity, temperature, time)
-- Make each formulation unique, practical, and production-ready`
+═══════════════════════════════════════════════════════════════
+MANDATORY INDUSTRIAL FORMULATION STANDARDS
+═══════════════════════════════════════════════════════════════
+
+PERCENTAGE RULES BY INGREDIENT TYPE:
+
+BASE INGREDIENTS (Water/Solvents): 50-85%
+• Aqua/Water: 50-80% (primary base)
+• Alcohol (if used): 10-70% depending on type
+
+SURFACTANTS (Cleaning products): Total 5-25%
+• Primary surfactant: 5-15%
+• Secondary surfactant: 2-8%
+
+EMULSIFIERS (Creams/Lotions): Total 2-6%
+• Primary emulsifier: 1-4%
+• Co-emulsifier: 0.5-2%
+
+THICKENERS: 0.2-3%
+• Carbomer: 0.1-0.5%
+• Xanthan Gum: 0.1-0.5%
+
+HUMECTANTS: 2-10%
+• Glycerin: 2-8%
+• Propylene Glycol: 1-5%
+
+ACTIVE INGREDIENTS: 0.1-10%
+• Most actives: 0.5-5%
+• High-concentration serums: up to 15%
+
+PRESERVATIVES - STRICT LIMITS:
+• Phenoxyethanol: 0.5-1% (MAX 1%)
+• Natural preservatives: 0.5-1.5%
+
+pH ADJUSTERS: 0.05-0.5%
+FRAGRANCES: 0.1-2%
+CHELATING AGENTS: 0.05-0.2%
+COLORANTS: 0.001-0.1%
+
+VALIDATION RULES:
+✅ All percentages MUST add up to exactly 100%
+✅ Water/base MUST be largest ingredient (50-85%)
+✅ Active ingredients within safety limits
+✅ Preservatives within regulatory maximums
+✅ All INCI names must be correct
+✅ Formulation must be commercially viable`
           },
           {
             role: "user",
-            content: `Generate ${currentBatch.length} commercial formulations for these ${categoryName} products:\n${currentBatch.map((type, idx) => `${idx + 1}. ${type}`).join('\n')}\n\nEach formulation should be complete, professional, and ready for manufacturing.`
+            content: `Generate ${currentBatch.length} INDUSTRIAL-STANDARD formulations for these ${categoryName} products:\n${currentBatch.map((type, idx) => `${idx + 1}. ${type}`).join('\n')}\n\nEach formulation must use realistic industry-standard percentages that could be validated by a professional chemist.`
           }
         ],
         response_format: { type: "json_object" },
@@ -894,59 +928,172 @@ export async function generateCustomFormulation(request: CustomFormulationReques
     const optionalSpecsText = optionalSpecs ? `\n\nAdditional Specifications: ${optionalSpecs}` : '';
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: `You are a professional chemical formulation expert. Generate a complete, professional chemical formulation for small business manufacturers based on the specific requirements provided. Return JSON in this exact format:
-          {
-            "name": "Product Name",
-            "description": "Professional product description",
-            "ingredients": [
-              {
-                "name": "Ingredient Name",
-                "inci": "INCI Name",
-                "percentage": "X.X%",
-                "function": "Function in formulation"
-              }
-            ],
-            "instructions": [
-              {
-                "phase": "Phase Name",
-                "steps": ["Step 1", "Step 2", "Step 3"]
-              }
-            ],
-            "usageInstructions": "Detailed usage instructions",
-            "phLevel": "pH range",
-            "shelfLife": "Shelf life period",
-            "viscosity": "Viscosity range",
-            "storageConditions": "Storage requirements",
-            "batchSize": "Batch size range",
-            "processingTime": "Processing time",
-            "temperature": "Processing temperature",
-            "equipment": "Required equipment",
-            "certification": "Relevant certifications",
-            "isActive": true
-          }
-          
-          IMPORTANT: 
-          - Make the formulation realistic, professional, and suitable for commercial manufacturing
-          - Include 6-12 ingredients with proper INCI names and realistic percentages that add up to 100%
-          - Include detailed manufacturing phases and steps
-          - Ensure the pH level matches the requested range exactly
-          - Consider the cost level when selecting ingredients (${costDescription})
-          - Make sure the product type (${request.productType}) is reflected in the formulation structure and ingredients`
+          content: `You are a senior industrial chemist with 20+ years of experience in commercial formulation development. Generate PRODUCTION-READY formulations that meet strict industrial standards.
+
+RETURN JSON in this exact format:
+{
+  "name": "Product Name",
+  "description": "Professional product description",
+  "ingredients": [
+    {
+      "name": "Ingredient Name",
+      "inci": "INCI Name (International Nomenclature Cosmetic Ingredient)",
+      "percentage": "X.X%",
+      "function": "Function in formulation"
+    }
+  ],
+  "instructions": [
+    {
+      "phase": "Phase Name",
+      "steps": ["Step 1", "Step 2", "Step 3"]
+    }
+  ],
+  "usageInstructions": "Detailed usage instructions",
+  "phLevel": "pH value or range",
+  "shelfLife": "Shelf life period",
+  "viscosity": "Viscosity specification",
+  "storageConditions": "Storage requirements",
+  "batchSize": "Batch size",
+  "processingTime": "Processing time",
+  "temperature": "Processing temperature",
+  "equipment": "Required equipment",
+  "certification": "Relevant certifications",
+  "isActive": true
+}
+
+═══════════════════════════════════════════════════════════════
+MANDATORY INDUSTRIAL FORMULATION STANDARDS (MUST FOLLOW EXACTLY)
+═══════════════════════════════════════════════════════════════
+
+🔬 PERCENTAGE RULES BY INGREDIENT TYPE:
+
+BASE INGREDIENTS (Water/Solvents) - MUST be 50-85% of total:
+• Aqua/Water: 50-80% (primary base for most products)
+• Alcohol (if used): 10-70% depending on product type
+
+SURFACTANTS (Cleaning/Foam) - Total 5-25%:
+• Primary surfactant: 5-15% (e.g., Sodium Laureth Sulfate, Cocamidopropyl Betaine)
+• Secondary surfactant: 2-8% (e.g., Decyl Glucoside, Coco Glucoside)
+• Co-surfactant: 1-5%
+
+EMULSIFIERS (Creams/Lotions) - Total 2-6%:
+• Primary emulsifier: 1-4% (e.g., Cetearyl Alcohol, Glyceryl Stearate)
+• Co-emulsifier: 0.5-2% (e.g., Polysorbate 20/60/80)
+
+THICKENERS/VISCOSITY MODIFIERS - 0.2-3%:
+• Carbomer: 0.1-0.5%
+• Xanthan Gum: 0.1-0.5%
+• Cellulose derivatives: 0.5-2%
+• Guar Gum: 0.2-1%
+
+HUMECTANTS/MOISTURIZERS - 2-10%:
+• Glycerin: 2-8%
+• Propylene Glycol: 1-5%
+• Sodium Hyaluronate: 0.01-0.1%
+
+ACTIVE INGREDIENTS - 0.1-10% (TYPE DEPENDENT):
+• Salicylic Acid: 0.5-2% (anti-acne)
+• Zinc Pyrithione: 0.5-2% (anti-dandruff)
+• Vitamin E: 0.1-1%
+• Vitamin C: 0.5-15% (serums only)
+• Niacinamide: 2-5%
+• Retinol: 0.01-0.1%
+• Essential oils: 0.1-1%
+• Enzymes: 0.01-1%
+
+PRESERVATIVES - STRICT LIMITS:
+• Phenoxyethanol: 0.5-1% (MAX 1%)
+• Benzisothiazolinone: 0.01-0.05% (MAX 0.05%)
+• Methylisothiazolinone: BANNED in leave-on products
+• Parabens (if used): 0.1-0.4% combined
+• Natural preservatives: 0.5-1.5%
+
+pH ADJUSTERS - 0.05-0.5%:
+• Citric Acid: 0.05-0.3%
+• Sodium Hydroxide: 0.01-0.2%
+• Triethanolamine: 0.1-0.5%
+
+FRAGRANCES - 0.1-2%:
+• Parfum/Fragrance: 0.1-1% (leave-on), 0.5-2% (rinse-off)
+• Essential oils: 0.1-0.5% (combined with other actives limit)
+
+CHELATING AGENTS - 0.05-0.2%:
+• Disodium EDTA: 0.05-0.15%
+• Tetrasodium EDTA: 0.05-0.2%
+
+COLORANTS - 0.001-0.1%:
+• CI numbers/dyes: 0.001-0.05%
+
+═══════════════════════════════════════════════════════════════
+PRODUCT-SPECIFIC FORMULATION STRUCTURES:
+═══════════════════════════════════════════════════════════════
+
+SHAMPOOS/HAIR CLEANSERS:
+• Water: 60-75%
+• Primary Surfactant: 8-15%
+• Secondary Surfactant: 3-8%
+• Conditioning agent: 0.5-2%
+• Active ingredients: 0.5-3%
+• Preservative: 0.5-1%
+• Fragrance: 0.5-1.5%
+• pH adjuster: 0.1-0.3%
+• Salt (for viscosity): 1-3%
+
+LIQUID CLEANERS/DETERGENTS:
+• Water: 70-85%
+• Surfactants: 5-20%
+• Builders/chelators: 1-5%
+• pH adjuster: 0.1-1%
+• Preservative: 0.1-0.5%
+• Fragrance: 0.1-0.5%
+• Colorant: 0.001-0.01%
+
+CREAMS/LOTIONS:
+• Water phase: 60-75%
+• Oil phase: 15-30%
+• Emulsifier system: 3-6%
+• Humectants: 3-8%
+• Active ingredients: 1-5%
+• Preservative: 0.5-1%
+• Fragrance: 0.1-0.5%
+
+CAR CARE/POLISHES:
+• Water or solvent base: 60-80%
+• Silicones/waxes: 5-20%
+• Surfactants: 2-8%
+• Thickeners: 0.5-2%
+• pH adjusters: 0.1-0.5%
+
+═══════════════════════════════════════════════════════════════
+VALIDATION RULES (ALL MUST PASS):
+═══════════════════════════════════════════════════════════════
+
+✅ All percentages MUST add up to exactly 100%
+✅ Water/base solvent MUST be the largest ingredient (50-85%)
+✅ Active ingredients MUST stay within safety limits
+✅ Preservatives MUST NOT exceed regulatory maximums
+✅ pH level MUST be achievable with the ingredients listed
+✅ All INCI names MUST be correct and internationally recognized
+✅ Formulation MUST be stable and commercially viable
+✅ Consider the cost level: ${costDescription}
+✅ Product type: ${request.productType}
+
+Generate a formulation that a real manufacturer could produce TODAY.`
         },
         {
           role: "user",
-          content: `Generate a custom ${request.productType} formulation for:
+          content: `Generate an INDUSTRIAL-STANDARD ${request.productType} formulation for:
 
 Product Name: ${request.productName}
 Description: ${request.productDescription}
 pH Level Required: ${request.phLevel}
 Cost Level: ${costDescription}${optionalSpecsText}${specialRequirementsText}
 
-Please create a professional formulation that meets all these requirements exactly.`
+Create a production-ready formulation with realistic, industry-standard ingredient percentages that could be validated by a professional chemist.`
         }
       ],
       response_format: { type: "json_object" }
