@@ -1341,7 +1341,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Formulation Validation API endpoint
   app.post("/api/formulations/validate", async (req, res) => {
     try {
-      const { ingredients, productType, phLevel } = req.body;
+      const { ingredients, productType, phLevel, productName } = req.body;
       
       if (!ingredients) {
         return res.status(400).json({ message: "Ingredients JSON is required" });
@@ -1351,9 +1351,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? ingredients 
         : JSON.stringify(ingredients);
       
-      const result = validateFormulation(ingredientsJson, productType, phLevel);
+      const result = validateFormulation(ingredientsJson, productType, phLevel, productName);
       const report = getValidationReport(result);
-      const breakdown = getIngredientBreakdown(ingredientsJson);
+      const breakdown = getIngredientBreakdown(ingredientsJson, productType, productName);
       
       res.json({
         validation: result,
@@ -1378,10 +1378,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = validateFormulation(
         formulation.ingredients, 
         undefined, 
-        formulation.phLevel
+        formulation.phLevel,
+        formulation.name
       );
       const report = getValidationReport(result);
-      const breakdown = getIngredientBreakdown(formulation.ingredients);
+      const breakdown = getIngredientBreakdown(formulation.ingredients, undefined, formulation.name);
       
       res.json({
         formulationId: id,

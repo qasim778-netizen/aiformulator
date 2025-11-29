@@ -1,6 +1,7 @@
 /**
  * Formulation Validation Module
  * Validates chemical formulations against industrial standards
+ * Supports multiple product categories: cosmetics, detergents, cleaners, etc.
  */
 
 export interface ValidationResult {
@@ -38,6 +39,7 @@ export interface ParsedIngredient {
 export type IngredientType = 
   | 'base'
   | 'surfactant'
+  | 'builder'
   | 'emulsifier'
   | 'thickener'
   | 'humectant'
@@ -47,21 +49,76 @@ export type IngredientType =
   | 'fragrance'
   | 'chelating'
   | 'colorant'
+  | 'enzyme'
+  | 'bleach'
+  | 'optical_brightener'
+  | 'anti_redeposition'
+  | 'filler'
   | 'other';
 
-const INGREDIENT_LIMITS: Record<IngredientType, { min: number; max: number; label: string }> = {
+type ProductCategory = 'cosmetic' | 'detergent' | 'cleaner' | 'haircare' | 'oral' | 'other';
+
+const COSMETIC_LIMITS: Record<IngredientType, { min: number; max: number; label: string }> = {
   base: { min: 50, max: 85, label: 'Base Ingredients (Water/Solvents)' },
   surfactant: { min: 5, max: 30, label: 'Surfactants' },
+  builder: { min: 0, max: 5, label: 'Builders' },
   emulsifier: { min: 1, max: 8, label: 'Emulsifiers' },
   thickener: { min: 0.1, max: 5, label: 'Thickeners' },
   humectant: { min: 1, max: 15, label: 'Humectants/Moisturizers' },
   active: { min: 0.1, max: 15, label: 'Active Ingredients' },
   preservative: { min: 0.1, max: 1.5, label: 'Preservatives' },
-  ph_adjuster: { min: 0.01, max: 1, label: 'pH Adjusters' },
+  ph_adjuster: { min: 0.01, max: 2, label: 'pH Adjusters' },
   fragrance: { min: 0.1, max: 3, label: 'Fragrances' },
   chelating: { min: 0.01, max: 0.5, label: 'Chelating Agents' },
   colorant: { min: 0.001, max: 0.5, label: 'Colorants' },
+  enzyme: { min: 0, max: 0, label: 'Enzymes' },
+  bleach: { min: 0, max: 0, label: 'Bleaching Agents' },
+  optical_brightener: { min: 0, max: 0.5, label: 'Optical Brighteners' },
+  anti_redeposition: { min: 0, max: 0, label: 'Anti-redeposition Agents' },
+  filler: { min: 0, max: 30, label: 'Fillers' },
   other: { min: 0.1, max: 10, label: 'Other Ingredients' }
+};
+
+const DETERGENT_LIMITS: Record<IngredientType, { min: number; max: number; label: string }> = {
+  base: { min: 0, max: 60, label: 'Base/Water' },
+  surfactant: { min: 5, max: 40, label: 'Surfactants' },
+  builder: { min: 10, max: 50, label: 'Builders/Water Softeners' },
+  emulsifier: { min: 0, max: 5, label: 'Emulsifiers' },
+  thickener: { min: 0, max: 5, label: 'Thickeners' },
+  humectant: { min: 0, max: 5, label: 'Humectants' },
+  active: { min: 0, max: 20, label: 'Active Ingredients' },
+  preservative: { min: 0, max: 1, label: 'Preservatives' },
+  ph_adjuster: { min: 0, max: 5, label: 'pH Adjusters' },
+  fragrance: { min: 0.1, max: 5, label: 'Fragrances' },
+  chelating: { min: 0, max: 5, label: 'Chelating Agents' },
+  colorant: { min: 0, max: 0.5, label: 'Colorants' },
+  enzyme: { min: 0, max: 5, label: 'Enzymes' },
+  bleach: { min: 0, max: 25, label: 'Bleaching Agents' },
+  optical_brightener: { min: 0, max: 1, label: 'Optical Brighteners' },
+  anti_redeposition: { min: 0, max: 5, label: 'Anti-redeposition Agents' },
+  filler: { min: 0, max: 50, label: 'Fillers' },
+  other: { min: 0, max: 20, label: 'Other Ingredients' }
+};
+
+const CLEANER_LIMITS: Record<IngredientType, { min: number; max: number; label: string }> = {
+  base: { min: 50, max: 95, label: 'Base/Water' },
+  surfactant: { min: 2, max: 25, label: 'Surfactants' },
+  builder: { min: 0, max: 15, label: 'Builders' },
+  emulsifier: { min: 0, max: 5, label: 'Emulsifiers' },
+  thickener: { min: 0, max: 3, label: 'Thickeners' },
+  humectant: { min: 0, max: 5, label: 'Humectants' },
+  active: { min: 0, max: 15, label: 'Active Ingredients' },
+  preservative: { min: 0, max: 1, label: 'Preservatives' },
+  ph_adjuster: { min: 0, max: 5, label: 'pH Adjusters' },
+  fragrance: { min: 0, max: 3, label: 'Fragrances' },
+  chelating: { min: 0, max: 3, label: 'Chelating Agents' },
+  colorant: { min: 0, max: 0.5, label: 'Colorants' },
+  enzyme: { min: 0, max: 3, label: 'Enzymes' },
+  bleach: { min: 0, max: 10, label: 'Bleaching Agents' },
+  optical_brightener: { min: 0, max: 0.5, label: 'Optical Brighteners' },
+  anti_redeposition: { min: 0, max: 2, label: 'Anti-redeposition Agents' },
+  filler: { min: 0, max: 20, label: 'Fillers' },
+  other: { min: 0, max: 15, label: 'Other Ingredients' }
 };
 
 const BASE_INGREDIENTS = [
@@ -76,7 +133,26 @@ const SURFACTANTS = [
   'lauryl glucoside', 'sodium cocoyl isethionate', 'sodium lauroyl sarcosinate',
   'cocamide mea', 'cocamide dea', 'lauramide dea', 'sodium cocoamphoacetate',
   'disodium cocoamphodiacetate', 'polysorbate 20', 'polysorbate 80',
-  'cetrimonium chloride', 'behentrimonium chloride', 'stearamidopropyl dimethylamine'
+  'cetrimonium chloride', 'behentrimonium chloride', 'stearamidopropyl dimethylamine',
+  'linear alkylbenzene sulfonate', 'las', 'alpha olefin sulfonate', 'aos',
+  'sodium dodecylbenzene sulfonate', 'alkyl polyglucoside', 'apg',
+  'sodium lauryl ether sulfate', 'fatty alcohol ethoxylate'
+];
+
+const BUILDERS = [
+  'sodium carbonate', 'soda ash', 'washing soda',
+  'sodium bicarbonate', 'baking soda',
+  'sodium tripolyphosphate', 'stpp',
+  'zeolite', 'zeolite 4a', 'sodium aluminosilicate',
+  'sodium citrate', 'trisodium citrate', 'citric acid',
+  'sodium silicate', 'water glass',
+  'sodium sulfate', 'glauber salt',
+  'borax', 'sodium borate',
+  'sodium metasilicate',
+  'sodium percarbonate',
+  'sodium sesquicarbonate',
+  'tetrasodium pyrophosphate',
+  'tsp', 'trisodium phosphate'
 ];
 
 const EMULSIFIERS = [
@@ -89,7 +165,7 @@ const EMULSIFIERS = [
 
 const THICKENERS = [
   'carbomer', 'carbopol', 'xanthan gum', 'guar gum', 'hydroxyethylcellulose',
-  'hydroxypropyl methylcellulose', 'sodium carboxymethyl cellulose',
+  'hydroxypropyl methylcellulose', 'sodium carboxymethyl cellulose', 'cmc',
   'acrylates/c10-30 alkyl acrylate crosspolymer', 'cellulose gum',
   'sodium alginate', 'carrageenan', 'gelatin', 'pectin'
 ];
@@ -113,30 +189,114 @@ const PRESERVATIVES = [
 const PH_ADJUSTERS = [
   'citric acid', 'sodium hydroxide', 'potassium hydroxide',
   'triethanolamine', 'tromethamine', 'lactic acid', 'phosphoric acid',
-  'sodium citrate', 'aminomethyl propanol', 'amp'
+  'aminomethyl propanol', 'amp', 'acetic acid', 'hydrochloric acid'
 ];
 
 const FRAGRANCES = [
   'parfum', 'fragrance', 'essential oil', 'lavender oil',
   'peppermint oil', 'tea tree oil', 'eucalyptus oil', 'lemon oil',
-  'orange oil', 'rose oil', 'jasmine', 'sandalwood', 'vanilla'
+  'orange oil', 'rose oil', 'jasmine', 'sandalwood', 'vanilla',
+  'linalool', 'limonene', 'citronellol', 'geraniol'
 ];
 
 const CHELATING_AGENTS = [
   'disodium edta', 'tetrasodium edta', 'edta', 'phytic acid',
-  'sodium phytate', 'citric acid', 'gluconic acid', 'sodium gluconate'
+  'sodium phytate', 'gluconic acid', 'sodium gluconate',
+  'edds', 'glda', 'mgda', 'iminodisuccinate'
 ];
 
 const COLORANTS = [
   'ci ', 'fd&c', 'd&c', 'titanium dioxide', 'iron oxide',
   'mica', 'ultramarine', 'carmine', 'annatto', 'beta-carotene',
-  'chlorophyll', 'caramel'
+  'chlorophyll', 'caramel', 'blue 1', 'yellow 5', 'red 40'
 ];
 
-function detectIngredientType(name: string, inci: string, functionText: string): IngredientType {
+const ENZYMES = [
+  'protease', 'amylase', 'lipase', 'cellulase', 'mannanase',
+  'pectinase', 'subtilisin', 'savinase', 'termamyl'
+];
+
+const BLEACH_AGENTS = [
+  'sodium hypochlorite', 'hydrogen peroxide', 'sodium perborate',
+  'sodium percarbonate', 'calcium hypochlorite', 'tetraacetylethylenediamine', 'taed'
+];
+
+const OPTICAL_BRIGHTENERS = [
+  'optical brightener', 'fluorescent whitening agent', 'fwa',
+  'stilbene', 'tinopal', 'blankophor'
+];
+
+const ANTI_REDEPOSITION = [
+  'sodium carboxymethyl cellulose', 'cmc', 'polyvinylpyrrolidone', 'pvp',
+  'polyethylene glycol', 'peg'
+];
+
+const FILLERS = [
+  'sodium sulfate', 'sodium chloride', 'salt', 'talc', 'kaolin',
+  'calcium carbonate', 'magnesium carbonate', 'silica'
+];
+
+function detectProductCategory(productType?: string, productName?: string): ProductCategory {
+  const searchText = `${productType || ''} ${productName || ''}`.toLowerCase();
+  
+  const detergentKeywords = [
+    'detergent', 'laundry', 'washing powder', 'washing liquid',
+    'fabric wash', 'clothes wash', 'dish detergent', 'dishwasher'
+  ];
+  
+  const cleanerKeywords = [
+    'cleaner', 'cleaning', 'floor cleaner', 'glass cleaner', 'bathroom cleaner',
+    'kitchen cleaner', 'all-purpose cleaner', 'multi-surface', 'degreaser',
+    'disinfectant', 'sanitizer', 'surface spray'
+  ];
+  
+  const haircareKeywords = [
+    'shampoo', 'conditioner', 'hair', 'scalp'
+  ];
+  
+  const oralKeywords = [
+    'toothpaste', 'mouthwash', 'oral', 'dental'
+  ];
+  
+  if (detergentKeywords.some(k => searchText.includes(k))) return 'detergent';
+  if (cleanerKeywords.some(k => searchText.includes(k))) return 'cleaner';
+  if (haircareKeywords.some(k => searchText.includes(k))) return 'haircare';
+  if (oralKeywords.some(k => searchText.includes(k))) return 'oral';
+  
+  return 'cosmetic';
+}
+
+function getLimitsForCategory(category: ProductCategory): Record<IngredientType, { min: number; max: number; label: string }> {
+  switch (category) {
+    case 'detergent':
+      return DETERGENT_LIMITS;
+    case 'cleaner':
+      return CLEANER_LIMITS;
+    default:
+      return COSMETIC_LIMITS;
+  }
+}
+
+function detectIngredientType(
+  name: string, 
+  inci: string, 
+  functionText: string,
+  productCategory: ProductCategory
+): IngredientType {
   const searchText = `${name} ${inci} ${functionText}`.toLowerCase();
+  const nameOnly = name.toLowerCase();
   
   if (BASE_INGREDIENTS.some(base => searchText.includes(base.toLowerCase()))) return 'base';
+  
+  if (productCategory === 'detergent' || productCategory === 'cleaner') {
+    if (BUILDERS.some(b => searchText.includes(b.toLowerCase()))) return 'builder';
+    if (ENZYMES.some(e => searchText.includes(e.toLowerCase()))) return 'enzyme';
+    if (BLEACH_AGENTS.some(b => searchText.includes(b.toLowerCase()))) return 'bleach';
+    if (OPTICAL_BRIGHTENERS.some(o => searchText.includes(o.toLowerCase()))) return 'optical_brightener';
+    if (ANTI_REDEPOSITION.some(a => nameOnly.includes(a.toLowerCase()))) return 'anti_redeposition';
+    if (FILLERS.some(f => searchText.includes(f.toLowerCase()))) return 'filler';
+  }
+  
   if (SURFACTANTS.some(s => searchText.includes(s.toLowerCase()))) return 'surfactant';
   if (EMULSIFIERS.some(e => searchText.includes(e.toLowerCase()))) return 'emulsifier';
   if (THICKENERS.some(t => searchText.includes(t.toLowerCase()))) return 'thickener';
@@ -147,45 +307,40 @@ function detectIngredientType(name: string, inci: string, functionText: string):
   if (CHELATING_AGENTS.some(c => searchText.includes(c.toLowerCase()))) return 'chelating';
   if (COLORANTS.some(c => searchText.includes(c.toLowerCase()))) return 'colorant';
   
-  if (functionText.toLowerCase().includes('surfactant') || 
-      functionText.toLowerCase().includes('cleansing') ||
-      functionText.toLowerCase().includes('foaming')) return 'surfactant';
-  if (functionText.toLowerCase().includes('emulsif')) return 'emulsifier';
-  if (functionText.toLowerCase().includes('thicken') || 
-      functionText.toLowerCase().includes('viscosity')) return 'thickener';
-  if (functionText.toLowerCase().includes('moistur') || 
-      functionText.toLowerCase().includes('humectant') ||
-      functionText.toLowerCase().includes('hydrat')) return 'humectant';
-  if (functionText.toLowerCase().includes('preserv') || 
-      functionText.toLowerCase().includes('antimicrob')) return 'preservative';
-  if (functionText.toLowerCase().includes('ph ') || 
-      functionText.toLowerCase().includes('buffer') ||
-      functionText.toLowerCase().includes('neutraliz')) return 'ph_adjuster';
-  if (functionText.toLowerCase().includes('fragrance') || 
-      functionText.toLowerCase().includes('scent') ||
-      functionText.toLowerCase().includes('aroma')) return 'fragrance';
-  if (functionText.toLowerCase().includes('chelat') || 
-      functionText.toLowerCase().includes('sequester')) return 'chelating';
-  if (functionText.toLowerCase().includes('color') || 
-      functionText.toLowerCase().includes('pigment') ||
-      functionText.toLowerCase().includes('dye')) return 'colorant';
-  if (functionText.toLowerCase().includes('active') || 
-      functionText.toLowerCase().includes('anti-') ||
-      functionText.toLowerCase().includes('vitamin') ||
-      functionText.toLowerCase().includes('enzyme') ||
-      functionText.toLowerCase().includes('extract')) return 'active';
+  const funcLower = functionText.toLowerCase();
+  if (funcLower.includes('builder') || funcLower.includes('water soften') || funcLower.includes('alkalin')) return 'builder';
+  if (funcLower.includes('surfactant') || funcLower.includes('cleansing') || funcLower.includes('foaming')) return 'surfactant';
+  if (funcLower.includes('emulsif')) return 'emulsifier';
+  if (funcLower.includes('thicken') || funcLower.includes('viscosity')) return 'thickener';
+  if (funcLower.includes('moistur') || funcLower.includes('humectant') || funcLower.includes('hydrat')) return 'humectant';
+  if (funcLower.includes('preserv') || funcLower.includes('antimicrob')) return 'preservative';
+  if (funcLower.includes('ph ') || funcLower.includes('buffer') || funcLower.includes('neutraliz')) return 'ph_adjuster';
+  if (funcLower.includes('fragrance') || funcLower.includes('scent') || funcLower.includes('aroma')) return 'fragrance';
+  if (funcLower.includes('chelat') || funcLower.includes('sequester')) return 'chelating';
+  if (funcLower.includes('color') || funcLower.includes('pigment') || funcLower.includes('dye')) return 'colorant';
+  if (funcLower.includes('enzyme') || funcLower.includes('stain remov')) return 'enzyme';
+  if (funcLower.includes('bleach') || funcLower.includes('whiten') || funcLower.includes('oxidiz')) return 'bleach';
+  if (funcLower.includes('brighten') || funcLower.includes('fluorescent')) return 'optical_brightener';
+  if (funcLower.includes('anti-redeposition') || funcLower.includes('soil suspend')) return 'anti_redeposition';
+  if (funcLower.includes('filler') || funcLower.includes('bulk') || funcLower.includes('processing aid')) return 'filler';
+  if (funcLower.includes('active') || funcLower.includes('anti-') || funcLower.includes('vitamin') || 
+      funcLower.includes('extract')) return 'active';
   
   return 'other';
 }
 
-function parsePercentage(percentage: string): number {
+function parsePercentage(percentage: string | number): number {
+  if (typeof percentage === 'number') return percentage;
   if (!percentage) return 0;
-  const cleaned = percentage.replace('%', '').replace(',', '.').trim();
+  const cleaned = String(percentage).replace('%', '').replace(',', '.').trim();
   const match = cleaned.match(/[\d.]+/);
   return match ? parseFloat(match[0]) : 0;
 }
 
-export function parseIngredients(ingredientsJson: string): ParsedIngredient[] {
+export function parseIngredients(
+  ingredientsJson: string, 
+  productCategory: ProductCategory = 'cosmetic'
+): ParsedIngredient[] {
   try {
     const ingredients = JSON.parse(ingredientsJson);
     if (!Array.isArray(ingredients)) return [];
@@ -195,7 +350,7 @@ export function parseIngredients(ingredientsJson: string): ParsedIngredient[] {
       inci: ing.inci || '',
       percentage: parsePercentage(ing.percentage),
       function: ing.function || '',
-      type: detectIngredientType(ing.name || '', ing.inci || '', ing.function || '')
+      type: detectIngredientType(ing.name || '', ing.inci || '', ing.function || '', productCategory)
     }));
   } catch (error) {
     console.error('Failed to parse ingredients:', error);
@@ -206,13 +361,18 @@ export function parseIngredients(ingredientsJson: string): ParsedIngredient[] {
 export function validateFormulation(
   ingredientsJson: string,
   productType?: string,
-  phLevel?: string
+  phLevel?: string,
+  productName?: string
 ): ValidationResult {
   const issues: ValidationIssue[] = [];
   const warnings: ValidationWarning[] = [];
   const suggestions: string[] = [];
   
-  const ingredients = parseIngredients(ingredientsJson);
+  const productCategory = detectProductCategory(productType, productName);
+  const limits = getLimitsForCategory(productCategory);
+  const ingredients = parseIngredients(ingredientsJson, productCategory);
+  
+  console.log(`Validating formulation for category: ${productCategory}`);
   
   if (ingredients.length === 0) {
     return {
@@ -248,27 +408,53 @@ export function validateFormulation(
   }
   
   const typeGroups: Record<IngredientType, ParsedIngredient[]> = {
-    base: [], surfactant: [], emulsifier: [], thickener: [],
+    base: [], surfactant: [], builder: [], emulsifier: [], thickener: [],
     humectant: [], active: [], preservative: [], ph_adjuster: [],
-    fragrance: [], chelating: [], colorant: [], other: []
+    fragrance: [], chelating: [], colorant: [], enzyme: [], bleach: [],
+    optical_brightener: [], anti_redeposition: [], filler: [], other: []
   };
   
   ingredients.forEach(ing => {
     typeGroups[ing.type].push(ing);
   });
   
-  const baseTotal = typeGroups.base.reduce((sum, ing) => sum + ing.percentage, 0);
-  const limits = INGREDIENT_LIMITS.base;
+  if (productCategory === 'cosmetic' || productCategory === 'haircare') {
+    const baseTotal = typeGroups.base.reduce((sum, ing) => sum + ing.percentage, 0);
+    const baseLimits = limits.base;
+    
+    if (baseTotal < baseLimits.min) {
+      issues.push({
+        type: 'major',
+        category: 'Base Ingredients',
+        message: `Base ingredients (water/solvents) total is ${baseTotal.toFixed(1)}% - should be at least ${baseLimits.min}%`,
+        actualValue: baseTotal,
+        expectedRange: `${baseLimits.min}-${baseLimits.max}%`
+      });
+      suggestions.push('Increase water/aqua content to at least 50-60% for most formulations');
+    }
+  }
   
-  if (baseTotal < limits.min) {
-    issues.push({
-      type: 'major',
-      category: 'Base Ingredients',
-      message: `Base ingredients (water/solvents) total is ${baseTotal.toFixed(1)}% - should be at least ${limits.min}%`,
-      actualValue: baseTotal,
-      expectedRange: `${limits.min}-${limits.max}%`
-    });
-    suggestions.push('Increase water/aqua content to at least 50-60% for most formulations');
+  if (productCategory === 'detergent') {
+    const surfactantTotal = typeGroups.surfactant.reduce((sum, ing) => sum + ing.percentage, 0);
+    const builderTotal = typeGroups.builder.reduce((sum, ing) => sum + ing.percentage, 0);
+    
+    if (surfactantTotal < 5) {
+      issues.push({
+        type: 'major',
+        category: 'Surfactants',
+        message: `Surfactant total is ${surfactantTotal.toFixed(1)}% - detergents typically need at least 5-10%`,
+        actualValue: surfactantTotal,
+        expectedRange: '5-40%'
+      });
+    }
+    
+    if (builderTotal < 10 && typeGroups.filler.length === 0) {
+      warnings.push({
+        category: 'Builders',
+        message: `Builder total is ${builderTotal.toFixed(1)}% - consider adding more builders for water softening`,
+        suggestion: 'Add sodium carbonate, zeolite, or sodium citrate for better cleaning performance'
+      });
+    }
   }
   
   (Object.keys(typeGroups) as IngredientType[]).forEach(type => {
@@ -276,76 +462,83 @@ export function validateFormulation(
     
     const group = typeGroups[type];
     const groupTotal = group.reduce((sum, ing) => sum + ing.percentage, 0);
-    const typeLimits = INGREDIENT_LIMITS[type];
+    const typeLimits = limits[type];
+    
+    if (typeLimits.max === 0 && groupTotal > 0) return;
     
     if (groupTotal > 0 && groupTotal > typeLimits.max) {
-      const severity = groupTotal > typeLimits.max * 1.5 ? 'major' : 'minor';
+      const excessRatio = groupTotal / typeLimits.max;
+      const severity = excessRatio > 2 ? 'major' : 'minor';
       issues.push({
         type: severity,
         category: typeLimits.label,
-        message: `${typeLimits.label} total is ${groupTotal.toFixed(2)}% - exceeds maximum of ${typeLimits.max}%`,
+        message: `${typeLimits.label} total is ${groupTotal.toFixed(2)}% - exceeds typical maximum of ${typeLimits.max}%`,
         actualValue: groupTotal,
         expectedRange: `${typeLimits.min}-${typeLimits.max}%`
       });
     }
     
-    group.forEach(ing => {
-      if (ing.percentage > typeLimits.max) {
+    if (type !== 'builder' && type !== 'filler' && type !== 'base' && type !== 'surfactant') {
+      group.forEach(ing => {
+        if (ing.percentage > typeLimits.max * 2 && typeLimits.max > 0) {
+          issues.push({
+            type: 'major',
+            category: typeLimits.label,
+            message: `${ing.name} at ${ing.percentage}% seems high for ${type}`,
+            ingredient: ing.name,
+            actualValue: ing.percentage,
+            expectedRange: `${typeLimits.min}-${typeLimits.max}%`
+          });
+        }
+      });
+    }
+  });
+  
+  if (productCategory === 'cosmetic' || productCategory === 'haircare') {
+    const preservativeTotal = typeGroups.preservative.reduce((sum, ing) => sum + ing.percentage, 0);
+    if (preservativeTotal > 1.5) {
+      issues.push({
+        type: 'critical',
+        category: 'Preservatives',
+        message: `Preservative total is ${preservativeTotal.toFixed(2)}% - exceeds regulatory maximum of 1.5%`,
+        actualValue: preservativeTotal,
+        expectedRange: '0.1-1.5%'
+      });
+    } else if (preservativeTotal === 0 && ingredients.length > 3) {
+      warnings.push({
+        category: 'Preservatives',
+        message: 'No preservative detected - formulation may have stability issues',
+        suggestion: 'Consider adding a preservative system (0.5-1% phenoxyethanol or natural alternatives)'
+      });
+    }
+    
+    typeGroups.preservative.forEach(ing => {
+      const name = ing.name.toLowerCase();
+      if (name.includes('phenoxyethanol') && ing.percentage > 1) {
         issues.push({
-          type: 'major',
-          category: typeLimits.label,
-          message: `${ing.name} at ${ing.percentage}% exceeds the ${typeLimits.max}% limit for ${type}`,
+          type: 'critical',
+          category: 'Regulatory Compliance',
+          message: `Phenoxyethanol at ${ing.percentage}% exceeds regulatory limit of 1%`,
           ingredient: ing.name,
           actualValue: ing.percentage,
-          expectedRange: `${typeLimits.min}-${typeLimits.max}%`
+          expectedRange: '0.5-1%'
+        });
+      }
+      if (name.includes('methylisothiazolinone') && ing.percentage > 0.0015) {
+        issues.push({
+          type: 'critical',
+          category: 'Regulatory Compliance',
+          message: 'Methylisothiazolinone is banned in leave-on products in EU/US',
+          ingredient: ing.name
         });
       }
     });
-  });
-  
-  const preservativeTotal = typeGroups.preservative.reduce((sum, ing) => sum + ing.percentage, 0);
-  if (preservativeTotal > 1.5) {
-    issues.push({
-      type: 'critical',
-      category: 'Preservatives',
-      message: `Preservative total is ${preservativeTotal.toFixed(2)}% - exceeds regulatory maximum of 1.5%`,
-      actualValue: preservativeTotal,
-      expectedRange: '0.1-1.5%'
-    });
-  } else if (preservativeTotal === 0 && ingredients.length > 3) {
-    warnings.push({
-      category: 'Preservatives',
-      message: 'No preservative detected - formulation may have stability issues',
-      suggestion: 'Consider adding a preservative system (0.5-1% phenoxyethanol or natural alternatives)'
-    });
   }
   
-  typeGroups.preservative.forEach(ing => {
-    const name = ing.name.toLowerCase();
-    if (name.includes('phenoxyethanol') && ing.percentage > 1) {
-      issues.push({
-        type: 'critical',
-        category: 'Regulatory Compliance',
-        message: `Phenoxyethanol at ${ing.percentage}% exceeds regulatory limit of 1%`,
-        ingredient: ing.name,
-        actualValue: ing.percentage,
-        expectedRange: '0.5-1%'
-      });
-    }
-    if (name.includes('methylisothiazolinone') && ing.percentage > 0.0015) {
-      issues.push({
-        type: 'critical',
-        category: 'Regulatory Compliance',
-        message: 'Methylisothiazolinone is banned in leave-on products in EU/US',
-        ingredient: ing.name
-      });
-    }
-  });
-  
-  if (ingredients.length < 5) {
+  if (ingredients.length < 4) {
     warnings.push({
       category: 'Formulation Completeness',
-      message: `Only ${ingredients.length} ingredients - professional formulations typically have 6-12 ingredients`
+      message: `Only ${ingredients.length} ingredients - professional formulations typically have 5-12 ingredients`
     });
   }
   
@@ -360,11 +553,11 @@ export function validateFormulation(
   
   let score = 100;
   issues.forEach(issue => {
-    if (issue.type === 'critical') score -= 30;
-    else if (issue.type === 'major') score -= 15;
-    else score -= 5;
+    if (issue.type === 'critical') score -= 25;
+    else if (issue.type === 'major') score -= 10;
+    else score -= 3;
   });
-  warnings.forEach(() => score -= 2);
+  warnings.forEach(() => score -= 1);
   score = Math.max(0, Math.min(100, score));
   
   const isValid = issues.filter(i => i.type === 'critical').length === 0 && score >= 60;
@@ -375,11 +568,11 @@ export function validateFormulation(
   } else if (score >= 75) {
     summary = 'Good formulation with minor improvements recommended';
   } else if (score >= 60) {
-    summary = 'Acceptable formulation - some adjustments needed';
+    summary = 'Acceptable formulation - some adjustments suggested';
   } else if (score >= 40) {
-    summary = 'Formulation needs significant improvements';
+    summary = 'Formulation needs improvements';
   } else {
-    summary = 'Formulation does not meet industrial standards';
+    summary = 'Formulation needs significant review';
   }
   
   return {
@@ -399,7 +592,7 @@ export function getValidationReport(result: ValidationResult): string {
   lines.push('         FORMULATION VALIDATION REPORT');
   lines.push('═══════════════════════════════════════════════════════════════');
   lines.push('');
-  lines.push(`Status: ${result.isValid ? '✅ VALID' : '❌ INVALID'}`);
+  lines.push(`Status: ${result.isValid ? '✅ VALID' : '❌ NEEDS REVIEW'}`);
   lines.push(`Score: ${result.overallScore}/100`);
   lines.push(`Summary: ${result.summary}`);
   lines.push('');
@@ -447,13 +640,19 @@ export function getValidationReport(result: ValidationResult): string {
   return lines.join('\n');
 }
 
-export function getIngredientBreakdown(ingredientsJson: string): Record<string, { count: number; total: number; ingredients: string[] }> {
-  const ingredients = parseIngredients(ingredientsJson);
+export function getIngredientBreakdown(
+  ingredientsJson: string,
+  productType?: string,
+  productName?: string
+): Record<string, { count: number; total: number; ingredients: string[] }> {
+  const productCategory = detectProductCategory(productType, productName);
+  const ingredients = parseIngredients(ingredientsJson, productCategory);
   const breakdown: Record<string, { count: number; total: number; ingredients: string[] }> = {};
   
   const typeLabels: Record<IngredientType, string> = {
-    base: 'Base Ingredients (Water/Solvents)',
+    base: 'Base/Water',
     surfactant: 'Surfactants',
+    builder: 'Builders/Water Softeners',
     emulsifier: 'Emulsifiers',
     thickener: 'Thickeners',
     humectant: 'Humectants/Moisturizers',
@@ -463,6 +662,11 @@ export function getIngredientBreakdown(ingredientsJson: string): Record<string, 
     fragrance: 'Fragrances',
     chelating: 'Chelating Agents',
     colorant: 'Colorants',
+    enzyme: 'Enzymes',
+    bleach: 'Bleaching Agents',
+    optical_brightener: 'Optical Brighteners',
+    anti_redeposition: 'Anti-redeposition Agents',
+    filler: 'Fillers',
     other: 'Other Ingredients'
   };
   
