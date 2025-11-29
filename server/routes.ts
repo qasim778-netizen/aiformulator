@@ -3621,12 +3621,12 @@ Output ONLY the HTML block. Nothing else. No text outside tags.`;
         manufacturingSteps = "Standard manufacturing: (1) Raw Material Preparation - Prepare and measure all ingredients, (2) Mixing - Combine components according to formula, (3) Quality Verification - Test formulation properties, (4) Packaging - Fill into final containers";
       }
 
-      // Generate 1 main branding image only
+      // Generate 1 main branding image only - social media post style
       const imagePrompts = [
         {
           name: "image1",
-          prompt: `Create a professional product mockup image for "${formulationName}". Style: High-quality, realistic product photography mockup. Composition: Left side - a full product bottle/container with white/cream exterior and a colored label band (use colors appropriate to product category: blue for car care, teal for cleaner, pink for beauty, green for organic, etc). The label band should have the product name in bold white text. Right side - a rounded rectangle card displaying the same product in miniature form with category title at top in white text, product name clearly visible at bottom. Background: Clean, professional grey or white gradient. Lighting: Professional product photography lighting with subtle shadows. Square 1:1 ratio, high resolution, mockup style presentation.`,
-          summary: "Professional Product Mockup"
+          prompt: `Create a clean, minimal social media post in the AIFormulator brand theme. Dimensions: landscape horizontal format (650×500 style). Background: soft mint-yellow (#FFF9D9) with a very gentle center glow effect, no gradients. Top Section: Bold centered product name "${formulationName}" in deep charcoal black (#1A1A1A), two-line layout if needed, large and prominent. Below that: smaller medium-weight text in charcoal black: "Ready-to-manufacture recipe". Center Icon Section: Add a clean, minimal line-art icon representing the product type (shampoo pump bottle, cleaning spray, skincare dropper, cosmetic jar, etc. - appropriate to product category). Icon outline in teal (#229799), simple and professional. Add 5-7 small teal sparkles or dots around the icon for visual interest. Keep icon centered and medium-large size. Bottom Branding Section: Centered text (NO logo icon needed): "AI Formulator" in bold charcoal black, on the next line smaller size: "www.aiformulator.net" in charcoal black. Design Rules: plenty of white space, symmetry, balanced margins, minimal elements, no clutter, clean modern scientific look, high readability, flat design style with NO 3D effects, NO realistic products, pure vector/icon style for product image.`,
+          summary: "AI Formulator Social Media Post"
         }
       ];
 
@@ -3646,7 +3646,7 @@ Output ONLY the HTML block. Nothing else. No text outside tags.`;
               model: "dall-e-3",
               prompt: imgConfig.prompt,
               n: 1,
-              size: "1024x1024",
+              size: "1792x1024",
               quality: "standard",
               style: "natural"
             })
