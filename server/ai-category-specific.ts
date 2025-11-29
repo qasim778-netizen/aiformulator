@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import type { InsertFormulation } from "@shared/schema";
+import { normalizePercentages } from "./ai";
 
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY 
@@ -1070,6 +1071,9 @@ export async function generateCategorySpecificFormulation(
           percentage: typeof ing.percentage === 'string' ? ing.percentage : `${ing.percentage || 0}%`,
           function: ing.function || ing.role || 'Active ingredient'
         }));
+      
+      // Normalize ingredient percentages to exactly 100%
+      ingredients = normalizePercentages(ingredients);
       
       // Ensure instructions is always an array
       let instructions = Array.isArray(result.instructions) ? result.instructions : [];

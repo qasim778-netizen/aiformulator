@@ -7,6 +7,78 @@ import { optimizeFormulationName } from "./name-optimizer";
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+/**
+ * Normalizes ingredient percentages to sum to exactly 100%
+ * This is critical for industrial formulation standards
+ */
+export function normalizePercentages(ingredients: any[]): any[] {
+  if (!Array.isArray(ingredients) || ingredients.length === 0) {
+    return ingredients;
+  }
+
+  // Parse all percentages
+  const parsed = ingredients.map(ing => {
+    let pct = 0;
+    if (typeof ing.percentage === 'number') {
+      pct = ing.percentage;
+    } else if (typeof ing.percentage === 'string') {
+      const match = ing.percentage.replace('%', '').replace(',', '.').trim().match(/[\d.]+/);
+      pct = match ? parseFloat(match[0]) : 0;
+    }
+    return { ...ing, numericPercentage: pct };
+  });
+
+  // Calculate current total
+  const currentTotal = parsed.reduce((sum, ing) => sum + ing.numericPercentage, 0);
+  
+  if (currentTotal === 0) {
+    console.warn('All ingredient percentages are 0, cannot normalize');
+    return ingredients;
+  }
+
+  // Calculate scale factor to reach exactly 100%
+  const scaleFactor = 100 / currentTotal;
+  
+  // Scale all percentages
+  let runningTotal = 0;
+  const normalized = parsed.map((ing, index) => {
+    let newPercentage: number;
+    
+    if (index === parsed.length - 1) {
+      // Last ingredient absorbs any rounding error to ensure exact 100%
+      newPercentage = Math.round((100 - runningTotal) * 100) / 100;
+    } else {
+      // Scale and round to 2 decimal places
+      newPercentage = Math.round(ing.numericPercentage * scaleFactor * 100) / 100;
+      runningTotal += newPercentage;
+    }
+    
+    // Ensure minimum threshold (0.01%) and no negatives
+    if (newPercentage < 0.01 && newPercentage > 0) {
+      newPercentage = 0.01;
+    } else if (newPercentage < 0) {
+      newPercentage = 0.01;
+    }
+    
+    // Remove the temporary numeric field and format percentage
+    const { numericPercentage, ...rest } = ing;
+    return {
+      ...rest,
+      percentage: `${newPercentage}%`
+    };
+  });
+
+  // Verify the total is exactly 100%
+  const verifyTotal = normalized.reduce((sum, ing) => {
+    const match = ing.percentage.replace('%', '').match(/[\d.]+/);
+    return sum + (match ? parseFloat(match[0]) : 0);
+  }, 0);
+  
+  console.log(`Percentage normalization: ${currentTotal.toFixed(2)}% → ${verifyTotal.toFixed(2)}%`);
+  
+  return normalized;
+}
+
 // Helper function to generate SEO-friendly slug
 function generateSlug(name: string): string {
   return name
@@ -253,10 +325,13 @@ VALIDATION RULES:
             false // Use rule-based optimization for speed in bulk generation
           );
           
+          // Normalize ingredient percentages to exactly 100%
+          const normalizedIngredients = normalizePercentages(formulation.ingredients || []);
+          
           formulations.push({
             name: capitalizeFormulationName(optimizationResult.optimizedName),
             description: formulation.description,
-            ingredients: JSON.stringify(formulation.ingredients || []),
+            ingredients: JSON.stringify(normalizedIngredients),
             instructions: JSON.stringify(formulation.instructions || []),
             usageInstructions: formulation.usageInstructions || "",
             phLevel: formulation.phLevel || "6.0-7.0",
@@ -298,10 +373,13 @@ VALIDATION RULES:
           false
         );
         
+        // Normalize fallback ingredients to exactly 100%
+        const normalizedFallbackIngredients = normalizePercentages(fallbackFormulation.ingredients);
+        
         formulations.push({
           name: capitalizeFormulationName(optimizationResult.optimizedName),
           description: fallbackFormulation.description,
-          ingredients: JSON.stringify(fallbackFormulation.ingredients),
+          ingredients: JSON.stringify(normalizedFallbackIngredients),
           instructions: JSON.stringify(fallbackFormulation.instructions),
           usageInstructions: fallbackFormulation.usageInstructions,
           phLevel: fallbackFormulation.phLevel,
@@ -370,11 +448,14 @@ export async function generateBulkFormulationsWithKeywords(categoryName: string,
         false
       );
       
+      // Normalize fallback ingredients to exactly 100%
+      const normalizedFallbackIngredients2 = normalizePercentages(fallbackFormulation.ingredients);
+      
       formulations.push({
         name: capitalizeFormulationName(optimizationResult.optimizedName),
         description: fallbackFormulation.description,
         image: includeImages ? "" : undefined,
-        ingredients: JSON.stringify(fallbackFormulation.ingredients),
+        ingredients: JSON.stringify(normalizedFallbackIngredients2),
         instructions: JSON.stringify(fallbackFormulation.instructions),
         usageInstructions: fallbackFormulation.usageInstructions,
         phLevel: fallbackFormulation.phLevel,
@@ -798,11 +879,14 @@ export async function generateFormulationWithKeywords(categoryName: string, prod
       }
     }
     
+    // Normalize ingredient percentages to exactly 100%
+    const normalizedIngredients = normalizePercentages(result.ingredients || []);
+    
     return {
       name: capitalizeFormulationName(name),
       description: result.description,
       image: imageUrl,
-      ingredients: JSON.stringify(result.ingredients || []),
+      ingredients: JSON.stringify(normalizedIngredients),
       instructions: JSON.stringify(result.instructions || []),
       usageInstructions: result.usageInstructions || "",
       phLevel: result.phLevel || "6.0-7.0",
@@ -871,10 +955,13 @@ export async function generateFormulation(categoryName: string, productDescripti
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
     
+    // Normalize ingredient percentages to exactly 100%
+    const normalizedIngredients = normalizePercentages(result.ingredients || []);
+    
     return {
       name: capitalizeFormulationName(result.name),
       description: result.description,
-      ingredients: JSON.stringify(result.ingredients || []),
+      ingredients: JSON.stringify(normalizedIngredients),
       instructions: JSON.stringify(result.instructions || []),
       usageInstructions: result.usageInstructions || "",
       phLevel: result.phLevel || "6.0-7.0",
@@ -1101,11 +1188,14 @@ Create a production-ready formulation with realistic, industry-standard ingredie
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
     
+    // Normalize ingredient percentages to exactly 100%
+    const normalizedIngredients = normalizePercentages(result.ingredients || []);
+    
     const finalName = result.name || request.productName;
     return {
       name: finalName,
       description: result.description || request.productDescription,
-      ingredients: JSON.stringify(result.ingredients || []),
+      ingredients: JSON.stringify(normalizedIngredients),
       instructions: JSON.stringify(result.instructions || []),
       usageInstructions: result.usageInstructions || "",
       phLevel: result.phLevel || request.phLevel,
