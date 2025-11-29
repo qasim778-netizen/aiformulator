@@ -3625,30 +3625,50 @@ Output ONLY the HTML block. Nothing else. No text outside tags.`;
       const imagePrompts = [
         {
           name: "image1",
-          prompt: `CRITICAL: Create a SIMPLE, MINIMAL social media post. DO NOT create complex layouts with multiple sections, grids, or panels. DO NOT add ingredients lists, formula codes, or technical details. 
+          prompt: `Create a clean, minimal 650×500 social media post in the AIFormulator brand theme.
+Follow this layout EXACTLY — do not create complex shapes, grids, extra panels, or artistic reinterpretations.
 
-EXACT LAYOUT - SIMPLE CENTERED DESIGN ONLY:
-Dimensions: 1792×1024 landscape
-Background: Solid soft cream-yellow (#FFF9D9) - no texture, no pattern, completely plain
+Brand Colors
+• Background: soft mint-yellow (#FFF9D9) with a very subtle center glow
+• Headline Text: deep charcoal black (#1A1A1A), bold, centered
+• Sub-headline: charcoal black, medium weight, centered
+• Accent color: teal (#229799) for icon outlines + small sparkles/dots
+• Overall style: flat, minimal, scientific, modern, premium, high readability
 
-CONTENT (vertically centered, perfectly centered horizontally):
-TOP: "${formulationName}" as a two-line product name in BOLD, LARGE, deep charcoal black (#1A1A1A) text. Example: "Anti-dandruff Shampoo" on first line, "Formula" on second line.
+TOP SECTION (Text)
+Place a bold, centered product name at the top.
+If the name is long, break into two centered lines. The product name is: "${formulationName}"
+Use clean modern typography, wide spacing, and no stylistic distortion.
 
-MIDDLE: Below product name, add "Ready-to-manufacture recipe" in smaller, regular-weight charcoal black text, centered.
+MIDDLE SECTION (Sub-headline)
+Centered text in medium weight:
+Ready-to-manufacture recipe
+Do not add extra decoration.
 
-CENTER: A single large PUMP BOTTLE icon (simple line art, not realistic). Bottle outline in dark navy/charcoal (#1A1A1A). Inside bottle: small teal teardrop (#229799). Around bottle: scatter 6-8 small teal decorative symbols (+ plus signs and • dots) at various distances around it - no geometric arrangement, organic scattered placement.
+CENTER ICON SECTION
+Place a minimal, clean line-art icon of a pump bottle in the center.
+Icon rules:
+• Outline in teal (#229799)
+• Add simple teal sparkles/dots around the icon, evenly spaced
+• Medium-large size
+• Thin, consistent line weight
+• Flat, modern style — no shading, no gradients, no 3D
 
-BOTTOM: "AI Formulator" in BOLD charcoal black, centered. Below it: "www.aiformulator.net" in smaller charcoal text, centered.
+BOTTOM BRANDING SECTION
+Centered branding text.
+Do NOT use a logo icon. Only text.
+AI Formulator (bold, charcoal black)
+Below it in smaller size:
+www.aiformulator.net
 
-STYLE RULES (MANDATORY):
-- ONE centered column only - NO multiple panels, grids, columns, or sections
-- FLAT vector line-art icon - NO 3D, NO shading, NO realistic bottle
-- PLAIN background - NO gradients, NO patterns, NO textures, NO borders
-- PLENTY of white/empty space around everything
-- SIMPLE AND MINIMAL - only product name + subtitle + icon + branding, NOTHING ELSE
-- If product is shampoo/cleaner use pump bottle. If skincare use dropper. Always simple line-art only.
-
-Match this reference EXACTLY: Centered single-column layout, cream-yellow background, product name top, icon center with decorative teal symbols, branding bottom.`,
+DESIGN RULES
+• Plenty of white/empty space
+• Perfect symmetry
+• Balanced margins on all sides
+• Minimal elements only
+• Do not add extra shapes, blocks, panels, or graphic complexity
+• The final image must look clean, modern, scientific, and premium
+• Match a simple, centered vertical layout exactly with no extra design elements`,
           summary: "AI Formulator Social Media Post"
         }
       ];
