@@ -3625,7 +3625,30 @@ Output ONLY the HTML block. Nothing else. No text outside tags.`;
       const imagePrompts = [
         {
           name: "image1",
-          prompt: `Create a professional social media post exactly matching this layout: Dimensions: 1792×1024 landscape. Background: Soft cream-yellow (#FFF9D9), perfectly smooth, no gradients or texture. EXACT LAYOUT (from top to bottom): [1] TOP SECTION - Centered product name in two lines. First line: bold, large, deep charcoal black (#1A1A1A). Second line: continuation of name in same bold style. Example: "Anti-dandruff Shampoo" / "Formula". [2] SUBHEADLINE - Smaller text below name: "Ready-to-manufacture recipe" in medium-weight charcoal black, centered. [3] CENTER ICON - Large centered line-art icon (pump bottle with drop inside for "${formulationName}", or appropriate icon for category: spray bottle, jar, dropper, etc). Icon outline in dark navy/charcoal (#1A1A1A), interior drop/detail in teal (#229799). Surround icon with 6-8 decorative teal (+) plus signs and (•) dots scattered around it at varying distances. [4] BOTTOM BRANDING - "AI Formulator" in bold, large charcoal black (#1A1A1A), centered. Below: "www.aiformulator.net" in smaller charcoal text, centered. DESIGN: Flat, minimal, line-art style only. NO 3D, NO shading, NO gradients, NO realistic renderings. Pure vector aesthetic. Plenty of white space, perfect symmetry, centered alignment. Scientific, premium, modern, highly readable. Match the reference image exactly.`,
+          prompt: `CRITICAL: Create a SIMPLE, MINIMAL social media post. DO NOT create complex layouts with multiple sections, grids, or panels. DO NOT add ingredients lists, formula codes, or technical details. 
+
+EXACT LAYOUT - SIMPLE CENTERED DESIGN ONLY:
+Dimensions: 1792×1024 landscape
+Background: Solid soft cream-yellow (#FFF9D9) - no texture, no pattern, completely plain
+
+CONTENT (vertically centered, perfectly centered horizontally):
+TOP: "${formulationName}" as a two-line product name in BOLD, LARGE, deep charcoal black (#1A1A1A) text. Example: "Anti-dandruff Shampoo" on first line, "Formula" on second line.
+
+MIDDLE: Below product name, add "Ready-to-manufacture recipe" in smaller, regular-weight charcoal black text, centered.
+
+CENTER: A single large PUMP BOTTLE icon (simple line art, not realistic). Bottle outline in dark navy/charcoal (#1A1A1A). Inside bottle: small teal teardrop (#229799). Around bottle: scatter 6-8 small teal decorative symbols (+ plus signs and • dots) at various distances around it - no geometric arrangement, organic scattered placement.
+
+BOTTOM: "AI Formulator" in BOLD charcoal black, centered. Below it: "www.aiformulator.net" in smaller charcoal text, centered.
+
+STYLE RULES (MANDATORY):
+- ONE centered column only - NO multiple panels, grids, columns, or sections
+- FLAT vector line-art icon - NO 3D, NO shading, NO realistic bottle
+- PLAIN background - NO gradients, NO patterns, NO textures, NO borders
+- PLENTY of white/empty space around everything
+- SIMPLE AND MINIMAL - only product name + subtitle + icon + branding, NOTHING ELSE
+- If product is shampoo/cleaner use pump bottle. If skincare use dropper. Always simple line-art only.
+
+Match this reference EXACTLY: Centered single-column layout, cream-yellow background, product name top, icon center with decorative teal symbols, branding bottom.`,
           summary: "AI Formulator Social Media Post"
         }
       ];
