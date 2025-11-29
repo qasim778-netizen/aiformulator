@@ -51,7 +51,7 @@ interface IngredientBreakdown {
 }
 
 interface FormulationValidationProps {
-  formulationId?: number;
+  formulationId?: string;
   ingredients?: string;
   productType?: string;
   phLevel?: string;

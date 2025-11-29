@@ -248,7 +248,7 @@ export default function FormulationConfirmation() {
         {/* Validation Section */}
         <div className="mb-6 sm:mb-8">
           <FormulationValidation 
-            formulationId={parseInt(formulationId)} 
+            formulationId={formulationId} 
             showFullReport={false}
           />
         </div>
