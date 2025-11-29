@@ -53,18 +53,18 @@ export default function ImageStrategyGenerator({
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            🎨 Image Strategy Engine for: {formulationName}
+            🎨 Social Media Post Generator for: {formulationName}
           </CardTitle>
           <p className="text-sm text-gray-600 mt-2">
-            Generate a professional product branding image for your formulation.
+            Generate a professional AI Formulator social media post with product icon and branding.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Image Strategy Instructions */}
           <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 space-y-3">
-            <h4 className="font-semibold text-sm text-amber-900">📋 Main Branding Image:</h4>
+            <h4 className="font-semibold text-sm text-amber-900">📋 Social Media Post Format:</h4>
             <div className="space-y-2 text-sm text-amber-800">
-              <p><strong>Image 1 — Main Branding Thumbnail:</strong> Product icon with name on white background (Yellow #FFB100, Teal #2E8B9C, Black)</p>
+              <p><strong>Cream-yellow background (#FFF9D9)</strong> • Bold product name (2 lines) • "Ready-to-manufacture recipe" subheadline • Centered line-art icon with teal decorative elements • AI Formulator branding at bottom • Minimal, flat design style</p>
             </div>
           </div>
 
@@ -91,8 +91,8 @@ export default function ImageStrategyGenerator({
           {/* Display Generated Image */}
           {generatedImages.image1Url && (
             <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-              <h4 className="font-semibold text-sm text-green-900 mb-3">✓ Main Branding Image Generated</h4>
-              <img src={generatedImages.image1Url} alt="Branding" className="w-full max-w-md h-auto rounded border" />
+              <h4 className="font-semibold text-sm text-green-900 mb-3">✓ Social Media Post Generated</h4>
+              <img src={generatedImages.image1Url} alt="Social Media Post" className="w-full h-auto rounded border bg-white" />
             </div>
           )}
         </CardContent>
