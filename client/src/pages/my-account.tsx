@@ -17,18 +17,10 @@ export default function MyAccountPage() {
   const [, setLocation] = useLocation();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
-  const { data: downloads, isLoading: loadingDownloads, error: downloadsError, isFetching: downloadsFetching } = useQuery<any[]>({
+  const { data: downloads, isLoading: loadingDownloads } = useQuery<any[]>({
     queryKey: ['/api/user/downloads'],
     enabled: !!user,
     staleTime: 0,
-  });
-
-  console.log('Downloads query state:', { 
-    user: !!user, 
-    downloads, 
-    isLoading: loadingDownloads, 
-    isFetching: downloadsFetching,
-    error: downloadsError 
   });
 
   const { data: favorites, isLoading: loadingFavorites } = useQuery<any[]>({

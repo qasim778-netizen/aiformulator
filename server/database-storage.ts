@@ -529,7 +529,9 @@ export class DatabaseStorage implements IStorage {
 
   async getUserDownloads(userId: string): Promise<any[]> {
     try {
-      const { userDownloads, formulations, categories } = await import("@shared/schema");
+      const { userDownloads, formulations } = await import("@shared/schema");
+      console.log(`[getUserDownloads] Fetching for user: ${userId}`);
+      
       const downloads = await db
         .select({
           id: userDownloads.id,
@@ -540,9 +542,11 @@ export class DatabaseStorage implements IStorage {
           formulation: formulations,
         })
         .from(userDownloads)
-        .leftJoin(formulations, sql`${userDownloads.formulationId}::uuid = ${formulations.id}`)
+        .leftJoin(formulations, eq(userDownloads.formulationId, formulations.id))
         .where(eq(userDownloads.userId, userId))
         .orderBy(desc(userDownloads.downloadedAt));
+      
+      console.log(`[getUserDownloads] Found ${downloads.length} downloads`);
       return downloads;
     } catch (error) {
       console.error("Error getting user downloads:", error);
