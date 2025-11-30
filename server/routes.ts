@@ -263,7 +263,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/user/downloads', requireAuth, async (req: any, res) => {
     try {
       const userId = req.session.userId;
+      console.log(`📥 Fetching downloads for user: ${userId}`);
       const downloads = await storage.getUserDownloads(userId);
+      console.log(`📥 Found ${downloads.length} downloads for user ${userId}`);
       res.json(downloads);
     } catch (error) {
       console.error("Error fetching downloads:", error);
@@ -337,7 +339,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/admin/downloads', requireAdmin, async (req: any, res) => {
     try {
+      console.log('📥 Admin fetching all downloads');
       const downloads = await storage.getAllDownloadsAdmin();
+      console.log(`📥 Found ${downloads.length} downloads total`);
       res.json(downloads);
     } catch (error) {
       console.error("Error fetching all downloads:", error);
