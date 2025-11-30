@@ -2242,9 +2242,10 @@ Allow: /disclaimer`;
   });
 
   // Download PDF file for a formulation - requires authentication
-  app.get("/api/formulations/:id/download/pdf", requireAuth, async (req, res) => {
+  app.get("/api/formulations/:id/download/pdf", requireAuth, async (req: any, res) => {
     try {
       const formulationId = req.params.id;
+      const userId = req.session?.userId;
       const formulation = await storage.getFormulation(formulationId);
       
       if (!formulation) {
@@ -2253,6 +2254,15 @@ Allow: /disclaimer`;
       
       if (!formulation.pdfPath) {
         return res.status(404).json({ message: "PDF file not found" });
+      }
+      
+      // Track the download
+      try {
+        const category = await storage.getCategory(formulation.categoryId);
+        await storage.trackDownload(userId, formulationId, formulation.name, category?.name || 'Unknown');
+      } catch (trackError) {
+        console.error("Failed to track download:", trackError);
+        // Continue - download tracking is not critical
       }
       
       // Read PDF file from disk
@@ -2280,9 +2290,10 @@ Allow: /disclaimer`;
   });
 
   // Download text file for a formulation - requires authentication
-  app.get("/api/formulations/:id/download/text", requireAuth, async (req, res) => {
+  app.get("/api/formulations/:id/download/text", requireAuth, async (req: any, res) => {
     try {
       const formulationId = req.params.id;
+      const userId = req.session?.userId;
       const formulation = await storage.getFormulation(formulationId);
       
       if (!formulation) {
@@ -2291,6 +2302,15 @@ Allow: /disclaimer`;
       
       if (!formulation.textPath) {
         return res.status(404).json({ message: "Text file not found" });
+      }
+      
+      // Track the download
+      try {
+        const category = await storage.getCategory(formulation.categoryId);
+        await storage.trackDownload(userId, formulationId, formulation.name, category?.name || 'Unknown');
+      } catch (trackError) {
+        console.error("Failed to track download:", trackError);
+        // Continue - download tracking is not critical
       }
       
       // Read text file from disk
