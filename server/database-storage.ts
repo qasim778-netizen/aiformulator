@@ -542,7 +542,7 @@ export class DatabaseStorage implements IStorage {
           formulation: formulations,
         })
         .from(userDownloads)
-        .leftJoin(formulations, eq(userDownloads.formulationId, formulations.id))
+        .leftJoin(formulations, drizzleSql`${userDownloads.formulationId}::uuid = ${formulations.id}`)
         .where(eq(userDownloads.userId, userId))
         .orderBy(desc(userDownloads.downloadedAt));
       
