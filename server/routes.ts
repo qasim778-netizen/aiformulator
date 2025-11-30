@@ -2261,52 +2261,71 @@ Allow: /disclaimer`;
       
       console.log(`[PDF Download] Formulation found: ${formulation.name}, pdfPath: ${formulation.pdfPath}`);
       
-      if (!formulation.pdfPath) {
-        console.log(`[PDF Download] No PDF path for formulation ${formulationId}`);
-        return res.status(404).json({ message: "PDF file not found" });
-      }
-      
-      // Track the download
+      // Track the download first
       try {
-        const category = await storage.getCategory(formulation.categoryId);
-        await storage.trackDownload(userId, formulationId, formulation.name, category?.name || 'Unknown');
+        const category = formulation.categoryId ? await storage.getCategory(formulation.categoryId) : null;
+        await storage.trackDownload(userId, formulationId, formulation.name, category?.name || 'Generated');
         console.log(`[PDF Download] Download tracked for user ${userId}`);
       } catch (trackError) {
         console.error("Failed to track download:", trackError);
       }
       
-      // Read PDF file from disk - handle both full paths and filenames
-      const fs = await import('fs');
-      const path = await import('path');
-      
       let pdfBuffer: Buffer;
-      const pdfPath = formulation.pdfPath;
       
-      // Check if it's a full path or just a filename
-      if (fs.existsSync(pdfPath)) {
-        // It's a valid full path
-        pdfBuffer = fs.readFileSync(pdfPath);
-        console.log(`[PDF Download] Read from full path: ${pdfPath}`);
-      } else {
-        // Try using file-storage module (for filename only)
-        try {
-          const { readFile } = await import('./file-storage');
-          pdfBuffer = readFile(pdfPath);
-          console.log(`[PDF Download] Read using file-storage: ${pdfPath}`);
-        } catch (fileError) {
-          // Last resort: try to extract filename and read from storage dir
-          const filename = path.basename(pdfPath);
-          const STORAGE_DIR = path.join(process.cwd(), 'formulation_files');
-          const fullPath = path.join(STORAGE_DIR, filename);
-          
-          if (fs.existsSync(fullPath)) {
-            pdfBuffer = fs.readFileSync(fullPath);
-            console.log(`[PDF Download] Read from storage dir: ${fullPath}`);
-          } else {
-            console.error(`[PDF Download] File not found at any location: ${pdfPath}`);
-            return res.status(404).json({ message: "PDF file not found on disk" });
+      // Try to read stored PDF file first
+      if (formulation.pdfPath) {
+        const fs = await import('fs');
+        const path = await import('path');
+        const pdfPath = formulation.pdfPath;
+        
+        // Check if it's a full path or just a filename
+        if (fs.existsSync(pdfPath)) {
+          pdfBuffer = fs.readFileSync(pdfPath);
+          console.log(`[PDF Download] Read from full path: ${pdfPath}`);
+        } else {
+          // Try using file-storage module (for filename only)
+          try {
+            const { readFile } = await import('./file-storage');
+            pdfBuffer = readFile(pdfPath);
+            console.log(`[PDF Download] Read using file-storage: ${pdfPath}`);
+          } catch (fileError) {
+            // Last resort: try to extract filename and read from storage dir
+            const filename = path.basename(pdfPath);
+            const STORAGE_DIR = path.join(process.cwd(), 'formulation_files');
+            const fullPath = path.join(STORAGE_DIR, filename);
+            
+            if (fs.existsSync(fullPath)) {
+              pdfBuffer = fs.readFileSync(fullPath);
+              console.log(`[PDF Download] Read from storage dir: ${fullPath}`);
+            } else {
+              // File not found - generate on-the-fly
+              console.log(`[PDF Download] Stored PDF not found, generating on-the-fly`);
+              pdfBuffer = generateFormulationPDF({
+                ...formulation,
+                seoTitle: formulation.seoTitle ?? undefined,
+                metaDescription: formulation.metaDescription ?? undefined,
+                keywords: formulation.keywords ?? undefined,
+                viscosity: formulation.viscosity ?? undefined,
+                phLevel: formulation.phLevel ?? undefined,
+                shelfLife: formulation.shelfLife ?? undefined,
+                certification: formulation.certification ?? undefined,
+              }, {});
+            }
           }
         }
+      } else {
+        // No PDF path stored - generate on-the-fly
+        console.log(`[PDF Download] No PDF path, generating on-the-fly for ${formulation.name}`);
+        pdfBuffer = generateFormulationPDF({
+          ...formulation,
+          seoTitle: formulation.seoTitle ?? undefined,
+          metaDescription: formulation.metaDescription ?? undefined,
+          keywords: formulation.keywords ?? undefined,
+          viscosity: formulation.viscosity ?? undefined,
+          phLevel: formulation.phLevel ?? undefined,
+          shelfLife: formulation.shelfLife ?? undefined,
+          certification: formulation.certification ?? undefined,
+        }, {});
       }
       
       // Set headers for PDF download
