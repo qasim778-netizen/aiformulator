@@ -150,7 +150,7 @@ export default function Collection() {
                     {filteredFormulations.map((formulation) => (
                       <div
                         key={formulation.id}
-                        className="rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden h-80"
+                        className="rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden h-96"
                         style={{ 
                           background: "linear-gradient(135deg, #FFFFFF 0%, #F0F4FF 100%)",
                           border: "1px solid #E4E9F8"
@@ -162,10 +162,10 @@ export default function Collection() {
                           <img
                             src={formulation.image}
                             alt={formulation.name}
-                            className="w-full h-48 object-cover object-top"
+                            className="w-full h-56 object-cover object-center"
                           />
                         ) : (
-                          <div className="w-full h-48 flex items-center justify-center" style={{ backgroundColor: "#F0F4FF" }}>
+                          <div className="w-full h-56 flex items-center justify-center" style={{ backgroundColor: "#F0F4FF" }}>
                             <div className="text-center">
                               <div className="w-14 h-14 rounded-full mx-auto mb-2 flex items-center justify-center" style={{ backgroundColor: "#FFFFFF", border: "1px solid #DDE6FF" }}>
                                 <span className="text-3xl">🧪</span>
@@ -174,7 +174,7 @@ export default function Collection() {
                           </div>
                         )}
 
-                        <div className="p-4 h-32 flex flex-col justify-between">
+                        <div className="p-4 h-40 flex flex-col justify-between">
                           {/* Status Badge */}
                           <div className="flex items-start justify-between">
                             <h3 className="font-bold line-clamp-2 flex-1 text-sm" style={{ color: "#1A1A1A" }}>
