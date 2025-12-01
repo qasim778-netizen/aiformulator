@@ -143,7 +143,7 @@ export default function CategoryPage() {
         </div>
         
         {formulations.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {formulations
               .sort((a, b) => {
                 // Put highlighted formulation first
@@ -167,7 +167,7 @@ export default function CategoryPage() {
               <div 
                 key={formulation.id} 
                 id={`formulation-${formulation.id}`}
-                className={`rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden h-96 ${
+                className={`rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden ${
                   highlightId === formulation.id 
                     ? 'ring-2 ring-primary ring-opacity-50 scale-105' 
                     : ''
@@ -183,10 +183,10 @@ export default function CategoryPage() {
                   <img
                     src={formulation.image}
                     alt={formulation.name}
-                    className="w-full h-56 object-cover object-center"
+                    className="w-full h-48 object-cover object-center"
                   />
                 ) : (
-                  <div className="w-full h-56 flex items-center justify-center" style={{ backgroundColor: "#F0F4FF" }}>
+                  <div className="w-full h-48 flex items-center justify-center" style={{ backgroundColor: "#F0F4FF" }}>
                     <div className="text-center">
                       <div className="w-14 h-14 rounded-full mx-auto mb-2 flex items-center justify-center" style={{ backgroundColor: "#FFFFFF", border: "1px solid #DDE6FF" }}>
                         <span className="text-3xl">🧪</span>
@@ -195,23 +195,24 @@ export default function CategoryPage() {
                   </div>
                 )}
 
-                <div className="p-4 h-40 flex flex-col justify-between">
-                  {/* Status Badge */}
-                  <div className="flex items-start justify-between">
-                    <h3 className="font-bold line-clamp-2 flex-1 text-sm" style={{ color: "#1A1A1A" }}>
-                      {formulation.name}
-                    </h3>
-                    <div
-                      className="ml-2 text-xs font-semibold flex-shrink-0 px-2 py-1 rounded-md"
-                      style={
-                        formulation.isActive
-                          ? { backgroundColor: "#D7FAD7", color: "#1A7B1A" }
-                          : { backgroundColor: "#FEF3C7", color: "#92400E" }
-                      }
-                    >
-                      {formulation.isActive ? "Active" : "Draft"}
-                    </div>
+                <div className="p-3">
+                  {/* Active indicator with download count */}
+                  <div className="flex items-center gap-2 mb-2">
+                    {formulation.isActive && (
+                      <div className="flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        <span className="text-xs text-green-600 font-medium">Active</span>
+                      </div>
+                    )}
+                    <span className="text-xs text-gray-500">
+                      {(formulation as any).downloadCount || 0} downloads
+                    </span>
                   </div>
+
+                  {/* Formula Name */}
+                  <h3 className="font-bold line-clamp-2 text-sm mb-3" style={{ color: "#1A1A1A" }}>
+                    {formulation.name}
+                  </h3>
 
                   {/* View Details Button */}
                   <Link href={`/formulation/${formulation.slug || formulation.id}`}>
