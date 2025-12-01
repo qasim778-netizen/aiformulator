@@ -159,11 +159,13 @@ export default function Collection() {
                       >
                         {/* Card Image */}
                         {formulation.image ? (
-                          <img
-                            src={formulation.image}
-                            alt={formulation.name}
-                            className="w-full h-40 object-cover"
-                          />
+                          <div className="w-full h-40 flex items-center justify-center" style={{ backgroundColor: "#F0F4FF" }}>
+                            <img
+                              src={formulation.image}
+                              alt={formulation.name}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
                         ) : (
                           <div className="w-full h-40 flex items-center justify-center" style={{ backgroundColor: "#F0F4FF" }}>
                             <div className="text-center">
