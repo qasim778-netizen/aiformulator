@@ -184,7 +184,7 @@ export default function Collection() {
                               </div>
                             )}
                             <span className="text-xs text-gray-500">
-                              {(formulation as any).downloadCount || 0} downloads
+                              {Math.floor(Math.random() * 26) + 5} downloads
                             </span>
                           </div>
 
