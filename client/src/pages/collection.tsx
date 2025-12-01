@@ -150,7 +150,7 @@ export default function Collection() {
                     {filteredFormulations.map((formulation) => (
                       <div
                         key={formulation.id}
-                        className="rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden h-72"
+                        className="rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden h-80"
                         style={{ 
                           background: "linear-gradient(135deg, #FFFFFF 0%, #F0F4FF 100%)",
                           border: "1px solid #E4E9F8"
@@ -159,15 +159,13 @@ export default function Collection() {
                       >
                         {/* Card Image */}
                         {formulation.image ? (
-                          <div className="w-full h-40 flex items-center justify-center" style={{ backgroundColor: "#F0F4FF" }}>
-                            <img
-                              src={formulation.image}
-                              alt={formulation.name}
-                              className="w-full h-full object-contain"
-                            />
-                          </div>
+                          <img
+                            src={formulation.image}
+                            alt={formulation.name}
+                            className="w-full h-48 object-cover object-top"
+                          />
                         ) : (
-                          <div className="w-full h-40 flex items-center justify-center" style={{ backgroundColor: "#F0F4FF" }}>
+                          <div className="w-full h-48 flex items-center justify-center" style={{ backgroundColor: "#F0F4FF" }}>
                             <div className="text-center">
                               <div className="w-14 h-14 rounded-full mx-auto mb-2 flex items-center justify-center" style={{ backgroundColor: "#FFFFFF", border: "1px solid #DDE6FF" }}>
                                 <span className="text-3xl">🧪</span>
