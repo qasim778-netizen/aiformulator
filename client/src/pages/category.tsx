@@ -218,7 +218,7 @@ export default function CategoryPage() {
                   <Link href={`/formulation/${formulation.slug || formulation.id}`}>
                     <Button
                       className="w-full text-white h-9 text-sm font-semibold rounded-full transition-all hover:opacity-90"
-                      style={{ backgroundColor: "#2458F6" }}
+                      style={{ backgroundColor: "#0D9488" }}
                       size="sm"
                       data-testid={`view-details-${formulation.id}`}
                     >
@@ -236,7 +236,7 @@ export default function CategoryPage() {
               There are currently no formulations available in the {category.name} category.
             </p>
             <Link href="/browse">
-              <Button className="bg-primary text-white hover:bg-blue-700">
+              <Button className="bg-primary text-white hover:bg-primary/90">
                 Browse Other Categories
               </Button>
             </Link>

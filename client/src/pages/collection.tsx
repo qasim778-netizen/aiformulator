@@ -92,7 +92,7 @@ export default function Collection() {
                         }`}
                         style={
                           isSelected
-                            ? { backgroundColor: "#2458F6", color: "#FFFFFF" }
+                            ? { backgroundColor: "#0D9488", color: "#FFFFFF" }
                             : { color: "#1A1A1A", backgroundColor: "transparent" }
                         }
                         onMouseEnter={(e) => {
@@ -197,7 +197,7 @@ export default function Collection() {
                           <Link href={`/formulation/${formulation.slug || formulation.id}`}>
                             <Button
                               className="w-full text-white h-9 text-sm font-semibold rounded-full transition-all hover:opacity-90"
-                              style={{ backgroundColor: "#2458F6" }}
+                              style={{ backgroundColor: "#0D9488" }}
                               size="sm"
                               data-testid={`view-details-${formulation.id}`}
                             >

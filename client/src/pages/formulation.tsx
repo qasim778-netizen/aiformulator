@@ -441,12 +441,12 @@ export default function FormulationPage() {
 
             {/* Formula Details Hidden - Only Available in PDF Download */}
             <div className="mb-8">
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg">
-                <h2 className="text-xl font-semibold text-blue-900 mb-4">Complete Formulation Details</h2>
-                <p className="text-blue-800 mb-4">
+              <div className="bg-teal-50 border-l-4 border-teal-500 p-6 rounded-lg">
+                <h2 className="text-xl font-semibold text-teal-900 mb-4">Complete Formulation Details</h2>
+                <p className="text-teal-800 mb-4">
                   The complete formulation details including ingredients, manufacturing process, equipment requirements, safety guidelines, and technical specifications are available in the PDF download.
                 </p>
-                <p className="text-blue-700 text-sm">
+                <p className="text-teal-700 text-sm">
                   Click the "Download PDF" button below to access the full formulation report with all confidential information.
                 </p>
               </div>
@@ -455,7 +455,7 @@ export default function FormulationPage() {
             <div className="flex flex-wrap gap-4 mb-8">
               <Button 
                 onClick={generatePDF}
-                className="bg-primary text-white hover:bg-blue-700"
+                className="bg-primary text-white hover:bg-primary/90"
                 data-testid="button-download-pdf"
               >
                 <Download className="h-4 w-4 mr-2" />
@@ -472,9 +472,9 @@ export default function FormulationPage() {
               <Button 
                 onClick={toggleFavorite}
                 variant="outline" 
-                className={`border-primary hover:bg-blue-50 ${
+                className={`border-primary hover:bg-teal-50 ${
                   isFavorited 
-                    ? 'bg-primary text-white hover:bg-blue-700' 
+                    ? 'bg-primary text-white hover:bg-primary/90' 
                     : 'text-primary'
                 }`}
                 data-testid="button-toggle-favorite"

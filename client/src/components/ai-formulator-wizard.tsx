@@ -452,11 +452,11 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
 
   if (!showWizard) {
     return (
-      <Card className="w-full max-w-4xl mx-auto shadow-lg bg-gradient-to-br from-blue-50 to-white overflow-hidden" data-testid="ai-formulator-landing">
+      <Card className="w-full max-w-4xl mx-auto shadow-lg bg-gradient-to-br from-teal-50 to-white overflow-hidden" data-testid="ai-formulator-landing">
         <CardContent className="p-3 text-center w-full box-border">
           {/* Header */}
           <div className="flex items-center justify-center mb-4">
-            <div className="bg-blue-600 text-white p-3 rounded-xl">
+            <div className="bg-primary text-white p-3 rounded-xl">
               <Beaker className="h-6 w-6" />
             </div>
           </div>
@@ -495,7 +495,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
             </div>
 
             <div className="bg-white p-4 rounded-xl shadow-md border border-gray-100">
-              <div className="bg-blue-100 text-blue-600 p-3 rounded-xl w-12 h-12 flex items-center justify-center mx-auto mb-3">
+              <div className="bg-teal-100 text-teal-600 p-3 rounded-xl w-12 h-12 flex items-center justify-center mx-auto mb-3">
                 <FileText className="h-6 w-6" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Professional Reports</h3>
@@ -503,7 +503,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
                 Comprehensive documentation with batch records, quality protocols, and specifications
               </p>
               <div className="flex items-center justify-center">
-                <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                <span className="bg-teal-100 text-teal-800 text-xs font-medium px-2 py-1 rounded-full flex items-center">
                   🏭 Industry Standard
                 </span>
               </div>
@@ -520,7 +520,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
               // Guidance system removed for stability
             }}
             size="lg"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+            className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
             data-testid="button-start-formulation"
           >
             <ArrowRight className="h-5 w-5 mr-2" />
@@ -542,9 +542,9 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
       <CardContent className="p-4 w-full box-border">
         {/* Header */}
         <div className="text-center mb-4">
-          <h2 className="text-xl font-bold text-blue-600 mb-2">Formulation Process</h2>
-          <p className="text-blue-600">
-            <span className="bg-blue-100 px-2 py-1 rounded-full text-sm font-medium">
+          <h2 className="text-xl font-bold text-primary mb-2">Formulation Process</h2>
+          <p className="text-primary">
+            <span className="bg-teal-100 px-2 py-1 rounded-full text-sm font-medium">
               Step {currentStep + 1} of {steps.length}
             </span>
           </p>
@@ -556,20 +556,20 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
             <div key={index} className="flex flex-col items-center flex-1">
               <div className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300 ${
                 index <= currentStep 
-                  ? 'bg-blue-600 border-blue-600 text-white' 
+                  ? 'bg-primary border-primary text-white' 
                   : 'bg-gray-100 border-gray-300 text-gray-400'
               }`}>
                 {index < currentStep ? '✓' : step.icon}
               </div>
               <span className={`text-sm font-medium mt-2 transition-colors duration-300 ${
-                index <= currentStep ? 'text-blue-600' : 'text-gray-400'
+                index <= currentStep ? 'text-primary' : 'text-gray-400'
               }`}>
                 {step.title}
               </span>
               {index < steps.length - 1 && (
                 <div className="absolute top-6 left-1/2 transform -translate-y-1/2 w-full h-0.5 bg-gray-200 -z-10">
                   <div 
-                    className={`h-full bg-blue-600 transition-all duration-500 ${
+                    className={`h-full bg-primary transition-all duration-500 ${
                       index < currentStep ? 'w-full' : 'w-0'
                     }`} 
                   />
@@ -642,7 +642,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
 
             <Button
               onClick={nextStep}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
+              className="bg-primary hover:bg-primary/90 text-white px-8 py-3"
               data-testid="button-next-step"
             >
               Next Step
