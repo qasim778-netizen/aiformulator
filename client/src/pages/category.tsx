@@ -2,8 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams, Link, useSearch } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import type { Category, Formulation } from "@shared/schema";
 import { useEffect } from "react";
 
@@ -145,7 +143,7 @@ export default function CategoryPage() {
         </div>
         
         {formulations.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {formulations
               .sort((a, b) => {
                 // Put highlighted formulation first
@@ -166,44 +164,68 @@ export default function CategoryPage() {
                 return 0;
               })
               .map((formulation) => (
-              <Card 
+              <div 
                 key={formulation.id} 
                 id={`formulation-${formulation.id}`}
-                className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border ${
+                className={`rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden h-96 ${
                   highlightId === formulation.id 
-                    ? 'border-primary ring-2 ring-primary ring-opacity-50 bg-primary/5 scale-105' 
-                    : 'border-gray-200'
+                    ? 'ring-2 ring-primary ring-opacity-50 scale-105' 
+                    : ''
                 }`}
+                style={{ 
+                  background: "linear-gradient(135deg, #FFFFFF 0%, #F0F4FF 100%)",
+                  border: "1px solid #E4E9F8"
+                }}
+                data-testid={`formula-card-${formulation.id}`}
               >
-                <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-inter font-semibold text-gray-900">{formulation.name}</h3>
-                      <Badge className={formulation.isActive ? "bg-green-500 text-white" : "bg-yellow-500 text-white"}>
-                        {formulation.isActive ? "Active" : "Draft"}
-                      </Badge>
-                    </div>
-                    <p className="text-gray-600 mb-4 line-clamp-3">{formulation.description}</p>
-                  <div className="space-y-2 mb-4">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">pH Level:</span>
-                      <span className="font-medium">{formulation.phLevel}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Shelf Life:</span>
-                      <span className="font-medium">{formulation.shelfLife} months</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Batch Size:</span>
-                      <span className="font-medium">{formulation.batchSize}</span>
+                {/* Card Image */}
+                {formulation.image ? (
+                  <img
+                    src={formulation.image}
+                    alt={formulation.name}
+                    className="w-full h-56 object-cover object-center"
+                  />
+                ) : (
+                  <div className="w-full h-56 flex items-center justify-center" style={{ backgroundColor: "#F0F4FF" }}>
+                    <div className="text-center">
+                      <div className="w-14 h-14 rounded-full mx-auto mb-2 flex items-center justify-center" style={{ backgroundColor: "#FFFFFF", border: "1px solid #DDE6FF" }}>
+                        <span className="text-3xl">🧪</span>
+                      </div>
                     </div>
                   </div>
-                    <Link href={`/formulation/${formulation.slug || formulation.id}`}>
-                      <Button className="w-full bg-primary text-white hover:bg-blue-700">
-                        View Details
-                      </Button>
-                    </Link>
-                </CardContent>
-              </Card>
+                )}
+
+                <div className="p-4 h-40 flex flex-col justify-between">
+                  {/* Status Badge */}
+                  <div className="flex items-start justify-between">
+                    <h3 className="font-bold line-clamp-2 flex-1 text-sm" style={{ color: "#1A1A1A" }}>
+                      {formulation.name}
+                    </h3>
+                    <div
+                      className="ml-2 text-xs font-semibold flex-shrink-0 px-2 py-1 rounded-md"
+                      style={
+                        formulation.isActive
+                          ? { backgroundColor: "#D7FAD7", color: "#1A7B1A" }
+                          : { backgroundColor: "#FEF3C7", color: "#92400E" }
+                      }
+                    >
+                      {formulation.isActive ? "Active" : "Draft"}
+                    </div>
+                  </div>
+
+                  {/* View Details Button */}
+                  <Link href={`/formulation/${formulation.slug || formulation.id}`}>
+                    <Button
+                      className="w-full text-white h-9 text-sm font-semibold rounded-full transition-all hover:opacity-90"
+                      style={{ backgroundColor: "#2458F6" }}
+                      size="sm"
+                      data-testid={`view-details-${formulation.id}`}
+                    >
+                      View Details
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             ))}
           </div>
         ) : (
