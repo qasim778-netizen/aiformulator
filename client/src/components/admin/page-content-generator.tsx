@@ -103,27 +103,41 @@ export default function PageContentGenerator({
     saveMutation.mutate();
   };
 
-  // Category-to-Group mapping
+  // Category-to-Group mapping - checks BOTH category and formulation name
   const getCategoryGroup = (categoryName: string) => {
-    const lower = categoryName.toLowerCase();
+    // Combine category AND formulation name for better detection
+    const combined = `${categoryName} ${formulationName}`.toLowerCase();
     
-    if (/baby|kids|child|infant|baby wash|baby lotion/.test(lower)) 
+    // Order matters: more specific matches first
+    if (/baby|kids|child|infant|baby wash|baby lotion/.test(combined)) 
       return { group: "A", name: "Baby & Gentle Care", tone: "Gentle, reassuring, mild tone" };
-    if (/shampoo|skin|hair|face wash|cosmetic|beauty|scrub|lotion|cream/.test(lower)) 
+    
+    // Oral care MUST be checked BEFORE general beauty (to prevent misclassification)
+    if (/oral|toothpaste|mouthwash|rinse|dental|probiotic/.test(combined)) 
+      return { group: "B", name: "Oral Care / Personal Care", tone: "Clinical yet friendly, emphasize freshness and health" };
+    
+    if (/shampoo|skin|hair|face wash|cosmetic|beauty|scrub|lotion|cream/.test(combined)) 
       return { group: "B", name: "Skin / Hair / Beauty / Grooming", tone: "Soft, premium, cosmetic-style tone" };
-    if (/cleaner|cleaning|toilet|fabric|laundry|all-purpose|detergent/.test(lower)) 
+    if (/cleaner|cleaning|toilet|fabric|laundry|all-purpose|detergent/.test(combined)) 
       return { group: "C", name: "Cleaning / Detergent / Household", tone: "Practical, instructional, performance-focused tone" };
-    if (/car|automotive|vehicle|polish|tire|dashboard|shoe|leather/.test(lower)) 
-      return { group: "D", name: "Car / Auto / Shoe / Leather", tone: "Professional detailing tone" };
-    if (/adhesive|sealant|epoxy|tile|grout|marble|stone|construction/.test(lower)) 
+    
+    // Car/automotive separate from shoe/leather
+    if (/car|automotive|vehicle|tire|dashboard/.test(combined)) 
+      return { group: "D", name: "Car / Auto Care", tone: "Professional detailing tone" };
+    
+    // Shoe/leather only if NOT oral care (prevents "rinse" matching)
+    if (/shoe|leather|polish/.test(combined) && !/oral|dental|teeth/.test(combined)) 
+      return { group: "D", name: "Shoe / Leather Care", tone: "Professional detailing tone" };
+    
+    if (/adhesive|sealant|epoxy|tile|grout|marble|stone|construction/.test(combined)) 
       return { group: "E", name: "Adhesives / Sealants / Construction", tone: "Technical, structural, engineering-oriented tone" };
-    if (/3d printing|filament|abs|pla|resin|polymer|industrial|coating/.test(lower)) 
+    if (/3d printing|filament|abs|pla|resin|polymer|industrial|coating/.test(combined)) 
       return { group: "F", name: "Industrial / 3D Printing / Coatings / Resins", tone: "Material-science tone" };
-    if (/agro|agriculture|pest|mosquito|mite|flea|water treatment/.test(lower)) 
+    if (/agro|agriculture|pest|mosquito|mite|flea|water treatment/.test(combined)) 
       return { group: "G", name: "Agriculture / Water Treatment / Pest", tone: "Compliance-aware tone" };
-    if (/pet|dog|cat|pet spray|pet wash|deodorizer/.test(lower)) 
+    if (/pet|dog|cat|pet spray|pet wash|deodorizer/.test(combined)) 
       return { group: "H", name: "Pet Care", tone: "Friendly, pet-safe, reassuring tone" };
-    if (/organic|herbal|natural|essential oil|aroma/.test(lower)) 
+    if (/organic|herbal|natural|essential oil|aroma/.test(combined)) 
       return { group: "I", name: "Herbal / Organic / Aromatherapy", tone: "Natural, botanical, eco-friendly tone" };
     
     return { group: "J", name: "Default", tone: "Standard professional tone" };
