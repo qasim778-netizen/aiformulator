@@ -3173,8 +3173,8 @@ Match using these keywords:
 GROUP A — Baby & Gentle Care  
 (baby, kids, child, infant, baby wash, baby lotion)
 
-GROUP B — Skin / Hair / Beauty / Grooming  
-(shampoo, skin, hair, face wash, cosmetic, beauty, scrub, lotion, cream)
+GROUP B — Skin / Hair / Beauty / Grooming / Oral Care  
+(shampoo, skin, hair, face wash, cosmetic, beauty, scrub, lotion, cream, oral, toothpaste, mouthwash, rinse, dental, probiotic)
 
 GROUP C — Cleaning / Detergent / Household  
 (cleaner, cleaning, toilet, fabric, laundry, all-purpose, detergent)
@@ -3208,9 +3208,10 @@ GROUP A (Baby):
 • Gentle, reassuring, mild tone  
 • Avoid strong chemical language  
 
-GROUP B (Beauty):  
+GROUP B (Beauty/Oral Care):  
 • Soft, premium, cosmetic-style tone  
 • Sensory language allowed  
+• For oral care: clinical yet friendly, emphasize freshness and health benefits  
 
 GROUP C (Cleaning):  
 • Practical, instructional, performance-focused tone  
@@ -3728,35 +3729,47 @@ Output ONLY the HTML block. Nothing else. No text outside tags.`;
       }
 
       // Determine category group for tone-appropriate image descriptions
+      // Check BOTH category name AND formulation name for better accuracy
       const categoryLower = category ? category.toLowerCase() : "";
+      const formulationLower = formulationName ? formulationName.toLowerCase() : "";
+      const combinedSearch = `${categoryLower} ${formulationLower}`;
       let categoryGroup = "J";
       let categoryIcon = "chemistry";
 
-      if (/baby|kids|child|infant/.test(categoryLower)) {
+      // Order matters: more specific matches first
+      if (/baby|kids|child|infant/.test(combinedSearch)) {
         categoryGroup = "A";
         categoryIcon = "baby bottle";
-      } else if (/shampoo|skin|hair|face|cosmetic|beauty|scrub|lotion|cream/.test(categoryLower)) {
+      } else if (/oral|toothpaste|mouthwash|rinse|dental|probiotic/.test(combinedSearch)) {
+        // Oral care checked BEFORE general beauty to ensure proper categorization
+        categoryGroup = "B";
+        categoryIcon = "oral care product";
+      } else if (/shampoo|skin|hair|face|cosmetic|beauty|scrub|lotion|cream/.test(combinedSearch)) {
         categoryGroup = "B";
         categoryIcon = "beauty product";
-      } else if (/cleaner|cleaning|toilet|fabric|laundry|detergent/.test(categoryLower)) {
+      } else if (/cleaner|cleaning|toilet|fabric|laundry|detergent/.test(combinedSearch)) {
         categoryGroup = "C";
         categoryIcon = "spray bottle";
-      } else if (/car|automotive|vehicle|polish|tire|shoe|leather/.test(categoryLower)) {
+      } else if (/car|automotive|vehicle|tire|dashboard/.test(combinedSearch)) {
         categoryGroup = "D";
         categoryIcon = "car polish bottle";
-      } else if (/adhesive|sealant|epoxy|tile|grout|marble|stone|construction/.test(categoryLower)) {
+      } else if (/shoe|leather|polish/.test(combinedSearch) && !/oral|dental|teeth/.test(combinedSearch)) {
+        // Shoe/leather/polish only if NOT oral care (prevents "oral rinse" matching "rinse" → shoe)
+        categoryGroup = "D";
+        categoryIcon = "shoe polish tin";
+      } else if (/adhesive|sealant|epoxy|tile|grout|marble|stone|construction/.test(combinedSearch)) {
         categoryGroup = "E";
         categoryIcon = "adhesive gun";
-      } else if (/3d printing|filament|abs|pla|resin|polymer|industrial|coating/.test(categoryLower)) {
+      } else if (/3d printing|filament|abs|pla|resin|polymer|industrial|coating/.test(combinedSearch)) {
         categoryGroup = "F";
         categoryIcon = "3D printing resin bottle";
-      } else if (/agro|agriculture|pest|mosquito|mite|flea|water treatment/.test(categoryLower)) {
+      } else if (/agro|agriculture|pest|mosquito|mite|flea|water treatment/.test(combinedSearch)) {
         categoryGroup = "G";
         categoryIcon = "agricultural spray";
-      } else if (/pet|dog|cat|pet spray|pet wash|deodorizer/.test(categoryLower)) {
+      } else if (/pet|dog|cat|pet spray|pet wash|deodorizer/.test(combinedSearch)) {
         categoryGroup = "H";
         categoryIcon = "pet care bottle";
-      } else if (/organic|herbal|natural|essential oil|aroma/.test(categoryLower)) {
+      } else if (/organic|herbal|natural|essential oil|aroma/.test(combinedSearch)) {
         categoryGroup = "I";
         categoryIcon = "botanical essential oil";
       }
