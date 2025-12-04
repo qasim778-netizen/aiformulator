@@ -133,14 +133,12 @@ export const categorySpecs = {
   },
   'shoe-care': {
     name: 'Shoe Care',
-    requiredIngredients: ['wax', 'oil', 'stearic-acid'],
-    prohibitedIngredients: ['water', 'aqua'],
+    requiredIngredients: ['protective-wax', 'conditioning-agent'],
+    prohibitedIngredients: ['water-damage-agents'],
     phRange: { min: 6, max: 8 },
     processingTime: '30 minutes - 2 hours',
-    temperature: '70-85°C (wax melting phase)',
-    formType: 'anhydrous cream/paste',
-    allowWater: false,
-    specialRequirements: ['anhydrous', 'wax-based', 'oil-based']
+    temperature: 'Room temperature (20-25°C)',
+    formType: 'cream/liquid'
   },
   'skin-care': {
     name: 'Skin Care',
@@ -268,73 +266,6 @@ function safeParse(content: string): any | null {
 
 // Get fallback formulation for demo when AI fails
 export function getFallbackFormulation(categoryName: string, productDescription: string): any {
-  // Check if this is a shoe care/polish category (ANHYDROUS - NO WATER)
-  const isShoeCategory = categoryName.toLowerCase().includes('shoe') || 
-                         productDescription.toLowerCase().includes('shoe') ||
-                         productDescription.toLowerCase().includes('polish') ||
-                         productDescription.toLowerCase().includes('leather care');
-
-  if (isShoeCategory) {
-    // INDUSTRIAL STANDARD SHOE POLISH - ANHYDROUS (0% Water)
-    return {
-      name: `Professional ${productDescription}`,
-      description: `Premium anhydrous shoe care formulation with industrial-grade wax blend. This professional-grade formula provides superior leather conditioning, lasting shine, and water-resistant protection for all leather footwear.`,
-      ingredients: [
-        { name: "Carnauba Wax", inci: "Copernicia Cerifera Cera", percentage: "25.0%", function: "Primary hard wax for high gloss and durability" },
-        { name: "Beeswax", inci: "Cera Alba", percentage: "15.0%", function: "Structural wax, flexibility and water resistance" },
-        { name: "Paraffin Wax", inci: "Paraffin", percentage: "5.0%", function: "Base wax, spreadability" },
-        { name: "Mineral Oil", inci: "Paraffinum Liquidum", percentage: "18.0%", function: "Carrier oil, leather conditioning" },
-        { name: "Silicone Oil", inci: "Dimethicone", percentage: "8.0%", function: "Water repellency, shine enhancement" },
-        { name: "Lanolin", inci: "Lanolin", percentage: "7.0%", function: "Leather softening, moisturizing" },
-        { name: "Stearic Acid", inci: "Stearic Acid", percentage: "10.0%", function: "Structure, consistency, emulsification" },
-        { name: "Triethanolamine", inci: "Triethanolamine", percentage: "3.0%", function: "pH adjustment, emulsion stability" },
-        { name: "Turpentine", inci: "Turpentine", percentage: "5.0%", function: "Solvent, wax softener, penetration aid" },
-        { name: "Iron Oxide Black", inci: "CI 77499", percentage: "2.5%", function: "Color pigment (adjust for desired shade)" },
-        { name: "Antioxidant BHT", inci: "Butylated Hydroxytoluene", percentage: "0.5%", function: "Preservative, prevents oxidation" },
-        { name: "Fragrance", inci: "Parfum", percentage: "1.0%", function: "Classic leather scent" }
-      ],
-      instructions: [
-        { 
-          phase: "Wax Melting Phase", 
-          steps: [
-            "Heat all waxes (carnauba, beeswax, paraffin) to 80-85°C in stainless steel vessel",
-            "Stir continuously until completely melted and homogeneous",
-            "Monitor temperature carefully - do not exceed 90°C"
-          ] 
-        },
-        { 
-          phase: "Oil Addition Phase", 
-          steps: [
-            "Add mineral oil and silicone oil to melted wax blend at 75-80°C",
-            "Incorporate lanolin while stirring",
-            "Add stearic acid and mix until dissolved"
-          ] 
-        },
-        { 
-          phase: "Finishing Phase", 
-          steps: [
-            "Add TEA slowly while stirring at 70°C",
-            "Incorporate turpentine and mix thoroughly",
-            "Add pigment dispersion and fragrance at 65°C",
-            "Add antioxidant, stir for 5 minutes",
-            "Pour into containers at 55-60°C before setting"
-          ] 
-        }
-      ],
-      usageInstructions: "Apply thin layer with soft cloth or applicator brush. Allow to set for 2-3 minutes. Buff vigorously with horsehair brush or soft cloth for high shine.",
-      phLevel: "N/A (anhydrous system)",
-      shelfLife: "36 months in sealed container",
-      viscosity: "Soft paste at 20°C, melts at body temperature",
-      storageConditions: "Store at 15-25°C, away from heat sources and direct sunlight",
-      batchSize: "100 kg",
-      processingTime: "2-3 hours",
-      temperature: "Wax melting: 80-85°C, Filling: 55-60°C",
-      equipment: "Jacketed mixing vessel with temperature control, high-shear mixer, filling equipment",
-      certification: "Meets international shoe care industry standards",
-      isActive: true
-    };
-  }
-
   // Check if this is a detergent-related category
   const isDetergentCategory = categoryName.toLowerCase().includes('detergent') || 
                               categoryName.toLowerCase().includes('cleaning') ||
@@ -499,46 +430,14 @@ export function validateFormulation(formulation: any, categoryKey: string): { is
     }
   }
 
-  // CRITICAL: Validate anhydrous (water-free) categories
-  const anhydrousCategories = ['shoe-care', 'shoe', 'polish', 'leather-care'];
-  const isAnhydrous = anhydrousCategories.some(cat => categoryKey.includes(cat)) ||
-                      (specs && (specs as any).allowWater === false);
-  
-  if (isAnhydrous) {
-    const hasWater = ingredients.some(ing => {
-      const name = ing.name.toLowerCase();
-      const inci = (ing.inci || '').toLowerCase();
-      return name === 'water' || name === 'aqua' || 
-             name.includes('deionized water') || name.includes('purified water') ||
-             inci === 'aqua' || inci === 'water';
-    });
-    
-    if (hasWater) {
-      errors.push('CRITICAL: Shoe care/polish formulations must be ANHYDROUS (0% water). Water damages leather and is prohibited in shoe polish.');
-    }
-    
-    // Check for required waxes
-    const hasWax = ingredients.some(ing => {
-      const name = ing.name.toLowerCase();
-      return name.includes('wax') || name.includes('cera') || name.includes('carnauba') || name.includes('beeswax');
-    });
-    if (!hasWax) {
-      errors.push('Shoe polish must contain wax ingredients (carnauba, beeswax, paraffin)');
-    }
-  }
-
   return { isValid: errors.length === 0, errors };
 }
 
 // Category-specific prompt generator
 export function getCategoryPrompt(categoryName: string, productDescription: string): string {
   const category = categoryName.toLowerCase().replace(/\s+/g, '-');
-  const desc = productDescription.toLowerCase();
   
-  // SHOE CARE - must be checked FIRST (anhydrous formulations)
-  if (category.includes('shoe') || desc.includes('shoe') || desc.includes('polish') || desc.includes('leather care')) {
-    return getShoeCarePrompt(categoryName, productDescription);
-  } else if (category.includes('glass') || category.includes('cleaning')) {
+  if (category.includes('glass') || category.includes('cleaning')) {
     return getCleaningProductPrompt(categoryName, productDescription);
   } else if (category.includes('cosmetic') || category.includes('skincare') || category.includes('beauty')) {
     return getCosmeticPrompt(categoryName, productDescription);
@@ -557,84 +456,6 @@ export function getCategoryPrompt(categoryName: string, productDescription: stri
   } else {
     return getGenericPrompt(categoryName, productDescription);
   }
-}
-
-// SHOE CARE PROMPT - ANHYDROUS (0% WATER) FORMULATIONS
-function getShoeCarePrompt(categoryName: string, productDescription: string): string {
-  return `You are a senior industrial chemist specializing in ANHYDROUS shoe care formulations. Generate production-ready shoe polish/cream formulations.
-
-═══════════════════════════════════════════════════════════════
-CRITICAL: THIS IS AN ANHYDROUS (WATER-FREE) FORMULATION
-═══════════════════════════════════════════════════════════════
-
-ABSOLUTELY NO WATER OR AQUA ALLOWED - NOT EVEN TRACE AMOUNTS!
-
-MANDATORY INDUSTRIAL STANDARD FOR SHOE POLISH/CREAM:
-✅ 35-45% WAXES (carnauba + beeswax + paraffin)
-   - Carnauba Wax: 20-30% (hardness, shine)
-   - Beeswax: 10-15% (flexibility, water resistance)
-   - Paraffin/Microcrystalline: 5-10% (spreadability)
-
-✅ 30-35% OILS (silicone + mineral + lanolin)
-   - Mineral Oil: 15-20% (carrier, conditioning)
-   - Silicone Oil/Dimethicone: 5-10% (water repellency)
-   - Lanolin: 5-8% (leather softening)
-
-✅ 10% STEARIC ACID (structure, consistency)
-
-✅ 0-5% TRIETHANOLAMINE (TEA) for emulsion stability
-
-✅ 1-3% DYE/PIGMENT
-   - Iron Oxide (black, brown, tan shades)
-   - Carbon Black (for black polish)
-
-✅ 0.5-1% PRESERVATIVE/ANTIOXIDANT (BHT)
-
-✅ 3-5% SOLVENT (turpentine or mineral spirits)
-
-✅ 0-1% FRAGRANCE
-
-═══════════════════════════════════════════════════════════════
-PROHIBITED INGREDIENTS - WILL CAUSE FORMULATION REJECTION:
-═══════════════════════════════════════════════════════════════
-❌ Water/Aqua - ABSOLUTELY FORBIDDEN
-❌ Glycerin - leaves residue on leather
-❌ Surfactants - not needed for anhydrous system
-❌ Emulsifiers for water-based systems
-❌ Carbomer or water-soluble thickeners
-
-PROCESSING REQUIREMENTS:
-- Wax melting temperature: 80-85°C
-- Oil addition: 75-80°C
-- Pigment dispersion: 65-70°C
-- Fill temperature: 55-60°C
-- Equipment: Jacketed vessel with temperature control
-
-ALL PERCENTAGES MUST SUM TO EXACTLY 100%
-
-Return JSON format:
-{
-  "name": "Professional Shoe Polish/Cream Name",
-  "description": "Description mentioning anhydrous wax-based formula, leather conditioning, shine, protection",
-  "ingredients": [
-    {"name": "Ingredient", "inci": "INCI Name", "percentage": "X.X%", "function": "Function"}
-  ],
-  "instructions": [{"phase": "Phase Name", "steps": ["Step 1", "Step 2"]}],
-  "usageInstructions": "Application instructions for shoe care",
-  "phLevel": "N/A (anhydrous system)",
-  "shelfLife": "36 months",
-  "viscosity": "Soft paste at 20°C",
-  "storageConditions": "15-25°C, away from heat",
-  "batchSize": "100 kg",
-  "processingTime": "2-3 hours",
-  "temperature": "Wax melting: 80-85°C, Filling: 55-60°C",
-  "equipment": "Jacketed mixing vessel, high-shear mixer",
-  "certification": "Industrial shoe care standards",
-  "isActive": true
-}
-
-Generate a professional ${productDescription} formulation for ${categoryName}.
-Remember: ZERO WATER - this is an anhydrous wax-based system!`;
 }
 
 function getCleaningProductPrompt(categoryName: string, productDescription: string): string {
