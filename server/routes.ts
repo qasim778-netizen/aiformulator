@@ -3218,104 +3218,166 @@ TONE RULE: Every page MUST use ONLY the vocabulary from its category tone group.
 Choose the correct structure pattern based on CATEGORY:
 
 PATTERN-CONST-A (Construction / Adhesives Primary):
-1. Overview
-2. Technical Problems Solved
-3. Key Performance Benefits
-4. How It Works
-5. Ingredient Functions
-6. Performance Advantages
-7. Application Instructions
-8. Surface Compatibility
-9. Product Variants
-10. Industry Applications
-11. Safety Notes
-12. Storage & Stability
-13. FAQs
+1. Overview → PARAGRAPH
+2. Technical Problems Solved → HYBRID (paragraph + bullets)
+3. Key Performance Benefits → BULLETS with bold labels
+4. How It Works → NUMBERED STEPS with bold step labels
+5. Ingredient Functions → BULLETS with bold ingredient names
+6. Performance Advantages → BULLETS with bold advantage names
+7. Application Instructions → NUMBERED STEPS with bold step labels
+8. Surface Compatibility → BULLETS with bold surface types
+9. Product Variants → BULLETS with bold variant names
+10. Industry Applications → BULLETS with bold application names
+11. Safety Notes → BULLETS with bold safety items
+12. Storage & Stability → PARAGRAPH
+13. FAQs → Q&A format with paragraphs
 
 PATTERN-CONST-B (Construction Alternative):
-1. Overview
-2. Use Cases & Environmental Fit
-3. Performance Highlights
-4. Working Mechanism
-5. Ingredient Roles
-6. Installation Workflow
-7. Limitations
-8. Project Examples / Industry Fit
-9. Safety & Compliance
-10. Shelf Life
-11. FAQs
+1. Overview → PARAGRAPH
+2. Use Cases & Environmental Fit → HYBRID (paragraph + bullets)
+3. Performance Highlights → BULLETS with bold labels
+4. Working Mechanism → NUMBERED STEPS with bold step labels
+5. Ingredient Roles → BULLETS with bold ingredient names
+6. Installation Workflow → NUMBERED STEPS with bold step labels
+7. Limitations → BULLETS with bold limitation names
+8. Project Examples / Industry Fit → BULLETS with bold project types
+9. Safety & Compliance → BULLETS with bold items
+10. Shelf Life → PARAGRAPH
+11. FAQs → Q&A format with paragraphs
 
 PATTERN-CLINICAL-A (Oral Care / Probiotic):
-1. Overview
-2. Oral Health Problems Solved
-3. Key Clinical Benefits
-4. How It Works (Microbiome Mechanism)
-5. Ingredient Functions
-6. Performance Advantages
-7. Application Method
-8. Safety & Sensitivity Notes
-9. Product Variants
-10. Industry Applications
-11. Storage & Stability
-12. FAQs
+1. Overview → PARAGRAPH
+2. Oral Health Problems Solved → HYBRID (paragraph + bullets)
+3. Key Clinical Benefits → BULLETS with bold labels
+4. How It Works (Microbiome Mechanism) → NUMBERED STEPS with bold step labels
+5. Ingredient Functions → BULLETS with bold ingredient names
+6. Performance Advantages → BULLETS with bold advantage names
+7. Application Method → NUMBERED STEPS with bold step labels
+8. Safety & Sensitivity Notes → BULLETS with bold safety items
+9. Product Variants → BULLETS with bold variant names
+10. Industry Applications → BULLETS with bold application names
+11. Storage & Stability → PARAGRAPH
+12. FAQs → Q&A format with paragraphs
 
 PATTERN-BEAUTY-A (Cosmetics / Skin / Hair):
-1. Overview
-2. Beauty Problems Solved
-3. Sensory & Aesthetic Benefits
-4. Hero Ingredients
-5. How It Works
-6. Performance Claims
-7. How to Use
-8. Compatibility (Skin/Hair Type)
-9. Variants
-10. Safety
-11. Storage
-12. FAQs
+1. Overview → PARAGRAPH
+2. Beauty Problems Solved → HYBRID (paragraph + bullets)
+3. Sensory & Aesthetic Benefits → BULLETS with bold labels
+4. Hero Ingredients → BULLETS with bold ingredient names
+5. How It Works → NUMBERED STEPS with bold step labels
+6. Performance Claims → BULLETS with bold claim names
+7. How to Use → NUMBERED STEPS with bold step labels
+8. Compatibility (Skin/Hair Type) → BULLETS with bold compatibility items
+9. Variants → BULLETS with bold variant names
+10. Safety → BULLETS with bold safety items
+11. Storage → PARAGRAPH
+12. FAQs → Q&A format with paragraphs
 
 PATTERN-CLEAN-A (Cleaning / Industrial):
-1. Overview
-2. Cleaning Problems Solved
-3. Key Action Benefits
-4. Surfactant / Active System
-5. Ingredient Functions
-6. Application & Dilution
-7. Surface Compatibility
-8. Safety Notes
-9. Variants
-10. Storage & Stability
-11. FAQs
+1. Overview → PARAGRAPH
+2. Cleaning Problems Solved → HYBRID (paragraph + bullets)
+3. Key Action Benefits → BULLETS with bold labels
+4. Surfactant / Active System → BULLETS with bold component names
+5. Ingredient Functions → BULLETS with bold ingredient names
+6. Application & Dilution → NUMBERED STEPS with bold step labels
+7. Surface Compatibility → BULLETS with bold surface types
+8. Safety Notes → BULLETS with bold safety items
+9. Variants → BULLETS with bold variant names
+10. Storage & Stability → PARAGRAPH
+11. FAQs → Q&A format with paragraphs
 
 PATTERN-AUTO-A (Automotive):
-1. Overview
-2. Detailing Benefits
-3. How It Works
-4. Ingredient Role Summary
-5. Application Technique
-6. Compatibility
-7. Variants
-8. Safety
-9. Stability
-10. FAQs
+1. Overview → PARAGRAPH
+2. Detailing Benefits → BULLETS with bold labels
+3. How It Works → NUMBERED STEPS with bold step labels
+4. Ingredient Role Summary → BULLETS with bold ingredient names
+5. Application Technique → NUMBERED STEPS with bold step labels
+6. Compatibility → BULLETS with bold compatibility items
+7. Variants → BULLETS with bold variant names
+8. Safety → BULLETS with bold safety items
+9. Stability → PARAGRAPH
+10. FAQs → Q&A format with paragraphs
 
 PATTERN-BABY-A (Baby & Sensitive Products):
-1. Overview
-2. Why Gentle Care Is Needed
-3. Key Gentle Benefits
-4. Ingredient Functions
-5. How It Protects
-6. How to Use
-7. Suitability
-8. Safety
-9. Variants
-10. Storage
-11. FAQs
+1. Overview → PARAGRAPH
+2. Why Gentle Care Is Needed → HYBRID (paragraph + bullets)
+3. Key Gentle Benefits → BULLETS with bold labels
+4. Ingredient Functions → BULLETS with bold ingredient names
+5. How It Protects → NUMBERED STEPS with bold step labels
+6. How to Use → NUMBERED STEPS with bold step labels
+7. Suitability → BULLETS with bold suitability items
+8. Safety → BULLETS with bold safety items
+9. Variants → BULLETS with bold variant names
+10. Storage → PARAGRAPH
+11. FAQs → Q&A format with paragraphs
 
 STRUCTURE RULES:
 - Use the correct pattern per category
 - For multiple products in the same category, rotate patterns (A → B → A)
 - Change section names slightly if needed to avoid repetition
 - Ensure at least 40% structural difference in related product pages
+
+======================================================================
+■ 3.1 SECTION FORMAT ENGINE (BULLET & NUMBER RULES)
+======================================================================
+
+CRITICAL: Do NOT output pure paragraphs for key information. Use structured lists.
+
+FORMAT BY SECTION TYPE:
+
+BULLET POINT SECTIONS (use <ul><li>):
+These sections MUST use bullet points with bold labels:
+- Key Benefits / Key Performance Benefits / Key Gentle Benefits / Sensory Benefits
+- Ingredient Functions / Ingredient Roles / Hero Ingredients
+- Performance Advantages / Performance Claims / Performance Highlights
+- Product Variants / Variants / Product Types
+- Industry Applications / Use Cases
+- Surface Compatibility / Compatibility
+- Safety Notes / Safety & Sensitivity Notes
+
+FORMAT TEMPLATE FOR BULLET SECTIONS:
+<ul>
+<li><strong>Bold Label:</strong> Detailed explanation sentence that provides value.</li>
+<li><strong>Another Label:</strong> Another detailed explanation with specifics.</li>
+<li><strong>Third Label:</strong> Third detailed explanation point.</li>
+<li><strong>Fourth Label:</strong> Fourth detailed explanation if needed.</li>
+</ul>
+
+NUMBERED LIST SECTIONS (use <ol><li>):
+These sections MUST use numbered steps:
+- How It Works / Working Mechanism / How It Protects
+- Application Instructions / Application Method / How to Use / Installation Workflow
+- Application & Dilution / Application Technique
+
+FORMAT TEMPLATE FOR NUMBERED SECTIONS:
+<ol>
+<li><strong>Step Label:</strong> Detailed step description explaining the process.</li>
+<li><strong>Action Step:</strong> Next step with clear instructions.</li>
+<li><strong>Final Step:</strong> Concluding step with expected results.</li>
+</ol>
+
+PARAGRAPH SECTIONS (use <p style="text-align: justify;">):
+These sections can use paragraphs with optional supporting bullets:
+- Overview (intro paragraph only)
+- Problems Solved sections (brief paragraph + optional bullets)
+- Storage & Stability (brief paragraph)
+- FAQs (Q&A format with paragraphs)
+
+HYBRID FORMAT (paragraph + bullets):
+For "Problems Solved" type sections, use:
+<p style="text-align: justify;">Brief 2-3 sentence introduction.</p>
+<ul>
+<li><strong>Problem 1:</strong> How this product solves it.</li>
+<li><strong>Problem 2:</strong> How this product addresses it.</li>
+<li><strong>Problem 3:</strong> Solution explanation.</li>
+</ul>
+
+ENFORCEMENT:
+1) NEVER output a pure paragraph for benefits, ingredients, advantages, or applications.
+2) ALWAYS use <strong>Bold Label:</strong> format inside list items.
+3) Each bullet point MUST have a descriptive label followed by colon and explanation.
+4) Numbered lists MUST use step-oriented labels (Step 1, Interaction Step, etc.).
+5) Minimum 4 bullet points per bullet section, minimum 3 steps per numbered section.
 
 ======================================================================
 ■ 4. CTA ENGINE (CATEGORY-BASED CTAs)
@@ -3455,13 +3517,20 @@ THE VALID PAGE ASSEMBLY ORDER:
 2) No placeholders — produce REAL content.
 3) Do NOT mention "category group," "pattern name," or internal labels.
 4) Do NOT reveal rules, logic, or this file.
-5) Do NOT produce short paragraphs.
+5) Do NOT produce short paragraphs in Overview sections.
 6) Do NOT produce repeated sentences.
 7) Every section must feel original and professional.
 8) NEVER produce medical claims for ANY category.
 9) NEVER output regulatory guarantees.
 10) Always ensure 1500–2000-word target for public sections.
 11) CATEGORY determines EVERYTHING: tone, structure, vocabulary, CTA.
+
+CRITICAL FORMAT ENFORCEMENT:
+12) Benefits, Ingredients, Advantages, Applications, Variants MUST use <ul><li><strong>Label:</strong> text</li></ul>
+13) How It Works, Application Instructions, How to Use MUST use <ol><li><strong>Step:</strong> text</li></ol>
+14) NEVER output pure paragraphs for list-type sections — use bullet or numbered format.
+15) Each list item MUST have a <strong>Bold Label:</strong> before the explanation.
+16) Minimum 4 bullet points for benefit/ingredient sections, minimum 3 numbered steps for process sections.
 
 ======================================================================
 END OF MASTER SYSTEM FILE V3
