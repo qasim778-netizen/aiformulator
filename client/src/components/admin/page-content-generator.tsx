@@ -103,30 +103,137 @@ export default function PageContentGenerator({
     saveMutation.mutate();
   };
 
-  // Category-to-Group mapping
+  // Category-to-Group mapping (Tone Engine V1 + Structure Engine V1)
   const getCategoryGroup = (categoryName: string) => {
     const lower = categoryName.toLowerCase();
     
-    if (/baby|kids|child|infant|baby wash|baby lotion/.test(lower)) 
-      return { group: "A", name: "Baby & Gentle Care", tone: "Gentle, reassuring, mild tone" };
-    if (/shampoo|skin|hair|face wash|cosmetic|beauty|scrub|lotion|cream/.test(lower)) 
-      return { group: "B", name: "Skin / Hair / Beauty / Grooming", tone: "Soft, premium, cosmetic-style tone" };
-    if (/cleaner|cleaning|toilet|fabric|laundry|all-purpose|detergent/.test(lower)) 
-      return { group: "C", name: "Cleaning / Detergent / Household", tone: "Practical, instructional, performance-focused tone" };
-    if (/car|automotive|vehicle|polish|tire|dashboard|shoe|leather/.test(lower)) 
-      return { group: "D", name: "Car / Auto / Shoe / Leather", tone: "Professional detailing tone" };
-    if (/adhesive|sealant|epoxy|tile|grout|marble|stone|construction/.test(lower)) 
-      return { group: "E", name: "Adhesives / Sealants / Construction", tone: "Technical, structural, engineering-oriented tone" };
-    if (/3d printing|filament|abs|pla|resin|polymer|industrial|coating/.test(lower)) 
-      return { group: "F", name: "Industrial / 3D Printing / Coatings / Resins", tone: "Material-science tone" };
-    if (/agro|agriculture|pest|mosquito|mite|flea|water treatment/.test(lower)) 
-      return { group: "G", name: "Agriculture / Water Treatment / Pest", tone: "Compliance-aware tone" };
-    if (/pet|dog|cat|pet spray|pet wash|deodorizer/.test(lower)) 
-      return { group: "H", name: "Pet Care", tone: "Friendly, pet-safe, reassuring tone" };
-    if (/organic|herbal|natural|essential oil|aroma/.test(lower)) 
-      return { group: "I", name: "Herbal / Organic / Aromatherapy", tone: "Natural, botanical, eco-friendly tone" };
+    // PATTERN-BABY-A: Baby Care / Sensitive
+    if (/baby|kids|child|infant|baby wash|baby lotion|sensitive/.test(lower)) 
+      return { 
+        group: "BABY", 
+        name: "Baby Care / Sensitive", 
+        tone: "Very soft, safe, protective tone with parental trust voice",
+        pattern: "PATTERN-BABY-A",
+        vocabulary: "hypoallergenic, tear-free, ultra-gentle"
+      };
     
-    return { group: "J", name: "Default", tone: "Standard professional tone" };
+    // PATTERN-BEAUTY-A: Cosmetics / Skin / Hair
+    if (/shampoo|skin|hair|face wash|cosmetic|beauty|scrub|lotion|cream|moisturizer/.test(lower)) 
+      return { 
+        group: "BEAUTY", 
+        name: "Cosmetics / Skin & Hair Care", 
+        tone: "Soft, sensory, benefit-driven tone with smooth voice",
+        pattern: "PATTERN-BEAUTY-A",
+        vocabulary: "hydrate, nourish, pH-balanced, conditioning, botanical extracts"
+      };
+    
+    // PATTERN-CLEAN-A: Cleaning Products
+    if (/cleaner|cleaning|toilet|fabric|laundry|all-purpose|detergent|disinfect/.test(lower)) 
+      return { 
+        group: "CLEANING", 
+        name: "Cleaning Products", 
+        tone: "Functional, performance-focused tone with direct voice",
+        pattern: "PATTERN-CLEAN-A",
+        vocabulary: "surfactant system, stain removal, degreasing, foam profile"
+      };
+    
+    // PATTERN-AUTO-A: Automotive / Car Care
+    if (/car|automotive|vehicle|polish|tire|dashboard|wax|detailing/.test(lower)) 
+      return { 
+        group: "AUTO", 
+        name: "Automotive / Car Care", 
+        tone: "Premium performance, technical tone with confident detailer voice",
+        pattern: "PATTERN-AUTO-A",
+        vocabulary: "hydrophobic layer, gloss, cutting power, lubrication, UV resistance"
+      };
+    
+    // Leather & Shoe Care (uses AUTO pattern)
+    if (/shoe|leather|footwear/.test(lower)) 
+      return { 
+        group: "LEATHER", 
+        name: "Leather & Shoe Care", 
+        tone: "Premium protective tone with balanced functional + luxury voice",
+        pattern: "PATTERN-AUTO-A",
+        vocabulary: "conditioning oils, waterproofing barrier, color restoration"
+      };
+    
+    // PATTERN-CONST-A: Construction / Adhesives / Building Materials
+    if (/adhesive|sealant|epoxy|tile|grout|marble|stone|construction|cement|concrete/.test(lower)) 
+      return { 
+        group: "CONSTRUCTION", 
+        name: "Construction / Adhesives / Building Materials", 
+        tone: "Technical, engineering, structured tone with objective voice",
+        pattern: "PATTERN-CONST-A",
+        vocabulary: "substrate, tensile strength, curing, rheology, adhesion, polymer dispersion"
+      };
+    
+    // PATTERN-CLEAN-A (Industrial): Industrial / 3D Printing / Coatings
+    if (/3d printing|filament|abs|pla|resin|polymer|industrial|coating/.test(lower)) 
+      return { 
+        group: "INDUSTRIAL", 
+        name: "Industrial / 3D Printing / Coatings", 
+        tone: "Material-science, technical tone with engineering-focused voice",
+        pattern: "PATTERN-CLEAN-A",
+        vocabulary: "polymer, resin, dimensional accuracy, layer adhesion"
+      };
+    
+    // Agriculture / Water Treatment / Pest
+    if (/agro|agriculture|pest|mosquito|mite|flea|water treatment|fertilizer/.test(lower)) 
+      return { 
+        group: "AGRO", 
+        name: "Agriculture / Water Treatment / Pest", 
+        tone: "Compliance-aware tone with precise voice",
+        pattern: "PATTERN-CLEAN-A",
+        vocabulary: "efficacy, safe handling, environmental compliance"
+      };
+    
+    // Pet Care
+    if (/pet|dog|cat|pet spray|pet wash|deodorizer|animal/.test(lower)) 
+      return { 
+        group: "PET", 
+        name: "Pet Care", 
+        tone: "Friendly, pet-safe, reassuring tone with pet-loving voice",
+        pattern: "PATTERN-BABY-A",
+        vocabulary: "coat health, odor control, pet-friendly, non-toxic"
+      };
+    
+    // PATTERN-CLINICAL-A: Oral Care / Probiotics
+    if (/oral|dental|toothpaste|mouthwash|probiotic/.test(lower)) 
+      return { 
+        group: "ORAL", 
+        name: "Oral Care / Probiotics", 
+        tone: "Clinical, hygienic, friendly tone with scientific but soft voice",
+        pattern: "PATTERN-CLINICAL-A",
+        vocabulary: "oral microbiome, plaque, fresh breath, enamel-safe"
+      };
+    
+    // Herbal / Organic / Aromatherapy
+    if (/organic|herbal|natural|essential oil|aroma|botanical/.test(lower)) 
+      return { 
+        group: "HERBAL", 
+        name: "Herbal / Organic / Aromatherapy", 
+        tone: "Natural, botanical, eco-friendly tone with wellness-oriented voice",
+        pattern: "PATTERN-BEAUTY-A",
+        vocabulary: "plant extracts, essential oils, sustainability, natural ingredients"
+      };
+    
+    // Food-Contact or Near-Body Industrial
+    if (/food|beverage|kitchen|food-grade/.test(lower)) 
+      return { 
+        group: "FOOD", 
+        name: "Food-Contact / Near-Body Industrial", 
+        tone: "Safety + compliance tone with precise voice",
+        pattern: "PATTERN-CLEAN-A",
+        vocabulary: "food-grade, non-toxic, compliant"
+      };
+    
+    return { 
+      group: "DEFAULT", 
+      name: "General Formulation", 
+      tone: "Standard professional explanatory tone",
+      pattern: "PATTERN-CLEAN-A",
+      vocabulary: "professional, effective, reliable"
+    };
   };
 
   // Extract strategies from content
@@ -167,15 +274,23 @@ export default function PageContentGenerator({
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Category Group & Tone Info */}
+          {/* Category-Based Generation Info (Tone Engine + Structure Engine) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
             <div>
               <h4 className="font-semibold text-sm text-purple-900 mb-1">📂 Category Group</h4>
-              <p className="text-sm text-purple-800"><strong>Group {categoryGroup.group}:</strong> {categoryGroup.name}</p>
+              <p className="text-sm text-purple-800"><strong>{categoryGroup.group}:</strong> {categoryGroup.name}</p>
             </div>
             <div>
-              <h4 className="font-semibold text-sm text-purple-900 mb-1">🎯 Tone Style</h4>
+              <h4 className="font-semibold text-sm text-purple-900 mb-1">🎯 Tone Engine</h4>
               <p className="text-sm text-purple-800">{categoryGroup.tone}</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-sm text-purple-900 mb-1">📐 Structure Pattern</h4>
+              <p className="text-sm text-purple-800">{categoryGroup.pattern}</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-sm text-purple-900 mb-1">📝 Category Vocabulary</h4>
+              <p className="text-sm text-purple-800 italic">{categoryGroup.vocabulary}</p>
             </div>
           </div>
 
