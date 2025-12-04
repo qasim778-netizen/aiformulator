@@ -1760,16 +1760,13 @@ export class MemStorage implements IStorage {
     const existing = this.formulations.get(id);
     if (!existing) return undefined;
 
-    // If slug is being updated, sanitize it; if name is being updated but slug is not, regenerate slug from name
+    // Slug is independent of name - only update slug if explicitly provided with a non-empty value
     let slug = existing.slug;
-    if (formulation.slug !== undefined) {
-      slug = formulation.slug?.trim() 
-        ? generateSlug(formulation.slug) 
-        : (formulation.name ? generateSlug(formulation.name) : existing.slug);
-    } else if (formulation.name && formulation.name !== existing.name) {
-      // Name changed but slug not provided - keep existing slug
-      slug = existing.slug;
+    if (formulation.slug !== undefined && formulation.slug.trim()) {
+      // Only update slug if a non-empty value was explicitly provided
+      slug = generateSlug(formulation.slug);
     }
+    // If slug is empty or not provided, keep the existing slug (name changes don't affect slug)
 
     const updated: Formulation = {
       ...existing,
