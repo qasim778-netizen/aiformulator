@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "wouter";
 import { ChevronRight, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,13 +20,6 @@ export default function Collection() {
     queryKey: ["/api/formulations"],
   });
 
-  // Set first category as default when categories load
-  useEffect(() => {
-    if (categories.length > 0 && !selectedCategoryId) {
-      setSelectedCategoryId(categories[0].id);
-    }
-  }, [categories]);
-
   // Get formulations for selected category
   const getFormulationsByCategory = (categoryId: string) => {
     return allFormulations.filter((f) => {
@@ -34,6 +27,22 @@ export default function Collection() {
       return String(f.categoryId) === String(categoryId);
     });
   };
+
+  // Sort categories by product count (highest first)
+  const sortedCategories = useMemo(() => {
+    return [...categories].sort((a, b) => {
+      const countA = getFormulationsByCategory(a.id).length;
+      const countB = getFormulationsByCategory(b.id).length;
+      return countB - countA; // Descending order
+    });
+  }, [categories, allFormulations]);
+
+  // Set category with most products as default when categories load
+  useEffect(() => {
+    if (sortedCategories.length > 0 && !selectedCategoryId) {
+      setSelectedCategoryId(sortedCategories[0].id);
+    }
+  }, [sortedCategories]);
 
   // Filter formulations by selected category
   const filteredFormulations = selectedCategoryId
@@ -72,10 +81,10 @@ export default function Collection() {
                 </h2>
               </div>
 
-              {/* Categories List */}
+              {/* Categories List - Sorted by product count (highest first) */}
               <div className="flex-1 overflow-y-auto bg-white">
                 <nav className="space-y-2 p-3">
-                  {categories.map((category) => {
+                  {sortedCategories.map((category) => {
                     const formulationCount = getFormulationsByCategory(category.id).length;
                     const isSelected = selectedCategoryId === category.id;
 
