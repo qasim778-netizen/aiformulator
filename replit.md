@@ -81,6 +81,21 @@ The application is configured for both development and production environments:
 
 ## Key Features
 
+### Master System File V3 (Category-Based Page Generator)
+The system uses a sophisticated Master System File V3 that generates formulation pages based on CATEGORY (not formula name). Key components include:
+
+- **Page Strategy Block**: Every page starts with Entity Classification (Category, Type, Application, Industry), Tone Profile, Structure Pattern, and Keywords
+- **Tone Engine V1**: 11 category-specific tones including Construction (technical/engineering), Cleaning (functional/performance), Automotive (premium/detailer), Beauty (soft/sensory), Oral Care (clinical/friendly), Baby Care (gentle/protective), and more
+- **Structure Variation Engine V1**: 7 category-specific patterns:
+  - PATTERN-CONST-A/B: Construction/Adhesives/Building Materials
+  - PATTERN-CLINICAL-A: Oral Care/Probiotics
+  - PATTERN-BEAUTY-A: Cosmetics/Skin/Hair
+  - PATTERN-CLEAN-A: Cleaning/Industrial Products
+  - PATTERN-AUTO-A: Automotive/Car Care
+  - PATTERN-BABY-A: Baby/Sensitive/Pet Care
+- **CTA Engine**: Category-appropriate calls to action (e.g., "custom technical formulation" for construction, "brand-ready formula" for cosmetics)
+- **Anti-Duplication Engine**: Ensures content uniqueness across 40+ products with varied vocabulary and sentence structures
+
 ### Automatic SEO Name Optimization
 The system includes an intelligent name optimizer that automatically improves formulation names during generation:
 
