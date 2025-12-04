@@ -449,11 +449,23 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
   });
 
   const updateFormulation = useMutation({
-    mutationFn: (data: InsertFormulation) => apiRequest("PUT", `/api/formulations/${formulation?.id}`, data),
-    onSuccess: () => {
+    mutationFn: async (data: InsertFormulation) => {
+      const response = await apiRequest("PUT", `/api/formulations/${formulation?.id}`, data);
+      return response;
+    },
+    onSuccess: (updatedFormulation: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
-      toast({ title: "Formulation updated successfully" });
+      
+      // Check if slug changed and show the new URL
+      if (updatedFormulation?.slug && updatedFormulation.slug !== formulation?.slug) {
+        toast({ 
+          title: "Formulation updated successfully",
+          description: `New URL: /formulation/${updatedFormulation.slug}`,
+        });
+      } else {
+        toast({ title: "Formulation updated successfully" });
+      }
       onSuccess();
     },
     onError: (error: any) => {
@@ -564,15 +576,33 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>URL Slug (Optional)</FormLabel>
+                  {isEditing && formulation?.slug && (
+                    <div className="text-sm bg-blue-50 border border-blue-200 rounded-md p-2 mb-2">
+                      <span className="font-medium text-blue-800">Current URL: </span>
+                      <span className="text-blue-600">/formulation/{formulation.slug}</span>
+                    </div>
+                  )}
                   <FormControl>
                     <Input 
-                      placeholder="custom-url-slug (leave empty for auto-generation)" 
+                      placeholder="custom-url-slug (leave empty to keep current)" 
                       {...field} 
                     />
                   </FormControl>
                   <p className="text-sm text-gray-500">
-                    Custom URL path for this formulation. Use lowercase letters, numbers, and hyphens only.
+                    {isEditing 
+                      ? "Leave empty to keep the current URL. Changing the slug will make the old URL stop working."
+                      : "Custom URL path for this formulation. Use lowercase letters, numbers, and hyphens only."
+                    }
                   </p>
+                  {isEditing && field.value && field.value !== formulation?.slug && (
+                    <div className="text-sm bg-amber-50 border border-amber-200 rounded-md p-2 mt-2">
+                      <span className="font-medium text-amber-800">Warning: </span>
+                      <span className="text-amber-700">
+                        Changing the URL slug will make the old URL stop working. 
+                        The new URL will be: /formulation/{field.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}
+                      </span>
+                    </div>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
