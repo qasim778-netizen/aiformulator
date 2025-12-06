@@ -3462,36 +3462,7 @@ CONTENT UNIQUENESS RULES:
 6) Avoid repeating benefits across multiple products.
 
 ======================================================================
-■ 8. INTERNAL LINK BLOCK (CATEGORY-BASED ROTATION)
-======================================================================
-
-Use ONE of the following styles based on category:
-
-OPTION A (For Baby, Beauty, Skin, Hair, Organic categories):
-<h2>Recommended Resource</h2>
-<p style="text-align: justify;">
-For manufacturers exploring advanced formulations in this category,
-visit our <a href="/collection/${categorySlug}">
-<strong>complete category portfolio</strong></a> to discover additional high-performance
-products and expand your formulation library.
-</p>
-
-OPTION B (For Cleaning, Car Care, Shoe Care, Pet Care):
-<h2>Explore More Formulations</h2>
-<p style="text-align: justify;">
-Browse additional formulations in this category to build a broader product range.
-<br>
-<a href="/collection/${categorySlug}">
-<strong>Browse Category →</strong></a>
-</p>
-
-OPTION C (For Industrial, Adhesives, Sealants, Construction, 3D Printing):
-<p style="margin-top: 25px; text-align: left;">
-<a href="/collection/${categorySlug}">← Back to Category Page</a>
-</p>
-
-======================================================================
-■ 9. FINAL OUTPUT ASSEMBLY ORDER
+■ 8. FINAL OUTPUT ASSEMBLY ORDER
 ======================================================================
 
 THE VALID PAGE ASSEMBLY ORDER:
@@ -3509,10 +3480,8 @@ THE VALID PAGE ASSEMBLY ORDER:
 
 4) Category-Appropriate CTA (from CTA Engine)
 
-5) Internal Link (based on category rotation)
-
 ======================================================================
-■ 10. CONTENT ENFORCEMENT RULES
+■ 9. CONTENT ENFORCEMENT RULES
 ======================================================================
 
 1) Output MUST be ONE HTML document.
