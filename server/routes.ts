@@ -3471,7 +3471,7 @@ OPTION A (For Baby, Beauty, Skin, Hair, Organic categories):
 <h2>Recommended Resource</h2>
 <p style="text-align: justify;">
 For manufacturers exploring advanced formulations in this category,
-visit our <a href="https://aiformulator.com/collection/${categorySlug}">
+visit our <a href="/collection/${categorySlug}">
 <strong>complete category portfolio</strong></a> to discover additional high-performance
 products and expand your formulation library.
 </p>
@@ -3481,13 +3481,13 @@ OPTION B (For Cleaning, Car Care, Shoe Care, Pet Care):
 <p style="text-align: justify;">
 Browse additional formulations in this category to build a broader product range.
 <br>
-<a href="https://aiformulator.com/collection/${categorySlug}">
+<a href="/collection/${categorySlug}">
 <strong>Browse Category →</strong></a>
 </p>
 
 OPTION C (For Industrial, Adhesives, Sealants, Construction, 3D Printing):
 <p style="margin-top: 25px; text-align: left;">
-<a href="https://aiformulator.com/collection/${categorySlug}">← Back to Category Page</a>
+<a href="/collection/${categorySlug}">← Back to Category Page</a>
 </p>
 
 ======================================================================
