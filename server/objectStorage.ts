@@ -131,7 +131,8 @@ export class ObjectStorageService {
   }
 
   // Gets the upload URL for an object entity.
-  async getObjectEntityUploadURL(): Promise<string> {
+  // If a custom filename is provided, it will be used instead of a random UUID
+  async getObjectEntityUploadURL(customFilename?: string): Promise<string> {
     const privateObjectDir = this.getPrivateObjectDir();
     if (!privateObjectDir) {
       throw new Error(
@@ -140,8 +141,16 @@ export class ObjectStorageService {
       );
     }
 
-    const objectId = randomUUID();
-    const fullPath = `${privateObjectDir}/uploads/${objectId}`;
+    // Use custom filename if provided, otherwise use random UUID
+    let filename: string;
+    if (customFilename && customFilename.trim()) {
+      // Sanitize the filename to be URL-safe and SEO-friendly
+      filename = this.sanitizeFilename(customFilename);
+    } else {
+      filename = randomUUID();
+    }
+    
+    const fullPath = `${privateObjectDir}/uploads/${filename}`;
 
     const { bucketName, objectName } = parseObjectPath(fullPath);
 
@@ -152,6 +161,27 @@ export class ObjectStorageService {
       method: "PUT",
       ttlSec: 900,
     });
+  }
+
+  // Sanitizes a filename to be URL-safe and SEO-friendly
+  private sanitizeFilename(filename: string): string {
+    // Remove file extension first
+    const lastDotIndex = filename.lastIndexOf('.');
+    let name = lastDotIndex > 0 ? filename.substring(0, lastDotIndex) : filename;
+    const extension = lastDotIndex > 0 ? filename.substring(lastDotIndex) : '';
+    
+    // Convert to lowercase, replace spaces and special chars with hyphens
+    name = name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')  // Replace non-alphanumeric with hyphens
+      .replace(/(^-|-$)/g, '')       // Remove leading/trailing hyphens
+      .substring(0, 100);            // Limit length
+    
+    // Add a short unique suffix to prevent overwrites
+    const uniqueSuffix = randomUUID().substring(0, 8);
+    
+    return `${name}-${uniqueSuffix}${extension}`;
   }
 
   // Gets the object entity file from the object path.

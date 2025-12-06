@@ -105,8 +105,14 @@ function ImageUploadSection({ form, formulationName }: { form: any, formulationN
     }
 
     try {
-      // Get upload parameters
-      const response = await apiRequest("POST", "/api/objects/upload");
+      // Generate SEO-friendly filename from formulation name
+      const fileExtension = file.name.split('.').pop() || 'jpg';
+      const seoFilename = formulationName?.trim() 
+        ? `${formulationName.trim()}.${fileExtension}`
+        : file.name;
+      
+      // Get upload parameters with SEO-friendly filename
+      const response = await apiRequest("POST", "/api/objects/upload", { filename: seoFilename });
       const data = await response.json();
       
       // Upload file directly
