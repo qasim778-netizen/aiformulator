@@ -126,7 +126,10 @@ function ImageUploadSection({ form, formulationName }: { form: any, formulationN
 
       if (uploadResponse.ok) {
         // Convert GCS upload URL to our object path format
-        const objectPath = `/objects/uploads/${data.uploadURL.split('/uploads/')[1]}`;
+        // Extract just the filename part, removing query parameters from the signed URL
+        const urlPath = data.uploadURL.split('/uploads/')[1];
+        const filenameWithoutQuery = urlPath.split('?')[0]; // Remove query parameters
+        const objectPath = `/objects/uploads/${filenameWithoutQuery}`;
         
         // Set ACL policy for the uploaded image
         try {
@@ -137,13 +140,14 @@ function ImageUploadSection({ form, formulationName }: { form: any, formulationN
           const finalObjectPath = (aclData as any).objectPath || objectPath;
           setPreviewUrl(finalObjectPath);
           form.setValue("image", finalObjectPath);
-          form.setValue("imageFilename", file.name);
+          // Use SEO-friendly filename instead of original file name
+          form.setValue("imageFilename", seoFilename);
         } catch (aclError) {
           console.error("Error setting image ACL:", aclError);
           // Fallback to using the path directly
           setPreviewUrl(objectPath);
           form.setValue("image", objectPath);
-          form.setValue("imageFilename", file.name);
+          form.setValue("imageFilename", seoFilename);
         }
 
         toast({
