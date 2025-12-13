@@ -108,6 +108,51 @@ const requireAdmin = async (req: any, res: any, next: any) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Add X-Robots-Tag noindex header to all API routes
+  app.use('/api', (req, res, next) => {
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+    res.setHeader('Content-Type', 'application/json');
+    next();
+  });
+
+  // Dynamic sitemap.xml
+  app.get('/sitemap.xml', async (req, res) => {
+    try {
+      const categories = await storage.getCategories();
+      const formulations = await storage.getFormulations();
+      const baseUrl = 'https://aiformulator.net';
+      
+      let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+      xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+      
+      // Homepage
+      xml += `  <url><loc>${baseUrl}/</loc><priority>1.0</priority><changefreq>daily</changefreq></url>\n`;
+      xml += `  <url><loc>${baseUrl}/browse</loc><priority>0.9</priority><changefreq>daily</changefreq></url>\n`;
+      xml += `  <url><loc>${baseUrl}/about</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>\n`;
+      xml += `  <url><loc>${baseUrl}/blog</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>\n`;
+      
+      // Categories
+      for (const cat of categories) {
+        xml += `  <url><loc>${baseUrl}/collection/${cat.slug}</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>\n`;
+      }
+      
+      // Formulations
+      for (const form of formulations) {
+        if (form.isActive) {
+          xml += `  <url><loc>${baseUrl}/formulation/${form.slug}</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>\n`;
+        }
+      }
+      
+      xml += '</urlset>';
+      
+      res.setHeader('Content-Type', 'application/xml');
+      res.send(xml);
+    } catch (error) {
+      console.error('Error generating sitemap:', error);
+      res.status(500).send('Error generating sitemap');
+    }
+  });
+
   // Auth middleware
   await setupAuth(app);
 
