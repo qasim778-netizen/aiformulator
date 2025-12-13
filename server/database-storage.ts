@@ -1,5 +1,6 @@
 import { eq, desc, and, sql as drizzleSql } from "drizzle-orm";
 import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable, formulationContentTable, sampleProductsTable, usersTable, sql } from "./db";
+import { cache, CACHE_KEYS, CACHE_TTL, invalidateFormulationCache, invalidateCategoryCache } from "./cache";
 import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage, UserFormulationRequest, InsertUserFormulationRequest, FormulationContent, InsertFormulationContent, SampleProduct, InsertSampleProduct } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
 import crypto from "crypto";
@@ -16,7 +17,12 @@ export class DatabaseStorage implements IStorage {
   }
   // Categories
   async getCategories(): Promise<Category[]> {
+    const cached = cache.get<any[]>(CACHE_KEYS.CATEGORIES);
+    if (cached) {
+      return cached.map(this.mapDbCategoryToCategory);
+    }
     const categories = await db.select().from(categoriesTable).orderBy(categoriesTable.name);
+    cache.set(CACHE_KEYS.CATEGORIES, categories, CACHE_TTL.CATEGORIES);
     return categories.map(this.mapDbCategoryToCategory);
   }
 
@@ -61,16 +67,27 @@ export class DatabaseStorage implements IStorage {
 
   // Formulations
   async getFormulations(): Promise<Formulation[]> {
+    const cached = cache.get<any[]>(CACHE_KEYS.FORMULATIONS);
+    if (cached) {
+      return cached.map(this.mapDbFormulationToFormulation);
+    }
     const formulations = await db.select().from(formulationsTable).orderBy(desc(formulationsTable.createdAt));
+    cache.set(CACHE_KEYS.FORMULATIONS, formulations, CACHE_TTL.FORMULATIONS);
     return formulations.map(this.mapDbFormulationToFormulation);
   }
 
   async getFormulationsByCategory(categoryId: string): Promise<Formulation[]> {
+    const cacheKey = CACHE_KEYS.CATEGORY_FORMULATIONS(categoryId);
+    const cached = cache.get<any[]>(cacheKey);
+    if (cached) {
+      return cached.map(this.mapDbFormulationToFormulation);
+    }
     const formulations = await db
       .select()
       .from(formulationsTable)
       .where(eq(formulationsTable.categoryId, categoryId))
       .orderBy(desc(formulationsTable.createdAt));
+    cache.set(cacheKey, formulations, CACHE_TTL.FORMULATIONS);
     return formulations.map(this.mapDbFormulationToFormulation);
   }
 
@@ -151,6 +168,7 @@ export class DatabaseStorage implements IStorage {
       userId: formulation.userId,
       isActive: formulation.isActive ?? true,
     }).returning();
+    invalidateFormulationCache();
     return this.mapDbFormulationToFormulation(created);
   }
 
@@ -177,6 +195,9 @@ export class DatabaseStorage implements IStorage {
       .set(updateData)
       .where(eq(formulationsTable.id, id))
       .returning();
+    if (updated) {
+      invalidateFormulationCache();
+    }
     return updated ? this.mapDbFormulationToFormulation(updated) : undefined;
   }
 
@@ -190,7 +211,7 @@ export class DatabaseStorage implements IStorage {
       const query = `DELETE FROM formulations WHERE id = $1`;
       await sql(query, [id]);
       
-      // If we got here, deletion succeeded (no error thrown)
+      invalidateFormulationCache();
       return true;
     } catch (error) {
       console.error('Failed to delete formulation:', error);
@@ -215,6 +236,9 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(formulationsTable.id, id))
       .returning();
+    if (updated) {
+      invalidateFormulationCache();
+    }
     return updated ? this.mapDbFormulationToFormulation(updated) : undefined;
   }
 

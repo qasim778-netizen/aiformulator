@@ -3,6 +3,7 @@ import compression from "compression";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { runMigrations } from "./migrate";
+import { warmCache } from "./db";
 
 // Environment validation function
 function validateEnvironment() {
@@ -137,6 +138,9 @@ app.use((req, res, next) => {
     
     // Run database migrations
     await runMigrations();
+    
+    // Warm cache on startup
+    await warmCache();
   
   // Register API routes BEFORE Vite middleware to ensure API calls reach Express
   const server = await registerRoutes(app);
