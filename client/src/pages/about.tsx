@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Beaker, Target, Users, Award, Lightbulb, Shield, Zap } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
@@ -11,6 +12,10 @@ const defaultContent = {
 };
 
 export default function About() {
+  useEffect(() => {
+    document.title = "About AI Formulator | AI-Powered Chemical Formulation Platform"
+  }, [])
+
   // Try to load dynamic content from database
   const { data: pageData } = useQuery<Page>({
     queryKey: ['/api/pages/about'],

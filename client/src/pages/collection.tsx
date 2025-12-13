@@ -10,6 +10,10 @@ import type { Category, Formulation } from "@shared/schema";
 export default function Collection() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
+  useEffect(() => {
+    document.title = "Chemical Formulation Collections by Category | AI Formulator"
+  }, [])
+
   // Fetch all categories
   const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
     queryKey: ["/api/categories"],

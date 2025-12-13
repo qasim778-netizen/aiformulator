@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Sparkles } from 'lucide-react'
 import AIFormulatorWizard from '@/components/ai-formulator-wizard'
@@ -11,6 +11,9 @@ import FAQ from '@/components/faq'
 export default function Home() {
   const [isWizardActive, setIsWizardActive] = useState(false)
 
+  useEffect(() => {
+    document.title = "AI Formulator – AI Chemical Formulations Platform"
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-blue-50 to-white overflow-x-hidden w-full">

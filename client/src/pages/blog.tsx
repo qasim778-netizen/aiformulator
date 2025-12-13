@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Calendar, User, ArrowRight, BookOpen } from "lucide-react";
@@ -7,6 +8,10 @@ import TrendingFormulations from "@/components/blog/trending-formulations";
 import type { BlogPost } from "@shared/schema";
 
 export default function BlogPage() {
+  useEffect(() => {
+    document.title = "AI Formulation Insights & Articles | AI Formulator Blog"
+  }, [])
+
   const { data: posts = [], isLoading, error } = useQuery<BlogPost[]>({
     queryKey: ["blog-posts-published"],
     queryFn: async () => {

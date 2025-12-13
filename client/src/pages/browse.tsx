@@ -34,6 +34,10 @@ export default function Browse() {
   const [isWizardActive, setIsWizardActive] = useState(false)
   const { startGuidance, isCompleted } = useGuidance()
   
+  useEffect(() => {
+    document.title = "Find Chemical Formulations by Category | AI Formulator"
+  }, [])
+
   // Auto-start guidance for first-time users
   useEffect(() => {
     if (!isCompleted("formulation-browse")) {
