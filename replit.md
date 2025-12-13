@@ -55,8 +55,15 @@ The application is configured for both development and production environments:
 ## External Dependencies
 
 ### Database Services
-- **Neon Database**: PostgreSQL-compatible serverless database service (@neondatabase/serverless)
-- **Connection Management**: PostgreSQL session store for potential future session management
+- **PostgreSQL with pg.Pool**: Connection pooling (max 5 connections) for efficient database access on Reserved VM
+- **Connection Management**: PostgreSQL session store for session management
+- **In-Memory Cache**: TTL-based caching for categories, formulations, and sample products to reduce database load
+
+### Performance Optimizations
+- **Connection Pooling**: pg.Pool with max 5 connections, 30s idle timeout, 10s connection timeout
+- **Cache Warming**: Preloads categories and formulations on startup
+- **TTL Cache**: Categories (1 hour), Formulations (30 minutes) with automatic invalidation on mutations
+- **Bot Detection**: Middleware to identify crawlers and serve cached content
 
 ### UI and Styling
 - **Radix UI**: Comprehensive set of accessible, unstyled UI primitives for building the component library
