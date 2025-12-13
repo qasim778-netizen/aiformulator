@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -20,6 +21,21 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
+
+  useEffect(() => {
+    document.title = "Login to Your Account | AIFormulator"
+    // Add noindex meta tag for auth pages
+    let metaRobots = document.querySelector('meta[name="robots"]') as HTMLMetaElement
+    if (!metaRobots) {
+      metaRobots = document.createElement('meta')
+      metaRobots.name = 'robots'
+      document.head.appendChild(metaRobots)
+    }
+    metaRobots.content = 'noindex, follow'
+    return () => {
+      if (metaRobots) metaRobots.content = 'index, follow'
+    }
+  }, [])
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),

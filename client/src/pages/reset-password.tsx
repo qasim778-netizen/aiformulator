@@ -28,6 +28,21 @@ export default function ResetPasswordPage() {
   const [isValidating, setIsValidating] = useState(true);
 
   useEffect(() => {
+    document.title = "Reset Password | AIFormulator"
+    // Add noindex meta tag for auth pages
+    let metaRobots = document.querySelector('meta[name="robots"]') as HTMLMetaElement
+    if (!metaRobots) {
+      metaRobots = document.createElement('meta')
+      metaRobots.name = 'robots'
+      document.head.appendChild(metaRobots)
+    }
+    metaRobots.content = 'noindex, follow'
+    return () => {
+      if (metaRobots) metaRobots.content = 'index, follow'
+    }
+  }, [])
+
+  useEffect(() => {
     // Extract token from URL query parameters
     const params = new URLSearchParams(window.location.search);
     const resetToken = params.get('token');

@@ -1,7 +1,12 @@
+import { useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Shield } from 'lucide-react'
 
 export default function PrivacyPolicy() {
+  useEffect(() => {
+    document.title = "Privacy Policy | AIFormulator"
+  }, [])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-blue-50 to-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
