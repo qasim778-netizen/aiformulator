@@ -1,12 +1,34 @@
-import { drizzle } from "drizzle-orm/neon-http";
-import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import { pgTable, text, boolean, timestamp, uuid, jsonb, integer, varchar } from "drizzle-orm/pg-core";
 
-// Database connection
-export const sql = neon(process.env.DATABASE_URL!);
-export const db = drizzle(sql);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL!,
+  max: 5,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+});
 
-// Users table
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+});
+
+pool.on('connect', () => {
+  console.log('New client connected to pool');
+});
+
+export const sql = async (query: string, params?: any[]) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(query, params);
+    return result.rows;
+  } finally {
+    client.release();
+  }
+};
+
+export const db = drizzle(pool);
+
 export const usersTable = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
@@ -20,33 +42,31 @@ export const usersTable = pgTable("users", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-// Categories table
 export const categoriesTable = pgTable("categories", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
-  slug: text("slug").notNull(), // SEO-friendly URL slug
+  slug: text("slug").notNull(),
   description: text("description").notNull(),
-  metaDescription: text("meta_description"), // SEO meta description
-  keywords: text("keywords"), // SEO keywords
+  metaDescription: text("meta_description"),
+  keywords: text("keywords"),
   icon: text("icon").notNull(),
   image: text("image").notNull(),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-// Formulations table
 export const formulationsTable = pgTable("formulations", {
   id: uuid("id").primaryKey().defaultRandom(),
   categoryId: uuid("category_id").notNull().references(() => categoriesTable.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
-  slug: text("slug").notNull(), // SEO-friendly URL slug
+  slug: text("slug").notNull(),
   description: text("description").notNull(),
-  seoTitle: text("seo_title"), // SEO page title (max 60 chars)
-  metaDescription: text("meta_description"), // SEO meta description
-  keywords: text("keywords"), // SEO keywords
-  image: text("image"), // Optional AI-generated product image URL
-  imageAlt: text("image_alt"), // SEO alt text for the image
-  imageFilename: text("image_filename"), // Original filename of uploaded image
+  seoTitle: text("seo_title"),
+  metaDescription: text("meta_description"),
+  keywords: text("keywords"),
+  image: text("image"),
+  imageAlt: text("image_alt"),
+  imageFilename: text("image_filename"),
   phLevel: text("ph_level").notNull(),
   shelfLife: text("shelf_life").notNull(),
   viscosity: text("viscosity"),
@@ -56,18 +76,17 @@ export const formulationsTable = pgTable("formulations", {
   temperature: text("temperature").notNull(),
   equipment: text("equipment").notNull(),
   certification: text("certification"),
-  ingredients: text("ingredients").notNull(), // JSON string
-  instructions: text("instructions").notNull(), // JSON string
+  ingredients: text("ingredients").notNull(),
+  instructions: text("instructions").notNull(),
   usageInstructions: text("usage_instructions").notNull(),
-  pdfPath: text("pdf_path"), // Path to stored PDF file
-  textPath: text("text_path"), // Path to stored text file
-  userId: varchar("user_id"), // Owner of custom formulation
+  pdfPath: text("pdf_path"),
+  textPath: text("text_path"),
+  userId: varchar("user_id"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-// Product Properties table
 export const productPropertiesTable = pgTable("product_properties", {
   id: uuid("id").primaryKey().defaultRandom(),
   productType: text("product_type").notNull(),
@@ -76,7 +95,6 @@ export const productPropertiesTable = pgTable("product_properties", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-// User Notes table
 export const userNotesTable = pgTable("user_notes", {
   id: uuid("id").primaryKey().defaultRandom(),
   productType: text("product_type").notNull(),
@@ -87,7 +105,6 @@ export const userNotesTable = pgTable("user_notes", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-// Pages table for content management
 export const pagesTable = pgTable("pages", {
   id: uuid("id").primaryKey().defaultRandom(),
   slug: text("slug").notNull().unique(),
@@ -99,7 +116,6 @@ export const pagesTable = pgTable("pages", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-// Blog posts table
 export const blogPostsTable = pgTable("blog_posts", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
@@ -116,7 +132,6 @@ export const blogPostsTable = pgTable("blog_posts", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-// User formulation requests table - tracks user interests and custom formulation requests
 export const userFormulationRequestsTable = pgTable("user_formulation_requests", {
   id: uuid("id").primaryKey().defaultRandom(),
   sessionId: varchar("session_id", { length: 255 }).notNull(),
@@ -142,7 +157,6 @@ export const userFormulationRequestsTable = pgTable("user_formulation_requests",
   reviewedBy: varchar("reviewed_by", { length: 255 }),
 });
 
-// Formulation Content table - admin-managed page content for each formulation
 export const formulationContentTable = pgTable("formulation_content", {
   id: uuid("id").primaryKey().defaultRandom(),
   formulationId: uuid("formulation_id").notNull().references(() => formulationsTable.id, { onDelete: "cascade" }).unique(),
@@ -160,7 +174,6 @@ export const formulationContentTable = pgTable("formulation_content", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-// Sample Products table for homepage showcase
 export const sampleProductsTable = pgTable("sample_products", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
@@ -193,3 +206,40 @@ export type InsertDbUserFormulationRequest = typeof userFormulationRequestsTable
 export type InsertDbFormulationContent = typeof formulationContentTable.$inferInsert;
 export type InsertDbSampleProduct = typeof sampleProductsTable.$inferInsert;
 export type InsertDbUser = typeof usersTable.$inferInsert;
+
+export async function warmCache(): Promise<void> {
+  const { cache, CACHE_KEYS, CACHE_TTL } = await import('./cache');
+  
+  try {
+    console.log('🔥 Warming cache...');
+    
+    const categories = await db.select().from(categoriesTable);
+    cache.set(CACHE_KEYS.CATEGORIES, categories, CACHE_TTL.CATEGORIES);
+    console.log(`  ✓ Cached ${categories.length} categories`);
+    
+    const formulations = await db.select().from(formulationsTable);
+    cache.set(CACHE_KEYS.FORMULATIONS, formulations, CACHE_TTL.FORMULATIONS);
+    console.log(`  ✓ Cached ${formulations.length} formulations`);
+    
+    for (const f of formulations) {
+      cache.set(CACHE_KEYS.FORMULATION(f.slug), f, CACHE_TTL.FORMULATION);
+      cache.set(CACHE_KEYS.FORMULATION_BY_ID(f.id), f, CACHE_TTL.FORMULATION);
+    }
+    
+    for (const c of categories) {
+      cache.set(CACHE_KEYS.CATEGORY(c.slug), c, CACHE_TTL.CATEGORY);
+      cache.set(CACHE_KEYS.CATEGORY_BY_ID(c.id), c, CACHE_TTL.CATEGORY);
+      
+      const categoryFormulations = formulations.filter(f => f.categoryId === c.id);
+      cache.set(CACHE_KEYS.CATEGORY_FORMULATIONS(c.id), categoryFormulations, CACHE_TTL.FORMULATIONS);
+    }
+    
+    const sampleProducts = await db.select().from(sampleProductsTable);
+    cache.set(CACHE_KEYS.SAMPLE_PRODUCTS, sampleProducts, CACHE_TTL.SAMPLE_PRODUCTS);
+    console.log(`  ✓ Cached ${sampleProducts.length} sample products`);
+    
+    console.log('✅ Cache warming complete');
+  } catch (error) {
+    console.error('❌ Cache warming failed:', error);
+  }
+}
