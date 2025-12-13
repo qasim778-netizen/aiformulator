@@ -1,11 +1,12 @@
 User-agent: *
-Disallow: /api/
-Disallow: /objects/
-Disallow: /admin
-Disallow: /admin-dashboard
+Disallow: /api/*
+Disallow: /admin/
 Disallow: /login
 Disallow: /signup
 Disallow: /forgot-password
 Disallow: /reset-password
+Disallow: /dashboard/
+Disallow: /admin-dashboard
+Disallow: /objects/
 
 Sitemap: https://aiformulator.net/sitemap.xml
