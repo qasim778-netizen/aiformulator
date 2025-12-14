@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Category, Formulation } from "@shared/schema";
 import { useEffect } from "react";
+import Breadcrumb from "@/components/breadcrumb";
 
 export default function CategoryPage() {
   const params = useParams();
@@ -125,15 +126,16 @@ export default function CategoryPage() {
   return (
     <div className="bg-white py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center mb-6">
-          <Link href="/browse">
-            <Button variant="ghost" className="text-primary hover:text-blue-700 mr-4">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Browse
-            </Button>
-          </Link>
-          <h1 className="text-3xl font-inter font-bold text-gray-900">
-            {category.name} Formulations
+        <Breadcrumb
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Browse", href: "/browse" },
+            { label: category.name }
+          ]}
+        />
+        
+        <h1 className="text-3xl font-inter font-bold text-gray-900 mb-6">
+          {category.name} Formulations
             {searchTerm && (
               <span className="block text-lg font-normal text-primary mt-1">
                 Search results for "{searchTerm}"

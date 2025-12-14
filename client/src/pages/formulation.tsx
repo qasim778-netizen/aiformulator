@@ -10,6 +10,7 @@ import type { Formulation, Category, FormulationContent } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Captcha } from "@/components/ui/captcha";
+import Breadcrumb from "@/components/breadcrumb";
 import woodFloorCleaner from "@/assets/generated-images/wood-floor-cleaner.png";
 import glassCleaner from "@/assets/generated-images/glass-cleaner.png";
 import multiSurfaceCleaner from "@/assets/generated-images/multi-surface-cleaner.png";
@@ -397,14 +398,13 @@ export default function FormulationPage() {
   return (
     <div className="bg-white py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <Link href={`/category/${category?.slug || formulation.categoryId}`}>
-            <Button variant="ghost" className="text-primary hover:text-blue-700">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to {category?.name || 'Category'}
-            </Button>
-          </Link>
-        </div>
+        <Breadcrumb
+          items={[
+            { label: "Home", href: "/" },
+            { label: category?.name || "Category", href: `/category/${category?.slug || formulation.categoryId}` },
+            { label: formulation.name }
+          ]}
+        />
         
         <Card className="bg-white rounded-lg shadow-lg border border-gray-200">
           <CardContent className="p-8">
