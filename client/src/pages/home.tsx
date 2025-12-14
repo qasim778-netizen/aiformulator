@@ -13,6 +13,44 @@ export default function Home() {
 
   useEffect(() => {
     document.title = "AI Formulator – AI Chemical Formulations Platform"
+    
+    // Add Organization and Website JSON-LD structured data
+    const existingSchema = document.getElementById('organization-schema');
+    if (!existingSchema) {
+      const organizationSchema = {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "AIFormulator",
+        "url": "https://aiformulator.net",
+        "logo": "https://aiformulator.net/logo.png",
+        "description": "AI-powered chemical formulation platform for professional and industrial use",
+        "sameAs": [
+          "https://www.youtube.com/@AiFormulator",
+          "https://www.instagram.com/aiformulator/",
+          "https://www.facebook.com/aiformulator"
+        ]
+      };
+      
+      const websiteSchema = {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "AIFormulator",
+        "url": "https://aiformulator.net"
+      };
+      
+      const script = document.createElement('script');
+      script.id = 'organization-schema';
+      script.type = 'application/ld+json';
+      script.textContent = JSON.stringify([organizationSchema, websiteSchema]);
+      document.head.appendChild(script);
+    }
+    
+    return () => {
+      const script = document.getElementById('organization-schema');
+      if (script) {
+        script.remove();
+      }
+    };
   }, [])
 
   return (
