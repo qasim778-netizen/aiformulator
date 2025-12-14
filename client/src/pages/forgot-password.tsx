@@ -70,6 +70,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="max-w-md mx-auto">
+        <h1 className="text-3xl font-bold text-center text-gray-900 mb-6">Reset Password</h1>
         <Card>
           <CardHeader>
             <CardTitle data-testid="text-forgot-password-title">Forgot Password</CardTitle>

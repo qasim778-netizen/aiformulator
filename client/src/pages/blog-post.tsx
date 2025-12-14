@@ -51,9 +51,9 @@ export default function BlogPostPage() {
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-4xl mx-auto text-center">
             <div className="text-6xl mb-6">📄</div>
-            <h1 className="text-3xl font-inter font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl font-inter font-bold text-gray-900 dark:text-white mb-4">
               Blog Post Not Found
-            </h1>
+            </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-8">
               The blog post you're looking for doesn't exist or may have been removed.
             </p>

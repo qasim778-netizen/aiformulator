@@ -68,7 +68,7 @@ export default function Collection() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white border-b py-6 px-4 sm:px-6 lg:px-8" style={{ borderColor: "#E3E3E3" }}>
-          <h1 className="text-3xl font-bold" style={{ color: "#1A1A1A" }}>Formula Collection</h1>
+          <h1 className="text-3xl font-bold" style={{ color: "#1A1A1A" }}>Chemical Formulation Collections by Category</h1>
           <p className="mt-2" style={{ color: "#4A4A4A" }}>Browse professional chemical formulations by category</p>
         </div>
 

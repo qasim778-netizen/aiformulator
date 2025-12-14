@@ -104,9 +104,9 @@ export function ImageGenerator() {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">
           🎨 AI Image Generator
-        </h1>
+        </h2>
         <p className="text-gray-600">
           Generate professional formulation images with custom branding and SEO optimization
         </p>

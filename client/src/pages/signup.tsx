@@ -92,6 +92,7 @@ export default function SignupPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="max-w-md mx-auto">
+        <h1 className="text-3xl font-bold text-center text-gray-900 mb-6">Create an Account</h1>
         <Card>
           <CardHeader>
             <CardTitle data-testid="text-signup-title">Create Your Account</CardTitle>

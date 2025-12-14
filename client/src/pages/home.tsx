@@ -22,7 +22,7 @@ export default function Home() {
         {!isWizardActive && (
           <div className="text-center mb-8 sm:mb-10">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
-              Professional Chemical Formulations
+              AIFormulator – Professional Chemical Formulation Platform
             </h1>
             <h2 className="text-xl sm:text-2xl text-gray-600 mb-2">
               AI-Powered Formulation Solutions for Small Business

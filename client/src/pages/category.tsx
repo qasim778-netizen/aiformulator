@@ -113,7 +113,7 @@ export default function CategoryPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Category not found</h1>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Category not found</h2>
           <Link href="/browse">
             <Button>Return to Browse</Button>
           </Link>
@@ -133,7 +133,7 @@ export default function CategoryPage() {
             </Button>
           </Link>
           <h1 className="text-3xl font-inter font-bold text-gray-900">
-            {category.name} ({formulations.length})
+            {category.name} Formulations
             {searchTerm && (
               <span className="block text-lg font-normal text-primary mt-1">
                 Search results for "{searchTerm}"
