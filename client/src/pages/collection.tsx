@@ -12,6 +12,10 @@ export default function Collection() {
 
   useEffect(() => {
     document.title = "Chemical Formulation Collections by Category | AI Formulator"
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Browse professional chemical formulation collections across multiple product categories.');
+    }
   }, [])
 
   // Fetch all categories

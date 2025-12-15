@@ -36,6 +36,10 @@ export default function Browse() {
   
   useEffect(() => {
     document.title = "Find Chemical Formulations by Category | AI Formulator"
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Browse professional chemical formulation collections across multiple product categories.');
+    }
   }, [])
 
   // Auto-start guidance for first-time users

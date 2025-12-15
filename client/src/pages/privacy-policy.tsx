@@ -5,6 +5,10 @@ import { Shield } from 'lucide-react'
 export default function PrivacyPolicy() {
   useEffect(() => {
     document.title = "Privacy Policy | AIFormulator"
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', "Review AIFormulator's privacy policy to understand how user data is collected and protected.");
+    }
   }, [])
 
   return (

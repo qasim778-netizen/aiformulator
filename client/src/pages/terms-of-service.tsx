@@ -5,6 +5,10 @@ import { Scale } from 'lucide-react'
 export default function TermsOfService() {
   useEffect(() => {
     document.title = "Terms and Conditions | AIFormulator"
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Read the terms and conditions governing the use of AIFormulator services and content.');
+    }
   }, [])
 
   return (

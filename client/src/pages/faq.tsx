@@ -6,6 +6,10 @@ import { HelpCircle } from 'lucide-react'
 export default function FAQ() {
   useEffect(() => {
     document.title = "Frequently Asked Questions | AI Formulator"
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Find answers to common questions about AIFormulator, formulation downloads, and manufacturing support.');
+    }
   }, [])
 
   return (

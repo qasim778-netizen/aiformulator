@@ -10,6 +10,10 @@ import type { BlogPost } from "@shared/schema";
 export default function BlogPage() {
   useEffect(() => {
     document.title = "AI Formulation Insights & Articles | AI Formulator Blog"
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Read formulation insights, manufacturing guides, and industry knowledge from AIFormulator.');
+    }
   }, [])
 
   const { data: posts = [], isLoading, error } = useQuery<BlogPost[]>({

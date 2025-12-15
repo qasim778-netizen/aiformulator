@@ -5,6 +5,10 @@ import { AlertTriangle } from 'lucide-react'
 export default function Disclaimer() {
   useEffect(() => {
     document.title = "Disclaimer | AIFormulator"
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Read the AIFormulator disclaimer regarding formulation usage and liability limitations.');
+    }
   }, [])
 
   return (

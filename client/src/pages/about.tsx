@@ -14,6 +14,10 @@ const defaultContent = {
 export default function About() {
   useEffect(() => {
     document.title = "About AI Formulator | AI-Powered Chemical Formulation Platform"
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Learn about AIFormulator, an AI-powered platform helping manufacturers and entrepreneurs develop professional chemical formulations.');
+    }
   }, [])
 
   // Try to load dynamic content from database
