@@ -14,6 +14,12 @@ export default function Home() {
   useEffect(() => {
     document.title = "AI Formulator – AI Chemical Formulations Platform"
     
+    // Set unique meta description for home page
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'AI-powered chemical formulation platform for professional and industrial use. Create custom formulations or browse our library of professional formulas.');
+    }
+    
     // Add Organization and Website JSON-LD structured data
     const existingSchema = document.getElementById('organization-schema');
     if (!existingSchema) {

@@ -76,11 +76,8 @@ export default function FormulationPage() {
       document.title = seoTitle;
 
       // Create optimized meta description (under 160 characters, compelling)
-      const shortFormulationName = formulation.name.length > 50 ? 
-        formulation.name.substring(0, 47) + '...' : 
-        formulation.name;
       let metaDescription = formulation.metaDescription || 
-        `Professional ${shortFormulationName} formula. Complete ingredients, manufacturing process & specs. Download PDF now!`;
+        `Download the complete ${formulation.name} formulation with ingredients, manufacturing process, applications, and scale-up guidance.`;
       
       // Enforce 160 character limit even for stored metaDescription
       if (metaDescription.length > 160) {

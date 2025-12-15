@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
+import { useEffect } from "react";
 import { Calendar, User, ArrowLeft, Share2, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,6 +24,20 @@ export default function BlogPostPage() {
     },
     enabled: !!slug,
   });
+
+  // Update SEO meta tags when post loads
+  useEffect(() => {
+    if (post) {
+      document.title = `${post.title} | AI Formulator Blog`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        // Use excerpt or generate from content
+        const description = post.excerpt || 
+          `Read about ${post.title} - insights and knowledge from AIFormulator.`;
+        metaDesc.setAttribute('content', description.length > 160 ? description.substring(0, 157) + '...' : description);
+      }
+    }
+  }, [post]);
 
   if (isLoading) {
     return (

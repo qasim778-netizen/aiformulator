@@ -32,6 +32,11 @@ export default function SignupPage() {
 
   useEffect(() => {
     document.title = "Create an Account | AIFormulator"
+    // Set unique meta description for signup page
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Create your free AIFormulator account to save formulations and download professional chemical manufacturing guides.');
+    }
     // Add noindex meta tag for auth pages
     let metaRobots = document.querySelector('meta[name="robots"]') as HTMLMetaElement
     if (!metaRobots) {

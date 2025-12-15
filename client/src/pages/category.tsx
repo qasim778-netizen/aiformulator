@@ -60,7 +60,7 @@ export default function CategoryPage() {
       
       // Update meta description with custom SEO description or default
       const metaDescContent = category.metaDescription || 
-        `Browse ${category.name.toLowerCase()} formulations. Professional chemical formulations for small business manufacturers.`;
+        `Explore professional ${category.name} formulations with ingredients, manufacturing process, and industrial-use guidance by AIFormulator.`;
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
         metaDesc.setAttribute('content', metaDescContent);

@@ -24,6 +24,11 @@ export default function LoginPage() {
 
   useEffect(() => {
     document.title = "Login to Your Account | AIFormulator"
+    // Set unique meta description for login page
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Log in to your AIFormulator account to access saved formulations and download professional chemical formulas.');
+    }
     // Add noindex meta tag for auth pages
     let metaRobots = document.querySelector('meta[name="robots"]') as HTMLMetaElement
     if (!metaRobots) {

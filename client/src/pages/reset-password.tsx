@@ -28,7 +28,12 @@ export default function ResetPasswordPage() {
   const [isValidating, setIsValidating] = useState(true);
 
   useEffect(() => {
-    document.title = "Reset Password | AIFormulator"
+    document.title = "Set New Password | AIFormulator"
+    // Set unique meta description for reset password page
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Set a new password for your AIFormulator account to continue accessing professional chemical formulations.');
+    }
     // Add noindex meta tag for auth pages
     let metaRobots = document.querySelector('meta[name="robots"]') as HTMLMetaElement
     if (!metaRobots) {

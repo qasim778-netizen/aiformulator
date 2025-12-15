@@ -22,7 +22,12 @@ export default function ForgotPasswordPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    document.title = "Reset Password | AIFormulator"
+    document.title = "Forgot Password | AIFormulator"
+    // Set unique meta description for forgot password page
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Reset your AIFormulator password to regain access to your account and saved formulations.');
+    }
     // Add noindex meta tag for auth pages
     let metaRobots = document.querySelector('meta[name="robots"]') as HTMLMetaElement
     if (!metaRobots) {
