@@ -115,6 +115,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   });
 
+  // Serve robots.txt from backend
+  app.get('/robots.txt', (req, res) => {
+    res.type('text/plain');
+    res.send(`User-agent: *
+Disallow: /api/
+Disallow: /admin/
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /dashboard/
+Disallow: /admin-dashboard
+Disallow: /objects/
+
+Sitemap: https://aiformulator.net/sitemap.xml
+`);
+  });
+
   // Dynamic sitemap.xml
   app.get('/sitemap.xml', async (req, res) => {
     try {
