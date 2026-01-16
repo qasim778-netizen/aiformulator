@@ -2806,7 +2806,7 @@ Allow: /disclaimer`;
   });
 
   // Create new blog post
-  app.post("/api/blog", isAdmin, async (req, res) => {
+  app.post("/api/blog", requireAdmin, async (req, res) => {
     try {
       const validatedData = insertBlogPostSchema.parse(req.body);
       const blogPost = await storage.createBlogPost(validatedData);
@@ -2828,7 +2828,7 @@ Allow: /disclaimer`;
   });
 
   // Update blog post
-  app.put("/api/blog/:id", isAdmin, async (req, res) => {
+  app.put("/api/blog/:id", requireAdmin, async (req, res) => {
     try {
       const validatedData = insertBlogPostSchema.parse(req.body);
       const blogPost = await storage.updateBlogPost(req.params.id, validatedData);
@@ -2843,7 +2843,7 @@ Allow: /disclaimer`;
   });
 
   // Delete blog post
-  app.delete("/api/blog/:id", isAdmin, async (req, res) => {
+  app.delete("/api/blog/:id", requireAdmin, async (req, res) => {
     try {
       const success = await storage.deleteBlogPost(req.params.id);
       if (!success) {

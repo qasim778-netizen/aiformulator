@@ -847,6 +847,17 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async getBlogPostById(id: string): Promise<BlogPost | undefined> {
+    try {
+      const { blogPosts } = await import("@shared/schema");
+      const [blogPost] = await db.select().from(blogPosts).where(eq(blogPosts.id, id));
+      return blogPost;
+    } catch (error) {
+      console.log("Blog posts table not yet available, returning undefined");
+      return undefined;
+    }
+  }
+
   async createBlogPost(blogPostData: InsertBlogPost): Promise<BlogPost> {
     try {
       const { blogPosts } = await import("@shared/schema");
