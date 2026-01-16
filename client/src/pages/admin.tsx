@@ -21,7 +21,6 @@ import BulkFormulationGenerator from "@/components/admin/bulk-formulation-genera
 import FormulaKeywordGenerator from "@/components/admin/formula-keyword-generator";
 import LogoSettings from "@/components/admin/logo-settings";
 import ContentManagementTab from "@/components/admin/content-management-tab";
-import BlogManagementTab from "@/components/admin/blog-management-tab";
 import AICategorySuggestions from "@/components/admin/ai-category-suggestions";
 import FormulationTester from "@/components/admin/formulation-tester";
 import FormulationContentManagementTab from "@/components/admin/formulation-content-management-tab";
@@ -382,17 +381,6 @@ export default function AdminPage() {
               data-testid="admin-content-tab"
             >
               Content
-            </button>
-            <button
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === "blog"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab("blog")}
-              data-testid="admin-blog-tab"
-            >
-              Blog
             </button>
             <button
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
@@ -1045,10 +1033,6 @@ export default function AdminPage() {
           <ContentManagementTab />
         )}
         
-        {/* Blog Management Tab */}
-        {activeTab === "blog" && (
-          <BlogManagementTab />
-        )}
 
         {/* Formulation Content Management Tab */}
         {activeTab === "formulation-content" && (

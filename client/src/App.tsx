@@ -21,8 +21,6 @@ import FAQ from "@/pages/faq";
 import TermsOfService from "@/pages/terms-of-service";
 import PrivacyPolicy from "@/pages/privacy-policy";
 import Disclaimer from "@/pages/disclaimer";
-import Blog from "@/pages/blog";
-import BlogPost from "@/pages/blog-post";
 import Demo from "@/pages/demo";
 import SignupPage from "@/pages/signup";
 import LoginPage from "@/pages/login";
@@ -52,8 +50,6 @@ function Router() {
       <Route path="/reset-password" component={ResetPasswordPage} />
       <Route path="/about" component={About} />
       <Route path="/faq" component={FAQ} />
-      <Route path="/blog" component={Blog} />
-      <Route path="/blog/:slug" component={BlogPost} />
       <Route path="/demo" component={Demo} />
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />

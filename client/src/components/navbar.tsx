@@ -180,15 +180,6 @@ export default function Navbar() {
                   FAQ
                 </span>
               </Link>
-              <Link href="/blog">
-                <span className={`px-3 py-2 rounded-md text-sm font-medium cursor-pointer ${
-                  isActive("/blog") 
-                    ? "text-primary bg-primary/10" 
-                    : "text-gray-600 hover:text-primary"
-                }`}>
-                  Blog
-                </span>
-              </Link>
             </div>
           </div>
 
@@ -346,19 +337,6 @@ export default function Navbar() {
                   data-testid="mobile-link-faq"
                 >
                   FAQ
-                </span>
-              </Link>
-              <Link href="/blog">
-                <span 
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 cursor-pointer ${
-                    isActive("/blog") 
-                      ? "text-primary bg-primary/10 font-semibold" 
-                      : "text-gray-600 hover:text-primary hover:bg-gray-50"
-                  }`}
-                  data-testid="mobile-link-blog"
-                >
-                  Blog
                 </span>
               </Link>
               
