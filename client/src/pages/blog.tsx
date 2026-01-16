@@ -131,7 +131,7 @@ export default function BlogPage() {
             Expert tutorials and step-by-step guides to help you create professional-grade chemical formulations for your business.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/browse">
+            <Link href="/">
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8">
                 <Sparkles className="mr-2 h-5 w-5" />
                 Generate Formula with AI
@@ -339,7 +339,7 @@ function ArticleCard({ post }: { post: BlogPost }) {
               Read Full Guide
             </Button>
           </Link>
-          <Link href="/browse">
+          <Link href="/">
             <Button size="sm" variant="outline">
               <Sparkles className="h-3 w-3 mr-1" />
               Generate with AI
