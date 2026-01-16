@@ -134,24 +134,15 @@ export default function FormulationPage() {
       }
       ogTypeElement.setAttribute('content', 'article');
 
-      // Add canonical URL for SEO - use current pathname dynamically
-      const canonicalUrl = `https://aiformulator.net${window.location.pathname}`;
-      let canonicalElement = document.querySelector('link[rel="canonical"]');
-      if (!canonicalElement) {
-        canonicalElement = document.createElement('link');
-        canonicalElement.setAttribute('rel', 'canonical');
-        document.head.appendChild(canonicalElement);
-      }
-      canonicalElement.setAttribute('href', canonicalUrl);
-
       // Update or create og:url
+      const pageUrl = `https://aiformulator.net${window.location.pathname}`;
       let ogUrlElement = document.querySelector('meta[property="og:url"]');
       if (!ogUrlElement) {
         ogUrlElement = document.createElement('meta');
         ogUrlElement.setAttribute('property', 'og:url');
         document.head.appendChild(ogUrlElement);
       }
-      ogUrlElement.setAttribute('content', canonicalUrl);
+      ogUrlElement.setAttribute('content', pageUrl);
     }
   }, [formulation, category, formulationId]);
 
