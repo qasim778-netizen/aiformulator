@@ -45,6 +45,150 @@ export default function BlogPostPage() {
       if (metaDesc && post.metaDescription) {
         metaDesc.setAttribute('content', post.metaDescription);
       }
+
+      const existingSchemas = document.querySelectorAll('script[data-schema^="blog-post"]');
+      existingSchemas.forEach(s => s.remove());
+      
+      const blogPostingSchema = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": post.title,
+        "description": post.metaDescription || post.excerpt || "",
+        "datePublished": post.publishedAt || post.createdAt,
+        "dateModified": post.updatedAt,
+        "author": {
+          "@type": "Person",
+          "name": post.authorName
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "AI Formulator",
+          "url": window.location.origin
+        },
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": `${window.location.origin}/blog/${post.slug}`
+        },
+        "articleSection": post.category,
+        "image": post.featuredImage || undefined,
+        "wordCount": post.content?.split(/\s+/).length || 0,
+        "timeRequired": `PT${post.readingTime || 5}M`
+      };
+      
+      const breadcrumbSchema = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": window.location.origin
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Blog",
+            "item": `${window.location.origin}/blog`
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": post.category,
+            "item": `${window.location.origin}/blog?category=${post.category}`
+          },
+          {
+            "@type": "ListItem",
+            "position": 4,
+            "name": post.title,
+            "item": `${window.location.origin}/blog/${post.slug}`
+          }
+        ]
+      };
+      
+      const blogScript = document.createElement('script');
+      blogScript.type = 'application/ld+json';
+      blogScript.setAttribute('data-schema', 'blog-post-article');
+      blogScript.textContent = JSON.stringify(blogPostingSchema);
+      document.head.appendChild(blogScript);
+      
+      const breadcrumbScript = document.createElement('script');
+      breadcrumbScript.type = 'application/ld+json';
+      breadcrumbScript.setAttribute('data-schema', 'blog-post-breadcrumb');
+      breadcrumbScript.textContent = JSON.stringify(breadcrumbSchema);
+      document.head.appendChild(breadcrumbScript);
+      
+      const isHowToArticle = post.title.toLowerCase().includes('how to') || 
+                            post.content.toLowerCase().includes('step 1') ||
+                            post.content.toLowerCase().includes('step-by-step');
+      
+      if (isHowToArticle) {
+        const steps = [];
+        const stepRegex = /<h[23][^>]*>(?:step\s*\d+[:\s-]*)?([^<]+)<\/h[23]>/gi;
+        let match;
+        let position = 1;
+        while ((match = stepRegex.exec(post.content)) !== null && position <= 10) {
+          steps.push({
+            "@type": "HowToStep",
+            "position": position,
+            "name": match[1].trim()
+          });
+          position++;
+        }
+        
+        if (steps.length > 0) {
+          const howToSchema = {
+            "@context": "https://schema.org",
+            "@type": "HowTo",
+            "name": post.title,
+            "description": post.metaDescription || post.excerpt || "",
+            "totalTime": `PT${post.readingTime || 5}M`,
+            "step": steps
+          };
+          
+          const howToScript = document.createElement('script');
+          howToScript.type = 'application/ld+json';
+          howToScript.setAttribute('data-schema', 'blog-post-howto');
+          howToScript.textContent = JSON.stringify(howToSchema);
+          document.head.appendChild(howToScript);
+        }
+      }
+      
+      const faqMatch = post.content.match(/<h[23][^>]*>[^<]*\?<\/h[23]>/gi);
+      if (faqMatch && faqMatch.length > 0) {
+        const faqItems: { "@type": string; name: string; acceptedAnswer: { "@type": string; text: string } }[] = [];
+        const faqRegex = /<h[23][^>]*>([^<]+\?)<\/h[23]>\s*<p>([^<]+)<\/p>/gi;
+        let faqMatchResult;
+        while ((faqMatchResult = faqRegex.exec(post.content)) !== null && faqItems.length < 5) {
+          faqItems.push({
+            "@type": "Question",
+            "name": faqMatchResult[1].trim(),
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": faqMatchResult[2].trim()
+            }
+          });
+        }
+        
+        if (faqItems.length > 0) {
+          const faqSchema = {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqItems
+          };
+          
+          const faqScript = document.createElement('script');
+          faqScript.type = 'application/ld+json';
+          faqScript.setAttribute('data-schema', 'blog-post-faq');
+          faqScript.textContent = JSON.stringify(faqSchema);
+          document.head.appendChild(faqScript);
+        }
+      }
+      
+      return () => {
+        const schemas = document.querySelectorAll('script[data-schema^="blog-post"]');
+        schemas.forEach(s => s.remove());
+      };
     }
   }, [post]);
 

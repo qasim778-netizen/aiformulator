@@ -19,14 +19,6 @@ export default function BlogPage() {
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [activeRegion, setActiveRegion] = useState<string>("All");
 
-  useEffect(() => {
-    document.title = "Chemical Product Formulation & AI Manufacturing Guides | AI Formulator";
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute('content', 'Learn how to formulate chemical products with AI-powered guides. Expert tutorials on skincare, hair care, cleaning products, adhesives and more.');
-    }
-  }, []);
-
   const { data: posts = [], isLoading, error } = useQuery<BlogPost[]>({
     queryKey: ["blog-posts-published"],
     queryFn: async () => {
@@ -39,6 +31,50 @@ export default function BlogPage() {
       return await response.json();
     },
   });
+
+  useEffect(() => {
+    document.title = "Chemical Product Formulation & AI Manufacturing Guides | AI Formulator";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Learn how to formulate chemical products with AI-powered guides. Expert tutorials on skincare, hair care, cleaning products, adhesives and more.');
+    }
+
+    const existingSchema = document.querySelector('script[data-schema="blog-collection"]');
+    if (existingSchema) {
+      existingSchema.remove();
+    }
+    
+    const collectionSchema = {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Chemical Product Formulation & AI Manufacturing Guides",
+      "description": "Learn how to formulate chemical products with AI-powered guides. Expert tutorials on skincare, hair care, cleaning products, adhesives and more.",
+      "url": `${window.location.origin}/blog`,
+      "mainEntity": {
+        "@type": "ItemList",
+        "name": "Formulation Guides",
+        "numberOfItems": posts.length
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "AI Formulator",
+        "url": window.location.origin
+      }
+    };
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-schema', 'blog-collection');
+    script.textContent = JSON.stringify(collectionSchema);
+    document.head.appendChild(script);
+    
+    return () => {
+      const schemaScript = document.querySelector('script[data-schema="blog-collection"]');
+      if (schemaScript) {
+        schemaScript.remove();
+      }
+    };
+  }, [posts]);
 
   const filteredPosts = useMemo(() => {
     return posts.filter((post) => {

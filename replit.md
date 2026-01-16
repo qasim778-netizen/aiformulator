@@ -115,4 +115,26 @@ The system includes an intelligent name optimizer that automatically improves fo
 
 The name optimizer processes names like "glass cleaner formula" into professional titles like "Professional Glass Cleaner Formula" or "Commercial-Grade Glass Cleaner Formula" based on the category context.
 
+### Knowledge Hub Blog System
+The system includes a comprehensive blog/knowledge hub for how-to guides and educational content:
+
+- **Blog Listing Page** (`/blog`): Hero section, category tabs, featured guides section, article grid with region filtering
+- **Blog Article Page** (`/blog/:slug`): Breadcrumbs, structured content, CTA sections, related articles
+- **Admin Blog Management**: Full CRUD for blog posts with controlled taxonomy validation
+
+**Blog Categories** (7 total): Skincare, Hair Care, Cleaning Products, Adhesives, Industrial, Ingredients, Business
+
+**Product Types** (6 total): Shampoo, Serum, Cream, Gel, Liquid, Powder
+
+**Validation Rules**:
+- Shampoo products can ONLY be in Hair Care category
+- Serum products can ONLY be in Skincare category
+
+**SEO Structured Data**:
+- CollectionPage schema for blog listing
+- BlogPosting schema for individual articles
+- BreadcrumbList schema for navigation
+- HowTo schema for step-by-step guides
+- FAQPage schema for Q&A content
+
 The architecture demonstrates a modern full-stack approach with emphasis on type safety, developer experience, and scalable design patterns suitable for chemical formulation management requirements.
