@@ -134,8 +134,8 @@ export default function FormulationPage() {
       }
       ogTypeElement.setAttribute('content', 'article');
 
-      // Add canonical URL for SEO - always use slug for consistent, SEO-friendly URLs
-      const canonicalUrl = `https://aiformulator.net/formulation/${formulation.slug}`;
+      // Add canonical URL for SEO - use current pathname dynamically
+      const canonicalUrl = `https://aiformulator.net${window.location.pathname}`;
       let canonicalElement = document.querySelector('link[rel="canonical"]');
       if (!canonicalElement) {
         canonicalElement = document.createElement('link');
