@@ -282,13 +282,17 @@ export default function BlogPostPage() {
               ))}
             </div>
 
-            {/* Featured Image */}
+            {/* Hero Image - 1200×675 (16:9) with eager loading */}
             {post.featuredImage && (
-              <div className="aspect-video bg-gray-100 rounded-xl overflow-hidden mb-8">
+              <div className="bg-gray-100 rounded-xl overflow-hidden mb-8" style={{ aspectRatio: "16/9" }}>
                 <img
                   src={post.featuredImage}
-                  alt={post.title}
+                  alt={`${post.title} - ${post.category} formulation guide`}
+                  width={1200}
+                  height={675}
                   className="w-full h-full object-cover"
+                  loading="eager"
+                  fetchPriority="high"
                 />
               </div>
             )}
@@ -329,10 +333,12 @@ export default function BlogPostPage() {
                 {relatedPosts.map((related) => (
                   <Card key={related.id} className="hover:shadow-md transition-shadow">
                     {related.featuredImage && (
-                      <div className="aspect-video bg-gray-100 overflow-hidden">
+                      <div className="bg-gray-100 overflow-hidden" style={{ aspectRatio: "3/2" }}>
                         <img
                           src={related.featuredImage}
-                          alt={related.title}
+                          alt={`${related.title} - ${related.category} formulation guide`}
+                          width={400}
+                          height={260}
                           className="w-full h-full object-cover"
                           loading="lazy"
                         />

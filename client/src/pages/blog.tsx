@@ -252,14 +252,17 @@ export default function BlogPage() {
 
 function FeaturedArticleCard({ post }: { post: BlogPost }) {
   const tags = post.featureTags ? JSON.parse(post.featureTags) : [];
+  const seoAlt = `${post.title} - ${post.category} formulation guide`;
   
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow bg-gradient-to-br from-primary/5 to-white border-primary/20">
       {post.featuredImage && (
-        <div className="aspect-video bg-gray-100 overflow-hidden">
+        <div className="bg-gray-100 overflow-hidden" style={{ aspectRatio: "3/2" }}>
           <img
             src={post.featuredImage}
-            alt={post.title}
+            alt={seoAlt}
+            width={400}
+            height={260}
             className="w-full h-full object-cover"
             loading="lazy"
           />
@@ -301,14 +304,17 @@ function FeaturedArticleCard({ post }: { post: BlogPost }) {
 
 function ArticleCard({ post }: { post: BlogPost }) {
   const tags = post.featureTags ? JSON.parse(post.featureTags) : [];
+  const seoAlt = `${post.title} - ${post.category} formulation guide`;
   
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
       {post.featuredImage && (
-        <div className="aspect-video bg-gray-100 overflow-hidden">
+        <div className="bg-gray-100 overflow-hidden" style={{ aspectRatio: "3/2" }}>
           <img
             src={post.featuredImage}
-            alt={post.title}
+            alt={seoAlt}
+            width={400}
+            height={260}
             className="w-full h-full object-cover"
             loading="lazy"
           />

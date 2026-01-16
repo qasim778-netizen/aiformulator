@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Edit, Trash2, Plus, Save, X, Eye, EyeOff, RefreshCw, Clock, AlertCircle } from "lucide-react";
+import { Edit, Trash2, Plus, Save, X, Eye, EyeOff, RefreshCw, Clock, AlertCircle, Upload, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { BlogPost, InsertBlogPost } from "@shared/schema";
 import { blogCategories, blogProductTypes, blogRegions } from "@shared/schema";
+import { useUpload } from "@/hooks/use-upload";
 
 const CATEGORY_PRODUCT_RULES: Record<string, string[]> = {
   "Skincare": ["Serum", "Cream", "Gel", "Liquid"],
@@ -57,6 +58,49 @@ export default function BlogManagementTab() {
     isPublished: false,
   });
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const { uploadFile, isUploading } = useUpload({
+    onSuccess: (response) => {
+      setFormData(prev => ({ ...prev, featuredImage: response.objectPath }));
+      toast({
+        title: "Image Uploaded",
+        description: "Featured image uploaded successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Upload Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid File",
+        description: "Please select an image file (JPEG, PNG, WebP)",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Image must be less than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    await uploadFile(file);
+  };
 
   const { data: posts = [], isLoading, error, refetch } = useQuery<BlogPost[]>({
     queryKey: ["blog-posts"],
@@ -500,13 +544,59 @@ export default function BlogManagementTab() {
                 <p className="text-xs text-gray-500 mt-1">{(formData.metaTitle?.length || 0)}/60 characters</p>
               </div>
               <div>
-                <Label htmlFor="featuredImage">Featured Image URL</Label>
-                <Input
-                  id="featuredImage"
-                  value={formData.featuredImage || ""}
-                  onChange={(e) => setFormData({ ...formData, featuredImage: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                />
+                <Label>Featured Image</Label>
+                <div className="space-y-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                    >
+                      {isUploading ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload Image
+                        </>
+                      )}
+                    </Button>
+                    {formData.featuredImage && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setFormData({ ...formData, featuredImage: "" })}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  {formData.featuredImage && (
+                    <div className="relative w-full max-w-xs">
+                      <img
+                        src={formData.featuredImage}
+                        alt="Featured image preview"
+                        className="w-full h-auto rounded-md border object-cover"
+                        style={{ aspectRatio: "3/2", maxHeight: "130px" }}
+                      />
+                      <p className="text-xs text-gray-500 mt-1 truncate">{formData.featuredImage}</p>
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-500">Recommended: 1200×675 (16:9) WebP, max 5MB</p>
+                </div>
               </div>
             </div>
 
