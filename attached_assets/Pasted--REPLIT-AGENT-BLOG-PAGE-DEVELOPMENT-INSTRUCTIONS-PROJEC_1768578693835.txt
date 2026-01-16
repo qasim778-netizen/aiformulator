@@ -1,0 +1,222 @@
+✅ REPLIT AGENT — BLOG PAGE DEVELOPMENT INSTRUCTIONS
+PROJECT CONTEXT
+
+You are building the AIFormulator Blog inside an existing React app hosted on Replit.
+
+This blog is content-first and SEO-focused, NOT a marketplace or product listing.
+
+OBJECTIVE
+
+Create:
+
+/blog (blog listing page)
+
+/blog/[slug] (article detail page)
+
+A simple admin dashboard (internal) to manage blog content
+
+TECH STACK
+
+React (existing app)
+
+React Router
+
+Local JSON or lightweight DB
+
+Tailwind CSS (or existing CSS system)
+
+PART 1 — /blog PAGE LAYOUT
+Section Order (TOP → BOTTOM)
+1. Hero Section
+
+ONE <h1> only:
+“Chemical Product Formulation & AI Manufacturing Guides”
+
+Short intro paragraph (2 lines)
+
+Two buttons:
+
+“Generate Formula with AI” → /generate
+
+“Download Ready-Made Formulas” → /formulations
+
+2. Category Tabs (Primary Filter)
+
+Create horizontal tabs:
+
+All
+Skincare
+Hair Care
+Cleaning Products
+Adhesives & Sealants
+Industrial
+Ingredients
+Business
+
+
+Rules:
+
+Tabs filter articles dynamically
+
+Sticky on scroll
+
+Active tab highlighted
+
+3. Featured How-To Guides
+
+Display max 3 articles
+
+Articles are manually flagged as featured = true
+
+Each card contains:
+
+Image
+
+<h2> title starting with “How to”
+
+Short description
+
+Reading time
+
+Button: “Read Full Guide”
+
+4. Latest Articles Grid
+
+Display remaining articles
+
+Grid: 3 columns desktop, 1 mobile
+
+Each card:
+
+Title
+
+Short summary
+
+Category + product type tags
+
+Buttons:
+
+“Read Full Guide”
+
+“Generate with AI”
+
+5. Region Filter (Secondary)
+
+Optional dropdown:
+
+All | Asia | USA | Europe
+
+PART 2 — ARTICLE PAGE /blog/[slug]
+Layout Order
+
+Breadcrumbs
+
+<h1> article title
+
+Meta info:
+
+Reading time
+
+Category
+
+Product type
+
+Article content sections:
+
+What is the Product?
+
+Applications & Market Demand
+
+Ingredient List
+
+Manufacturing Process
+
+Stability & Tips
+
+Cost & Business
+
+FAQs
+
+Internal linking block:
+
+Related articles
+
+“Generate with AI” CTA
+
+PART 3 — ADMIN MANAGEMENT (INTERNAL)
+
+Create a simple internal admin page:
+
+Article Fields
+title
+slug
+metaTitle
+metaDescription
+featuredImage
+content
+category (dropdown)
+productType (dropdown)
+featureTags (multi-select, max 3)
+region (optional)
+readingTime
+featured (boolean)
+status (draft/published)
+
+Controlled Taxonomy (IMPORTANT)
+Categories (ONLY):
+Skincare
+Hair Care
+Cleaning Products
+Adhesives
+Industrial
+Ingredients
+Business
+
+Product Types:
+Shampoo
+Serum
+Cream
+Gel
+Liquid
+Powder
+
+VALIDATION RULES (MANDATORY)
+
+Shampoo → Hair Care ONLY
+
+Serum → Skincare ONLY
+
+Prevent save if mismatch
+
+Prevent publishing without title, slug, content
+
+PART 4 — SEO (AUTOMATIC)
+
+Implement:
+
+BlogPosting schema
+
+Breadcrumb schema
+
+HowTo schema if steps exist
+
+FAQ schema if FAQs exist
+
+Clean URLs /blog/article-slug
+
+Auto-update sitemap
+
+PART 5 — PERFORMANCE
+
+Pre-render pages (SSR/SSG if available)
+
+Lazy-load images
+
+Avoid blocking scripts
+
+FINAL RULE
+
+This blog must behave as a knowledge hub.
+Do NOT use marketplace UI patterns (ratings, prices, regions as primary filters).
+
+END OF INSTRUCTIONS

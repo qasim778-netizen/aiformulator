@@ -91,6 +91,7 @@ export interface IStorage {
   // Blog Posts Management
   getBlogPosts(): Promise<BlogPost[]>;
   getPublishedBlogPosts(): Promise<BlogPost[]>;
+  getBlogPostById(id: string): Promise<BlogPost | undefined>;
   getBlogPostBySlug(slug: string): Promise<BlogPost | undefined>;
   createBlogPost(blogPost: InsertBlogPost): Promise<BlogPost>;
   updateBlogPost(id: string, blogPost: Partial<InsertBlogPost>): Promise<BlogPost | undefined>;
@@ -2464,6 +2465,10 @@ export class MemStorage implements IStorage {
       .sort((a, b) => 
         new Date(b.publishedAt || b.createdAt).getTime() - new Date(a.publishedAt || a.createdAt).getTime()
       );
+  }
+
+  async getBlogPostById(id: string): Promise<BlogPost | undefined> {
+    return this.blogPosts.get(id);
   }
 
   async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {

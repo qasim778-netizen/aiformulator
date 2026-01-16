@@ -2777,10 +2777,24 @@ Allow: /disclaimer`;
     }
   });
 
-  // Get single blog post by slug
-  app.get("/api/blog/:slug", async (req, res) => {
+  // Get single blog post by slug (explicit route)
+  app.get("/api/blog/slug/:slug", async (req, res) => {
     try {
       const blogPost = await storage.getBlogPostBySlug(req.params.slug);
+      if (!blogPost) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+      res.json(blogPost);
+    } catch (error: any) {
+      console.error("Failed to fetch blog post:", error);
+      res.status(500).json({ message: "Failed to fetch blog post" });
+    }
+  });
+
+  // Get single blog post by ID (for admin editing)
+  app.get("/api/blog/:id", async (req, res) => {
+    try {
+      const blogPost = await storage.getBlogPostById(req.params.id);
       if (!blogPost) {
         return res.status(404).json({ message: "Blog post not found" });
       }

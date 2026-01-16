@@ -315,24 +315,61 @@ export const insertPageSchema = createInsertSchema(pages).omit({
 export type InsertPage = z.infer<typeof insertPageSchema>;
 export type Page = typeof pages.$inferSelect;
 
+// Blog categories enum
+export const blogCategories = [
+  "Skincare",
+  "Hair Care", 
+  "Cleaning Products",
+  "Adhesives",
+  "Industrial",
+  "Ingredients",
+  "Business"
+] as const;
+
+// Blog product types enum
+export const blogProductTypes = [
+  "Shampoo",
+  "Serum",
+  "Cream",
+  "Gel",
+  "Liquid",
+  "Powder"
+] as const;
+
+// Blog regions enum
+export const blogRegions = [
+  "All",
+  "Asia",
+  "USA",
+  "Europe"
+] as const;
+
 // Blog posts table
 export const blogPosts = pgTable("blog_posts", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(), // SEO-friendly URL slug
-  excerpt: text("excerpt"), // Short description for preview
-  content: text("content").notNull(), // Full HTML content
-  featuredImage: text("featured_image"), // Optional featured image URL
+  metaTitle: text("meta_title"), // SEO page title
   metaDescription: text("meta_description"), // SEO meta description
-  keywords: text("keywords"), // SEO keywords (comma-separated)
+  excerpt: text("excerpt"), // Short description for preview
+  content: text("content").notNull(), // Full HTML content with structured sections
+  featuredImage: text("featured_image"), // Optional featured image URL
+  category: text("category").notNull().default("Skincare"), // Main category
+  productType: text("product_type"), // Product type (Shampoo, Serum, etc.)
+  featureTags: text("feature_tags"), // JSON array of feature tags (max 3)
+  region: text("region"), // Optional region filter
+  readingTime: integer("reading_time").notNull().default(5), // Reading time in minutes
+  featured: boolean("featured").notNull().default(false), // Featured article flag
   authorName: text("author_name").notNull().default("AI Formulator Team"),
   isPublished: boolean("is_published").notNull().default(false),
   publishedAt: timestamp("published_at"),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
 }, (table) => ({
-  slugIndex: index("blog_post_slug_idx").on(table.slug), // Index for SEO URL lookups
+  slugIndex: index("blog_post_slug_idx").on(table.slug),
   publishedIndex: index("blog_post_published_idx").on(table.isPublished, table.publishedAt),
+  categoryIndex: index("blog_post_category_idx").on(table.category),
+  featuredIndex: index("blog_post_featured_idx").on(table.featured),
 }));
 
 export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
@@ -349,10 +386,19 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
     }
     return val;
   }).nullable().optional(),
+  category: z.enum(blogCategories).default("Skincare"),
+  productType: z.enum(blogProductTypes).optional().nullable(),
+  featureTags: z.string().optional().nullable(),
+  region: z.enum(blogRegions).optional().nullable(),
+  readingTime: z.number().int().min(1).max(60).default(5),
+  featured: z.boolean().default(false),
 });
 
 export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
 export type BlogPost = typeof blogPosts.$inferSelect;
+export type BlogCategory = typeof blogCategories[number];
+export type BlogProductType = typeof blogProductTypes[number];
+export type BlogRegion = typeof blogRegions[number];
 
 // User downloads table - tracks formulation PDF downloads
 export const userDownloads = pgTable("user_downloads", {
