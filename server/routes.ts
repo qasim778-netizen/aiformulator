@@ -16,6 +16,7 @@ import { addSEOFields, generateStructuredData } from "./seo-utils";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { aiBlogGenerator } from "./ai-blog-generator";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { optimizeFormulationName } from "./name-optimizer";
 import { savePDFFile, saveTextFile, generateTextContent } from "./file-storage";
 import bcrypt from "bcrypt";
@@ -108,6 +109,9 @@ const requireAdmin = async (req: any, res: any, next: any) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Register object storage routes for file uploads
+  registerObjectStorageRoutes(app);
+
   // Add X-Robots-Tag noindex header to all API routes
   app.use('/api', (req, res, next) => {
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
