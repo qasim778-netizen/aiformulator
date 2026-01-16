@@ -2808,18 +2808,24 @@ Allow: /disclaimer`;
   // Create new blog post
   app.post("/api/blog", requireAdmin, async (req, res) => {
     try {
+      console.log("Creating blog post with data:", JSON.stringify(req.body, null, 2));
       const validatedData = insertBlogPostSchema.parse(req.body);
+      console.log("Validated data:", JSON.stringify(validatedData, null, 2));
       const blogPost = await storage.createBlogPost(validatedData);
+      console.log("Blog post created:", blogPost.id);
       res.status(201).json(blogPost);
     } catch (error: any) {
       console.error("Failed to create blog post:", error);
+      console.error("Error details:", error.message, error.stack);
       if (error.issues) {
+        const issues = error.issues.map((issue: any) => ({
+          path: issue.path,
+          message: issue.message
+        }));
+        console.error("Validation issues:", JSON.stringify(issues, null, 2));
         res.status(400).json({ 
           message: "Validation failed", 
-          issues: error.issues.map((issue: any) => ({
-            path: issue.path,
-            message: issue.message
-          }))
+          issues
         });
       } else {
         res.status(400).json({ message: error.message || "Invalid blog post data" });
