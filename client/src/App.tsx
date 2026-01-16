@@ -31,6 +31,7 @@ import ResetPasswordPage from "@/pages/reset-password";
 import AdminDashboard from "@/pages/admin-dashboard";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import { CanonicalLinkManager } from "@/components/canonical-link-manager";
 
 function Router() {
   return (
@@ -69,6 +70,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      <CanonicalLinkManager />
       <Navbar />
       <main className="flex-1">
         <Router />
