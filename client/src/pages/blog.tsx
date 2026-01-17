@@ -86,11 +86,11 @@ export default function BlogPage() {
 
   const featuredPosts = useMemo(() => {
     // On "All" category: show 6 featured from all posts
-    // On specific category: show only 3 featured from that category
+    // On specific category: show 9 featured from that category
     if (activeCategory === "All") {
       return posts.filter((post) => post.featured).slice(0, 6);
     }
-    return filteredPosts.filter((post) => post.featured).slice(0, 3);
+    return filteredPosts.filter((post) => post.featured).slice(0, 9);
   }, [posts, filteredPosts, activeCategory]);
 
   const latestPosts = useMemo(() => {
