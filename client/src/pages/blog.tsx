@@ -85,12 +85,19 @@ export default function BlogPage() {
   }, [posts, activeCategory, activeRegion]);
 
   const featuredPosts = useMemo(() => {
+    // On "All" category: show 6 featured from all posts
+    // On specific category: show only 3 featured from that category
+    if (activeCategory === "All") {
+      return posts.filter((post) => post.featured).slice(0, 6);
+    }
     return filteredPosts.filter((post) => post.featured).slice(0, 3);
-  }, [filteredPosts]);
+  }, [posts, filteredPosts, activeCategory]);
 
   const latestPosts = useMemo(() => {
-    return filteredPosts.filter((post) => !post.featured);
-  }, [filteredPosts]);
+    // Exclude featured posts that are shown in the featured section
+    const featuredIds = new Set(featuredPosts.map(p => p.id));
+    return filteredPosts.filter((post) => !featuredIds.has(post.id));
+  }, [filteredPosts, featuredPosts]);
 
   const allCategories = ["All", ...blogCategories];
 
