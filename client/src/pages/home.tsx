@@ -17,7 +17,7 @@ export default function Home() {
     // Set unique meta description for home page
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute('content', 'AI-powered chemical formulation platform for professional and industrial use. Create custom formulations or browse our library of professional formulas.');
+      metaDesc.setAttribute('content', 'AI formulation generator for industrial and commercial products. Use our chemical formulation AI to create custom formulas instantly or browse 50+ professional product formulations with cost optimization and technical documentation.');
     }
     
     // Add Organization and Website JSON-LD structured data
