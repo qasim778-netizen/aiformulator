@@ -12,7 +12,7 @@ export default function Home() {
   const [isWizardActive, setIsWizardActive] = useState(false)
 
   useEffect(() => {
-    document.title = "AI Formulator – AI Chemical Formulations Platform"
+    document.title = "AI Formulation Generator | Online Chemical Formulation Software"
     
     // Set unique meta description for home page
     const metaDesc = document.querySelector('meta[name="description"]');
