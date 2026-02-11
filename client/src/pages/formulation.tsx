@@ -1,11 +1,11 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, Link, useLocation } from "wouter";
-import { ArrowLeft, Download, Printer, Bookmark, BookmarkCheck } from "lucide-react";
+import { ArrowLeft, Download, Printer, Bookmark, BookmarkCheck, ArrowRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Formulation, Category, FormulationContent } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -45,6 +45,18 @@ export default function FormulationPage() {
     queryKey: ["/api/categories", formulation?.categoryId],
     enabled: !!formulation?.categoryId,
   });
+
+  const { data: allFormulations = [] } = useQuery<Formulation[]>({
+    queryKey: ["/api/formulations"],
+    enabled: !!formulation?.categoryId,
+  });
+
+  const relatedProducts = useMemo(() => {
+    if (!formulation || !allFormulations.length) return [];
+    return allFormulations
+      .filter((f) => f.categoryId === formulation.categoryId && f.id !== formulation.id && f.isActive)
+      .slice(0, 6);
+  }, [allFormulations, formulation]);
 
   // Check if already favorited on load from backend
   const { data: userFavorites } = useQuery<any[]>({
@@ -478,6 +490,53 @@ export default function FormulationPage() {
 
           </CardContent>
         </Card>
+
+        {/* Related Products from Same Category */}
+        {relatedProducts.length > 0 && (
+          <section className="mt-12">
+            <h2 className="text-2xl font-inter font-bold text-gray-900 mb-6">
+              Related {category?.name || "Product"} Formulations
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {relatedProducts.map((product) => (
+                <Link key={product.id} href={`/formulation/${product.slug || product.id}`}>
+                  <Card className="h-full bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                    {product.image && (
+                      <div className="bg-gray-50 rounded-t-lg overflow-hidden" style={{ aspectRatio: "3/2" }}>
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
+                    <CardContent className="p-4">
+                      <div className="mb-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {category?.name || "Formula"}
+                        </Badge>
+                      </div>
+                      <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2 mb-2">
+                        {product.name}
+                      </h3>
+                      <div className="flex items-center justify-between mt-auto">
+                        <span className="text-xs text-gray-500 flex items-center">
+                          <Download className="h-3 w-3 mr-1" />
+                          PDF Available
+                        </span>
+                        <span className="text-primary text-sm font-medium flex items-center">
+                          View Formula
+                          <ArrowRight className="h-3 w-3 ml-1" />
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );
