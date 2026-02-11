@@ -52,11 +52,10 @@ export default function FAQ() {
   ]
 
   return (
-    <div className="w-full py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-[#F5F5F5] rounded-2xl">
+    <div className="w-full">
       <div className="max-w-6xl mx-auto">
-        {/* Section Title */}
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1A2B4B] mb-3">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1A2B4B] mb-3 tracking-tight">
             Frequently Asked Questions
           </h2>
           <p className="text-base sm:text-lg text-[#6B7280] max-w-2xl mx-auto">
@@ -64,26 +63,25 @@ export default function FAQ() {
           </p>
         </div>
 
-        {/* FAQ Grid - 2 Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 mb-12 sm:mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[30px] mb-12 sm:mb-16">
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="flex flex-col"
+              className="bg-gray-50 rounded-2xl p-6 transition-all duration-300 hover:shadow-md"
+              style={{ boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}
             >
               <button
                 onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
-                className="flex items-start justify-between gap-4 text-left transition-colors duration-300 pb-4 border-b border-[#E5E7EB] hover:text-[#4A90E2]"
+                className="flex items-start justify-between gap-4 text-left w-full"
               >
                 <span className="text-base sm:text-lg font-semibold text-[#1A2B4B] leading-relaxed flex-1 hover:text-[#4A90E2] transition-colors">
                   {faq.question}
                 </span>
-                <div className={`flex-shrink-0 text-[#4A90E2] text-2xl transition-transform duration-300 ${expandedIndex === index ? 'rotate-45' : ''}`}>
+                <div className={`flex-shrink-0 text-[#4A90E2] text-2xl font-bold transition-transform duration-300 ${expandedIndex === index ? 'rotate-45' : ''}`}>
                   +
                 </div>
               </button>
 
-              {/* Expanded Answer */}
               {expandedIndex === index && (
                 <div className="pt-4 mt-4 border-t border-[#E5E7EB]">
                   <p className="text-sm sm:text-base text-[#6B7280] leading-relaxed">

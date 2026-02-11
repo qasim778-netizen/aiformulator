@@ -56,7 +56,7 @@ export default function SampleFormulations() {
     setScrollSnaps(emblaApi.scrollSnapList())
 
     const onSelect = () => {
-      const index = emblaApi.selectedIndex?.() ?? 0
+      const index = (emblaApi as any).selectedIndex?.() ?? emblaApi.selectedScrollSnap?.() ?? 0
       setSelectedIndex(index)
     }
 
@@ -70,7 +70,7 @@ export default function SampleFormulations() {
 
   if (isLoading) {
     return (
-      <div className="w-full py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gradient-to-b from-white to-blue-50">
+      <div className="w-full">
         <div className="max-w-7xl mx-auto text-center">
           <p className="text-gray-500">Loading sample formulations...</p>
         </div>
@@ -83,15 +83,14 @@ export default function SampleFormulations() {
   }
 
   return (
-    <div className="w-full py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gradient-to-b from-white to-blue-50">
+    <div className="w-full">
       <div className="max-w-7xl mx-auto">
-        {/* Section Title */}
         <div className="text-center mb-12 sm:mb-16">
           <div className="inline-flex items-center justify-center gap-2 mb-3 px-4 py-2 bg-blue-100 rounded-full">
             <Sparkles className="w-4 h-4 text-[#4A90E2]" />
             <span className="text-sm font-semibold text-[#4A90E2]">Ready-Made Formulas</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1A2B4B] mb-3">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1A2B4B] mb-3 tracking-tight">
             Sample Formulations
           </h2>
           <p className="text-base sm:text-lg text-[#6B7280] max-w-2xl mx-auto">
@@ -99,25 +98,20 @@ export default function SampleFormulations() {
           </p>
         </div>
 
-        {/* Carousel Container */}
         <div className="relative">
-          {/* Carousel */}
           <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex gap-6 sm:gap-8">
+            <div className="flex gap-[30px]">
               {formulations.map((formula) => (
                 <div
                   key={formula.id}
                   className="flex-none min-w-0 sm:basis-1/2 lg:basis-1/3 group"
                 >
-                  <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col h-full">
-                    {/* Image Container */}
+                  <div className="bg-white rounded-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col h-full" style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
                     <div className="relative w-full h-56 sm:h-64 bg-gradient-to-br from-blue-50 to-white overflow-hidden flex items-center justify-center">
-                      {/* Category Badge */}
                       <div className="absolute top-3 right-3 z-10 px-3 py-1 bg-[#4A90E2] text-white text-xs font-bold rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         {formula.category}
                       </div>
 
-                      {/* Product Image */}
                       <img
                         src={formula.image}
                         alt={formula.title}
@@ -125,23 +119,18 @@ export default function SampleFormulations() {
                         loading="lazy"
                       />
 
-                      {/* Shine Effect */}
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500 translate-x-[-100%] group-hover:translate-x-[100%]" />
                     </div>
 
-                    {/* Content Container */}
                     <div className="flex-1 p-5 sm:p-6 flex flex-col">
-                      {/* Title */}
                       <h3 className="text-lg sm:text-xl font-bold text-[#1A2B4B] mb-2 leading-snug group-hover:text-[#4A90E2] transition-colors duration-300">
                         {formula.title}
                       </h3>
 
-                      {/* Description */}
                       <p className="text-sm text-[#6B7280] flex-grow mb-4 leading-relaxed">
                         {formula.description}
                       </p>
 
-                      {/* Link */}
                       <a
                         href={formula.link}
                         className="inline-flex items-center text-[#4A90E2] font-semibold hover:text-[#2563eb] group/link gap-2 transition-all duration-300"
@@ -156,7 +145,6 @@ export default function SampleFormulations() {
             </div>
           </div>
 
-          {/* Navigation Arrows */}
           <button
             onClick={onPrevClick}
             className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 sm:-translate-x-6 z-20 p-2 sm:p-3 bg-[#4A90E2] text-white rounded-full hover:bg-[#2563eb] transition-all duration-300 shadow-lg"
@@ -174,7 +162,6 @@ export default function SampleFormulations() {
           </button>
         </div>
 
-        {/* Pagination Dots */}
         {scrollSnaps.length > 1 && (
           <div className="flex items-center justify-center gap-2 mt-8 sm:mt-12">
             {scrollSnaps.map((_, index) => (
@@ -192,7 +179,6 @@ export default function SampleFormulations() {
           </div>
         )}
 
-        {/* CTA Section */}
         <div className="mt-16 text-center">
           <p className="text-[#6B7280] text-base sm:text-lg mb-6">
             Don't see what you're looking for?
