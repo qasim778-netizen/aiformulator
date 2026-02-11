@@ -530,7 +530,7 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
           {/* Footer Text */}
           <p className="text-xs text-gray-500 mt-4 flex items-center justify-center">
             <span className="mr-2">🔓</span>
-            100% Free • No Registration Required • Professional Results
+            Free Account • Secure Access • Professional-Grade Results
           </p>
         </CardContent>
       </Card>
