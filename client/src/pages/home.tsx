@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, Crown, Building2, Store, Factory, FlaskConical, Rocket } from 'lucide-react'
 import AIFormulatorWizard from '@/components/ai-formulator-wizard'
 import HowItWorks from '@/components/how-it-works'
 import WhyChooseFormulator from '@/components/why-choose-formulator'
@@ -118,6 +118,45 @@ export default function Home() {
           <div className="mt-12 sm:mt-16 lg:mt-20">
             <SampleFormulations />
           </div>
+        )}
+
+        {/* Who Can Use Section */}
+        {!isWizardActive && (
+          <section className="mt-12 sm:mt-16 lg:mt-20">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl md:text-4xl font-inter font-bold text-gray-900 mb-4">
+                Who Can Use AF Formulation Software?
+              </h2>
+              <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+                AF Formulation Software is designed for professionals and businesses who need structured, commercial-grade chemical formulations.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {[
+                { icon: Crown, title: "Brand Owners", desc: "Launching private-label products", color: "from-amber-400 to-yellow-500" },
+                { icon: Building2, title: "Professional Formulators", desc: "R&D specialists creating new formulations", color: "from-blue-400 to-indigo-500" },
+                { icon: Store, title: "Small Business Owners", desc: "Starting manufacturing operations", color: "from-emerald-400 to-teal-500" },
+                { icon: Factory, title: "Contract Manufacturers", desc: "OEM/ODM chemical producers", color: "from-purple-400 to-violet-500" },
+                { icon: FlaskConical, title: "Chemical Traders", desc: "Raw material suppliers for formulation", color: "from-cyan-400 to-blue-500" },
+                { icon: Rocket, title: "Startup Entrepreneurs", desc: "Entering the chemical industry", color: "from-pink-400 to-rose-500" },
+              ].map((item) => (
+                <Card key={item.title} className="bg-gray-50 border border-gray-100 hover:shadow-md transition-shadow text-center">
+                  <CardContent className="p-6">
+                    <div className={`bg-gradient-to-br ${item.color} bg-opacity-10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4`}>
+                      <div className="bg-white/90 w-14 h-14 rounded-full flex items-center justify-center">
+                        <item.icon className="h-7 w-7 text-primary" />
+                      </div>
+                    </div>
+                    <h3 className="font-bold text-gray-900 text-lg mb-1">{item.title}</h3>
+                    <p className="text-gray-500 text-sm">{item.desc}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <p className="text-center text-gray-500 mt-8 text-sm">
+              Built for professionals who need commercial-grade formulations — not hobby recipes.
+            </p>
+          </section>
         )}
 
         {/* Global Reach Section */}
