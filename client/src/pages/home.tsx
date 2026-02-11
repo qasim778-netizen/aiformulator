@@ -71,8 +71,8 @@ export default function Home() {
             <h2 className="text-xl sm:text-2xl text-gray-600 mb-2">
               AI-Powered Formulation Solutions for Small Business
             </h2>
-            <p className="text-base sm:text-lg text-gray-500 max-w-3xl mx-auto">
-              Create custom chemical formulations instantly with our AI wizard or browse our extensive library of professional formulas
+            <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              AIFormulator is an advanced AI formulation generator built for manufacturers and small businesses. Our chemical formulation AI helps you create commercial-ready product formulas with accurate ingredient percentages, cost optimization, and professional documentation — all through a powerful online formulation tool.
             </p>
           </div>
         )}
