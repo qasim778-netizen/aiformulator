@@ -232,6 +232,7 @@ export class DatabaseStorage implements IStorage {
       .update(formulationsTable)
       .set({ 
         isActive,
+        status: isActive ? 'published' : 'draft',
         updatedAt: new Date(),
       })
       .where(eq(formulationsTable.id, id))
@@ -302,6 +303,7 @@ export class DatabaseStorage implements IStorage {
       textPath: dbFormulation.textPath,
       userId: dbFormulation.userId,
       isActive: dbFormulation.isActive ?? true,
+      status: dbFormulation.status || (dbFormulation.isActive ? 'published' : 'draft'),
       createdAt: dbFormulation.createdAt,
       updatedAt: dbFormulation.updatedAt,
     };

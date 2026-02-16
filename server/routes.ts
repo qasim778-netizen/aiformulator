@@ -158,9 +158,9 @@ Sitemap: https://aiformulator.net/sitemap.xml
         xml += `  <url><loc>${baseUrl}/collection/${cat.slug}</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>\n`;
       }
       
-      // Formulations
+      // Formulations (only published)
       for (const form of formulations) {
-        if (form.isActive) {
+        if (form.status === 'published' && form.isActive) {
           xml += `  <url><loc>${baseUrl}/formulation/${form.slug}</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>\n`;
         }
       }
@@ -747,9 +747,8 @@ Sitemap: https://aiformulator.net/sitemap.xml
         allFormulations = await storage.getFormulations();
       }
       
-      // Filter to only active formulations for non-admin users
       if (!isAdmin) {
-        allFormulations = allFormulations.filter(f => f.isActive);
+        allFormulations = allFormulations.filter(f => f.isActive && f.status === 'published');
       }
       
       const totalItems = allFormulations.length;
@@ -790,6 +789,10 @@ Sitemap: https://aiformulator.net/sitemap.xml
       
       if (!formulation) {
         return res.status(404).json({ message: "Formulation not found" });
+      }
+      
+      if (formulation.status !== 'published' || !formulation.isActive) {
+        res.setHeader('X-Robots-Tag', 'noindex, nofollow');
       }
       
       // Get admin-generated page content if it exists (for public display)
@@ -847,8 +850,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
     try {
       const allFormulations = await storage.getFormulations();
       
-      // Only show active formulations in activity notifications
-      const formulations = allFormulations.filter(f => f.isActive);
+      const formulations = allFormulations.filter(f => f.isActive && f.status === 'published');
       
       if (formulations.length === 0) {
         return res.json(null);
@@ -907,8 +909,8 @@ Sitemap: https://aiformulator.net/sitemap.xml
       const stats = {
         totalCategories: categories.length,
         totalFormulations: formulations.length,
-        activeFormulations: formulations.filter(f => f.isActive).length,
-        draftFormulations: formulations.filter(f => !f.isActive).length,
+        activeFormulations: formulations.filter(f => f.status === 'published').length,
+        draftFormulations: formulations.filter(f => f.status === 'draft').length,
       };
       
       res.json(stats);
@@ -1305,6 +1307,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
               instructions: JSON.stringify(formData.instructions || []),
               usageInstructions: formData.usageInstructions || "Follow standard application procedures",
               isActive: true,
+              status: 'published',
             });
             
             formulationId = newFormulation.id;
@@ -1862,8 +1865,9 @@ Allow: /disclaimer`;
   </url>`;
       });
 
-      // Add formulation pages (only active ones)
-      formulations.filter(f => f.isActive).forEach(formulation => {
+      // Add formulation pages (only published ones)
+      const publishedFormulations = formulations.filter(f => f.status === 'published' && f.isActive);
+      publishedFormulations.forEach(formulation => {
         const url = formulation.slug ? `/formulation/${formulation.slug}` : `/formulation/${formulation.id}`;
         sitemap += `
   <url>
@@ -1878,7 +1882,7 @@ Allow: /disclaimer`;
 </urlset>`;
 
       res.send(sitemap);
-      console.log(`📋 Sitemap generated with ${staticPages.length + categories.length + formulations.filter(f => f.isActive).length} URLs`);
+      console.log(`📋 Sitemap generated with ${staticPages.length + categories.length + publishedFormulations.length} URLs`);
     } catch (error) {
       console.error('Failed to generate sitemap:', error);
       res.status(500).send('Error generating sitemap');
@@ -2105,7 +2109,8 @@ Allow: /disclaimer`;
           temperature: aiFormulation.temperature || "Room temperature (20-25°C)",
           equipment: aiFormulation.equipment || "Standard mixing equipment, pH meter, thermometer",
           certification: aiFormulation.certification || "Meets industry standards",
-          isActive: false
+          isActive: false,
+          status: 'draft',
         };
         
         console.log(`✅ Formulation validation score: ${validationResult.overallScore}/100 (${validationResult.isValid ? 'VALID' : 'NEEDS REVIEW'})`);
@@ -2176,7 +2181,8 @@ Allow: /disclaimer`;
           temperature: "Room temperature (20-25°C)",
           equipment: "Standard mixing equipment, pH meter, thermometer",
           certification: "Meets industry standards",
-          isActive: false
+          isActive: false,
+          status: 'draft',
         }
       };
 
@@ -2194,7 +2200,8 @@ Allow: /disclaimer`;
       const formulationWithSEO = addSEOFields({
         ...formulation,
         categoryId,
-        isActive: false // This will make it appear in pending approval
+        isActive: false,
+        status: 'draft',
       }, categoryName);
       
       // Create slug for the formulation
@@ -2228,8 +2235,9 @@ Allow: /disclaimer`;
           pdfPath: pdfFile.filename,
           textPath: textFile.filename,
           userId: (req as any).session?.userId || null,
-          categoryId: categoryId, // Always use "Custom Innovations" category for customer-generated formulas
-          isActive: false // Pending approval
+          categoryId: categoryId,
+          isActive: false,
+          status: 'draft',
         });
         console.log(`✅ Formulation saved to database: ${savedFormulation.id}`);
       } catch (saveError) {
@@ -2666,7 +2674,8 @@ Allow: /disclaimer`;
         temperature: "Room temperature (20-25°C)",
         equipment: "Standard mixing tank with agitation",
         certification: "Meets industry standards",
-        isActive: true
+        isActive: true,
+        status: 'published',
       };
       
       // Import validation function

@@ -54,7 +54,7 @@ export default function FormulationPage() {
   const relatedProducts = useMemo(() => {
     if (!formulation || !allFormulations.length) return [];
     return allFormulations
-      .filter((f) => f.categoryId === formulation.categoryId && f.id !== formulation.id && f.isActive)
+      .filter((f) => f.categoryId === formulation.categoryId && f.id !== formulation.id && f.isActive && f.status === 'published')
       .slice(0, 6);
   }, [allFormulations, formulation]);
 
@@ -155,7 +155,26 @@ export default function FormulationPage() {
         document.head.appendChild(ogUrlElement);
       }
       ogUrlElement.setAttribute('content', pageUrl);
+
+      let robotsElement = document.querySelector('meta[name="robots"]');
+      if (formulation.status !== 'published' || !formulation.isActive) {
+        if (!robotsElement) {
+          robotsElement = document.createElement('meta');
+          robotsElement.setAttribute('name', 'robots');
+          document.head.appendChild(robotsElement);
+        }
+        robotsElement.setAttribute('content', 'noindex, nofollow');
+      } else {
+        if (robotsElement) {
+          robotsElement.remove();
+        }
+      }
     }
+
+    return () => {
+      const robotsEl = document.querySelector('meta[name="robots"]');
+      if (robotsEl) robotsEl.remove();
+    };
   }, [formulation, category, formulationId]);
 
   // PDF Generation function

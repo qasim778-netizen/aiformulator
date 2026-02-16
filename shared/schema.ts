@@ -47,10 +47,12 @@ export const formulations = pgTable("formulations", {
   textPath: text("text_path"), // Path to stored text file
   userId: varchar("user_id"), // Owner of custom formulation
   isActive: boolean("is_active").notNull().default(true),
+  status: text("status").notNull().default("draft"),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
 }, (table) => ({
-  slugIndex: index("formulation_slug_idx").on(table.slug), // Index for SEO URL lookups
+  slugIndex: index("formulation_slug_idx").on(table.slug),
+  statusIndex: index("formulation_status_idx").on(table.status),
 }));
 
 // Formulation Content table - admin-managed page content for each formulation

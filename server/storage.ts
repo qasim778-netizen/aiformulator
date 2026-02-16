@@ -1795,6 +1795,7 @@ export class MemStorage implements IStorage {
     const updated: Formulation = {
       ...existing,
       isActive,
+      status: isActive ? 'published' : 'draft',
       updatedAt: new Date(),
     };
     this.formulations.set(id, updated);
