@@ -520,10 +520,10 @@ export default function FormulationPage() {
               {relatedProducts.map((product) => (
                 <Link key={product.id} href={`/formulation/${product.slug || product.id}`}>
                   <Card className="h-full bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                    {product.image && (
+                    {(product.thumbnail || product.image) && (
                       <div className="bg-gray-50 rounded-t-lg overflow-hidden" style={{ aspectRatio: "3/2" }}>
                         <img
-                          src={product.image}
+                          src={(product.thumbnail || product.image) ?? undefined}
                           alt={product.name}
                           className="w-full h-full object-cover"
                           loading="lazy"

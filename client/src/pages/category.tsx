@@ -180,11 +180,12 @@ export default function CategoryPage() {
                 data-testid={`formula-card-${formulation.id}`}
               >
                 {/* Card Image */}
-                {formulation.image ? (
+                {(formulation.thumbnail || formulation.image) ? (
                   <img
-                    src={formulation.image}
+                    src={(formulation.thumbnail || formulation.image) ?? undefined}
                     alt={formulation.name}
                     className="w-full h-48 object-cover object-center"
+                    loading="lazy"
                   />
                 ) : (
                   <div className="w-full h-48 flex items-center justify-center" style={{ backgroundColor: "#F0F4FF" }}>

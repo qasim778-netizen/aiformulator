@@ -131,20 +131,21 @@ function ImageUploadSection({ form, formulationName }: { form: any, formulationN
         const filenameWithoutQuery = urlPath.split('?')[0]; // Remove query parameters
         const objectPath = `/objects/uploads/${filenameWithoutQuery}`;
         
-        // Set ACL policy for the uploaded image
         try {
-          const aclData = await apiRequest("PUT", "/api/formulation-images", {
+          const aclResponse = await apiRequest("PUT", "/api/formulation-images", {
             imageURL: data.uploadURL
           });
+          const aclData = await aclResponse.json();
           
-          const finalObjectPath = (aclData as any).objectPath || objectPath;
+          const finalObjectPath = aclData.objectPath || objectPath;
           setPreviewUrl(finalObjectPath);
           form.setValue("image", finalObjectPath);
-          // Use SEO-friendly filename instead of original file name
           form.setValue("imageFilename", seoFilename);
+          if (aclData.thumbnailPath) {
+            form.setValue("thumbnail", aclData.thumbnailPath);
+          }
         } catch (aclError) {
           console.error("Error setting image ACL:", aclError);
-          // Fallback to using the path directly
           setPreviewUrl(objectPath);
           form.setValue("image", objectPath);
           form.setValue("imageFilename", seoFilename);
@@ -175,6 +176,7 @@ function ImageUploadSection({ form, formulationName }: { form: any, formulationN
       setPreviewUrl(null);
     }
     form.setValue("image", "");
+    form.setValue("thumbnail", "");
     form.setValue("imageFilename", "");
   };
 

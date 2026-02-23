@@ -29,6 +29,7 @@ export const formulations = pgTable("formulations", {
   metaDescription: text("meta_description"), // SEO meta description (max 160 chars)
   keywords: text("keywords"), // SEO keywords (comma-separated)
   image: text("image"), // Optional AI-generated product image URL
+  thumbnail: text("thumbnail"), // Auto-generated thumbnail for listing pages
   imageAlt: text("image_alt"), // SEO alt text for the image
   imageFilename: text("image_filename"), // Original filename of uploaded image
   ingredients: text("ingredients").notNull(), // JSON string of ingredients array
@@ -99,6 +100,7 @@ export const insertFormulationSchema = createInsertSchema(formulations).omit({
   metaDescription: z.string().optional(),
   keywords: z.string().optional(),
   image: z.string().optional(),
+  thumbnail: z.string().optional(),
   imageAlt: z.string().optional(),
   imageFilename: z.string().optional(),
   viscosity: z.string().optional(),
@@ -110,6 +112,7 @@ export const insertFormulationSchema = createInsertSchema(formulations).omit({
   viscosity: true,
   certification: true,
   image: true,
+  thumbnail: true,
   imageAlt: true,
   imageFilename: true,
   seoTitle: true,

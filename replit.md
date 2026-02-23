@@ -36,7 +36,7 @@ The backend follows a RESTful API design pattern using Express.js:
 The application uses a PostgreSQL database with Drizzle ORM for type-safe database operations:
 
 - **Categories Table**: Stores product categories with metadata (name, description, icon, image)
-- **Formulations Table**: Contains detailed formulation data including ingredients, instructions, and technical specifications
+- **Formulations Table**: Contains detailed formulation data including ingredients, instructions, technical specifications, and auto-generated thumbnail paths
 - **Schema Management**: Drizzle-kit for database migrations and schema evolution
 - **Relationships**: Foreign key relationships between formulations and categories
 
@@ -136,5 +136,15 @@ The system includes a comprehensive blog/knowledge hub for how-to guides and edu
 - BreadcrumbList schema for navigation
 - HowTo schema for step-by-step guides
 - FAQPage schema for Q&A content
+
+### Automatic Thumbnail Generation
+The system includes server-side image processing for optimized thumbnails:
+
+- **Single Upload Flow**: Admin uploads one image per formulation; the system auto-generates an optimized 400x300 JPEG thumbnail
+- **Server-Side Processing**: Uses `sharp` library to resize and compress images on upload
+- **Storage**: Both full-size image and thumbnail stored in object storage with public ACL
+- **Listing Optimization**: Category/browse pages use thumbnails for faster page loads; detail pages show the full-size original
+- **Bulk Generation**: Admin endpoint (`POST /api/admin/generate-thumbnails`) to retroactively create thumbnails for existing formulations
+- **Graceful Fallback**: If thumbnail generation fails, the system continues with the full-size image only
 
 The architecture demonstrates a modern full-stack approach with emphasis on type safety, developer experience, and scalable design patterns suitable for chemical formulation management requirements.

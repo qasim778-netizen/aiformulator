@@ -285,6 +285,7 @@ export class DatabaseStorage implements IStorage {
       metaDescription: dbFormulation.metaDescription || `Professional ${dbFormulation.name} formulation with complete manufacturing guide and ingredients.`,
       keywords: dbFormulation.keywords || `${dbFormulation.name}, chemical formulation, manufacturing guide`,
       image: dbFormulation.image,
+      thumbnail: dbFormulation.thumbnail,
       imageAlt: dbFormulation.imageAlt,
       imageFilename: dbFormulation.imageFilename,
       phLevel: dbFormulation.phLevel,

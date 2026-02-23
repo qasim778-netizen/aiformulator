@@ -22,6 +22,7 @@ import { savePDFFile, saveTextFile, generateTextContent } from "./file-storage";
 import bcrypt from "bcrypt";
 import { signupSchema, loginSchema } from "@shared/schema";
 import { validateFormulation, getValidationReport, getIngredientBreakdown, type ValidationResult } from "./formulation-validator";
+import { generateThumbnail } from "./thumbnail";
 
 // SendGrid email helper function
 async function getSendGridClient() {
@@ -552,12 +553,20 @@ Sitemap: https://aiformulator.net/sitemap.xml
         req.body.imageURL,
         {
           owner: (req.user as any)?.claims?.sub || "system",
-          visibility: "public", // Formulation images should be publicly visible
+          visibility: "public",
         }
       );
 
+      let thumbnailPath: string | null = null;
+      try {
+        thumbnailPath = await generateThumbnail(objectPath);
+      } catch (thumbError) {
+        console.error("Thumbnail generation failed (non-blocking):", thumbError);
+      }
+
       res.status(200).json({
         objectPath: objectPath,
+        thumbnailPath: thumbnailPath,
       });
     } catch (error) {
       console.error("Error setting formulation image ACL:", error);
@@ -620,6 +629,39 @@ Sitemap: https://aiformulator.net/sitemap.xml
     } catch (error) {
       console.error("Error setting formulation image:", error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/admin/generate-thumbnails", isAdmin, async (req, res) => {
+    try {
+      const allFormulations = await storage.getFormulations();
+      const needsThumbnail = allFormulations.filter(f => f.image && !f.thumbnail);
+      let generated = 0;
+      let failed = 0;
+
+      for (const formulation of needsThumbnail) {
+        try {
+          const thumbnailPath = await generateThumbnail(formulation.image!);
+          if (thumbnailPath) {
+            await storage.updateFormulation(formulation.id, { thumbnail: thumbnailPath });
+            generated++;
+          } else {
+            failed++;
+          }
+        } catch (err) {
+          console.error(`Thumbnail failed for ${formulation.id}:`, err);
+          failed++;
+        }
+      }
+
+      res.json({
+        total: needsThumbnail.length,
+        generated,
+        failed,
+      });
+    } catch (error) {
+      console.error("Error generating thumbnails:", error);
+      res.status(500).json({ error: "Failed to generate thumbnails" });
     }
   });
 
