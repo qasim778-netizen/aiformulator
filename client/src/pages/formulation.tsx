@@ -78,7 +78,7 @@ export default function FormulationPage() {
       const shortName = formulation.name.length > 35 ? 
         formulation.name.substring(0, 32) + '...' : 
         formulation.name;
-      let seoTitle = formulation.seoTitle || `${shortName} - ${category.name}`;
+      let seoTitle = formulation.seoTitle || shortName;
       
       // Enforce 60 character limit even for stored seoTitle
       if (seoTitle.length > 60) {
