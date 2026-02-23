@@ -876,9 +876,9 @@ export default function AdminPage() {
                           <tr key={formulation.id}>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="h-16 w-16 flex-shrink-0">
-                                {formulation.image ? (
+                                {(formulation.thumbnail || formulation.image) ? (
                                   <img
-                                    src={formulation.image}
+                                    src={(formulation.thumbnail || formulation.image) ?? undefined}
                                     alt={formulation.imageAlt || `${formulation.name} formulation`}
                                     className="h-16 w-16 rounded-lg object-cover border border-gray-200"
                                   />

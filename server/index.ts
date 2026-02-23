@@ -4,6 +4,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { runMigrations } from "./migrate";
 import { warmCache } from "./db";
+import { getSeoMetaForUrl, injectSeoMeta } from "./seo-middleware";
 
 // Environment validation function
 function validateEnvironment() {
@@ -152,6 +153,48 @@ app.use((req, res, next) => {
 
     res.status(status).json({ message });
     throw err;
+  });
+
+  // SEO middleware: inject page-specific meta tags into HTML responses
+  app.use(async (req: Request, res: Response, next: NextFunction) => {
+    const url = req.originalUrl;
+    if (url.startsWith("/api/") || url.startsWith("/objects/") || url.includes(".")) {
+      return next();
+    }
+
+    const pageRoutes = ["/formulation/", "/category/", "/blog/"];
+    const isPageRoute = pageRoutes.some(route => url.startsWith(route));
+    if (!isPageRoute) {
+      return next();
+    }
+
+    let seoMeta;
+    try {
+      seoMeta = await getSeoMetaForUrl(url);
+    } catch (e) {
+      return next();
+    }
+
+    if (!seoMeta) {
+      return next();
+    }
+
+    const originalEnd = res.end.bind(res);
+
+    (res as any).end = function(this: any, chunk: any, ...args: any[]) {
+      if (chunk) {
+        let html = typeof chunk === "string" ? chunk : (Buffer.isBuffer(chunk) ? chunk.toString("utf-8") : String(chunk));
+        if (html.includes("</head>")) {
+          html = injectSeoMeta(html, seoMeta!);
+          const buf = Buffer.from(html, "utf-8");
+          res.setHeader("content-length", buf.length);
+          return originalEnd(buf, ...args);
+        }
+      }
+      return originalEnd(chunk, ...args);
+    };
+
+    next();
   });
 
   // Setup Vite/static serving AFTER API routes are registered
