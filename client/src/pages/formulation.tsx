@@ -436,13 +436,13 @@ export default function FormulationPage() {
               </Badge>
             </div>
 
-            {/* Formula Image - Full Size */}
+            {/* Formula Image - Full Size (never uses thumbnail) */}
             {formulation.image && (
               <div className="mb-8 rounded-xl overflow-hidden" style={{ backgroundColor: "#F0F4FF" }}>
                 <img
                   src={formulation.image}
-                  alt={formulation.name}
-                  className="w-full max-h-96 object-contain mx-auto"
+                  alt={formulation.imageAlt || formulation.name}
+                  className="w-full max-h-[500px] object-contain mx-auto"
                   data-testid="formulation-detail-image"
                 />
               </div>
