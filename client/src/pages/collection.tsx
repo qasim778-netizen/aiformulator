@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "wouter";
 import { ChevronRight, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import type { Category, Formulation } from "@shared/schema";
 
 export default function Collection() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     document.title = "Chemical Formulation Collections by Category | AI Formulator"
@@ -77,10 +78,10 @@ export default function Collection() {
         </div>
 
         {/* Main Content */}
-        <div className="flex gap-6 p-6 sm:p-6 lg:p-8 flex-1 min-h-[calc(100vh-180px)]">
+        <div className="flex gap-6 p-6 sm:p-6 lg:p-8">
           {/* Left Sidebar - Categories */}
           <div className="w-full sm:w-72 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col" style={{ borderRight: "1px solid #E3E3E3" }}>
+            <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col sticky top-4" style={{ borderRight: "1px solid #E3E3E3", maxHeight: "calc(100vh - 2rem)" }}>
               {/* Sidebar Header */}
               <div className="p-5 border-b" style={{ borderColor: "#E3E3E3", backgroundColor: "#FFFFFF" }}>
                 <h2 className="text-lg font-bold flex items-center gap-2" style={{ color: "#1A1A1A" }}>
@@ -101,6 +102,8 @@ export default function Collection() {
                         key={category.id}
                         onClick={() => {
                           setSelectedCategoryId(category.id);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                          contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
                         }}
                         className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between group font-medium ${
                           isSelected
@@ -144,7 +147,7 @@ export default function Collection() {
           </div>
 
           {/* Right Side - Formulations Grid */}
-          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <div ref={contentRef} className="flex-1 flex flex-col min-w-0">
             {selectedCategory && (
               <>
                 {/* Category Header & Search */}
@@ -163,7 +166,7 @@ export default function Collection() {
 
                 {/* Formulations Grid */}
                 {filteredFormulations.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto auto-rows-max">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {filteredFormulations.map((formulation) => (
                       <div
                         key={formulation.id}
