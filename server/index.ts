@@ -1,5 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import compression from "compression";
+import fs from "fs";
+import path from "path";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { runMigrations } from "./migrate";
@@ -155,47 +157,41 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // SEO middleware: inject page-specific meta tags into HTML responses
-  app.use(async (req: Request, res: Response, next: NextFunction) => {
-    const url = req.originalUrl;
-    if (url.startsWith("/api/") || url.startsWith("/objects/") || url.includes(".")) {
-      return next();
-    }
-
-    const pageRoutes = ["/formulation/", "/category/", "/blog/"];
-    const isPageRoute = pageRoutes.some(route => url.startsWith(route));
-    if (!isPageRoute) {
-      return next();
-    }
-
+  // SSR meta tag injection: handle SEO routes before Vite/static catch-all.
+  // We read the HTML template directly, inject the correct meta tags, and send.
+  // This works in both dev and production (avoids res.sendFile stream issues).
+  async function serveSeoPage(req: Request, res: Response, next: NextFunction) {
+    const url = req.originalUrl.split("?")[0].split("#")[0];
     let seoMeta;
     try {
       seoMeta = await getSeoMetaForUrl(url);
     } catch (e) {
       return next();
     }
+    if (!seoMeta) return next();
 
-    if (!seoMeta) {
+    let htmlPath: string;
+    if (app.get("env") === "development") {
+      htmlPath = path.resolve(import.meta.dirname, "..", "client", "index.html");
+    } else {
+      htmlPath = path.resolve(import.meta.dirname, "public", "index.html");
+    }
+
+    let html: string;
+    try {
+      html = await fs.promises.readFile(htmlPath, "utf-8");
+    } catch (e) {
       return next();
     }
 
-    const originalEnd = res.end.bind(res);
+    html = injectSeoMeta(html, seoMeta);
+    res.status(200).set({ "Content-Type": "text/html" }).send(html);
+  }
 
-    (res as any).end = function(this: any, chunk: any, ...args: any[]) {
-      if (chunk) {
-        let html = typeof chunk === "string" ? chunk : (Buffer.isBuffer(chunk) ? chunk.toString("utf-8") : String(chunk));
-        if (html.includes("</head>")) {
-          html = injectSeoMeta(html, seoMeta!);
-          const buf = Buffer.from(html, "utf-8");
-          res.setHeader("content-length", buf.length);
-          return originalEnd(buf, ...args);
-        }
-      }
-      return originalEnd(chunk, ...args);
-    };
-
-    next();
-  });
+  app.get("/formulation/:slug", serveSeoPage);
+  app.get("/category/:slug", serveSeoPage);
+  app.get("/blog/:slug", serveSeoPage);
+  app.get("/blog", serveSeoPage);
 
   // Setup Vite/static serving AFTER API routes are registered
   // This ensures API routes are handled first before the catch-all
