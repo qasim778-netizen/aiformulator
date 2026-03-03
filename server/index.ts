@@ -160,6 +160,8 @@ app.use((req, res, next) => {
   // SSR meta tag injection: handle SEO routes before Vite/static catch-all.
   // We read the HTML template directly, inject the correct meta tags, and send.
   // This works in both dev and production (avoids res.sendFile stream issues).
+  const SITE_URL = "https://aiformulator.net";
+
   async function serveSeoPage(req: Request, res: Response, next: NextFunction) {
     const url = req.originalUrl.split("?")[0].split("#")[0];
     let seoMeta;
@@ -169,6 +171,10 @@ app.use((req, res, next) => {
       return next();
     }
     if (!seoMeta) return next();
+
+    // Always set canonical to the exact URL the user is visiting,
+    // not the DB slug (which may have old suffixes like -mens-formula).
+    seoMeta.canonicalUrl = `${SITE_URL}${req.path}`;
 
     let htmlPath: string;
     if (app.get("env") === "development") {

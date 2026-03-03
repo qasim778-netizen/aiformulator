@@ -118,6 +118,16 @@ export class DatabaseStorage implements IStorage {
         }
       }
       
+      // Try prefix match: the URL may have had a category suffix stripped by the
+      // redirect middleware (e.g. -mens-formula), so the DB slug starts with the
+      // clean slug but has extra text after it.
+      const [prefixMatch] = await db.select().from(formulationsTable).where(
+        drizzleSql`${formulationsTable.slug} LIKE ${slug + '-%'}`
+      );
+      if (prefixMatch) {
+        return this.mapDbFormulationToFormulation(prefixMatch);
+      }
+
       // If no exact match, try to find by generated slug from name
       const allFormulations = await db.select().from(formulationsTable);
       for (const f of allFormulations) {
