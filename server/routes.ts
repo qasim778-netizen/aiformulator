@@ -138,37 +138,68 @@ Sitemap: https://aiformulator.net/sitemap.xml
 `);
   });
 
-  // Dynamic sitemap.xml
+  // Dynamic sitemap.xml — rebuilt fresh on every request from live DB data
   app.get('/sitemap.xml', async (req, res) => {
     try {
-      const categories = await storage.getCategories();
-      const formulations = await storage.getFormulations();
+      const [categories, formulations, blogPosts] = await Promise.all([
+        storage.getCategories(),
+        storage.getFormulations(),
+        storage.getBlogPosts(),
+      ]);
       const baseUrl = 'https://aiformulator.net';
-      
+
+      function toLastmod(date: Date | string | null | undefined): string {
+        if (!date) return new Date().toISOString().split('T')[0];
+        const d = typeof date === 'string' ? new Date(date) : date;
+        return isNaN(d.getTime()) ? new Date().toISOString().split('T')[0] : d.toISOString().split('T')[0];
+      }
+
+      function url(loc: string, priority: string, changefreq: string, lastmod?: string): string {
+        return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod || new Date().toISOString().split('T')[0]}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>\n`;
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+
       let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
       xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
-      
-      // Homepage
-      xml += `  <url><loc>${baseUrl}/</loc><priority>1.0</priority><changefreq>daily</changefreq></url>\n`;
-      xml += `  <url><loc>${baseUrl}/browse</loc><priority>0.9</priority><changefreq>daily</changefreq></url>\n`;
-      xml += `  <url><loc>${baseUrl}/about</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>\n`;
-      xml += `  <url><loc>${baseUrl}/blog</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>\n`;
-      
-      // Categories
+
+      // Static pages
+      xml += url(`${baseUrl}/`,                    '1.0', 'daily',   today);
+      xml += url(`${baseUrl}/browse`,              '0.9', 'daily',   today);
+      xml += url(`${baseUrl}/collection`,          '0.9', 'daily',   today);
+      xml += url(`${baseUrl}/blog`,                '0.9', 'weekly',  today);
+      xml += url(`${baseUrl}/about`,               '0.5', 'monthly', today);
+      xml += url(`${baseUrl}/faq`,                 '0.5', 'monthly', today);
+      xml += url(`${baseUrl}/demo`,                '0.6', 'monthly', today);
+      xml += url(`${baseUrl}/terms-of-service`,    '0.3', 'monthly', today);
+      xml += url(`${baseUrl}/privacy-policy`,      '0.3', 'monthly', today);
+      xml += url(`${baseUrl}/disclaimer`,          '0.3', 'monthly', today);
+
+      // Category pages (canonical: /category/:slug)
       for (const cat of categories) {
-        xml += `  <url><loc>${baseUrl}/collection/${cat.slug}</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>\n`;
-      }
-      
-      // Formulations (only published)
-      for (const form of formulations) {
-        if (form.status === 'published' && form.isActive) {
-          xml += `  <url><loc>${baseUrl}/formulation/${form.slug}</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>\n`;
+        if (cat.slug) {
+          xml += url(`${baseUrl}/category/${cat.slug}`, '0.8', 'weekly', toLastmod((cat as any).updatedAt));
         }
       }
-      
+
+      // Formulation pages (only published + active)
+      for (const form of formulations) {
+        if (form.status === 'published' && form.isActive && form.slug) {
+          xml += url(`${baseUrl}/formulation/${form.slug}`, '0.7', 'weekly', toLastmod((form as any).updatedAt));
+        }
+      }
+
+      // Blog post pages (only published)
+      for (const post of blogPosts) {
+        if ((post as any).status === 'published' && post.slug) {
+          xml += url(`${baseUrl}/blog/${post.slug}`, '0.6', 'weekly', toLastmod((post as any).updatedAt));
+        }
+      }
+
       xml += '</urlset>';
-      
+
       res.setHeader('Content-Type', 'application/xml');
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.send(xml);
     } catch (error) {
       console.error('Error generating sitemap:', error);
