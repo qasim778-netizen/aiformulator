@@ -123,6 +123,139 @@ export async function getSeoMetaForUrl(url: string): Promise<SeoMeta | null> {
     }
   }
 
+  // Static pages — fixed canonical + unique title/description per page
+  const staticPages: Record<string, SeoMeta> = {
+    "/": {
+      title: "AI Formulation Generator | Online Chemical Formulation Software",
+      description: "AI formulation generator for industrial and commercial products. Create custom chemical formulas instantly or browse 50+ professional product formulations with cost optimization.",
+      ogTitle: "AI Formulation Generator | Online Chemical Formulation Software",
+      ogDescription: "Create custom chemical formulas instantly or browse 50+ professional product formulations with cost optimization and technical documentation.",
+      ogType: "website",
+      canonicalUrl: `${SITE_URL}/`,
+    },
+    "/browse": {
+      title: "Browse Chemical Formulations | AIFormulator",
+      description: "Browse our full library of professional chemical formulations across skincare, cleaning, automotive, construction, and more. Download ready-to-manufacture formulas.",
+      ogTitle: "Browse Chemical Formulations | AIFormulator",
+      ogDescription: "Browse our full library of professional chemical formulations across skincare, cleaning, automotive, construction, and more.",
+      ogType: "website",
+      canonicalUrl: `${SITE_URL}/browse`,
+    },
+    "/collection": {
+      title: "Chemical Formulation Collections by Category | AIFormulator",
+      description: "Browse professional chemical formulation collections organized by product category. Find formulations for skincare, cleaning products, automotive, and more.",
+      ogTitle: "Chemical Formulation Collections by Category | AIFormulator",
+      ogDescription: "Browse professional chemical formulation collections organized by product category.",
+      ogType: "website",
+      canonicalUrl: `${SITE_URL}/collection`,
+    },
+    "/blog": {
+      title: "Chemical Formulation Knowledge Hub | AIFormulator Blog",
+      description: "Expert guides, how-to articles, and industry insights for chemical formulators. Learn about ingredients, manufacturing processes, and product development.",
+      ogTitle: "Chemical Formulation Knowledge Hub | AIFormulator Blog",
+      ogDescription: "Expert guides and how-to articles for chemical formulators on ingredients, manufacturing, and product development.",
+      ogType: "website",
+      canonicalUrl: `${SITE_URL}/blog`,
+    },
+    "/about": {
+      title: "About AIFormulator | AI-Powered Chemical Formulation Platform",
+      description: "Learn about AIFormulator — the AI-powered platform helping small business manufacturers create professional chemical formulations for skincare, cleaning products, and more.",
+      ogTitle: "About AIFormulator | AI-Powered Chemical Formulation Platform",
+      ogDescription: "AIFormulator helps small business manufacturers create professional chemical formulations using AI.",
+      ogType: "website",
+      canonicalUrl: `${SITE_URL}/about`,
+    },
+    "/faq": {
+      title: "Frequently Asked Questions | AIFormulator",
+      description: "Get answers to common questions about AIFormulator — chemical formulation downloads, customization, manufacturing support, and subscription plans.",
+      ogTitle: "Frequently Asked Questions | AIFormulator",
+      ogDescription: "Get answers to common questions about chemical formulation downloads, customization, and subscription plans.",
+      ogType: "website",
+      canonicalUrl: `${SITE_URL}/faq`,
+    },
+    "/demo": {
+      title: "Try the AI Formulation Generator Demo | AIFormulator",
+      description: "See how AIFormulator works. Generate a professional chemical formulation in seconds with our AI-powered demo — no signup required.",
+      ogTitle: "Try the AI Formulation Generator Demo | AIFormulator",
+      ogDescription: "Generate a professional chemical formulation in seconds with our AI-powered demo — no signup required.",
+      ogType: "website",
+      canonicalUrl: `${SITE_URL}/demo`,
+    },
+    "/terms-of-service": {
+      title: "Terms of Service | AIFormulator",
+      description: "Read AIFormulator's Terms of Service covering usage rights, intellectual property, and platform policies for chemical formulation software.",
+      ogTitle: "Terms of Service | AIFormulator",
+      ogDescription: "Terms of Service for AIFormulator — usage rights, intellectual property, and platform policies.",
+      ogType: "website",
+      canonicalUrl: `${SITE_URL}/terms-of-service`,
+    },
+    "/privacy-policy": {
+      title: "Privacy Policy | AIFormulator",
+      description: "Read AIFormulator's Privacy Policy to understand how we collect, use, and protect your personal data on our chemical formulation platform.",
+      ogTitle: "Privacy Policy | AIFormulator",
+      ogDescription: "How AIFormulator collects, uses, and protects your personal data.",
+      ogType: "website",
+      canonicalUrl: `${SITE_URL}/privacy-policy`,
+    },
+    "/disclaimer": {
+      title: "Disclaimer | AIFormulator",
+      description: "Read the AIFormulator disclaimer regarding formulation accuracy, professional use guidelines, and liability limitations for chemical formulation content.",
+      ogTitle: "Disclaimer | AIFormulator",
+      ogDescription: "Disclaimer regarding formulation accuracy, professional use, and liability for AIFormulator content.",
+      ogType: "website",
+      canonicalUrl: `${SITE_URL}/disclaimer`,
+    },
+    "/signup": {
+      title: "Create Your Account | AIFormulator",
+      description: "Sign up for AIFormulator and access professional chemical formulations, AI-powered formula generation, and manufacturing guides.",
+      ogTitle: "Create Your Account | AIFormulator",
+      ogDescription: "Sign up for AIFormulator and access professional chemical formulations and AI formula generation.",
+      ogType: "website",
+      canonicalUrl: `${SITE_URL}/signup`,
+      noindex: true,
+    },
+    "/login": {
+      title: "Sign In | AIFormulator",
+      description: "Sign in to your AIFormulator account to access your chemical formulations, downloads, and account settings.",
+      ogTitle: "Sign In | AIFormulator",
+      ogDescription: "Sign in to access your AIFormulator account.",
+      ogType: "website",
+      canonicalUrl: `${SITE_URL}/login`,
+      noindex: true,
+    },
+    "/forgot-password": {
+      title: "Reset Password | AIFormulator",
+      description: "Reset your AIFormulator account password.",
+      ogTitle: "Reset Password | AIFormulator",
+      ogDescription: "Reset your AIFormulator account password.",
+      ogType: "website",
+      canonicalUrl: `${SITE_URL}/forgot-password`,
+      noindex: true,
+    },
+    "/reset-password": {
+      title: "Set New Password | AIFormulator",
+      description: "Set a new password for your AIFormulator account.",
+      ogTitle: "Set New Password | AIFormulator",
+      ogDescription: "Set a new password for your AIFormulator account.",
+      ogType: "website",
+      canonicalUrl: `${SITE_URL}/reset-password`,
+      noindex: true,
+    },
+    "/my-account": {
+      title: "My Account | AIFormulator",
+      description: "Manage your AIFormulator account, view downloaded formulations, and update your profile settings.",
+      ogTitle: "My Account | AIFormulator",
+      ogDescription: "Manage your AIFormulator account and downloaded formulations.",
+      ogType: "website",
+      canonicalUrl: `${SITE_URL}/my-account`,
+      noindex: true,
+    },
+  };
+
+  if (staticPages[cleanUrl]) {
+    return staticPages[cleanUrl];
+  }
+
   return null;
 }
 

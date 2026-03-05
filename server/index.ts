@@ -194,10 +194,37 @@ app.use((req, res, next) => {
     res.status(200).set({ "Content-Type": "text/html" }).send(html);
   }
 
+  // Redirect /collection/:slug → /category/:slug (old URL pattern)
+  app.get("/collection/:slug", (req: Request, res: Response) => {
+    const protocol = req.header("x-forwarded-proto") || req.protocol;
+    const host = req.get("host");
+    return res.redirect(301, `${protocol}://${host}/category/${req.params.slug}`);
+  });
+
+  // Dynamic pages — SSR canonical + meta injection
   app.get("/formulation/:slug", serveSeoPage);
   app.get("/category/:slug", serveSeoPage);
   app.get("/blog/:slug", serveSeoPage);
-  app.get("/blog", serveSeoPage);
+
+  // Static pages — SSR canonical + meta injection
+  const staticRoutes = [
+    "/",
+    "/browse",
+    "/collection",
+    "/blog",
+    "/about",
+    "/faq",
+    "/demo",
+    "/terms-of-service",
+    "/privacy-policy",
+    "/disclaimer",
+    "/signup",
+    "/login",
+    "/forgot-password",
+    "/reset-password",
+    "/my-account",
+  ];
+  staticRoutes.forEach(route => app.get(route, serveSeoPage));
 
   // Setup Vite/static serving AFTER API routes are registered
   // This ensures API routes are handled first before the catch-all
