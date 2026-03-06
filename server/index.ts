@@ -6,7 +6,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { runMigrations } from "./migrate";
 import { warmCache } from "./db";
-import { getSeoMetaForUrl, injectSeoMeta, generateFormulationPrerender } from "./seo-middleware";
+import { getSeoMetaForUrl, injectSeoMeta, generateFormulationPrerender, generateBlogPrerender, generateStaticPrerender } from "./seo-middleware";
 
 // Environment validation function
 function validateEnvironment() {
@@ -192,20 +192,26 @@ app.use((req, res, next) => {
 
     html = injectSeoMeta(html, seoMeta);
 
-    // For formulation pages: inject pre-rendered body content into <div id="root">
-    // so Google sees real H1, ingredients, instructions, and specs before JS loads.
-    // React replaces this content entirely once the SPA boots — crawlers only.
-    const formulationSlugMatch = url.match(/^\/formulation\/(.+)$/);
-    if (formulationSlugMatch) {
-      try {
-        const prerender = await generateFormulationPrerender(formulationSlugMatch[1]);
-        if (prerender) {
-          html = html.replace('<div id="root"></div>', `<div id="root">${prerender}</div>`);
-        }
-      } catch (e) {
-        console.error("Prerender injection failed:", e);
-        // Continue without prerender — don't fail the whole response
+    // Inject pre-rendered body content into <div id="root"> so crawlers see
+    // real H1, sections, and page text before JavaScript loads.
+    // React replaces this entirely once the SPA boots — it's only for crawlers.
+    try {
+      let prerender: string | null = null;
+      const formulationMatch = url.match(/^\/formulation\/(.+)$/);
+      const blogMatch = url.match(/^\/blog\/(.+)$/);
+      if (formulationMatch) {
+        prerender = await generateFormulationPrerender(formulationMatch[1]);
+      } else if (blogMatch) {
+        prerender = await generateBlogPrerender(blogMatch[1]);
+      } else {
+        prerender = await generateStaticPrerender(url);
       }
+      if (prerender) {
+        html = html.replace('<div id="root"></div>', `<div id="root">${prerender}</div>`);
+      }
+    } catch (e) {
+      console.error("Prerender injection failed:", e);
+      // Continue without prerender — don't fail the whole response
     }
 
     res.status(200).set({ "Content-Type": "text/html" }).send(html);
