@@ -21,6 +21,68 @@ function escapeHtml(str: string): string {
     .replace(/>/g, "&gt;");
 }
 
+// Generate pre-rendered HTML body content for a formulation page.
+// This is injected into <div id="root"> so Google sees real content before JS loads.
+// React replaces this entirely once the SPA boots — it's only for crawlers.
+export async function generateFormulationPrerender(slug: string): Promise<string | null> {
+  try {
+    const formulation = await storage.getFormulationBySlug(slug);
+    if (!formulation || formulation.status !== "published" || !formulation.isActive) return null;
+
+    const e = escapeHtml;
+
+    // Parse ingredients JSON
+    let ingredientRows = "";
+    try {
+      const ingredients: any[] = JSON.parse(formulation.ingredients);
+      ingredientRows = ingredients.map(ing =>
+        `<tr><td>${e(ing.name || "")}</td><td>${e(ing.percentage || ing.amount || "")}</td><td>${e(ing.function || ing.role || "")}</td></tr>`
+      ).join("");
+    } catch { ingredientRows = ""; }
+
+    // Parse instructions JSON
+    let instructionHtml = "";
+    try {
+      const instructions: any[] = JSON.parse(formulation.instructions as string);
+      instructionHtml = instructions.map((phase: any) => {
+        const steps = Array.isArray(phase.steps)
+          ? `<ol>${phase.steps.map((s: string) => `<li>${e(s)}</li>`).join("")}</ol>`
+          : `<p>${e(String(phase.steps || ""))}</p>`;
+        return `<div><h3>${e(phase.phase || phase.name || "Step")}</h3>${steps}</div>`;
+      }).join("");
+    } catch {
+      // If it's plain text, just show it
+      instructionHtml = formulation.instructions
+        ? `<p>${e(String(formulation.instructions))}</p>`
+        : "";
+    }
+
+    const specs: string[] = [];
+    if (formulation.phLevel) specs.push(`<li><strong>pH Level:</strong> ${e(formulation.phLevel)}</li>`);
+    if (formulation.shelfLife) specs.push(`<li><strong>Shelf Life:</strong> ${e(formulation.shelfLife)}</li>`);
+    if (formulation.batchSize) specs.push(`<li><strong>Batch Size:</strong> ${e(formulation.batchSize)}</li>`);
+    if (formulation.processingTime) specs.push(`<li><strong>Processing Time:</strong> ${e(formulation.processingTime)}</li>`);
+    if (formulation.temperature) specs.push(`<li><strong>Temperature:</strong> ${e(formulation.temperature)}</li>`);
+    if (formulation.storageConditions) specs.push(`<li><strong>Storage:</strong> ${e(formulation.storageConditions)}</li>`);
+    if (formulation.viscosity) specs.push(`<li><strong>Viscosity:</strong> ${e(formulation.viscosity)}</li>`);
+    if (formulation.certification) specs.push(`<li><strong>Certification:</strong> ${e(formulation.certification)}</li>`);
+
+    return `<div id="ssr-content" style="font-family:sans-serif;max-width:900px;margin:0 auto;padding:24px">
+  <nav><a href="/">Home</a> &rsaquo; <a href="/browse">Formulations</a> &rsaquo; ${e(formulation.name)}</nav>
+  <h1>${e(formulation.name)}</h1>
+  <p>${e(formulation.description || "")}</p>
+  ${specs.length ? `<section><h2>Technical Specifications</h2><ul>${specs.join("")}</ul></section>` : ""}
+  ${ingredientRows ? `<section><h2>Ingredients</h2><table><thead><tr><th>Ingredient</th><th>Percentage</th><th>Function</th></tr></thead><tbody>${ingredientRows}</tbody></table></section>` : ""}
+  ${instructionHtml ? `<section><h2>Manufacturing Process</h2>${instructionHtml}</section>` : ""}
+  ${formulation.usageInstructions ? `<section><h2>Usage Instructions</h2><p>${e(formulation.usageInstructions)}</p></section>` : ""}
+  <p><a href="${SITE_URL}/formulation/${e(formulation.slug || "")}">View full formulation details on AIFormulator</a></p>
+</div>`;
+  } catch (err) {
+    console.error("Prerender generation failed:", err);
+    return null;
+  }
+}
+
 export async function getSeoMetaForUrl(url: string): Promise<SeoMeta | null> {
   const cleanUrl = url.split("?")[0].split("#")[0];
 
