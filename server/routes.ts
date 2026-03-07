@@ -189,9 +189,9 @@ Sitemap: https://aiformulator.net/sitemap.xml
         }
       }
 
-      // Blog post pages (only published)
+      // Blog post pages (only published — uses isPublished boolean, not status string)
       for (const post of blogPosts) {
-        if ((post as any).status === 'published' && post.slug) {
+        if (post.isPublished && post.slug) {
           xml += url(`${baseUrl}/blog/${post.slug}`, '0.6', 'weekly', toLastmod((post as any).updatedAt));
         }
       }
@@ -1879,88 +1879,6 @@ Allow: /disclaimer`;
     console.log('🤖 Robots.txt served');
   });
 
-  // Sitemap.xml generation endpoint
-  app.get("/sitemap.xml", async (req, res) => {
-    try {
-      // Set content type to XML
-      res.setHeader('Content-Type', 'application/xml');
-      res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
-      
-      // Get base URL from request headers
-      const baseUrl = `https://${req.get('host')}` || 'https://your-domain.replit.app';
-      
-      // Get all categories and formulations
-      const categories = await storage.getCategories();
-      const formulations = await storage.getFormulations();
-      
-      // Static pages
-      const staticPages = [
-        { url: '/', priority: '1.0', changefreq: 'daily' },
-        { url: '/browse', priority: '0.9', changefreq: 'daily' },
-        { url: '/about', priority: '0.5', changefreq: 'monthly' },
-        { url: '/contact', priority: '0.5', changefreq: 'monthly' },
-        { url: '/faq', priority: '0.6', changefreq: 'weekly' },
-        { url: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
-        { url: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
-        { url: '/disclaimer', priority: '0.3', changefreq: 'yearly' }
-      ];
-      
-      // Generate XML sitemap
-      let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
-
-      // Add static pages
-      staticPages.forEach(page => {
-        sitemap += `
-  <url>
-    <loc>${baseUrl}${page.url}</loc>
-    <changefreq>${page.changefreq}</changefreq>
-    <priority>${page.priority}</priority>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-  </url>`;
-      });
-
-      // Add category pages  
-      categories.forEach(category => {
-        // Always generate SEO-friendly URLs from category name for better SEO
-        const friendlySlug = category.name
-          .toLowerCase()
-          .replace(/[^a-z0-9\s-]/g, '')
-          .replace(/\s+/g, '-');
-        const categoryUrl = `/category/${friendlySlug}`;
-        
-        sitemap += `
-  <url>
-    <loc>${baseUrl}${categoryUrl}</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-  </url>`;
-      });
-
-      // Add formulation pages (only published ones)
-      const publishedFormulations = formulations.filter(f => f.status === 'published' && f.isActive);
-      publishedFormulations.forEach(formulation => {
-        const url = formulation.slug ? `/formulation/${formulation.slug}` : `/formulation/${formulation.id}`;
-        sitemap += `
-  <url>
-    <loc>${baseUrl}${url}</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-  </url>`;
-      });
-
-      sitemap += `
-</urlset>`;
-
-      res.send(sitemap);
-      console.log(`📋 Sitemap generated with ${staticPages.length + categories.length + publishedFormulations.length} URLs`);
-    } catch (error) {
-      console.error('Failed to generate sitemap:', error);
-      res.status(500).send('Error generating sitemap');
-    }
-  });
 
   // Helper function to determine product category from product type and description
   function determineProductCategory(productType: string, description: string, specialRequirements?: string): string {
