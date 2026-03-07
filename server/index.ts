@@ -208,6 +208,10 @@ app.use((req, res, next) => {
       }
       if (prerender) {
         html = html.replace('<div id="root"></div>', `<div id="root">${prerender}</div>`);
+        // Hide the prerendered content from real users — it's only for search
+        // crawlers that read raw HTML. Real browsers get the full React app.
+        // The content stays in the HTML source so crawlers can still index it.
+        html = html.replace('</head>', '<style>#ssr-content{display:none!important}</style></head>');
       }
     } catch (e) {
       console.error("Prerender injection failed:", e);
