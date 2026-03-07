@@ -3,243 +3,257 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "wouter";
 import { ChevronRight, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import type { Category, Formulation } from "@shared/schema";
+
+function CategorySkeleton() {
+  return (
+    <div className="space-y-2 p-3">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="h-14 rounded-lg bg-gray-100 animate-pulse" />
+      ))}
+    </div>
+  );
+}
+
+function CardSkeleton() {
+  return (
+    <div className="rounded-2xl overflow-hidden border border-gray-100 bg-white animate-pulse">
+      <div className="w-full h-48 bg-gray-100" />
+      <div className="p-3 space-y-2">
+        <div className="h-3 bg-gray-100 rounded w-1/2" />
+        <div className="h-4 bg-gray-100 rounded w-full" />
+        <div className="h-4 bg-gray-100 rounded w-3/4" />
+        <div className="h-9 bg-gray-100 rounded-full mt-3" />
+      </div>
+    </div>
+  );
+}
 
 export default function Collection() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    document.title = "Chemical Formulation Collections by Category | AI Formulator"
+    document.title = "Chemical Formulation Collections by Category | AI Formulator";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
       metaDesc.setAttribute('content', 'Browse professional chemical formulation collections across multiple product categories.');
     }
-  }, [])
+  }, []);
 
-  // Fetch all categories
   const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
   });
 
-  // Fetch all formulations
   const { data: allFormulations = [], isLoading: formulationsLoading } = useQuery<Formulation[]>({
     queryKey: ["/api/formulations"],
   });
 
-  // Get formulations for selected category
-  const getFormulationsByCategory = (categoryId: string) => {
-    return allFormulations.filter((f) => {
-      // Handle both direct match and string comparison in case of type mismatches
-      return String(f.categoryId) === String(categoryId);
-    });
-  };
+  // Count formulations per category once — O(n) instead of O(n×m)
+  const countByCategory = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const f of allFormulations) {
+      if (f.categoryId) {
+        map[String(f.categoryId)] = (map[String(f.categoryId)] || 0) + 1;
+      }
+    }
+    return map;
+  }, [allFormulations]);
 
   // Sort categories by product count (highest first)
   const sortedCategories = useMemo(() => {
-    return [...categories].sort((a, b) => {
-      const countA = getFormulationsByCategory(a.id).length;
-      const countB = getFormulationsByCategory(b.id).length;
-      return countB - countA; // Descending order
-    });
-  }, [categories, allFormulations]);
+    return [...categories].sort(
+      (a, b) => (countByCategory[b.id] || 0) - (countByCategory[a.id] || 0)
+    );
+  }, [categories, countByCategory]);
 
-  // Set category with most products as default when categories load
+  // Auto-select the first (most populated) category once categories load
   useEffect(() => {
     if (sortedCategories.length > 0 && !selectedCategoryId) {
       setSelectedCategoryId(sortedCategories[0].id);
     }
   }, [sortedCategories]);
 
-  // Filter formulations by selected category
-  const filteredFormulations = selectedCategoryId
-    ? getFormulationsByCategory(selectedCategoryId)
-    : [];
+  const filteredFormulations = useMemo(() => {
+    if (!selectedCategoryId) return [];
+    return allFormulations.filter(
+      (f) => String(f.categoryId) === String(selectedCategoryId)
+    );
+  }, [allFormulations, selectedCategoryId]);
 
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
-
-  if (categoriesLoading || formulationsLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#F7F5F2" }}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white border-b py-6 px-4 sm:px-6 lg:px-8" style={{ borderColor: "#E3E3E3" }}>
-          <h1 className="text-3xl font-bold" style={{ color: "#1A1A1A" }}>Chemical Formulation Collections by Category</h1>
-          <p className="mt-2" style={{ color: "#4A4A4A" }}>Browse professional chemical formulations by category</p>
+          <h1 className="text-3xl font-bold" style={{ color: "#1A1A1A" }}>
+            Chemical Formulation Collections by Category
+          </h1>
+          <p className="mt-2" style={{ color: "#4A4A4A" }}>
+            Browse professional chemical formulations by category
+          </p>
         </div>
 
         {/* Main Content */}
         <div className="flex gap-6 p-6 sm:p-6 lg:p-8">
           {/* Left Sidebar - Categories */}
           <div className="w-full sm:w-72 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col sticky top-4" style={{ borderRight: "1px solid #E3E3E3", maxHeight: "calc(100vh - 2rem)" }}>
-              {/* Sidebar Header */}
-              <div className="p-5 border-b" style={{ borderColor: "#E3E3E3", backgroundColor: "#FFFFFF" }}>
+            <div
+              className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col sticky top-4"
+              style={{ borderRight: "1px solid #E3E3E3", maxHeight: "calc(100vh - 2rem)" }}
+            >
+              <div className="p-5 border-b" style={{ borderColor: "#E3E3E3" }}>
                 <h2 className="text-lg font-bold flex items-center gap-2" style={{ color: "#1A1A1A" }}>
                   <Filter className="h-5 w-5" />
                   Categories
                 </h2>
               </div>
 
-              {/* Categories List - Sorted by product count (highest first) */}
               <div className="flex-1 overflow-y-auto bg-white">
-                <nav className="space-y-2 p-3">
-                  {sortedCategories.map((category) => {
-                    const formulationCount = getFormulationsByCategory(category.id).length;
-                    const isSelected = selectedCategoryId === category.id;
-
-                    return (
-                      <button
-                        key={category.id}
-                        onClick={() => {
-                          setSelectedCategoryId(category.id);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                          contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between group font-medium ${
-                          isSelected
-                            ? "text-white shadow-md"
-                            : "hover:shadow-sm"
-                        }`}
-                        style={
-                          isSelected
-                            ? { backgroundColor: "#0D9488", color: "#FFFFFF" }
-                            : { color: "#1A1A1A", backgroundColor: "transparent" }
-                        }
-                        onMouseEnter={(e) => {
-                          if (!isSelected) {
-                            e.currentTarget.style.backgroundColor = "#EEF3FF";
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isSelected) {
-                            e.currentTarget.style.backgroundColor = "transparent";
-                          }
-                        }}
-                        data-testid={`category-item-${category.id}`}
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold line-clamp-2">{category.name}</p>
-                          <p className="text-xs mt-1" style={{ color: isSelected ? "rgba(255,255,255,0.8)" : "#4A4A4A" }}>
-                            {formulationCount} product{formulationCount !== 1 ? "s" : ""}
-                          </p>
-                        </div>
-                        <ChevronRight
-                          className={`h-5 w-5 flex-shrink-0 transition-transform ml-2 ${
-                            isSelected ? "translate-x-1" : ""
+                {categoriesLoading ? (
+                  <CategorySkeleton />
+                ) : (
+                  <nav className="space-y-2 p-3">
+                    {sortedCategories.map((category) => {
+                      const formulationCount = countByCategory[category.id] || 0;
+                      const isSelected = selectedCategoryId === category.id;
+                      return (
+                        <button
+                          key={category.id}
+                          onClick={() => {
+                            setSelectedCategoryId(category.id);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                            contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between font-medium ${
+                            isSelected ? "text-white shadow-md" : "hover:shadow-sm"
                           }`}
-                        />
-                      </button>
-                    );
-                  })}
-                </nav>
+                          style={
+                            isSelected
+                              ? { backgroundColor: "#0D9488", color: "#FFFFFF" }
+                              : { color: "#1A1A1A", backgroundColor: "transparent" }
+                          }
+                          onMouseEnter={(e) => {
+                            if (!isSelected) e.currentTarget.style.backgroundColor = "#EEF3FF";
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isSelected) e.currentTarget.style.backgroundColor = "transparent";
+                          }}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold line-clamp-2">{category.name}</p>
+                            <p className="text-xs mt-1" style={{ color: isSelected ? "rgba(255,255,255,0.8)" : "#4A4A4A" }}>
+                              {formulationCount} product{formulationCount !== 1 ? "s" : ""}
+                            </p>
+                          </div>
+                          <ChevronRight
+                            className={`h-5 w-5 flex-shrink-0 transition-transform ml-2 ${isSelected ? "translate-x-1" : ""}`}
+                          />
+                        </button>
+                      );
+                    })}
+                  </nav>
+                )}
               </div>
             </div>
           </div>
 
           {/* Right Side - Formulations Grid */}
           <div ref={contentRef} className="flex-1 flex flex-col min-w-0">
+            {/* Category header — show as soon as category is selected */}
             {selectedCategory && (
-              <>
-                {/* Category Header & Search */}
-                <div className="mb-6 flex-shrink-0">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h2 className="text-2xl font-bold" style={{ color: "#1A1A1A" }}>{selectedCategory.name}</h2>
-                      <p className="mt-1" style={{ color: "#4A4A4A" }}>{selectedCategory.description}</p>
-                    </div>
-                    <div className="px-3 py-1 rounded-md text-sm font-medium" style={{ backgroundColor: "#FFFFFF", border: "1px solid #E4E4E4", color: "#1A1A1A" }}>
+              <div className="mb-6 flex-shrink-0">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-2xl font-bold" style={{ color: "#1A1A1A" }}>
+                      {selectedCategory.name}
+                    </h2>
+                    <p className="mt-1" style={{ color: "#4A4A4A" }}>
+                      {selectedCategory.description}
+                    </p>
+                  </div>
+                  {!formulationsLoading && (
+                    <div
+                      className="px-3 py-1 rounded-md text-sm font-medium"
+                      style={{ backgroundColor: "#FFFFFF", border: "1px solid #E4E4E4", color: "#1A1A1A" }}
+                    >
                       {filteredFormulations.length} items
                     </div>
-                  </div>
-
+                  )}
                 </div>
+              </div>
+            )}
 
-                {/* Formulations Grid */}
-                {filteredFormulations.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {filteredFormulations.map((formulation) => (
-                      <div
-                        key={formulation.id}
-                        className="rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
-                        style={{ 
-                          background: "linear-gradient(135deg, #FFFFFF 0%, #F0F4FF 100%)",
-                          border: "1px solid #E4E9F8"
-                        }}
-                        data-testid={`formula-card-${formulation.id}`}
-                      >
-                        {/* Card Image */}
-                        {(formulation.thumbnail || formulation.image) ? (
-                          <img
-                            src={(formulation.thumbnail || formulation.image) ?? undefined}
-                            alt={formulation.name}
-                            className="w-full h-48 object-cover object-center"
-                          />
-                        ) : (
-                          <div className="w-full h-48 flex items-center justify-center" style={{ backgroundColor: "#F0F4FF" }}>
-                            <div className="text-center">
-                              <div className="w-14 h-14 rounded-full mx-auto mb-2 flex items-center justify-center" style={{ backgroundColor: "#FFFFFF", border: "1px solid #DDE6FF" }}>
-                                <span className="text-3xl">🧪</span>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="p-3">
-                          {/* Active indicator with download count */}
-                          <div className="flex items-center gap-2 mb-2">
-                            {formulation.isActive && (
-                              <div className="flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                <span className="text-xs text-green-600 font-medium">Active</span>
-                              </div>
-                            )}
-                            <span className="text-xs text-gray-500">
-                              {Math.floor(Math.random() * 26) + 5} downloads
-                            </span>
-                          </div>
-
-                          {/* Formula Name */}
-                          <h3 className="font-bold line-clamp-2 text-sm mb-3" style={{ color: "#1A1A1A" }}>
-                            {formulation.name}
-                          </h3>
-
-                          {/* View Details Button */}
-                          <Link href={`/formulation/${formulation.slug || formulation.id}`}>
-                            <Button
-                              className="w-full text-white h-9 text-sm font-semibold rounded-full transition-all hover:opacity-90"
-                              style={{ backgroundColor: "#0D9488" }}
-                              size="sm"
-                              data-testid={`view-details-${formulation.id}`}
-                            >
-                              View Details
-                            </Button>
-                          </Link>
+            {/* Skeleton cards while formulations are loading */}
+            {formulationsLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {Array.from({ length: 8 }).map((_, i) => <CardSkeleton key={i} />)}
+              </div>
+            ) : filteredFormulations.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {filteredFormulations.map((formulation) => (
+                  <div
+                    key={formulation.id}
+                    className="rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
+                    style={{
+                      background: "linear-gradient(135deg, #FFFFFF 0%, #F0F4FF 100%)",
+                      border: "1px solid #E4E9F8",
+                    }}
+                  >
+                    {(formulation.thumbnail || formulation.image) ? (
+                      <img
+                        src={(formulation.thumbnail || formulation.image) ?? undefined}
+                        alt={formulation.name}
+                        loading="lazy"
+                        className="w-full h-48 object-cover object-center"
+                      />
+                    ) : (
+                      <div className="w-full h-48 flex items-center justify-center" style={{ backgroundColor: "#F0F4FF" }}>
+                        <div className="w-14 h-14 rounded-full mx-auto flex items-center justify-center" style={{ backgroundColor: "#FFFFFF", border: "1px solid #DDE6FF" }}>
+                          <span className="text-3xl">🧪</span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex-1 flex items-center justify-center">
-                    <div className="text-center">
-                      <p className="text-lg mb-2" style={{ color: "#4A4A4A" }}>No formulas found</p>
-                      <p className="text-sm" style={{ color: "#6A6A6A" }}>
-                        No formulas available in this category
-                      </p>
+                    )}
+
+                    <div className="p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        {formulation.isActive && (
+                          <div className="flex items-center gap-1">
+                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                            <span className="text-xs text-green-600 font-medium">Active</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <h3 className="font-bold line-clamp-2 text-sm mb-3" style={{ color: "#1A1A1A" }}>
+                        {formulation.name}
+                      </h3>
+
+                      <Link href={`/formulation/${formulation.slug || formulation.id}`}>
+                        <Button
+                          className="w-full text-white h-9 text-sm font-semibold rounded-full transition-all hover:opacity-90"
+                          style={{ backgroundColor: "#0D9488" }}
+                          size="sm"
+                        >
+                          View Details
+                        </Button>
+                      </Link>
                     </div>
                   </div>
-                )}
-              </>
-            )}
+                ))}
+              </div>
+            ) : selectedCategory ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center">
+                  <p className="text-lg mb-2" style={{ color: "#4A4A4A" }}>No formulas found</p>
+                  <p className="text-sm" style={{ color: "#6A6A6A" }}>
+                    No formulas available in this category
+                  </p>
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
