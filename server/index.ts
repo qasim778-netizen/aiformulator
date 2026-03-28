@@ -229,10 +229,10 @@ app.use((req, res, next) => {
       }
       if (prerender) {
         html = html.replace('<div id="root"></div>', `<div id="root">${prerender}</div>`);
-        // Hide the prerendered content from real users — it's only for search
-        // crawlers that read raw HTML. Real browsers get the full React app.
-        // The content stays in the HTML source so crawlers can still index it.
-        html = html.replace('</head>', '<style>#ssr-content{display:none!important}</style></head>');
+        // NOTE: Do NOT hide #ssr-content with display:none — Google treats that
+        // as hidden/cloaked content and ignores it (causes Soft 404).
+        // The prerendered HTML is briefly visible until React hydrates and
+        // replaces it — this is the correct SSR pattern (same as Next.js).
       }
     } catch (e) {
       console.error("Prerender injection failed:", e);
