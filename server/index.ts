@@ -249,7 +249,13 @@ app.use((req, res, next) => {
         try {
           const formulationData = await storage.getFormulationBySlug(formulationMatch[1]);
           if (formulationData && formulationData.isActive) {
-            const safeJson = JSON.stringify(formulationData)
+            // Fetch page content exactly as the API does, so customPageContent is populated
+            const pageContent = await storage.getPageByFormulationId(formulationData.id);
+            const fullData = {
+              ...formulationData,
+              customPageContent: pageContent?.content || null,
+            };
+            const safeJson = JSON.stringify(fullData)
               .replace(/</g, '\\u003c')
               .replace(/>/g, '\\u003e')
               .replace(/&/g, '\\u0026');
