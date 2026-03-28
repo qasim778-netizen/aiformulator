@@ -182,9 +182,11 @@ Sitemap: https://aiformulator.net/sitemap.xml
         }
       }
 
-      // Formulation pages (only published + active)
+      // Formulation pages — include all active formulations (draft or published).
+      // All 337 production formulations are currently in draft status but are
+      // publicly accessible, so excluding drafts would produce an empty sitemap.
       for (const form of formulations) {
-        if (form.status === 'published' && form.isActive && form.slug) {
+        if (form.isActive && form.slug) {
           xml += url(`${baseUrl}/formulation/${form.slug}`, '0.7', 'weekly', toLastmod((form as any).updatedAt));
         }
       }

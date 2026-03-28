@@ -27,7 +27,10 @@ function escapeHtml(str: string): string {
 export async function generateFormulationPrerender(slug: string): Promise<string | null> {
   try {
     const formulation = await storage.getFormulationBySlug(slug);
-    if (!formulation || formulation.status !== "published" || !formulation.isActive) return null;
+    // Serve prerendered HTML for any active formulation — draft or published.
+    // All active formulations are publicly accessible on the site, so Google
+    // should see their content. The draft/published distinction is admin-only.
+    if (!formulation || !formulation.isActive) return null;
 
     const e = escapeHtml;
 
@@ -525,7 +528,11 @@ export async function getSeoMetaForUrl(url: string): Promise<SeoMeta | null> {
               : description,
           ogType: "article",
           canonicalUrl: `${SITE_URL}/formulation/${formulation.slug}`,
-          noindex: formulation.status !== "published" || !formulation.isActive,
+          // Only mark inactive (hidden) formulations as noindex.
+          // Active formulations are publicly accessible regardless of draft/published
+          // status — all 337 production formulations are currently draft, so treating
+          // "draft + active" as noindex would prevent Google from ever indexing them.
+          noindex: !formulation.isActive,
         };
       }
     } catch (e) {
