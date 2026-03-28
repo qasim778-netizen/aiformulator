@@ -5,7 +5,8 @@ import path from "path";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { runMigrations } from "./migrate";
-import { warmCache } from "./db";
+import { warmCache, db } from "./db";
+import { sql } from "drizzle-orm";
 import { getSeoMetaForUrl, injectSeoMeta, generateFormulationPrerender, generateBlogPrerender, generateStaticPrerender, generateCategoryPrerender } from "./seo-middleware";
 import { storage } from "./storage";
 
@@ -145,16 +146,18 @@ app.use((req, res, next) => {
 
     // One-time data fix: publish all active formulations that are still in draft.
     // All active formulations are publicly visible on the site, so draft status
-    // was preventing Google from indexing them. Safe to run on every restart —
-    // it only updates rows that need it.
+    // was preventing Google from indexing them. Uses direct DB update (not storage
+    // layer) to bypass caching and guarantee the write lands. Safe on every restart.
     try {
-      const allFormulations = await storage.getFormulations();
-      const toPublish = allFormulations.filter(f => f.isActive && f.status !== 'published');
-      if (toPublish.length > 0) {
-        for (const f of toPublish) {
-          await storage.updateFormulation(f.id, { status: 'published' });
-        }
-        console.log(`✅ Auto-published ${toPublish.length} active formulations`);
+      const result = await db.execute(sql`
+        UPDATE formulations
+        SET status = 'published', updated_at = NOW()
+        WHERE is_active = true AND status != 'published'
+        RETURNING id
+      `);
+      const count = result.rows.length;
+      if (count > 0) {
+        console.log(`✅ Auto-published ${count} active formulations`);
       } else {
         console.log(`✅ All active formulations already published`);
       }

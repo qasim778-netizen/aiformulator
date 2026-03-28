@@ -157,7 +157,7 @@ export default function FormulationPage() {
       ogUrlElement.setAttribute('content', pageUrl);
 
       let robotsElement = document.querySelector('meta[name="robots"]');
-      if (formulation.status !== 'published' || !formulation.isActive) {
+      if (!formulation.isActive) {
         if (!robotsElement) {
           robotsElement = document.createElement('meta');
           robotsElement.setAttribute('name', 'robots');
