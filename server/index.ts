@@ -7,6 +7,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import { runMigrations } from "./migrate";
 import { warmCache } from "./db";
 import { getSeoMetaForUrl, injectSeoMeta, generateFormulationPrerender, generateBlogPrerender, generateStaticPrerender, generateCategoryPrerender } from "./seo-middleware";
+import { storage } from "./storage";
 
 // Environment validation function
 function validateEnvironment() {
@@ -141,7 +142,26 @@ app.use((req, res, next) => {
     
     // Run database migrations
     await runMigrations();
-    
+
+    // One-time data fix: publish all active formulations that are still in draft.
+    // All active formulations are publicly visible on the site, so draft status
+    // was preventing Google from indexing them. Safe to run on every restart —
+    // it only updates rows that need it.
+    try {
+      const allFormulations = await storage.getFormulations();
+      const toPublish = allFormulations.filter(f => f.isActive && f.status !== 'published');
+      if (toPublish.length > 0) {
+        for (const f of toPublish) {
+          await storage.updateFormulation(f.id, { status: 'published' });
+        }
+        console.log(`✅ Auto-published ${toPublish.length} active formulations`);
+      } else {
+        console.log(`✅ All active formulations already published`);
+      }
+    } catch (err) {
+      console.error("Auto-publish failed (non-fatal):", err);
+    }
+
     // Warm cache on startup
     await warmCache();
   

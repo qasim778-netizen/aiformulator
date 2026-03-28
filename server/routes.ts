@@ -428,6 +428,26 @@ Sitemap: https://aiformulator.net/sitemap.xml
   });
 
   // Admin routes - protected by requireAdmin middleware
+
+  // Bulk-publish all active formulations that are still in draft status.
+  // Safe to run multiple times — only updates rows that need it.
+  app.post('/api/admin/bulk-publish-formulations', requireAdmin, async (req: any, res) => {
+    try {
+      const allFormulations = await storage.getFormulations();
+      const drafts = allFormulations.filter(f => f.isActive && f.status !== 'published');
+      let published = 0;
+      for (const f of drafts) {
+        await storage.updateFormulation(f.id, { status: 'published' });
+        published++;
+      }
+      console.log(`Bulk publish: set ${published} active formulations to published`);
+      res.json({ published, skipped: allFormulations.length - drafts.length, total: allFormulations.length });
+    } catch (error) {
+      console.error("Bulk publish failed:", error);
+      res.status(500).json({ message: "Bulk publish failed" });
+    }
+  });
+
   app.get('/api/admin/users', requireAdmin, async (req: any, res) => {
     try {
       const users = await storage.getAllUsers();
