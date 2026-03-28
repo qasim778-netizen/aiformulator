@@ -475,115 +475,31 @@ export default function FormulationPage() {
               </div>
             )}
             
-            {/* Admin-Generated Page Content - Display if available */}
-            {formulation?.customPageContent && (
-              <div className="mb-8 prose prose-lg max-w-none">
-                <div 
-                  className="text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: formulation.customPageContent }} 
-                />
-              </div>
-            )}
-
             {/* Description */}
             {formulation.description && (
               <p className="text-gray-600 text-lg mb-8 leading-relaxed">{formulation.description}</p>
             )}
 
-            {/* Technical Specifications */}
-            {(formulation.phLevel || formulation.shelfLife || formulation.viscosity || formulation.batchSize || formulation.processingTime || formulation.temperature || formulation.storageConditions || formulation.certification) && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-inter font-bold text-gray-900 mb-4">Technical Specifications</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {formulation.phLevel && <div className="bg-gray-50 rounded-lg p-3"><span className="text-xs font-semibold text-gray-500 uppercase">pH Level</span><p className="text-gray-800 mt-1">{formulation.phLevel}</p></div>}
-                  {formulation.shelfLife && <div className="bg-gray-50 rounded-lg p-3"><span className="text-xs font-semibold text-gray-500 uppercase">Shelf Life</span><p className="text-gray-800 mt-1">{formulation.shelfLife}</p></div>}
-                  {formulation.viscosity && <div className="bg-gray-50 rounded-lg p-3"><span className="text-xs font-semibold text-gray-500 uppercase">Viscosity</span><p className="text-gray-800 mt-1">{formulation.viscosity}</p></div>}
-                  {formulation.batchSize && <div className="bg-gray-50 rounded-lg p-3"><span className="text-xs font-semibold text-gray-500 uppercase">Batch Size</span><p className="text-gray-800 mt-1">{formulation.batchSize}</p></div>}
-                  {formulation.processingTime && <div className="bg-gray-50 rounded-lg p-3"><span className="text-xs font-semibold text-gray-500 uppercase">Processing Time</span><p className="text-gray-800 mt-1">{formulation.processingTime}</p></div>}
-                  {formulation.temperature && <div className="bg-gray-50 rounded-lg p-3"><span className="text-xs font-semibold text-gray-500 uppercase">Temperature</span><p className="text-gray-800 mt-1">{formulation.temperature}</p></div>}
-                  {formulation.storageConditions && <div className="bg-gray-50 rounded-lg p-3"><span className="text-xs font-semibold text-gray-500 uppercase">Storage Conditions</span><p className="text-gray-800 mt-1">{formulation.storageConditions}</p></div>}
-                  {formulation.certification && <div className="bg-gray-50 rounded-lg p-3"><span className="text-xs font-semibold text-gray-500 uppercase">Certification</span><p className="text-gray-800 mt-1">{formulation.certification}</p></div>}
-                </div>
+            {/* Admin-Generated Page Content - marketing copy, FAQs, benefits, etc. */}
+            {formulation?.customPageContent && (
+              <div className="mb-8 prose prose-lg max-w-none">
+                <div
+                  className="text-gray-700"
+                  dangerouslySetInnerHTML={{ __html: formulation.customPageContent }}
+                />
               </div>
             )}
 
-            {/* Ingredients Table */}
-            {ingredients && ingredients.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-inter font-bold text-gray-900 mb-4">Ingredients</h2>
-                <div className="overflow-x-auto rounded-lg border border-gray-200">
-                  <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="text-left px-4 py-3 font-semibold text-gray-700">Ingredient</th>
-                        <th className="text-left px-4 py-3 font-semibold text-gray-700">INCI Name</th>
-                        <th className="text-left px-4 py-3 font-semibold text-gray-700">Percentage</th>
-                        <th className="text-left px-4 py-3 font-semibold text-gray-700">Function</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {ingredients.map((ing: any, i: number) => (
-                        <tr key={i} className="hover:bg-gray-50">
-                          <td className="px-4 py-3 font-medium text-gray-900">{ing.name}</td>
-                          <td className="px-4 py-3 text-gray-500 italic">{ing.inci || "—"}</td>
-                          <td className="px-4 py-3 text-gray-700">{ing.percentage || ing.amount || "—"}</td>
-                          <td className="px-4 py-3 text-gray-600">{ing.function || ing.role || "—"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* Manufacturing Process */}
-            {instructions && instructions.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-inter font-bold text-gray-900 mb-4">Manufacturing Process</h2>
-                <div className="space-y-6">
-                  {instructions.map((phase: any, i: number) => (
-                    <div key={i} className="bg-gray-50 rounded-lg p-5">
-                      <h3 className="font-semibold text-gray-900 text-lg mb-3">{phase.phase || phase.name || `Step ${i + 1}`}</h3>
-                      {Array.isArray(phase.steps) ? (
-                        <ol className="space-y-2">
-                          {phase.steps.map((step: string, j: number) => (
-                            <li key={j} className="flex gap-3">
-                              <span className="flex-shrink-0 w-6 h-6 bg-primary text-white rounded-full text-xs flex items-center justify-center font-semibold">{j + 1}</span>
-                              <span className="text-gray-700">{step}</span>
-                            </li>
-                          ))}
-                        </ol>
-                      ) : (
-                        <p className="text-gray-700">{String(phase.steps || "")}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Usage Instructions */}
-            {formulation.usageInstructions && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-inter font-bold text-gray-900 mb-4">Usage Instructions</h2>
-                <div className="bg-blue-50 border-l-4 border-blue-400 p-5 rounded-lg">
-                  <p className="text-gray-700 leading-relaxed">{formulation.usageInstructions}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Equipment */}
-            {formulation.equipment && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-inter font-bold text-gray-900 mb-4">Equipment Required</h2>
-                <p className="text-gray-700 leading-relaxed">{formulation.equipment}</p>
-              </div>
-            )}
-
-            {/* Download note */}
+            {/* Formula Details - Available in PDF Download Only */}
             <div className="mb-8">
-              <div className="bg-teal-50 border-l-4 border-teal-500 p-5 rounded-lg">
-                <p className="text-teal-800 font-medium">Download the full PDF report for the complete formulation documentation including safety guidelines, quality control procedures, and regulatory compliance notes.</p>
+              <div className="bg-teal-50 border-l-4 border-teal-500 p-6 rounded-lg">
+                <h2 className="text-xl font-semibold text-teal-900 mb-4">Complete Formulation Details</h2>
+                <p className="text-teal-800 mb-4">
+                  The complete formulation details including ingredients, manufacturing process, equipment requirements, safety guidelines, and technical specifications are available in the PDF download.
+                </p>
+                <p className="text-teal-700 text-sm">
+                  Click the "Download PDF" button below to access the full formulation report with all confidential information.
+                </p>
               </div>
             </div>
 
