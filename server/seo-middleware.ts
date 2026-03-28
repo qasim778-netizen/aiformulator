@@ -441,6 +441,52 @@ export async function generateStaticPrerender(url: string): Promise<string | nul
   return null;
 }
 
+// Pre-render HTML for /category/:slug pages.
+// Fetches the category and its published formulations so Googlebot sees real content.
+export async function generateCategoryPrerender(slug: string): Promise<string | null> {
+  try {
+    const e = escapeHtml;
+    const category = await storage.getCategoryBySlug(slug);
+    if (!category) return null;
+
+    const formulations = await storage.getFormulationsByCategory(String(category.id));
+    const published = formulations.filter(f => f.status === "published" && f.isActive);
+
+    const formulationLinks = published
+      .slice(0, 30)
+      .map(f =>
+        `<li><a href="/formulation/${e(f.slug || String(f.id))}">${e(f.name)}</a></li>`
+      )
+      .join("\n      ");
+
+    return `<div id="ssr-content" style="font-family:sans-serif;max-width:1100px;margin:0 auto;padding:24px">
+  <nav><a href="/">Home</a> &rsaquo; <a href="/collection">Collections</a> &rsaquo; ${e(category.name)}</nav>
+  <h1>${e(category.name)}</h1>
+  ${category.description ? `<p>${e(category.description)}</p>` : ""}
+  <section>
+    <h2>Professional Formulations in This Category</h2>
+    <p>Browse ${published.length} professional chemical formulation${published.length !== 1 ? "s" : ""} in the ${e(category.name)} category. Each formulation includes full ingredient lists, manufacturing instructions, and technical specifications.</p>
+    ${formulationLinks ? `<ul>${formulationLinks}</ul>` : ""}
+  </section>
+  <section>
+    <h2>What You Get With Each Formula</h2>
+    <ul>
+      <li>Complete ingredient list with exact percentages</li>
+      <li>Step-by-step manufacturing process</li>
+      <li>Technical specifications (pH, viscosity, shelf life)</li>
+      <li>Regulatory and safety guidelines</li>
+      <li>Cost optimization data</li>
+      <li>Downloadable PDF documentation</li>
+    </ul>
+  </section>
+  <p><a href="/collection">Browse all categories</a> | <a href="/browse">Search all formulations</a> | <a href="/signup">Get full access</a></p>
+</div>`;
+  } catch (err) {
+    console.error("Category prerender failed:", err);
+    return null;
+  }
+}
+
 export async function getSeoMetaForUrl(url: string): Promise<SeoMeta | null> {
   const cleanUrl = url.split("?")[0].split("#")[0];
 

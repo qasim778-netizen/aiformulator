@@ -6,7 +6,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { runMigrations } from "./migrate";
 import { warmCache } from "./db";
-import { getSeoMetaForUrl, injectSeoMeta, generateFormulationPrerender, generateBlogPrerender, generateStaticPrerender } from "./seo-middleware";
+import { getSeoMetaForUrl, injectSeoMeta, generateFormulationPrerender, generateBlogPrerender, generateStaticPrerender, generateCategoryPrerender } from "./seo-middleware";
 
 // Environment validation function
 function validateEnvironment() {
@@ -199,10 +199,13 @@ app.use((req, res, next) => {
       let prerender: string | null = null;
       const formulationMatch = url.match(/^\/formulation\/(.+)$/);
       const blogMatch = url.match(/^\/blog\/(.+)$/);
+      const categoryMatch = url.match(/^\/category\/(.+)$/);
       if (formulationMatch) {
         prerender = await generateFormulationPrerender(formulationMatch[1]);
       } else if (blogMatch) {
         prerender = await generateBlogPrerender(blogMatch[1]);
+      } else if (categoryMatch) {
+        prerender = await generateCategoryPrerender(categoryMatch[1]);
       } else {
         prerender = await generateStaticPrerender(url);
       }
