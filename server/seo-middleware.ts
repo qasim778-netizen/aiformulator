@@ -496,7 +496,18 @@ export async function getSeoMetaForUrl(url: string): Promise<SeoMeta | null> {
     try {
       const formulation = await storage.getFormulationBySlug(slugOrId);
       if (formulation) {
-        const title = formulation.seoTitle || formulation.name;
+        // Use seoTitle only when it actually relates to the formulation name
+        // (shares at least one meaningful word with 4+ chars). If the seoTitle
+        // is from a different product (admin data-entry error), fall back to name
+        // to avoid title/content mismatch which Google flags as a spam signal.
+        const seoTitleIsRelated = formulation.seoTitle
+          ? (formulation.name.toLowerCase().match(/[a-z]{4,}/g) || []).some(
+              word => formulation.seoTitle!.toLowerCase().includes(word)
+            )
+          : false;
+        const title = (formulation.seoTitle && seoTitleIsRelated)
+          ? formulation.seoTitle
+          : formulation.name;
         const description =
           formulation.metaDescription ||
           `Professional ${formulation.name} formulation with complete manufacturing guide, ingredients list, and technical specifications.`;

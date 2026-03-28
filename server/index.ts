@@ -164,17 +164,10 @@ app.use((req, res, next) => {
 
   async function serveSeoPage(req: Request, res: Response, next: NextFunction) {
     const url = req.originalUrl.split("?")[0].split("#")[0];
-    let seoMeta;
-    try {
-      seoMeta = await getSeoMetaForUrl(url);
-    } catch (e) {
-      return next();
-    }
-    if (!seoMeta) return next();
 
-    // Always set canonical to the exact URL the user is visiting,
-    // not the DB slug (which may have old suffixes like -mens-formula).
-    seoMeta.canonicalUrl = `${SITE_URL}${req.path}`;
+    // Detect dynamic routes — a missing slug here must return 404, not 200.
+    // Static routes (/about, /faq, etc.) fall through to React normally.
+    const isDynamicRoute = /^\/(formulation|category|blog)\//.test(url);
 
     let htmlPath: string;
     if (app.get("env") === "development") {
@@ -182,6 +175,31 @@ app.use((req, res, next) => {
     } else {
       htmlPath = path.resolve(import.meta.dirname, "public", "index.html");
     }
+
+    let seoMeta;
+    try {
+      seoMeta = await getSeoMetaForUrl(url);
+    } catch (e) {
+      return next();
+    }
+
+    if (!seoMeta) {
+      if (isDynamicRoute) {
+        // Slug not found in DB → return proper HTTP 404 so Google deindexes it.
+        // We still send the React shell so users get a usable UI.
+        try {
+          const html = await fs.promises.readFile(htmlPath, "utf-8");
+          return res.status(404).set({ "Content-Type": "text/html" }).send(html);
+        } catch {
+          return res.status(404).send("Not found");
+        }
+      }
+      return next();
+    }
+
+    // Always set canonical to the exact URL the user is visiting,
+    // not the DB slug (which may have old suffixes like -mens-formula).
+    seoMeta.canonicalUrl = `${SITE_URL}${req.path}`;
 
     let html: string;
     try {
