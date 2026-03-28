@@ -243,6 +243,24 @@ app.use((req, res, next) => {
       const categoryMatch = url.match(/^\/category\/(.+)$/);
       if (formulationMatch) {
         prerender = await generateFormulationPrerender(formulationMatch[1]);
+        // Inject formulation data as JSON for client-side hydration.
+        // This lets React use the data immediately without an API call,
+        // so Google's JS renderer never sees "Formulation Not Found".
+        try {
+          const formulationData = await storage.getFormulationBySlug(formulationMatch[1]);
+          if (formulationData && formulationData.isActive) {
+            const safeJson = JSON.stringify(formulationData)
+              .replace(/</g, '\\u003c')
+              .replace(/>/g, '\\u003e')
+              .replace(/&/g, '\\u0026');
+            html = html.replace(
+              '</head>',
+              `<script id="__FORMULATION_DATA__" type="application/json">${safeJson}</script>\n</head>`
+            );
+          }
+        } catch (err) {
+          console.error("Formulation data injection failed:", err);
+        }
       } else if (blogMatch) {
         prerender = await generateBlogPrerender(blogMatch[1]);
       } else if (categoryMatch) {

@@ -27,6 +27,22 @@ import woodSurfaceCleaner from "@/assets/generated-images/wood-surface-cleaner.p
 import ecoFriendlyCleaner from "@/assets/generated-images/eco-friendly-cleaner.png";
 import concentratedCleaner from "@/assets/generated-images/concentrated-cleaner.png";
 
+// Read server-injected formulation JSON (embedded in HTML at SSR time).
+// This ensures React has the formulation data immediately on first render
+// without waiting for an API call — prevents Google's renderer from
+// ever seeing "Formulation Not Found" due to an in-flight fetch.
+function readServerFormulationData(slug: string | undefined): any {
+  if (typeof window === 'undefined' || !slug) return undefined;
+  try {
+    const el = document.getElementById('__FORMULATION_DATA__');
+    if (el && el.textContent) {
+      const data = JSON.parse(el.textContent);
+      if (data && data.slug === slug) return data;
+    }
+  } catch { }
+  return undefined;
+}
+
 export default function FormulationPage() {
   const params = useParams();
   const formulationId = params.id;
@@ -37,8 +53,17 @@ export default function FormulationPage() {
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(true);
   const [captchaKey, setCaptchaKey] = useState(0);
 
+  // Server-injected hydration data — available synchronously on first render
+  const serverFormulationData = useMemo(
+    () => readServerFormulationData(formulationId),
+    [formulationId]
+  );
+
   const { data: formulation, isLoading: formulationLoading } = useQuery<any>({
     queryKey: ["/api/formulations", formulationId],
+    initialData: serverFormulationData,
+    // Mark injected data as fresh so React doesn't immediately re-fetch
+    initialDataUpdatedAt: serverFormulationData ? Date.now() : undefined,
   });
 
   const { data: category, isLoading: categoryLoading } = useQuery<Category>({
