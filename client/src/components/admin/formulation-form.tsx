@@ -636,6 +636,9 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
                   <p className="text-sm text-gray-500">
                     {field.value?.length || 0}/60 characters
                   </p>
+                  <p className="text-sm text-amber-600">
+                    Must relate to the formulation name above. Unrelated titles are ignored automatically to prevent SEO mismatch errors.
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}
