@@ -269,6 +269,24 @@ app.use((req, res, next) => {
         }
       } else if (blogMatch) {
         prerender = await generateBlogPrerender(blogMatch[1]);
+        // Inject blog post data as JSON for client-side hydration.
+        // Same technique as formulation pages — prevents "Article Not Found"
+        // in Google's JS renderer when the API call hasn't resolved yet.
+        try {
+          const blogPostData = await storage.getBlogPostBySlug(blogMatch[1]);
+          if (blogPostData && blogPostData.isPublished) {
+            const safeJson = JSON.stringify(blogPostData)
+              .replace(/</g, '\\u003c')
+              .replace(/>/g, '\\u003e')
+              .replace(/&/g, '\\u0026');
+            html = html.replace(
+              '</head>',
+              `<script id="__BLOG_POST_DATA__" type="application/json">${safeJson}</script>\n</head>`
+            );
+          }
+        } catch (err) {
+          console.error("Blog post data injection failed:", err);
+        }
       } else if (categoryMatch) {
         prerender = await generateCategoryPrerender(categoryMatch[1]);
       } else {

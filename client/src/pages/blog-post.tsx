@@ -8,8 +8,23 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import type { BlogPost } from "@shared/schema";
 
+function readServerBlogPostData(slug: string | undefined): BlogPost | null {
+  if (!slug) return null;
+  try {
+    const el = document.getElementById('__BLOG_POST_DATA__');
+    if (!el) return null;
+    const data = JSON.parse(el.textContent || '');
+    if (data && data.slug === slug) return data as BlogPost;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>();
+
+  const serverPost = readServerBlogPostData(slug);
 
   const { data: post, isLoading, error } = useQuery<BlogPost>({
     queryKey: ["blog-post", slug],
@@ -23,6 +38,8 @@ export default function BlogPostPage() {
       return await response.json();
     },
     enabled: !!slug,
+    initialData: serverPost || undefined,
+    initialDataUpdatedAt: serverPost ? Date.now() : undefined,
   });
 
   const { data: relatedPosts = [] } = useQuery<BlogPost[]>({
