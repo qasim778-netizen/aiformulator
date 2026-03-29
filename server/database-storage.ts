@@ -719,7 +719,7 @@ export class DatabaseStorage implements IStorage {
         })
         .from(userDownloads)
         .leftJoin(usersTable, eq(userDownloads.userId, usersTable.id))
-        .leftJoin(formulations, sql`cast(${userDownloads.formulationId} as uuid) = ${formulations.id}`)
+        .leftJoin(formulations, drizzleSql`cast(${userDownloads.formulationId} as uuid) = ${formulations.id}`)
         .orderBy(desc(userDownloads.downloadedAt));
       return downloads;
     } catch (error) {
