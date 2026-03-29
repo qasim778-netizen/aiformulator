@@ -723,7 +723,11 @@ Sitemap: https://aiformulator.net/sitemap.xml
     try {
       const objectStorageService = new ObjectStorageService();
       const objectFile = await objectStorageService.getObjectEntityFile(req.path);
-      objectStorageService.downloadObject(objectFile, res);
+      // Formulation images live under /objects/uploads/ and are always public.
+      // Force public cache headers so Google can index them for Image Search.
+      const isUpload = req.path.startsWith('/objects/uploads/');
+      const cacheTtl = isUpload ? 60 * 60 * 24 * 7 : 3600; // 7 days for images
+      objectStorageService.downloadObject(objectFile, res, cacheTtl, isUpload);
     } catch (error) {
       console.error("Error serving object:", error);
       if (error instanceof ObjectNotFoundError) {
