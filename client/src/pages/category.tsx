@@ -6,6 +6,19 @@ import type { Category, Formulation } from "@shared/schema";
 import { useEffect } from "react";
 import Breadcrumb from "@/components/breadcrumb";
 
+function readServerCategoryData(slug: string | undefined): { category: Category; formulations: Formulation[] } | null {
+  if (!slug) return null;
+  try {
+    const el = document.getElementById('__CATEGORY_DATA__');
+    if (!el) return null;
+    const data = JSON.parse(el.textContent || '');
+    if (data && data.category && data.category.slug === slug) return data;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export default function CategoryPage() {
   const params = useParams();
   const categoryId = params.id;
@@ -15,6 +28,8 @@ export default function CategoryPage() {
   const urlParams = new URLSearchParams(search);
   const highlightId = urlParams.get('highlight');
   const searchTerm = urlParams.get('search');
+
+  const serverData = readServerCategoryData(categoryId);
 
   // Fetch the category from database
   const { data: category, isLoading: categoryLoading } = useQuery<Category>({ 
@@ -27,6 +42,8 @@ export default function CategoryPage() {
       return response.json();
     },
     enabled: !!categoryId,
+    initialData: serverData?.category || undefined,
+    initialDataUpdatedAt: serverData ? Date.now() : undefined,
   });
 
   const { data: formulations = [], isLoading: formulationsLoading } = useQuery<Formulation[]>({
@@ -49,6 +66,8 @@ export default function CategoryPage() {
       );
     },
     enabled: !!categoryId && !!category,
+    initialData: serverData?.formulations || undefined,
+    initialDataUpdatedAt: serverData ? Date.now() : undefined,
   });
 
   // Update SEO meta tags when category loads

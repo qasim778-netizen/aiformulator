@@ -124,6 +124,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
     res.send(`User-agent: *
+Allow: /
+Allow: /objects/uploads/
+
 Disallow: /api/
 Disallow: /admin/
 Disallow: /login
@@ -132,7 +135,7 @@ Disallow: /forgot-password
 Disallow: /reset-password
 Disallow: /dashboard/
 Disallow: /admin-dashboard
-Disallow: /objects/
+Disallow: /objects/.private/
 
 Sitemap: https://aiformulator.net/sitemap.xml
 `);
@@ -167,13 +170,13 @@ Sitemap: https://aiformulator.net/sitemap.xml
       xml += url(`${baseUrl}/`,                    '1.0', 'daily',   today);
       xml += url(`${baseUrl}/browse`,              '0.9', 'daily',   today);
       xml += url(`${baseUrl}/collection`,          '0.9', 'daily',   today);
-      xml += url(`${baseUrl}/blog`,                '0.9', 'weekly',  today);
+      xml += url(`${baseUrl}/blog`,                '0.9', 'daily',   today);
       xml += url(`${baseUrl}/about`,               '0.5', 'monthly', today);
       xml += url(`${baseUrl}/faq`,                 '0.5', 'monthly', today);
-      xml += url(`${baseUrl}/demo`,                '0.6', 'monthly', today);
-      xml += url(`${baseUrl}/terms-of-service`,    '0.3', 'monthly', today);
-      xml += url(`${baseUrl}/privacy-policy`,      '0.3', 'monthly', today);
-      xml += url(`${baseUrl}/disclaimer`,          '0.3', 'monthly', today);
+      xml += url(`${baseUrl}/demo`,                '0.5', 'monthly', today);
+      xml += url(`${baseUrl}/terms-of-service`,    '0.5', 'monthly', today);
+      xml += url(`${baseUrl}/privacy-policy`,      '0.5', 'monthly', today);
+      xml += url(`${baseUrl}/disclaimer`,          '0.5', 'monthly', today);
 
       // Category pages (canonical: /category/:slug)
       for (const cat of categories) {

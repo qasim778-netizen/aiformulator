@@ -236,12 +236,18 @@ app.use((req, res, next) => {
     // Inject pre-rendered body content into <div id="root"> so crawlers see
     // real H1, sections, and page text before JavaScript loads.
     // React replaces this entirely once the SPA boots — it's only for crawlers.
+    // isDynamic tracks whether this is a dynamic route (formulation/blog/category).
+    // For dynamic routes where the resource doesn't exist, we return HTTP 404
+    // so Google doesn't treat the "Not Found" React render as a Soft 404.
+    let isDynamic = false;
+    let resourceFound = true;
     try {
       let prerender: string | null = null;
       const formulationMatch = url.match(/^\/formulation\/(.+)$/);
       const blogMatch = url.match(/^\/blog\/(.+)$/);
       const categoryMatch = url.match(/^\/category\/(.+)$/);
       if (formulationMatch) {
+        isDynamic = true;
         prerender = await generateFormulationPrerender(formulationMatch[1]);
         // Inject formulation data as JSON for client-side hydration.
         // This lets React use the data immediately without an API call,
@@ -263,11 +269,14 @@ app.use((req, res, next) => {
               '</head>',
               `<script id="__FORMULATION_DATA__" type="application/json">${safeJson}</script>\n</head>`
             );
+          } else {
+            resourceFound = false;
           }
         } catch (err) {
           console.error("Formulation data injection failed:", err);
         }
       } else if (blogMatch) {
+        isDynamic = true;
         prerender = await generateBlogPrerender(blogMatch[1]);
         // Inject blog post data as JSON for client-side hydration.
         // Same technique as formulation pages — prevents "Article Not Found"
@@ -283,12 +292,34 @@ app.use((req, res, next) => {
               '</head>',
               `<script id="__BLOG_POST_DATA__" type="application/json">${safeJson}</script>\n</head>`
             );
+          } else {
+            resourceFound = false;
           }
         } catch (err) {
           console.error("Blog post data injection failed:", err);
         }
       } else if (categoryMatch) {
+        isDynamic = true;
         prerender = await generateCategoryPrerender(categoryMatch[1]);
+        // Inject category + its formulations as JSON for client-side hydration.
+        try {
+          const categoryData = await storage.getCategoryBySlug(categoryMatch[1]);
+          if (categoryData) {
+            const categoryFormulations = await storage.getFormulationsByCategory(categoryData.id);
+            const safeJson = JSON.stringify({ category: categoryData, formulations: categoryFormulations })
+              .replace(/</g, '\\u003c')
+              .replace(/>/g, '\\u003e')
+              .replace(/&/g, '\\u0026');
+            html = html.replace(
+              '</head>',
+              `<script id="__CATEGORY_DATA__" type="application/json">${safeJson}</script>\n</head>`
+            );
+          } else {
+            resourceFound = false;
+          }
+        } catch (err) {
+          console.error("Category data injection failed:", err);
+        }
       } else {
         prerender = await generateStaticPrerender(url);
       }
@@ -304,7 +335,10 @@ app.use((req, res, next) => {
       // Continue without prerender — don't fail the whole response
     }
 
-    res.status(200).set({ "Content-Type": "text/html" }).send(html);
+    // Dynamic routes with no matching resource get a real HTTP 404 so Google
+    // doesn't confuse "Not Found" React renders with valid indexed pages.
+    const httpStatus = (isDynamic && !resourceFound) ? 404 : 200;
+    res.status(httpStatus).set({ "Content-Type": "text/html" }).send(html);
   }
 
   // Redirect /collection/:slug → /category/:slug (old URL pattern)
