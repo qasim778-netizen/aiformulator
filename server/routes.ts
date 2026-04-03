@@ -135,6 +135,7 @@ Disallow: /forgot-password
 Disallow: /reset-password
 Disallow: /dashboard/
 Disallow: /admin-dashboard
+Disallow: /demo
 Disallow: /objects/.private/
 
 Sitemap: https://aiformulator.net/sitemap.xml
@@ -173,7 +174,6 @@ Sitemap: https://aiformulator.net/sitemap.xml
       xml += url(`${baseUrl}/blog`,                '0.9', 'daily',   today);
       xml += url(`${baseUrl}/about`,               '0.5', 'monthly', today);
       xml += url(`${baseUrl}/faq`,                 '0.5', 'monthly', today);
-      xml += url(`${baseUrl}/demo`,                '0.5', 'monthly', today);
       xml += url(`${baseUrl}/terms-of-service`,    '0.5', 'monthly', today);
       xml += url(`${baseUrl}/privacy-policy`,      '0.5', 'monthly', today);
       xml += url(`${baseUrl}/disclaimer`,          '0.5', 'monthly', today);
@@ -2658,7 +2658,7 @@ Allow: /disclaimer`;
   });
 
   // Public demo endpoint for the improved formulation system
-  app.post('/api/demo-formulation', async (req, res) => {
+  app.post('/api/demo-formulation', requireAdmin, async (req, res) => {
     try {
       const { category, description } = req.body;
       

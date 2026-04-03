@@ -11,6 +11,7 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import type { Category } from "@shared/schema";
 import { FORMULATION_CATEGORIES } from "@/constants/categories";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ValidationResult {
   isValid: boolean;
@@ -25,11 +26,40 @@ interface FormulationResult {
 }
 
 export default function DemoPage() {
+  const { user, isLoading: authLoading } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [productDescription, setProductDescription] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<FormulationResult | null>(null);
   const { toast } = useToast();
+
+  if (authLoading) {
+    return (
+      <div className="container mx-auto py-16 text-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!user || !(user as any).isAdmin) {
+    return (
+      <div className="container mx-auto py-16 text-center max-w-md">
+        <Card>
+          <CardHeader>
+            <CardTitle>Admin Access Required</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              This page is restricted to administrators only.
+            </p>
+            <Link href="/">
+              <Button variant="outline">Go to Homepage</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Use the new 22 formulation categories  
   const categories = FORMULATION_CATEGORIES;
