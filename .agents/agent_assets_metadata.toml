@@ -1,0 +1,20 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "8wUl598Rs0HFOABqR8l8p"
+uri = "file://client/src/assets/avatars/avatar-expert.png"
+type = "image"
+title = "female cosmetic chemist avatar"
+
+[[generated]]
+id = "RMOsuxjFqdyx2LOU_zBYF"
+uri = "file://client/src/assets/avatars/avatar-tester.png"
+type = "image"
+title = "male lab scientist avatar"
+
+[[generated]]
+id = "Zmu1I--UCV0WF9LXPKbb1"
+uri = "file://client/src/assets/avatars/avatar-designer.png"
+type = "image"
+title = "business consultant avatar"

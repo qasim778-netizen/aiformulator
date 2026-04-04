@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Beaker, ShieldCheck, Package, Wrench, FlaskConical, Palette, Car, Droplets, TestTube, Layers } from "lucide-react";
+import avatarExpert from "@assets/avatars/avatar-expert.png";
+import avatarTester from "@assets/avatars/avatar-tester.png";
+import avatarDesigner from "@assets/avatars/avatar-designer.png";
 
-// ── Avatar URLs (DiceBear illustrated characters, consistent seeds) ──────────
-// personas style = full illustrated character with body — 3 distinct professional roles
+// ── Avatar images (AI-generated photorealistic portraits) ─────────────────────
 const AVATAR_URLS: Record<string, string> = {
-  expert:   "https://api.dicebear.com/8.x/personas/svg?seed=DrSarahFormulatorLab&backgroundColor=dbeafe",
-  tester:   "https://api.dicebear.com/8.x/personas/svg?seed=DrMarkQCTesterGlass&backgroundColor=dcfce7",
-  designer: "https://api.dicebear.com/8.x/personas/svg?seed=AlexBrandPackagingDesign&backgroundColor=fef9c3",
+  expert:   avatarExpert,
+  tester:   avatarTester,
+  designer: avatarDesigner,
 };
 
 interface SupportCard {
