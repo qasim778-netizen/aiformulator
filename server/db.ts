@@ -186,6 +186,18 @@ export const sampleProductsTable = pgTable("sample_products", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const formulatorsTable = pgTable("formulators", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name").notNull(),
+  photoUrl: varchar("photo_url").notNull(),
+  expertiseName: varchar("expertise_name").notNull(),
+  color: varchar("color").notNull().default("pink"),
+  affiliateLink: varchar("affiliate_link").notNull(),
+  position: integer("position").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export type DbCategory = typeof categoriesTable.$inferSelect;
 export type DbFormulation = typeof formulationsTable.$inferSelect;
 export type DbProductProperties = typeof productPropertiesTable.$inferSelect;

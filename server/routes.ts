@@ -3980,5 +3980,59 @@ DESIGN RULES
     });
   });
 
+  // ── Formulators API ──────────────────────────────────────────────────────────
+  // Public: active formulators sorted by position
+  app.get("/api/formulators", async (req, res) => {
+    try {
+      const formulators = await storage.getFormulators();
+      res.json(formulators);
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to fetch formulators" });
+    }
+  });
+
+  // Admin: all formulators
+  app.get("/api/admin/formulators", requireAdmin, async (req, res) => {
+    try {
+      const formulators = await storage.getAllFormulators();
+      res.json(formulators);
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to fetch formulators" });
+    }
+  });
+
+  // Admin: create formulator
+  app.post("/api/admin/formulators", requireAdmin, async (req, res) => {
+    try {
+      const created = await storage.createFormulator(req.body);
+      res.status(201).json(created);
+    } catch (error: any) {
+      console.error("Failed to create formulator:", error);
+      res.status(500).json({ message: "Failed to create formulator" });
+    }
+  });
+
+  // Admin: update formulator
+  app.patch("/api/admin/formulators/:id", requireAdmin, async (req, res) => {
+    try {
+      const updated = await storage.updateFormulator(req.params.id, req.body);
+      if (!updated) return res.status(404).json({ message: "Formulator not found" });
+      res.json(updated);
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to update formulator" });
+    }
+  });
+
+  // Admin: delete formulator
+  app.delete("/api/admin/formulators/:id", requireAdmin, async (req, res) => {
+    try {
+      const success = await storage.deleteFormulator(req.params.id);
+      if (!success) return res.status(404).json({ message: "Formulator not found" });
+      res.json({ message: "Formulator deleted" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to delete formulator" });
+    }
+  });
+
   return httpServer;
 }

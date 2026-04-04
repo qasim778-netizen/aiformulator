@@ -26,6 +26,7 @@ import FormulationTester from "@/components/admin/formulation-tester";
 import FormulationContentManagementTab from "@/components/admin/formulation-content-management-tab";
 import GeneratedFormulasTab from "@/components/admin/generated-formulas-tab";
 import BlogManagementTab from "@/components/admin/blog-management-tab";
+import FormulatorManagementTab from "@/components/admin/formulator-management-tab";
 import type { Category, Formulation } from "@shared/schema";
 
 export default function AdminPage() {
@@ -426,6 +427,17 @@ export default function AdminPage() {
               data-testid="admin-generated-formulas-tab"
             >
               Generated Formulas
+            </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "formulators"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab("formulators")}
+              data-testid="admin-formulators-tab"
+            >
+              Expert Cards
             </button>
           </nav>
         </div>
@@ -1075,6 +1087,13 @@ export default function AdminPage() {
         {/* Generated Formulas Tab */}
         {activeTab === "generated-formulas" && (
           <GeneratedFormulasTab />
+        )}
+
+        {/* Expert Cards Tab */}
+        {activeTab === "formulators" && (
+          <div className="p-6">
+            <FormulatorManagementTab />
+          </div>
         )}
       </div>
 

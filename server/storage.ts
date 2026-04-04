@@ -1,4 +1,4 @@
-import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type FormulationContent, type InsertFormulationContent, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser, type Page, type InsertPage, type BlogPost, type InsertBlogPost, type ChatMessage, type InsertChatMessage, type UserFormulationRequest, type InsertUserFormulationRequest, type SampleProduct, type InsertSampleProduct } from "@shared/schema";
+import { type Category, type InsertCategory, type Formulation, type InsertFormulation, type FormulationContent, type InsertFormulationContent, type ProductProperties, type UserNote, type InsertUserNote, type User, type UpsertUser, type Page, type InsertPage, type BlogPost, type InsertBlogPost, type ChatMessage, type InsertChatMessage, type UserFormulationRequest, type InsertUserFormulationRequest, type SampleProduct, type InsertSampleProduct, type Formulator, type InsertFormulator } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 // Helper function to generate URL-friendly slugs
@@ -120,6 +120,13 @@ export interface IStorage {
   createSampleProduct(product: InsertSampleProduct): Promise<SampleProduct>;
   updateSampleProduct(id: string, product: Partial<InsertSampleProduct>): Promise<SampleProduct | undefined>;
   deleteSampleProduct(id: string): Promise<boolean>;
+  // Formulators
+  getFormulators(): Promise<Formulator[]>;
+  getAllFormulators(): Promise<Formulator[]>;
+  getFormulator(id: string): Promise<Formulator | undefined>;
+  createFormulator(formulator: InsertFormulator): Promise<Formulator>;
+  updateFormulator(id: string, formulator: Partial<InsertFormulator>): Promise<Formulator | undefined>;
+  deleteFormulator(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -2655,6 +2662,14 @@ export class MemStorage implements IStorage {
   async deleteSampleProduct(id: string): Promise<boolean> {
     return this.sampleProducts.delete(id);
   }
+
+  // Formulators — MemStorage stubs (database is used in production)
+  async getFormulators(): Promise<Formulator[]> { return []; }
+  async getAllFormulators(): Promise<Formulator[]> { return []; }
+  async getFormulator(id: string): Promise<Formulator | undefined> { return undefined; }
+  async createFormulator(f: InsertFormulator): Promise<Formulator> { throw new Error("Use DatabaseStorage"); }
+  async updateFormulator(id: string, f: Partial<InsertFormulator>): Promise<Formulator | undefined> { return undefined; }
+  async deleteFormulator(id: string): Promise<boolean> { return false; }
 }
 
 import { DatabaseStorage } from "./database-storage";

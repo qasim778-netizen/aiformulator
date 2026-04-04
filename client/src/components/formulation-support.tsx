@@ -1,72 +1,87 @@
-import { Beaker, ShieldCheck, Package, Wrench, FlaskConical, Palette, Car, Droplets, TestTube, Layers, Star, ExternalLink, LucideIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Beaker, ShieldCheck, Package, Wrench, FlaskConical, Droplets, Layers, Car, Star, ExternalLink, LucideIcon } from "lucide-react";
 import avatarExpert from "../assets/avatars/avatar-expert.png";
 import avatarTester from "../assets/avatars/avatar-tester.png";
 import avatarDesigner from "../assets/avatars/avatar-designer.png";
+import type { Formulator } from "@shared/schema";
 
-// ── Card types ────────────────────────────────────────────────────────────────
-interface SupportCard {
+// ── Color map (matches admin COLOR_OPTIONS) ───────────────────────────────────
+const COLOR_MAP: Record<string, { header: string; border: string; button: string; buttonHover: string }> = {
+  pink:   { header: "bg-pink-500",   border: "border-pink-400",   button: "bg-pink-500",   buttonHover: "hover:bg-pink-600" },
+  purple: { header: "bg-purple-700", border: "border-purple-500", button: "bg-purple-700", buttonHover: "hover:bg-purple-800" },
+  orange: { header: "bg-orange-500", border: "border-orange-400", button: "bg-orange-500", buttonHover: "hover:bg-orange-600" },
+  blue:   { header: "bg-blue-600",   border: "border-blue-400",   button: "bg-blue-600",   buttonHover: "hover:bg-blue-700" },
+  teal:   { header: "bg-teal-600",   border: "border-teal-400",   button: "bg-teal-600",   buttonHover: "hover:bg-teal-700" },
+  green:  { header: "bg-green-600",  border: "border-green-400",  button: "bg-green-600",  buttonHover: "hover:bg-green-700" },
+  indigo: { header: "bg-indigo-600", border: "border-indigo-400", button: "bg-indigo-600", buttonHover: "hover:bg-indigo-700" },
+  red:    { header: "bg-red-500",    border: "border-red-400",    button: "bg-red-500",    buttonHover: "hover:bg-red-600" },
+};
+
+function colorFor(color: string) {
+  return COLOR_MAP[color] ?? COLOR_MAP.pink;
+}
+
+// ── Hardcoded fallback cards (shown when DB has no entries) ───────────────────
+interface FallbackCard {
   headerLabel: string;
   Icon: LucideIcon;
   photo: string;
   photoAlt: string;
   ctaLabel: string;
   ctaHref: string;
-  color: {
-    header: string;
-    border: string;
-    button: string;
-    buttonHover: string;
-  };
+  color: string;
 }
 
-// ── Per-card color presets ────────────────────────────────────────────────────
-const PINK = {
-  header: "bg-pink-500",
-  border: "border-pink-400",
-  button: "bg-pink-500",
-  buttonHover: "hover:bg-pink-600",
-};
-const PURPLE = {
-  header: "bg-purple-700",
-  border: "border-purple-500",
-  button: "bg-purple-700",
-  buttonHover: "hover:bg-purple-800",
-};
-const ORANGE = {
-  header: "bg-orange-500",
-  border: "border-orange-400",
-  button: "bg-orange-500",
-  buttonHover: "hover:bg-orange-600",
-};
+const FIVERR = "https://www.fiverr.com/search/gigs?query=";
+
+const DEFAULT_FALLBACK: FallbackCard[] = [
+  {
+    headerLabel: "Cosmetic Formulation Expert",
+    Icon: FlaskConical,
+    photo: avatarExpert,
+    photoAlt: "Cosmetic Formulation Expert",
+    ctaLabel: "Find Cosmetic Experts",
+    ctaHref: `${FIVERR}cosmetic+formulation+expert`,
+    color: "pink",
+  },
+  {
+    headerLabel: "Stability & Testing Specialist",
+    Icon: ShieldCheck,
+    photo: avatarTester,
+    photoAlt: "Stability & Testing Specialist",
+    ctaLabel: "Find QA Specialists",
+    ctaHref: `${FIVERR}product+stability+testing+specialist`,
+    color: "purple",
+  },
+  {
+    headerLabel: "Branding & Packaging Consultant",
+    Icon: Package,
+    photo: avatarDesigner,
+    photoAlt: "Branding & Packaging Consultant",
+    ctaLabel: "Find Branding Experts",
+    ctaHref: `${FIVERR}brand+packaging+designer`,
+    color: "orange",
+  },
+];
 
 // ── Single card ───────────────────────────────────────────────────────────────
-function SupportCardItem({ card }: { card: SupportCard }) {
+function FallbackCardItem({ card }: { card: FallbackCard }) {
   const { Icon } = card;
+  const c = colorFor(card.color);
   return (
-    <div className={`rounded-2xl border-2 ${card.color.border} overflow-hidden flex flex-col shadow-sm hover:shadow-lg transition-shadow duration-200`}>
-      {/* Colored header bar */}
-      <div className={`${card.color.header} px-4 py-3 flex items-center gap-2`}>
+    <div className={`rounded-2xl border-2 ${c.border} overflow-hidden flex flex-col shadow-sm hover:shadow-lg transition-shadow duration-200`}>
+      <div className={`${c.header} px-4 py-3 flex items-center gap-2`}>
         <Icon className="h-4 w-4 text-white opacity-90 flex-shrink-0" />
-        <span className="text-white text-xs font-bold uppercase tracking-wider leading-tight">
-          {card.headerLabel}
-        </span>
+        <span className="text-white text-xs font-bold uppercase tracking-wider leading-tight">{card.headerLabel}</span>
       </div>
-
-      {/* Portrait photo */}
       <div className="w-full overflow-hidden bg-gray-100 flex-1">
-        <img
-          src={card.photo}
-          alt={card.photoAlt}
-          className="w-full h-64 object-cover object-top"
-        />
+        <img src={card.photo} alt={card.photoAlt} className="w-full h-64 object-cover object-top" />
       </div>
-
-      {/* CTA button */}
       <a
         href={card.ctaHref}
         target="_blank"
         rel="noopener noreferrer"
-        className={`${card.color.button} ${card.color.buttonHover} text-white text-sm font-semibold text-center py-3.5 px-4 flex items-center justify-center gap-2 transition-colors duration-150 cursor-pointer`}
+        className={`${c.button} ${c.buttonHover} text-white text-sm font-semibold text-center py-3.5 px-4 flex items-center justify-center gap-2 transition-colors duration-150 cursor-pointer`}
       >
         <ExternalLink className="h-4 w-4 opacity-80" />
         {card.ctaLabel}
@@ -75,64 +90,40 @@ function SupportCardItem({ card }: { card: SupportCard }) {
   );
 }
 
-// ── Card factory ──────────────────────────────────────────────────────────────
-const FIVERR = "https://www.fiverr.com/search/gigs?query=";
-
-function makeCards(
-  label1: string, cta1: string, href1: string, Icon1: LucideIcon,
-  label2: string, cta2: string, href2: string, Icon2: LucideIcon,
-  label3: string, cta3: string, href3: string, Icon3: LucideIcon,
-): SupportCard[] {
-  return [
-    { headerLabel: label1, Icon: Icon1, photo: avatarExpert,   photoAlt: label1, ctaLabel: cta1, ctaHref: href1, color: PINK   },
-    { headerLabel: label2, Icon: Icon2, photo: avatarTester,   photoAlt: label2, ctaLabel: cta2, ctaHref: href2, color: PURPLE },
-    { headerLabel: label3, Icon: Icon3, photo: avatarDesigner, photoAlt: label3, ctaLabel: cta3, ctaHref: href3, color: ORANGE },
-  ];
+function FormulatorCard({ formulator }: { formulator: Formulator }) {
+  const c = colorFor(formulator.color);
+  return (
+    <div className={`rounded-2xl border-2 ${c.border} overflow-hidden flex flex-col shadow-sm hover:shadow-lg transition-shadow duration-200`}>
+      <div className={`${c.header} px-4 py-3 flex items-center gap-2`}>
+        <span className="text-white text-xs font-bold uppercase tracking-wider leading-tight">
+          {formulator.expertiseName}
+        </span>
+      </div>
+      <div className="w-full overflow-hidden bg-gray-100 flex-1">
+        <img
+          src={formulator.photoUrl}
+          alt={formulator.expertiseName}
+          className="w-full h-64 object-cover object-top"
+        />
+      </div>
+      <a
+        href={formulator.affiliateLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`${c.button} ${c.buttonHover} text-white text-sm font-semibold text-center py-3.5 px-4 flex items-center justify-center gap-2 transition-colors duration-150 cursor-pointer`}
+      >
+        <ExternalLink className="h-4 w-4 opacity-80" />
+        Connect with Expert
+      </a>
+    </div>
+  );
 }
 
-// ── Card datasets ─────────────────────────────────────────────────────────────
-const COSMETIC_CARDS = makeCards(
-  "Cosmetic Formulation Expert",     "Find Cosmetic Experts",    `${FIVERR}cosmetic+formulation+expert`,           FlaskConical,
-  "Stability & Testing Specialist",  "Find QA Specialists",      `${FIVERR}product+stability+testing+specialist`,  ShieldCheck,
-  "Branding & Packaging Consultant", "Find Branding Experts",    `${FIVERR}brand+packaging+designer`,              Package,
-);
-
-const CLEANING_CARDS = makeCards(
-  "Industrial Cleaner Expert",       "Find Formulation Experts", `${FIVERR}industrial+cleaning+formulation+expert`, Beaker,
-  "Quality Control Specialist",      "Find QC Specialists",      `${FIVERR}product+quality+control+specialist`,     ShieldCheck,
-  "Packaging & Label Consultant",    "Find Packaging Experts",   `${FIVERR}product+packaging+label+designer`,       Package,
-);
-
-const AUTOMOTIVE_CARDS = makeCards(
-  "Automotive Product Expert",       "Find Automotive Experts",  `${FIVERR}automotive+product+formulation+expert`,  Car,
-  "Performance Testing Expert",      "Find Testing Experts",     `${FIVERR}automotive+product+testing+specialist`,  Wrench,
-  "Launch & Packaging Consultant",   "Find Launch Experts",      `${FIVERR}product+launch+packaging+consultant`,    Package,
-);
-
-const COATINGS_CARDS = makeCards(
-  "Adhesives & Coatings Expert",     "Find Coatings Experts",    `${FIVERR}adhesives+coatings+formulation+expert`,  Droplets,
-  "Process Optimization Expert",     "Find Process Experts",     `${FIVERR}chemical+process+optimization+specialist`, Wrench,
-  "Product Positioning Consultant",  "Find Brand Consultants",   `${FIVERR}product+brand+positioning+consultant`,   Layers,
-);
-
-const DEFAULT_CARDS = makeCards(
-  "Product Formulation Expert",      "Find Formulation Experts", `${FIVERR}product+formulation+expert`,             Beaker,
-  "QC & Stability Specialist",       "Find QC Specialists",      `${FIVERR}quality+control+product+testing`,        ShieldCheck,
-  "Branding & Packaging Consultant", "Find Branding Experts",    `${FIVERR}brand+packaging+designer`,               Package,
-);
-
-function getCards(slug: string): SupportCard[] {
-  if (/cleaning|household|industrial|degreaser|detergent/.test(slug)) return CLEANING_CARDS;
-  if (/skin|beauty|cosmetic|hair|personal|oral|baby|grooming|organic|mens|salon/.test(slug)) return COSMETIC_CARDS;
-  if (/automotive|car/.test(slug)) return AUTOMOTIVE_CARDS;
-  if (/adhesive|coating|paint|3d.print|building|construct|textile/.test(slug)) return COATINGS_CARDS;
-  return DEFAULT_CARDS;
-}
-
-// ── Shared section layout ─────────────────────────────────────────────────────
-function SupportSection({ heading, cards }: { heading: string; cards: SupportCard[] }) {
+// ── Section wrapper ───────────────────────────────────────────────────────────
+function SupportSection({ heading, formulators }: { heading: string; formulators: Formulator[] | null }) {
   const words = heading.split(" ");
   const hi = words.findIndex((w) => w === "Professional");
+  const useDB = formulators && formulators.length > 0;
 
   return (
     <section aria-label="Formulation expert support">
@@ -163,11 +154,12 @@ function SupportSection({ heading, cards }: { heading: string; cards: SupportCar
         </p>
       </div>
 
-      {/* Cards */}
+      {/* Cards: DB data or hardcoded fallback */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
-        {cards.map((card, i) => (
-          <SupportCardItem key={i} card={card} />
-        ))}
+        {useDB
+          ? formulators.map((f) => <FormulatorCard key={f.id} formulator={f} />)
+          : DEFAULT_FALLBACK.map((c, i) => <FallbackCardItem key={i} card={c} />)
+        }
       </div>
 
       {/* Footer */}
@@ -188,27 +180,37 @@ function SupportSection({ heading, cards }: { heading: string; cards: SupportCar
   );
 }
 
-// ── Exports ───────────────────────────────────────────────────────────────────
+// ── Hook: fetch from API ──────────────────────────────────────────────────────
+function useFormulators() {
+  return useQuery<Formulator[]>({
+    queryKey: ["/api/formulators"],
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// ── Homepage export ───────────────────────────────────────────────────────────
 export function FormulationSupportAll() {
+  const { data: formulators } = useFormulators();
   return (
     <SupportSection
       heading="Need Professional Help With This Formula?"
-      cards={COSMETIC_CARDS}
+      formulators={formulators ?? null}
     />
   );
 }
 
+// ── Formulation detail page export ───────────────────────────────────────────
 interface Props {
   categorySlug?: string;
 }
 
 export default function FormulationSupport({ categorySlug = "" }: Props) {
-  const slug = categorySlug.toLowerCase();
+  const { data: formulators } = useFormulators();
   return (
     <div className="mt-12 mb-2">
       <SupportSection
         heading="Need Professional Help With This Formula?"
-        cards={getCards(slug)}
+        formulators={formulators ?? null}
       />
     </div>
   );

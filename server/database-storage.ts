@@ -1,7 +1,7 @@
-import { eq, desc, and, sql as drizzleSql } from "drizzle-orm";
-import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable, formulationContentTable, sampleProductsTable, usersTable, sql } from "./db";
+import { eq, desc, and, sql as drizzleSql, asc } from "drizzle-orm";
+import { db, categoriesTable, formulationsTable, productPropertiesTable, userNotesTable, pagesTable, blogPostsTable, userFormulationRequestsTable, formulationContentTable, sampleProductsTable, usersTable, formulatorsTable, sql } from "./db";
 import { cache, CACHE_KEYS, CACHE_TTL, invalidateFormulationCache, invalidateCategoryCache } from "./cache";
-import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage, UserFormulationRequest, InsertUserFormulationRequest, FormulationContent, InsertFormulationContent, SampleProduct, InsertSampleProduct } from "@shared/schema";
+import type { Category, InsertCategory, Formulation, InsertFormulation, UserNote, InsertUserNote, User, UpsertUser, Page, InsertPage, BlogPost, InsertBlogPost, ChatMessage, InsertChatMessage, UserFormulationRequest, InsertUserFormulationRequest, FormulationContent, InsertFormulationContent, SampleProduct, InsertSampleProduct, Formulator, InsertFormulator } from "@shared/schema";
 import type { IStorage, IAiGeneration } from "./storage";
 import crypto from "crypto";
 import { randomUUID } from "crypto";
@@ -1208,6 +1208,87 @@ export class DatabaseStorage implements IStorage {
       return result.rowCount > 0;
     } catch (error) {
       console.error("Failed to delete sample product:", error);
+      return false;
+    }
+  }
+
+  // ── Formulators ─────────────────────────────────────────────────────────────
+  async getFormulators(): Promise<Formulator[]> {
+    try {
+      return await db
+        .select()
+        .from(formulatorsTable)
+        .where(eq(formulatorsTable.isActive, true))
+        .orderBy(asc(formulatorsTable.position));
+    } catch (error) {
+      console.error("Failed to fetch formulators:", error);
+      return [];
+    }
+  }
+
+  async getAllFormulators(): Promise<Formulator[]> {
+    try {
+      return await db
+        .select()
+        .from(formulatorsTable)
+        .orderBy(asc(formulatorsTable.position));
+    } catch (error) {
+      console.error("Failed to fetch all formulators:", error);
+      return [];
+    }
+  }
+
+  async getFormulator(id: string): Promise<Formulator | undefined> {
+    try {
+      const [row] = await db
+        .select()
+        .from(formulatorsTable)
+        .where(eq(formulatorsTable.id, id));
+      return row;
+    } catch (error) {
+      console.error("Failed to fetch formulator:", error);
+      return undefined;
+    }
+  }
+
+  async createFormulator(f: InsertFormulator): Promise<Formulator> {
+    const [created] = await db
+      .insert(formulatorsTable)
+      .values({
+        name: f.name,
+        photoUrl: f.photoUrl,
+        expertiseName: f.expertiseName,
+        color: f.color ?? "pink",
+        affiliateLink: f.affiliateLink,
+        position: f.position ?? 0,
+        isActive: f.isActive ?? true,
+      })
+      .returning();
+    return created;
+  }
+
+  async updateFormulator(id: string, f: Partial<InsertFormulator>): Promise<Formulator | undefined> {
+    try {
+      const [updated] = await db
+        .update(formulatorsTable)
+        .set(f)
+        .where(eq(formulatorsTable.id, id))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error("Failed to update formulator:", error);
+      return undefined;
+    }
+  }
+
+  async deleteFormulator(id: string): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(formulatorsTable)
+        .where(eq(formulatorsTable.id, id));
+      return (result.rowCount ?? 0) > 0;
+    } catch (error) {
+      console.error("Failed to delete formulator:", error);
       return false;
     }
   }

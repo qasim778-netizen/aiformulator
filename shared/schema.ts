@@ -457,3 +457,24 @@ export const insertSampleProductSchema = createInsertSchema(sampleProducts).omit
 
 export type InsertSampleProduct = z.infer<typeof insertSampleProductSchema>;
 export type SampleProduct = typeof sampleProducts.$inferSelect;
+
+// Formulators table — expert cards shown in the support section
+export const formulators = pgTable("formulators", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  photoUrl: varchar("photo_url").notNull(),
+  expertiseName: varchar("expertise_name").notNull(),
+  color: varchar("color").notNull().default("pink"), // pink | purple | orange | blue | teal | green | indigo
+  affiliateLink: varchar("affiliate_link").notNull(),
+  position: integer("position").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+});
+
+export const insertFormulatorSchema = createInsertSchema(formulators).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertFormulator = z.infer<typeof insertFormulatorSchema>;
+export type Formulator = typeof formulators.$inferSelect;
