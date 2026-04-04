@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Captcha } from "@/components/ui/captcha";
 import Breadcrumb from "@/components/breadcrumb";
+import FormulationSupport from "@/components/formulation-support";
 import woodFloorCleaner from "@/assets/generated-images/wood-floor-cleaner.png";
 import glassCleaner from "@/assets/generated-images/glass-cleaner.png";
 import multiSurfaceCleaner from "@/assets/generated-images/multi-surface-cleaner.png";
@@ -541,6 +542,9 @@ export default function FormulationPage() {
 
           </CardContent>
         </Card>
+
+        {/* Expert Support Section — category-aware cards */}
+        <FormulationSupport categorySlug={category?.slug || formulation.categoryId || ""} />
 
         {/* Related Products from Same Category */}
         {relatedProducts.length > 0 && (

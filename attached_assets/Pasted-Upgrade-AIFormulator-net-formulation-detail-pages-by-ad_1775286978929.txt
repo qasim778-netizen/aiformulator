@@ -1,0 +1,156 @@
+Upgrade AIFormulator.net formulation detail pages by adding a reusable, category-aware “Featured Formulation Support” section under every formula page.
+
+Main objective:
+Increase trust and conversions by showing 3 professional support cards under each formulation page. These must represent support categories only, not real verified people.
+
+Very important compliance rules:
+- These are demo/support-category cards, not real staff or verified freelancers
+- Do NOT use real names, fake ratings, fake reviews, fake countries, fake years of experience, fake project counts, or misleading badges
+- Do NOT imply these are approved Fiverr sellers or internal employees
+- Use neutral labels such as “Expert”, “Consultant”, “Specialist”, “Support”
+- Use AI-generated avatars, illustrated profile images, or clean abstract professional placeholders
+- Add a subtle disclaimer note below the section so it is not deceptive
+
+Placement:
+- Show this section on every formulation detail page
+- Place it below the main formulation content
+- Preferably above FAQ, related formulas, or final CTA
+- Add it through the shared formulation template/component so it applies sitewide
+
+Section heading:
+Need help customizing this formula?
+
+Section subheading:
+Connect with the right type of support for formula refinement, scale-up, quality guidance, packaging, branding, or launch preparation.
+
+Core behavior:
+Make the 3 support cards dynamic based on the formulation category if possible.
+If dynamic mapping is easy, use category-specific cards.
+If not, fall back to a clean default set of 3 cards sitewide.
+
+Category-aware card mapping:
+
+1) Cleaning / Household / Industrial Cleaners pages
+Card 1 Title: Industrial Cleaner Formulation Expert
+Card 1 Description: Guidance for ingredient adjustment, performance improvement, dilution strategy, and manufacturing suitability.
+Card 1 CTA: Consult Expert
+
+Card 2 Title: Quality Control Support
+Card 2 Description: Help with pH targets, viscosity checks, stability review, and batch consistency planning.
+Card 2 CTA: Get QC Help
+
+Card 3 Title: Packaging & Labeling Consultant
+Card 3 Description: Support for label direction, packaging selection, product presentation, and launch readiness.
+Card 3 CTA: Start Project
+
+2) Personal Care / Cosmetics pages
+Card 1 Title: Cosmetic Formulation Expert
+Card 1 Description: Support for shampoos, lotions, face wash, serums, creams, and product refinement for target users.
+Card 1 CTA: Consult Expert
+
+Card 2 Title: Stability & Testing Support
+Card 2 Description: Guidance for texture, pH balance, compatibility, and basic product stability planning.
+Card 2 CTA: Get Product Help
+
+Card 3 Title: Branding & Packaging Consultant
+Card 3 Description: Help with product presentation, packaging direction, and market-ready positioning.
+Card 3 CTA: Start Project
+
+3) Automotive Care pages
+Card 1 Title: Automotive Product Expert
+Card 1 Description: Support for cleaners, polishes, dressings, compounds, and performance-focused formulation adjustment.
+Card 1 CTA: Consult Expert
+
+Card 2 Title: Performance Testing Support
+Card 2 Description: Guidance for gloss, cleaning strength, surface compatibility, and application performance review.
+Card 2 CTA: Get Product Help
+
+Card 3 Title: Packaging & Launch Consultant
+Card 3 Description: Help with packaging direction, label planning, and launch presentation for automotive products.
+Card 3 CTA: Start Project
+
+4) Adhesives / Coatings pages
+Card 1 Title: Adhesives & Coatings Expert
+Card 1 Description: Guidance for bonding performance, drying behavior, raw material adjustment, and production suitability.
+Card 1 CTA: Consult Expert
+
+Card 2 Title: Process Optimization Support
+Card 2 Description: Help with viscosity targets, application behavior, curing profile, and production consistency.
+Card 2 CTA: Get Process Help
+
+Card 3 Title: Product Positioning Consultant
+Card 3 Description: Support for packaging direction, use-case messaging, and launch preparation.
+Card 3 CTA: Start Project
+
+5) Default fallback for any other category
+Card 1 Title: Product Formulation Expert
+Card 1 Description: Support for formula improvement, ingredient adjustments, and practical product development guidance.
+Card 1 CTA: Consult Expert
+
+Card 2 Title: Production & QC Support
+Card 2 Description: Help with batch consistency, product checks, and manufacturing-oriented refinement.
+Card 2 CTA: Get Support
+
+Card 3 Title: Packaging & Branding Consultant
+Card 3 Description: Guidance for packaging direction, labels, and product launch preparation.
+Card 3 CTA: Start Project
+
+Design requirements:
+- 3-column grid on desktop
+- 2-column layout on tablet if suitable
+- 1-column stacked layout on mobile
+- Equal card heights
+- Clean modern styling
+- Rounded corners
+- Soft shadows
+- Balanced spacing
+- Professional appearance
+- Fast-loading layout
+- Buttons should be visually clear and clickable
+- Avatar/image at the top of each card
+- Consistent image ratio and size across cards
+- Subtle hover effect on cards and buttons
+- Maintain current site branding and typography
+
+Avatar/image requirements:
+- Use neutral AI-style profile illustrations, lab/professional avatars, or consistent abstract avatar placeholders
+- Do not use celebrity-like or identifiable real-person images
+- Add descriptive alt text for accessibility
+- Ensure local fallback placeholder if any image fails
+- Keep image assets optimized for performance
+
+Content/disclaimer requirement:
+Below the cards, add subtle helper text in smaller font:
+“These example support categories help users identify the type of expert assistance they may need for formulation, quality, packaging, or launch preparation.”
+
+Optional CTA enhancement:
+Below the disclaimer, add one centered secondary CTA button:
+Button text: Explore Expert Help
+This can later be linked to Fiverr, a lead form, or a services page
+
+Technical requirements:
+- Build as a reusable shared component
+- Inject into all current and future formulation detail pages automatically
+- Use existing data structure to detect formulation category if available
+- If category detection does not exist, infer from formulation type/category slug where practical
+- Keep code clean and production-ready
+- Avoid hardcoding into individual pages
+- Ensure no layout shifting or broken rendering
+- Make sure the section is SEO-safe and does not create spammy repeated content
+- Keep wording concise and useful
+
+Nice-to-have enhancement:
+If possible, vary the section heading slightly by category, for example:
+- Need help optimizing this cleaner formula?
+- Need help refining this cosmetic formula?
+- Need help improving this automotive formula?
+If this adds complexity, keep one universal heading.
+
+Deliver exactly:
+1. Reusable component for support cards
+2. Category-based mapping logic with fallback
+3. Responsive styling
+4. Sitewide integration into formulation pages
+5. Safe placeholder images or avatars
+6. Subtle disclaimer text
+7. Clean secondary CTA button
