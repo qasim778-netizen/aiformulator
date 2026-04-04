@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Beaker, ShieldCheck, Package, Wrench, FlaskConical, Palette, Car, Droplets, TestTube, Layers } from "lucide-react";
-import avatarExpert from "@assets/avatars/avatar-expert.png";
-import avatarTester from "@assets/avatars/avatar-tester.png";
-import avatarDesigner from "@assets/avatars/avatar-designer.png";
+import avatarExpert from "../assets/avatars/avatar-expert.png";
+import avatarTester from "../assets/avatars/avatar-tester.png";
+import avatarDesigner from "../assets/avatars/avatar-designer.png";
 
 // ── Avatar images (AI-generated photorealistic portraits) ─────────────────────
 const AVATAR_URLS: Record<string, string> = {
