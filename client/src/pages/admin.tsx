@@ -855,7 +855,7 @@ export default function AdminPage() {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Image
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-64 max-w-xs">
                           Formulation
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -889,10 +889,10 @@ export default function AdminPage() {
                                 )}
                               </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
+                            <td className="px-6 py-4 max-w-xs w-64">
                               <div>
-                                <div className="text-sm font-medium text-gray-900">{formulation.name}</div>
-                                <div className="text-sm text-gray-500">{formulation.description.substring(0, 60)}...</div>
+                                <div className="text-sm font-medium text-gray-900 line-clamp-2 break-words">{formulation.name}</div>
+                                <div className="text-sm text-gray-500 line-clamp-1">{formulation.description.substring(0, 60)}...</div>
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
