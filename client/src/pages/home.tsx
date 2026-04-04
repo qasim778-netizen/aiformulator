@@ -7,6 +7,7 @@ import WhyChooseFormulator from '@/components/why-choose-formulator'
 import SampleFormulations from '@/components/sample-formulations'
 import { GlobalReachSection } from '@/components/global-reach'
 import FAQ from '@/components/faq'
+import { FormulationSupportAll } from '@/components/formulation-support'
 
 const whoCanUseItems = [
   { icon: Crown, title: "Brand Owners", desc: "Launching private-label products", color: "from-amber-100 to-yellow-50", iconColor: "text-amber-600" },
@@ -136,6 +137,16 @@ export default function Home() {
           <section className="bg-white py-20">
             <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
               <SampleFormulations />
+            </div>
+          </section>
+
+          {/* Divider */}
+          <div className="border-t border-[#E5E7EB]" />
+
+          {/* Formulation Support Rows */}
+          <section className="bg-white py-20">
+            <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+              <FormulationSupportAll />
             </div>
           </section>
 
