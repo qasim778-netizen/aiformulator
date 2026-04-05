@@ -130,24 +130,6 @@ function SupportSection({ heading, formulators }: { heading: string; formulators
 
   return (
     <section aria-label="Formulation expert support">
-      {/* ── Fiverr header branding ── */}
-      <div className="flex justify-center mb-5">
-        <a
-          href={FIVERR_LINK}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-3 bg-white border-2 border-[#1DBF73] rounded-2xl px-6 py-3 shadow-sm hover:shadow-md transition-shadow duration-150 group"
-        >
-          <SiFiverr className="h-8 w-8 text-[#1DBF73]" />
-          <div className="text-left">
-            <div className="text-[11px] text-gray-400 uppercase tracking-widest font-semibold leading-none mb-0.5">Powered by</div>
-            <div className="text-xl font-extrabold text-gray-900 leading-none tracking-tight group-hover:text-[#1DBF73] transition-colors">
-              fiverr<span className="text-[#1DBF73]">.</span>
-            </div>
-          </div>
-        </a>
-      </div>
-
       {/* Badge */}
       <div className="flex justify-center mb-4">
         <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full shadow">
