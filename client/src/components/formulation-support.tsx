@@ -1,9 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Beaker, ShieldCheck, Package, Wrench, FlaskConical, Droplets, Layers, Car, Star, ExternalLink, LucideIcon } from "lucide-react";
+import { SiFiverr } from "react-icons/si";
 import avatarExpert from "../assets/avatars/avatar-expert.png";
 import avatarTester from "../assets/avatars/avatar-tester.png";
 import avatarDesigner from "../assets/avatars/avatar-designer.png";
 import type { Formulator } from "@shared/schema";
+
+const FIVERR_LINK = "https://www.fiverr.com/search/gigs?query=chemical%20formulation";
 
 // ── Color map (matches admin COLOR_OPTIONS) ───────────────────────────────────
 const COLOR_MAP: Record<string, { header: string; border: string; button: string; buttonHover: string }> = {
@@ -162,19 +165,27 @@ function SupportSection({ heading, formulators }: { heading: string; formulators
         }
       </div>
 
-      {/* Footer */}
+      {/* Footer — Fiverr branding */}
       <div className="text-center">
-        <p className="text-sm text-gray-500 mb-3">Trusted professionals ready to help you succeed</p>
-        <a
-          href="https://www.fiverr.com/categories/programming-tech/chemistry-formulation"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm px-7 py-3.5 rounded-full shadow-md transition-colors duration-150"
-        >
-          <Star className="h-4 w-4 fill-white opacity-90" />
-          Explore All Experts on Fiverr
-          <span className="text-gray-400 text-base ml-1">›</span>
-        </a>
+        <div className="inline-flex items-center gap-1.5 text-xs text-gray-400 mb-3">
+          <span>Trusted professionals ready to help you succeed · Powered by</span>
+          <span className="inline-flex items-center gap-1 font-bold text-[#1DBF73]">
+            <SiFiverr className="h-3.5 w-3.5" />
+            Fiverr
+          </span>
+        </div>
+        <div>
+          <a
+            href={FIVERR_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2.5 bg-[#1DBF73] hover:bg-[#19a463] text-white font-bold text-sm px-7 py-3.5 rounded-full shadow-md transition-colors duration-150"
+          >
+            <SiFiverr className="h-4 w-4" />
+            Explore All Experts on Fiverr
+            <span className="text-white/70 text-base ml-0.5">›</span>
+          </a>
+        </div>
       </div>
     </section>
   );
