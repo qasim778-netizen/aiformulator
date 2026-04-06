@@ -231,7 +231,11 @@ export default function Collection() {
                         {formulation.name}
                       </h3>
 
-                      <Link href={`/formulation/${formulation.slug || formulation.id}`}>
+                      <a
+                        href={`/formulation/${formulation.slug || formulation.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <Button
                           className="w-full text-white h-9 text-sm font-semibold rounded-full transition-all hover:opacity-90"
                           style={{ backgroundColor: "#0D9488" }}
@@ -239,7 +243,7 @@ export default function Collection() {
                         >
                           View Details
                         </Button>
-                      </Link>
+                      </a>
                     </div>
                   </div>
                 ))}

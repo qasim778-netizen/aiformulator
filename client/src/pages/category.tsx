@@ -236,16 +236,20 @@ export default function CategoryPage() {
                   </h3>
 
                   {/* View Details Button */}
-                  <Link href={`/formulation/${formulation.slug || formulation.id}`}>
+                  <a
+                    href={`/formulation/${formulation.slug || formulation.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-testid={`view-details-${formulation.id}`}
+                  >
                     <Button
                       className="w-full text-white h-9 text-sm font-semibold rounded-full transition-all hover:opacity-90"
                       style={{ backgroundColor: "#0D9488" }}
                       size="sm"
-                      data-testid={`view-details-${formulation.id}`}
                     >
                       View Details
                     </Button>
-                  </Link>
+                  </a>
                 </div>
               </div>
             ))}
