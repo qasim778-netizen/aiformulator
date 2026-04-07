@@ -124,9 +124,11 @@ function FormulatorCard({ formulator }: { formulator: Formulator }) {
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
 function SupportSection({ heading, formulators }: { heading: string; formulators: Formulator[] | null }) {
+  // Hide the entire section when there are no formulators in the database
+  if (!formulators || formulators.length === 0) return null;
+
   const words = heading.split(" ");
   const hi = words.findIndex((w) => w === "Professional");
-  const useDB = formulators && formulators.length > 0;
 
   return (
     <section aria-label="Formulation expert support">
@@ -157,12 +159,9 @@ function SupportSection({ heading, formulators }: { heading: string; formulators
         </p>
       </div>
 
-      {/* Cards: DB data or hardcoded fallback */}
+      {/* Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
-        {useDB
-          ? formulators.map((f) => <FormulatorCard key={f.id} formulator={f} />)
-          : DEFAULT_FALLBACK.map((c, i) => <FallbackCardItem key={i} card={c} />)
-        }
+        {formulators.map((f) => <FormulatorCard key={f.id} formulator={f} />)}
       </div>
 
       {/* Footer CTA */}
@@ -208,11 +207,13 @@ interface Props {
 
 export default function FormulationSupport({ categorySlug = "" }: Props) {
   const { data: formulators } = useFormulators();
+  // Don't render wrapper div either when there's nothing to show
+  if (!formulators || formulators.length === 0) return null;
   return (
     <div className="mt-12 mb-2">
       <SupportSection
         heading="Need Professional Help With This Formula?"
-        formulators={formulators ?? null}
+        formulators={formulators}
       />
     </div>
   );
