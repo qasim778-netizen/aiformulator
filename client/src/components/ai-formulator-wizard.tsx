@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowRight, ArrowLeft, Settings, BarChart, FileText, Beaker } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { HelpButton } from "@/components/ui/help-button";
+import { validateProductName } from "@/lib/validate-product-name";
 import ProductTypeStep from "./wizard-steps/product-type-step";
 import SpecificationsStep from "./wizard-steps/specifications-step";
 import RequirementsStep from "./wizard-steps/requirements-step";
@@ -347,6 +348,15 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
         toast({
           title: "Required Fields Missing",
           description: "Please fill in Product Name and Consistency Type before proceeding",
+          variant: "destructive"
+        });
+        return;
+      }
+      const nameCheck = validateProductName(formData.productName);
+      if (!nameCheck.valid) {
+        toast({
+          title: "Invalid Product Name",
+          description: nameCheck.error,
           variant: "destructive"
         });
         return;

@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import SignInDialog from "@/components/signin-dialog";
 import { Captcha } from "@/components/ui/captcha";
+import { validateProductName } from "@/lib/validate-product-name";
 
 const formulatorSchema = z.object({
   customerName: z.string().default(""),
@@ -149,19 +150,16 @@ export default function AIFormulator() {
   });
 
   const onSubmit = (data: FormulatorData) => {
-    console.log('📤 Form submitted with FULL data:', JSON.stringify(data, null, 2));
-    console.log('🔍 Form watch values:', {
-      customerName: form.watch('customerName'),
-      email: form.watch('email'),
-      country: form.watch('country'),
-      productName: form.watch('productName')
-    });
-    console.log('🔍 Form formState:', {
-      isDirty: form.formState.isDirty,
-      isValid: form.formState.isValid,
-      errors: form.formState.errors
-    });
-    
+    const nameCheck = validateProductName(data.productName);
+    if (!nameCheck.valid) {
+      toast({
+        title: "Invalid Product Name",
+        description: nameCheck.error,
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!isCaptchaVerified) {
       toast({
         title: "Captcha Required",
