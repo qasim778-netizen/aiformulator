@@ -58,6 +58,13 @@ export default function GeneratedFormulasTab() {
   const requests = Array.isArray(requestsData) ? requestsData : []
   const paged = requests.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
+  function isToday(dateStr: string | null | undefined): boolean {
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    const now = new Date();
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'approved': return 'bg-green-100 text-green-800'
@@ -114,17 +121,18 @@ export default function GeneratedFormulasTab() {
               const category = request.product_category || request.productCategory || 'N/A'
               const status = request.status || 'pending'
               const createdAt = request.createdAt || request.created_at
+              const todayRow = isToday(createdAt)
               return (
-                <tr key={request.id} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4 text-sm text-gray-600 font-medium">{userEmail}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{productName}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{category}</td>
+                <tr key={request.id} className={`hover:bg-green-50 transition ${todayRow ? 'bg-green-50' : ''}`}>
+                  <td className={`px-6 py-4 text-sm ${todayRow ? 'text-green-700 font-bold' : 'text-gray-600 font-medium'}`}>{userEmail}</td>
+                  <td className={`px-6 py-4 text-sm ${todayRow ? 'text-green-700 font-bold' : 'text-gray-600'}`}>{productName}</td>
+                  <td className={`px-6 py-4 text-sm ${todayRow ? 'text-green-700 font-bold' : 'text-gray-500'}`}>{category}</td>
                   <td className="px-6 py-4">
                     <Badge className={`${getStatusColor(status)} border-0`}>
                       {status?.charAt(0).toUpperCase() + status?.slice(1)}
                     </Badge>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className={`px-6 py-4 text-sm ${todayRow ? 'text-green-700 font-bold' : 'text-gray-600'}`}>
                     {createdAt ? new Date(createdAt).toLocaleDateString() : 'N/A'}
                   </td>
                 </tr>

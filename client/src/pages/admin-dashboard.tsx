@@ -15,6 +15,13 @@ import GeneratedFormulasTab from "@/components/admin/generated-formulas-tab";
 
 const PAGE_SIZE = 10;
 
+function isToday(dateStr: string | null | undefined): boolean {
+  if (!dateStr) return false;
+  const d = new Date(dateStr);
+  const now = new Date();
+  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+}
+
 function Pagination({
   total,
   page,
@@ -229,24 +236,27 @@ export default function AdminDashboard() {
                           </tr>
                         </thead>
                         <tbody>
-                          {pagedUsers.map((userData: any, index: number) => (
-                            <tr key={userData.id} className="border-b border-gray-200 hover:bg-gray-50" data-testid={`row-user-${index}`}>
-                              <td className="p-3" data-testid={`text-user-name-${index}`}>
-                                {userData.firstName && userData.lastName ? `${userData.firstName} ${userData.lastName}` : userData.firstName || 'N/A'}
-                              </td>
-                              <td className="p-3" data-testid={`text-user-email-${index}`}>{userData.email}</td>
-                              <td className="p-3" data-testid={`text-user-country-${index}`}>{userData.country || 'N/A'}</td>
-                              <td className="p-3" data-testid={`text-user-joined-${index}`}>
-                                {userData.createdAt ? format(new Date(userData.createdAt), 'MMM dd, yyyy') : 'N/A'}
-                              </td>
-                              <td className="p-3" data-testid={`text-user-admin-${index}`}>{userData.isAdmin ? '✓' : ''}</td>
-                              <td className="p-3">
-                                <Button variant="ghost" size="sm" onClick={() => handleViewUserFormulas(userData)} disabled={loadingFormulas} className="text-blue-600 hover:text-blue-800" data-testid={`button-view-user-formulas-${index}`} title="View generated formulas">
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                              </td>
-                            </tr>
-                          ))}
+                          {pagedUsers.map((userData: any, index: number) => {
+                            const todayRow = isToday(userData.createdAt);
+                            return (
+                              <tr key={userData.id} className={`border-b border-gray-200 hover:bg-green-50 ${todayRow ? 'bg-green-50' : ''}`} data-testid={`row-user-${index}`}>
+                                <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-user-name-${index}`}>
+                                  {userData.firstName && userData.lastName ? `${userData.firstName} ${userData.lastName}` : userData.firstName || 'N/A'}
+                                </td>
+                                <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-user-email-${index}`}>{userData.email}</td>
+                                <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-user-country-${index}`}>{userData.country || 'N/A'}</td>
+                                <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-user-joined-${index}`}>
+                                  {userData.createdAt ? format(new Date(userData.createdAt), 'MMM dd, yyyy') : 'N/A'}
+                                </td>
+                                <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-user-admin-${index}`}>{userData.isAdmin ? '✓' : ''}</td>
+                                <td className="p-3">
+                                  <Button variant="ghost" size="sm" onClick={() => handleViewUserFormulas(userData)} disabled={loadingFormulas} className="text-blue-600 hover:text-blue-800" data-testid={`button-view-user-formulas-${index}`} title="View generated formulas">
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
@@ -287,19 +297,22 @@ export default function AdminDashboard() {
                           </tr>
                         </thead>
                         <tbody>
-                          {pagedDownloads.map((download: any, index: number) => (
-                            <tr key={download.id} className="border-b border-gray-200 hover:bg-gray-50" data-testid={`row-download-${index}`}>
-                              <td className="p-3" data-testid={`text-download-user-${index}`}>
-                                {download.userFirstName && download.userLastName ? `${download.userFirstName} ${download.userLastName}` : download.userFirstName || 'N/A'}
-                              </td>
-                              <td className="p-3" data-testid={`text-download-email-${index}`}>{download.userEmail || 'N/A'}</td>
-                              <td className="p-3" data-testid={`text-download-country-${index}`}>{download.userCountry || 'N/A'}</td>
-                              <td className="p-3" data-testid={`text-download-formula-${index}`}>{download.formulationName}</td>
-                              <td className="p-3" data-testid={`text-download-date-${index}`}>
-                                {format(new Date(download.downloadedAt), 'MMM dd, yyyy HH:mm')}
-                              </td>
-                            </tr>
-                          ))}
+                          {pagedDownloads.map((download: any, index: number) => {
+                            const todayRow = isToday(download.downloadedAt);
+                            return (
+                              <tr key={download.id} className={`border-b border-gray-200 hover:bg-green-50 ${todayRow ? 'bg-green-50' : ''}`} data-testid={`row-download-${index}`}>
+                                <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-download-user-${index}`}>
+                                  {download.userFirstName && download.userLastName ? `${download.userFirstName} ${download.userLastName}` : download.userFirstName || 'N/A'}
+                                </td>
+                                <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-download-email-${index}`}>{download.userEmail || 'N/A'}</td>
+                                <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-download-country-${index}`}>{download.userCountry || 'N/A'}</td>
+                                <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-download-formula-${index}`}>{download.formulationName}</td>
+                                <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-download-date-${index}`}>
+                                  {format(new Date(download.downloadedAt), 'MMM dd, yyyy HH:mm')}
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
@@ -340,19 +353,22 @@ export default function AdminDashboard() {
                           </tr>
                         </thead>
                         <tbody>
-                          {pagedFavorites.map((favorite: any, index: number) => (
-                            <tr key={favorite.id} className="border-b border-gray-200 hover:bg-gray-50" data-testid={`row-favorite-${index}`}>
-                              <td className="p-3" data-testid={`text-favorite-user-${index}`}>
-                                {favorite.userFirstName && favorite.userLastName ? `${favorite.userFirstName} ${favorite.userLastName}` : favorite.userFirstName || 'N/A'}
-                              </td>
-                              <td className="p-3" data-testid={`text-favorite-email-${index}`}>{favorite.userEmail || 'N/A'}</td>
-                              <td className="p-3" data-testid={`text-favorite-country-${index}`}>{favorite.userCountry || 'N/A'}</td>
-                              <td className="p-3" data-testid={`text-favorite-formula-${index}`}>{favorite.formulation?.name || 'Unknown'}</td>
-                              <td className="p-3" data-testid={`text-favorite-date-${index}`}>
-                                {format(new Date(favorite.addedAt), 'MMM dd, yyyy HH:mm')}
-                              </td>
-                            </tr>
-                          ))}
+                          {pagedFavorites.map((favorite: any, index: number) => {
+                            const todayRow = isToday(favorite.addedAt);
+                            return (
+                              <tr key={favorite.id} className={`border-b border-gray-200 hover:bg-green-50 ${todayRow ? 'bg-green-50' : ''}`} data-testid={`row-favorite-${index}`}>
+                                <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-favorite-user-${index}`}>
+                                  {favorite.userFirstName && favorite.userLastName ? `${favorite.userFirstName} ${favorite.userLastName}` : favorite.userFirstName || 'N/A'}
+                                </td>
+                                <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-favorite-email-${index}`}>{favorite.userEmail || 'N/A'}</td>
+                                <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-favorite-country-${index}`}>{favorite.userCountry || 'N/A'}</td>
+                                <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-favorite-formula-${index}`}>{favorite.formulation?.name || 'Unknown'}</td>
+                                <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-favorite-date-${index}`}>
+                                  {format(new Date(favorite.addedAt), 'MMM dd, yyyy HH:mm')}
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
