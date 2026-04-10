@@ -217,18 +217,13 @@ export default function CategoryPage() {
                 )}
 
                 <div className="p-3">
-                  {/* Active indicator with download count */}
-                  <div className="flex items-center gap-2 mb-2">
-                    {formulation.isActive && (
-                      <div className="flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                        <span className="text-xs text-green-600 font-medium">Active</span>
-                      </div>
-                    )}
-                    <span className="text-xs text-gray-500">
-                      {Math.floor(Math.random() * 26) + 5} downloads
-                    </span>
-                  </div>
+                  {/* Active indicator */}
+                  {formulation.isActive && (
+                    <div className="flex items-center gap-1 mb-2">
+                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                      <span className="text-xs text-green-600 font-medium">Active</span>
+                    </div>
+                  )}
 
                   {/* Formula Name */}
                   <h3 className="font-bold line-clamp-2 text-sm mb-3" style={{ color: "#1A1A1A" }}>
