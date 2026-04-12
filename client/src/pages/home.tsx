@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Sparkles, Crown, Building2, Store, Factory, FlaskConical, Rocket } from 'lucide-react'
-import AIFormulatorWizard from '@/components/ai-formulator-wizard'
+import AIFormulatorWizard, { type AIFormulatorWizardHandle } from '@/components/ai-formulator-wizard'
 import HowItWorks from '@/components/how-it-works'
 import WhyChooseFormulator from '@/components/why-choose-formulator'
 import SampleFormulations from '@/components/sample-formulations'
@@ -20,6 +20,7 @@ const whoCanUseItems = [
 
 export default function Home() {
   const [isWizardActive, setIsWizardActive] = useState(false)
+  const wizardRef = useRef<AIFormulatorWizardHandle>(null)
 
   useEffect(() => {
     document.title = "AI Formulation Generator | Online Chemical Formulation Software"

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, forwardRef, useImperativeHandle } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -65,12 +65,24 @@ interface AIFormulatorWizardProps {
   onWizardStateChange?: (isActive: boolean) => void;
 }
 
-export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulatorWizardProps = {}) {
+export interface AIFormulatorWizardHandle {
+  start: () => void;
+}
+
+const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWizardProps>(
+  function AIFormulatorWizard({ onWizardStateChange } = {}, ref) {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [showWizard, setShowWizard] = useState(false);
   // Guidance system removed for stability
   const { toast } = useToast();
+
+  useImperativeHandle(ref, () => ({
+    start() {
+      setShowWizard(true);
+      onWizardStateChange?.(true);
+    },
+  }));
 
   // Fetch properties dynamically from AI based on product name
   const { data: availableProperties = [], isLoading: propertiesLoading } = useQuery<PropertyWithMeta[]>({
@@ -663,4 +675,6 @@ export default function AIFormulatorWizard({ onWizardStateChange }: AIFormulator
       </CardContent>
     </Card>
   );
-}
+});
+
+export default AIFormulatorWizard;
