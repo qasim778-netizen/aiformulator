@@ -452,7 +452,27 @@ export default function FormulationPage() {
             { label: formulation.name }
           ]}
         />
-        
+
+        {/* TOP CTA — before product title */}
+        <a href="/generate" className="block my-4 group" style={{ textDecoration: "none" }}>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-5 rounded-2xl" style={{ background: "linear-gradient(135deg, #0D9488 0%, #059669 100%)" }}>
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                <Zap className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-white font-bold text-base sm:text-lg leading-tight">Generate Your Custom Formula Instantly</p>
+                <p className="text-teal-100 text-xs sm:text-sm mt-0.5">Want a different version? Our AI tailors it to your exact specs</p>
+              </div>
+            </div>
+            <div className="flex-shrink-0">
+              <span className="inline-flex items-center gap-2 bg-white text-teal-700 font-bold text-sm px-5 py-2.5 rounded-full shadow group-hover:bg-teal-50 transition-colors">
+                Start Now <ArrowRight className="w-4 h-4" />
+              </span>
+            </div>
+          </div>
+        </a>
+
         <Card className="bg-white rounded-lg shadow-lg border border-gray-200">
           <CardContent className="p-8">
             <div className="flex items-center justify-between mb-6">
@@ -490,26 +510,6 @@ export default function FormulationPage() {
                 />
               </div>
             )}
-
-            {/* TOP CTA — Generate Your Custom Formula */}
-            <a href="/generate" className="block mb-6 group" style={{ textDecoration: "none" }}>
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-5 rounded-2xl" style={{ background: "linear-gradient(135deg, #0D9488 0%, #059669 100%)" }}>
-                <div className="flex items-center gap-3">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-white font-bold text-base sm:text-lg leading-tight">Generate Your Custom Formula Instantly</p>
-                    <p className="text-teal-100 text-xs sm:text-sm mt-0.5">Want a different version? Our AI tailors it to your exact specs</p>
-                  </div>
-                </div>
-                <div className="flex-shrink-0">
-                  <span className="inline-flex items-center gap-2 bg-white text-teal-700 font-bold text-sm px-5 py-2.5 rounded-full shadow group-hover:bg-teal-50 transition-colors">
-                    Start Now <ArrowRight className="w-4 h-4" />
-                  </span>
-                </div>
-              </div>
-            </a>
 
             {/* Formula Details - Available in PDF Download Only */}
             <div className="mb-8">
