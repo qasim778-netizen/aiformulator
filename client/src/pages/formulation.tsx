@@ -102,6 +102,11 @@ export default function FormulationPage() {
     }
   }, [userFavorites, formulationId]);
 
+  // Scroll to top whenever navigating to a different formulation
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [formulationId]);
+
   // Update SEO metadata when formulation loads
   useEffect(() => {
     if (formulation && category) {
