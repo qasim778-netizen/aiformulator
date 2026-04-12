@@ -25,6 +25,7 @@ import Blog from "@/pages/blog";
 import BlogPost from "@/pages/blog-post";
 import Demo from "@/pages/demo";
 import GeneratePage from "@/pages/generate";
+import ContactPage from "@/pages/contact";
 import SignupPage from "@/pages/signup";
 import LoginPage from "@/pages/login";
 import ForgotPasswordPage from "@/pages/forgot-password";
@@ -57,6 +58,7 @@ function Router() {
       <Route path="/blog/:slug" component={BlogPost} />
       <Route path="/demo" component={Demo} />
       <Route path="/generate" component={GeneratePage} />
+      <Route path="/contact" component={ContactPage} />
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/disclaimer" component={Disclaimer} />

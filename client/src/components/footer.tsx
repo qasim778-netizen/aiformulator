@@ -55,6 +55,16 @@ export default function Footer() {
             <h4 className="font-medium mb-4">Support</h4>
             <ul className="space-y-2 text-sm text-gray-300">
               <li>
+                <Link href="/contact">
+                  <span
+                    className="hover:text-white transition-colors duration-200 cursor-pointer"
+                    data-testid="link-footer-contact"
+                  >
+                    Contact Us
+                  </span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/browse">
                   <span
                     className="hover:text-white transition-colors duration-200 cursor-pointer"

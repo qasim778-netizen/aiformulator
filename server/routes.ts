@@ -740,6 +740,33 @@ Sitemap: https://aiformulator.net/sitemap.xml
     }
   });
 
+  // Contact form endpoint
+  app.post("/api/contact", async (req, res) => {
+    try {
+      const { name, email, subject, message } = req.body;
+      if (!name || !email || !subject || !message) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+      try {
+        const { client: sgMail, fromEmail } = await getSendGridClient();
+        await sgMail.send({
+          to: "aiformulator@gmail.com",
+          from: fromEmail,
+          replyTo: email,
+          subject: `[Contact] ${subject}`,
+          text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
+          html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p><hr/><p>${message.replace(/\n/g, "<br/>")}</p>`,
+        });
+      } catch (sgErr) {
+        console.error("[Contact] SendGrid error:", sgErr);
+      }
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("[Contact] Error:", error);
+      return res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
   // Categories API
   app.get("/api/categories", async (req, res) => {
     try {
