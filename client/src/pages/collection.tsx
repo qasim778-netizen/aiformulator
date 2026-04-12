@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect, useMemo, useRef } from "react";
-import { Link } from "wouter";
+import { Link, useSearch } from "wouter";
 import { ChevronRight, Filter, Zap, ArrowRight } from "lucide-react";
 import Breadcrumb from "@/components/breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,12 @@ function CardSkeleton() {
 export default function Collection() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const searchString = useSearch();
+
+  const urlCategorySlug = useMemo(() => {
+    const params = new URLSearchParams(searchString);
+    return params.get("category");
+  }, [searchString]);
 
   useEffect(() => {
     document.title = "Chemical Formulation Collections by Category | AI Formulator";
@@ -68,12 +74,20 @@ export default function Collection() {
     );
   }, [categories, countByCategory]);
 
-  // Auto-select the first (most populated) category once categories load
+  // Select category from URL param, otherwise auto-select the first (most populated)
   useEffect(() => {
-    if (sortedCategories.length > 0 && !selectedCategoryId) {
+    if (sortedCategories.length === 0) return;
+    if (urlCategorySlug) {
+      const matched = sortedCategories.find((c) => c.slug === urlCategorySlug);
+      if (matched) {
+        setSelectedCategoryId(matched.id);
+        return;
+      }
+    }
+    if (!selectedCategoryId) {
       setSelectedCategoryId(sortedCategories[0].id);
     }
-  }, [sortedCategories]);
+  }, [sortedCategories, urlCategorySlug]);
 
   const filteredFormulations = useMemo(() => {
     if (!selectedCategoryId) return [];

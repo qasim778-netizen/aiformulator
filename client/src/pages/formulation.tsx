@@ -440,7 +440,7 @@ export default function FormulationPage() {
         <Breadcrumb
           items={[
             { label: "Home", href: "/" },
-            { label: category?.name || "Category", href: `/category/${category?.slug || formulation.categoryId}` },
+            { label: category?.name || "Category", href: `/collection?category=${category?.slug || formulation.categoryId}` },
             { label: formulation.name }
           ]}
         />
