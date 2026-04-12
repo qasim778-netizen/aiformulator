@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, Link, useLocation } from "wouter";
-import { ArrowLeft, Download, Printer, Bookmark, BookmarkCheck, ArrowRight, Clock } from "lucide-react";
+import { ArrowLeft, Download, Printer, Bookmark, BookmarkCheck, ArrowRight, Clock, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -491,6 +491,26 @@ export default function FormulationPage() {
               </div>
             )}
 
+            {/* TOP CTA — Generate Your Custom Formula */}
+            <a href="/generate" className="block mb-6 group" style={{ textDecoration: "none" }}>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-5 rounded-2xl" style={{ background: "linear-gradient(135deg, #0D9488 0%, #059669 100%)" }}>
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white font-bold text-base sm:text-lg leading-tight">Generate Your Custom Formula Instantly</p>
+                    <p className="text-teal-100 text-xs sm:text-sm mt-0.5">Want a different version? Our AI tailors it to your exact specs</p>
+                  </div>
+                </div>
+                <div className="flex-shrink-0">
+                  <span className="inline-flex items-center gap-2 bg-white text-teal-700 font-bold text-sm px-5 py-2.5 rounded-full shadow group-hover:bg-teal-50 transition-colors">
+                    Start Now <ArrowRight className="w-4 h-4" />
+                  </span>
+                </div>
+              </div>
+            </a>
+
             {/* Formula Details - Available in PDF Download Only */}
             <div className="mb-8">
               <div className="bg-teal-50 border-l-4 border-teal-500 p-6 rounded-lg">
@@ -539,6 +559,24 @@ export default function FormulationPage() {
                 {isFavorited ? 'Favorited' : 'Save to Favorites'}
               </Button>
             </div>
+
+            {/* BOTTOM CTA — Generate Your Custom Formula */}
+            <a href="/generate" className="block mb-6 group" style={{ textDecoration: "none" }}>
+              <div className="flex flex-col items-center text-center gap-4 px-6 py-8 rounded-2xl" style={{ background: "linear-gradient(135deg, #134E4A 0%, #0D9488 100%)" }}>
+                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mx-auto">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-white font-extrabold text-xl sm:text-2xl leading-tight">Generate Your Custom Formula Instantly</p>
+                  <p className="text-teal-200 text-sm sm:text-base mt-2 max-w-md mx-auto">
+                    Need a personalised variation? Our AI builds a professional-grade formulation matched to your exact requirements in seconds.
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-2 bg-white text-teal-700 font-bold text-sm px-6 py-3 rounded-full shadow-lg group-hover:bg-teal-50 transition-colors">
+                  Generate My Formula <ArrowRight className="w-4 h-4" />
+                </span>
+              </div>
+            </a>
 
           </CardContent>
         </Card>
