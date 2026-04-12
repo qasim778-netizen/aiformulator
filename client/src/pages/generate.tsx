@@ -1,13 +1,14 @@
-import { useEffect } from "react";
+import { useState } from "react";
+import AIFormulatorWizard from "@/components/ai-formulator-wizard";
 
 export default function GeneratePage() {
-  useEffect(() => {
-    window.location.replace("https://app.aiformulator.net");
-  }, []);
+  const [isWizardActive, setIsWizardActive] = useState(false);
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#F7F5F2" }}>
-      <p className="text-gray-500 text-sm">Redirecting to AI Formulator…</p>
+    <div className="min-h-screen" style={{ backgroundColor: "#F7F5F2" }}>
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <AIFormulatorWizard onWizardStateChange={setIsWizardActive} />
+      </div>
     </div>
   );
 }

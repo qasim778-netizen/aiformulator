@@ -187,7 +187,7 @@ export default function Collection() {
             )}
 
             {/* TOP CTA */}
-            <a href="https://app.aiformulator.net" target="_blank" rel="noopener noreferrer" className="block mb-6 flex-shrink-0 rounded-2xl overflow-hidden group" style={{ textDecoration: "none" }}>
+            <a href="/generate" className="block mb-6 flex-shrink-0 rounded-2xl overflow-hidden group" style={{ textDecoration: "none" }}>
               <div className="relative flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-5 rounded-2xl" style={{ background: "linear-gradient(135deg, #0D9488 0%, #059669 100%)" }}>
                 <div className="flex items-center gap-3">
                   <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
@@ -281,7 +281,7 @@ export default function Collection() {
 
             {/* BOTTOM CTA */}
             {!formulationsLoading && (
-              <a href="https://app.aiformulator.net" target="_blank" rel="noopener noreferrer" className="block mt-8 flex-shrink-0 rounded-2xl overflow-hidden group" style={{ textDecoration: "none" }}>
+              <a href="/generate" className="block mt-8 flex-shrink-0 rounded-2xl overflow-hidden group" style={{ textDecoration: "none" }}>
                 <div className="relative flex flex-col items-center text-center gap-4 px-6 py-8 rounded-2xl" style={{ background: "linear-gradient(135deg, #134E4A 0%, #0D9488 100%)" }}>
                   <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mx-auto">
                     <Zap className="w-6 h-6 text-white" />
