@@ -221,17 +221,6 @@ export default function MyAccountPage() {
                               {format(new Date(download.downloadedAt), 'MMM dd, yyyy')}
                             </td>
                             <td className="p-3 text-right">
-                              {download.formulation && (
-                                <Link href={`/formulation/${download.formulation.slug}`}>
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    data-testid={`button-view-${index}`}
-                                  >
-                                    View
-                                  </Button>
-                                </Link>
-                              )}
                             </td>
                           </tr>
                         ))}
@@ -384,17 +373,7 @@ export default function MyAccountPage() {
                                 <Download className="w-4 h-4 mr-1" />
                                 {downloadingId === gen.id ? 'Downloading...' : 'Download'}
                               </Button>
-                              {gen.slug && (
-                                <Link href={`/formulation/${gen.slug}`}>
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    data-testid={`button-view-generated-${index}`}
-                                  >
-                                    View
-                                  </Button>
-                                </Link>
-                              )}
+                              
                             </td>
                           </tr>
                         ))}
