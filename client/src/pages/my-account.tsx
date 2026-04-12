@@ -283,7 +283,11 @@ export default function MyAccountPage() {
                             <td className="p-3 text-right">
                               <div className="flex justify-end gap-2">
                                 {favorite.formulation && (
-                                  <Link href={`/formulation/${favorite.formulation.slug}`}>
+                                  <a
+                                    href={`/formulation/${favorite.formulation.slug}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
                                     <Button 
                                       variant="outline" 
                                       size="sm"
@@ -291,7 +295,7 @@ export default function MyAccountPage() {
                                     >
                                       View
                                     </Button>
-                                  </Link>
+                                  </a>
                                 )}
                                 <Button
                                   variant="ghost"
