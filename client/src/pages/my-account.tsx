@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Heart, Download, Trash2, User, Wand2, Zap } from "lucide-react";
+import Breadcrumb from "@/components/breadcrumb";
 import { format } from "date-fns";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -112,6 +113,7 @@ export default function MyAccountPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="max-w-6xl mx-auto">
+        <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "My Account" }]} />
         <Card className="mb-8">
           <CardHeader>
             <div className="flex items-center gap-4">

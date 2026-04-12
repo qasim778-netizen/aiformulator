@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { Mail, Phone, MapPin, Send, CheckCircle } from "lucide-react";
+import Breadcrumb from "@/components/breadcrumb";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,7 +53,7 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#F7F5F2" }}>
       <div className="max-w-6xl mx-auto px-4 py-12 sm:py-16">
-
+        <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Contact Us" }]} />
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4" style={{ color: "#1A1A1A" }}>Contact Us</h1>

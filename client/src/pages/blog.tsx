@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Clock, ArrowRight, Sparkles, Download, Filter } from "lucide-react";
+import Breadcrumb from "@/components/breadcrumb";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -128,6 +129,9 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 pt-4">
+        <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Knowledge Hub" }]} />
+      </div>
       {/* 1. Hero Section */}
       <section className="bg-gradient-to-br from-primary/5 via-white to-blue-50 py-16 md:py-24">
         <div className="container mx-auto px-4 text-center">

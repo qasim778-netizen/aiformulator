@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "wouter";
 import { ChevronRight, Filter, Zap, ArrowRight } from "lucide-react";
+import Breadcrumb from "@/components/breadcrumb";
 import { Button } from "@/components/ui/button";
 import type { Category, Formulation } from "@shared/schema";
 
@@ -88,6 +89,7 @@ export default function Collection() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white border-b py-6 px-4 sm:px-6 lg:px-8" style={{ borderColor: "#E3E3E3" }}>
+          <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Collections" }]} />
           <h1 className="text-3xl font-bold" style={{ color: "#1A1A1A" }}>
             Chemical Formulation Collections by Category
           </h1>

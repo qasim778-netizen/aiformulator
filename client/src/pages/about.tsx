@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Beaker, Target, Users, Award, Lightbulb, Shield, Zap } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import type { Page } from '@shared/schema'
+import Breadcrumb from '@/components/breadcrumb'
 
 // Default static content fallback
 const defaultContent = {
@@ -58,6 +59,7 @@ export default function About() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-blue-50 to-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "About Us" }]} />
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">

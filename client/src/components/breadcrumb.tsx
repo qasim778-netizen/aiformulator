@@ -46,26 +46,26 @@ export default function Breadcrumb({ items, baseUrl = "https://aiformulator.net"
   }, [items, baseUrl]);
 
   return (
-    <nav aria-label="Breadcrumb" className="mb-4">
-      <ol className="flex items-center flex-wrap gap-1 text-sm text-gray-600">
+    <nav aria-label="Breadcrumb" className="mb-5 px-1">
+      <ol className="flex items-center flex-wrap gap-1 text-sm font-semibold">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
           
           return (
             <li key={index} className="flex items-center">
               {index > 0 && (
-                <ChevronRight className="h-4 w-4 mx-2 text-gray-400 flex-shrink-0" />
+                <ChevronRight className="h-4 w-4 mx-2 text-gray-400 flex-shrink-0 font-bold" />
               )}
               
               {isLast ? (
-                <span className="text-gray-900 font-medium" aria-current="page">
-                  {index === 0 && <Home className="h-4 w-4 inline mr-1" />}
+                <span className="text-gray-900 font-bold text-base" aria-current="page">
+                  {index === 0 && <Home className="h-4 w-4 inline mr-1 mb-0.5" />}
                   {item.label}
                 </span>
               ) : (
                 <Link href={item.href || "/"}>
-                  <span className="hover:text-primary hover:underline cursor-pointer transition-colors">
-                    {index === 0 && <Home className="h-4 w-4 inline mr-1" />}
+                  <span className="text-primary hover:text-primary/80 hover:underline cursor-pointer transition-colors font-semibold text-base flex items-center gap-1">
+                    {index === 0 && <Home className="h-4 w-4 inline mr-0.5 mb-0.5" />}
                     {item.label}
                   </span>
                 </Link>
