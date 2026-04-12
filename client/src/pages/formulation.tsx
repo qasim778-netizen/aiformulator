@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, Link, useLocation } from "wouter";
-import { ArrowLeft, Download, Share2, Bookmark, BookmarkCheck, ArrowRight, Clock, Zap, Facebook, Twitter, Linkedin, Link2 } from "lucide-react";
+import { ArrowLeft, Download, Share2, Bookmark, BookmarkCheck, ArrowRight, Clock, Zap, Facebook, Twitter, Linkedin, Link2, Filter, ChevronRight } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -76,6 +76,10 @@ export default function FormulationPage() {
   const { data: allFormulations = [] } = useQuery<Formulation[]>({
     queryKey: ["/api/formulations"],
     enabled: !!formulation?.categoryId,
+  });
+
+  const { data: allCategories = [] } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
   });
 
   const relatedProducts = useMemo(() => {
@@ -435,15 +439,54 @@ export default function FormulationPage() {
   try { instructions = JSON.parse(formulation.instructions) || []; } catch { instructions = []; }
 
   return (
-    <div className="bg-white py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Breadcrumb
-          items={[
-            { label: "Home", href: "/" },
-            { label: category?.name || "Category", href: `/collection?category=${category?.slug || formulation.categoryId}` },
-            { label: formulation.name }
-          ]}
-        />
+    <div className="min-h-screen" style={{ backgroundColor: "#F7F5F2" }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex gap-6 items-start">
+
+          {/* Left Sidebar - Categories */}
+          <aside className="hidden lg:block w-64 flex-shrink-0">
+            <div
+              className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col sticky top-4"
+              style={{ maxHeight: "calc(100vh - 2rem)" }}
+            >
+              <div className="p-4 border-b" style={{ borderColor: "#E3E3E3" }}>
+                <h2 className="text-base font-bold flex items-center gap-2" style={{ color: "#1A1A1A" }}>
+                  <Filter className="h-4 w-4" />
+                  Categories
+                </h2>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <nav className="space-y-1 p-2">
+                  {allCategories.map((cat) => {
+                    const isActive = String(cat.id) === String(formulation?.categoryId);
+                    return (
+                      <a
+                        key={cat.id}
+                        href={`/collection?category=${cat.slug}`}
+                        className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 no-underline"
+                        style={isActive ? { backgroundColor: "#0D9488", color: "#FFFFFF" } : { color: "#1A1A1A" }}
+                        onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.backgroundColor = "#EEF3FF"; }}
+                        onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.backgroundColor = "transparent"; }}
+                      >
+                        <span className="line-clamp-2 flex-1">{cat.name}</span>
+                        <ChevronRight className={`h-4 w-4 flex-shrink-0 ml-2 transition-transform ${isActive ? "translate-x-1" : ""}`} />
+                      </a>
+                    );
+                  })}
+                </nav>
+              </div>
+            </div>
+          </aside>
+
+          {/* Right - Formulation Content */}
+          <div className="flex-1 min-w-0 bg-white rounded-xl shadow-sm py-6 px-4 sm:px-6">
+            <Breadcrumb
+              items={[
+                { label: "Home", href: "/" },
+                { label: category?.name || "Category", href: `/collection?category=${category?.slug || formulation.categoryId}` },
+                { label: formulation.name }
+              ]}
+            />
 
         {/* TOP CTA — before product title */}
         <a href="/#ai-formulator" className="block my-4 group" style={{ textDecoration: "none" }}>
@@ -665,7 +708,9 @@ export default function FormulationPage() {
             </div>
           </section>
         )}
-      </div>
+          </div>{/* end right content */}
+        </div>{/* end flex row */}
+      </div>{/* end max-w-7xl */}
     </div>
   );
 }
