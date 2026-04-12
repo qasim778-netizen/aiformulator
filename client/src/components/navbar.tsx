@@ -144,13 +144,9 @@ export default function Navbar() {
                   Home
                 </span>
               </Link>
-              <Link href="/browse">
-                <span className={`px-3 py-2 rounded-md text-sm font-medium cursor-pointer ${
-                  isActive("/browse") 
-                    ? "text-primary bg-primary/10" 
-                    : "text-gray-600 hover:text-primary"
-                }`}>
-                  Find Formulation
+              <Link href="/generate">
+                <span className="px-4 py-2 rounded-full text-sm font-semibold cursor-pointer text-white transition-colors" style={{ backgroundColor: "#0D9488" }}>
+                  Generate Formula
                 </span>
               </Link>
               <Link href="/collection">
@@ -296,17 +292,14 @@ export default function Navbar() {
                   Home
                 </span>
               </Link>
-              <Link href="/browse">
+              <Link href="/generate">
                 <span 
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 cursor-pointer ${
-                    isActive("/browse") 
-                      ? "text-primary bg-primary/10 font-semibold" 
-                      : "text-gray-600 hover:text-primary hover:bg-gray-50"
-                  }`}
-                  data-testid="mobile-link-browse"
+                  className="block px-3 py-2 rounded-md text-base font-semibold transition-colors duration-200 cursor-pointer text-white"
+                  style={{ backgroundColor: "#0D9488" }}
+                  data-testid="mobile-link-generate"
                 >
-                  Find Formulation
+                  Generate Formula
                 </span>
               </Link>
               <Link href="/collection">
