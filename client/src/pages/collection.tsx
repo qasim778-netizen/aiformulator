@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "wouter";
-import { ChevronRight, Filter } from "lucide-react";
+import { ChevronRight, Filter, Zap, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Category, Formulation } from "@shared/schema";
 
@@ -186,6 +186,26 @@ export default function Collection() {
               </div>
             )}
 
+            {/* TOP CTA */}
+            <a href="/#ai-formulator" className="block mb-6 flex-shrink-0 rounded-2xl overflow-hidden group" style={{ textDecoration: "none" }}>
+              <div className="relative flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-5 rounded-2xl" style={{ background: "linear-gradient(135deg, #0D9488 0%, #059669 100%)" }}>
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white font-bold text-base sm:text-lg leading-tight">Generate Your Custom Formula Instantly</p>
+                    <p className="text-teal-100 text-xs sm:text-sm mt-0.5">AI-powered — get a professional formulation in seconds</p>
+                  </div>
+                </div>
+                <div className="flex-shrink-0">
+                  <span className="inline-flex items-center gap-2 bg-white text-teal-700 font-bold text-sm px-5 py-2.5 rounded-full shadow group-hover:bg-teal-50 transition-colors">
+                    Start Now <ArrowRight className="w-4 h-4" />
+                  </span>
+                </div>
+              </div>
+            </a>
+
             {/* Skeleton cards while formulations are loading */}
             {formulationsLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -258,6 +278,26 @@ export default function Collection() {
                 </div>
               </div>
             ) : null}
+
+            {/* BOTTOM CTA */}
+            {!formulationsLoading && (
+              <a href="/#ai-formulator" className="block mt-8 flex-shrink-0 rounded-2xl overflow-hidden group" style={{ textDecoration: "none" }}>
+                <div className="relative flex flex-col items-center text-center gap-4 px-6 py-8 rounded-2xl" style={{ background: "linear-gradient(135deg, #134E4A 0%, #0D9488 100%)" }}>
+                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mx-auto">
+                    <Zap className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white font-extrabold text-xl sm:text-2xl leading-tight">Generate Your Custom Formula Instantly</p>
+                    <p className="text-teal-200 text-sm sm:text-base mt-2 max-w-md mx-auto">
+                      Can't find exactly what you need? Our AI creates a professional-grade formulation tailored to your product in seconds.
+                    </p>
+                  </div>
+                  <span className="inline-flex items-center gap-2 bg-white text-teal-700 font-bold text-sm px-6 py-3 rounded-full shadow-lg group-hover:bg-teal-50 transition-colors">
+                    Generate My Formula <ArrowRight className="w-4 h-4" />
+                  </span>
+                </div>
+              </a>
+            )}
           </div>
         </div>
       </div>

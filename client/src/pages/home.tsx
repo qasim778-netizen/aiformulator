@@ -101,7 +101,7 @@ export default function Home() {
               </div>
             )}
 
-            <div className={isWizardActive ? "mt-0" : "mt-8"}>
+            <div id="ai-formulator" className={isWizardActive ? "mt-0" : "mt-8"}>
               <AIFormulatorWizard onWizardStateChange={setIsWizardActive} />
             </div>
           </div>
