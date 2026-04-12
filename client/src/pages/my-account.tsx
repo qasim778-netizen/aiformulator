@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Heart, Download, Trash2, User, Wand2 } from "lucide-react";
+import { Heart, Download, Trash2, User, Wand2, Zap } from "lucide-react";
 import { format } from "date-fns";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -138,6 +138,24 @@ export default function MyAccountPage() {
             </div>
           </CardHeader>
         </Card>
+
+        {/* Generate Formula CTA */}
+        <Link href="/#ai-formulator">
+          <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-5 rounded-2xl cursor-pointer group" style={{ background: "linear-gradient(135deg, #0D9488 0%, #059669 100%)" }}>
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                <Zap className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-white font-bold text-base sm:text-lg leading-tight">Generate Your Custom Formula</p>
+                <p className="text-white/80 text-sm">AI-powered — get a professional formulation in seconds</p>
+              </div>
+            </div>
+            <div className="flex-shrink-0 flex items-center gap-2 bg-white text-teal-700 font-semibold px-5 py-2.5 rounded-full text-sm group-hover:bg-teal-50 transition-colors">
+              Start Now <Zap className="w-4 h-4 ml-1" />
+            </div>
+          </div>
+        </Link>
 
         <Tabs defaultValue="downloads" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
