@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, forwardRef, useImperativeHandle } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -7,6 +8,7 @@ import { ArrowRight, ArrowLeft, Settings, BarChart, FileText, Beaker } from "luc
 import { useToast } from "@/hooks/use-toast";
 import { HelpButton } from "@/components/ui/help-button";
 import { validateProductName } from "@/lib/validate-product-name";
+import { useAuth } from "@/hooks/useAuth";
 import ProductTypeStep from "./wizard-steps/product-type-step";
 import SpecificationsStep from "./wizard-steps/specifications-step";
 import RequirementsStep from "./wizard-steps/requirements-step";
@@ -74,11 +76,21 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [showWizard, setShowWizard] = useState(false);
-  // Guidance system removed for stability
   const { toast } = useToast();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const [, navigate] = useLocation();
+
+  const requireAuth = () => {
+    if (!authLoading && !isAuthenticated) {
+      navigate("/login");
+      return false;
+    }
+    return true;
+  };
 
   useImperativeHandle(ref, () => ({
     start() {
+      if (!requireAuth()) return;
       setShowWizard(true);
       onWizardStateChange?.(true);
     },
@@ -535,11 +547,9 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
           {/* Start Button */}
           <Button
             onClick={() => {
+              if (!requireAuth()) return;
               setShowWizard(true);
               onWizardStateChange?.(true);
-              
-              // Start guidance for first-time users
-              // Guidance system removed for stability
             }}
             size="lg"
             className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
