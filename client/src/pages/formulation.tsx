@@ -454,7 +454,7 @@ export default function FormulationPage() {
         />
 
         {/* TOP CTA — before product title */}
-        <a href="/" className="block my-4 group" style={{ textDecoration: "none" }}>
+        <a href="/#ai-formulator" className="block my-4 group" style={{ textDecoration: "none" }}>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-5 rounded-2xl" style={{ background: "linear-gradient(135deg, #0D9488 0%, #059669 100%)" }}>
             <div className="flex items-center gap-3">
               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
@@ -561,7 +561,7 @@ export default function FormulationPage() {
             </div>
 
             {/* BOTTOM CTA — Generate Your Custom Formula */}
-            <a href="/" className="block mb-6 group" style={{ textDecoration: "none" }}>
+            <a href="/#ai-formulator" className="block mb-6 group" style={{ textDecoration: "none" }}>
               <div className="flex flex-col items-center text-center gap-4 px-6 py-8 rounded-2xl" style={{ background: "linear-gradient(135deg, #134E4A 0%, #0D9488 100%)" }}>
                 <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mx-auto">
                   <Zap className="w-6 h-6 text-white" />

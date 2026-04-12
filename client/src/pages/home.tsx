@@ -89,7 +89,13 @@ export default function Home() {
           <div className="w-full max-w-6xl mx-auto">
             {!isWizardActive && (
               <div className="flex justify-center mb-4 sm:mb-6">
-                <Card className="max-w-md w-full cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] touch-target ring-2 ring-primary bg-primary/5 border-primary">
+                <Card
+                  className="max-w-md w-full cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] touch-target ring-2 ring-primary bg-primary/5 border-primary"
+                  onClick={() => {
+                    const el = document.getElementById("ai-formulator");
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                >
                   <CardContent className="p-4 sm:p-5 lg:p-6 text-center">
                     <div className="bg-gradient-to-br from-purple-500 to-pink-500 text-white p-4 rounded-xl w-16 h-16 flex items-center justify-center mx-auto mb-3 shadow-lg">
                       <Sparkles className="h-8 w-8" />
