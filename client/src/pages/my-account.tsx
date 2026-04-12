@@ -405,7 +405,7 @@ export default function MyAccountPage() {
                   <div className="text-center py-8 text-muted-foreground" data-testid="text-no-generated">
                     <Wand2 className="w-12 h-12 mx-auto mb-4 opacity-20" />
                     <p>You haven't generated any formulas yet.</p>
-                    <Link href="/demo">
+                    <Link href="/#ai-formulator">
                       <Button variant="link" className="mt-2" data-testid="button-create-formula">
                         Create Your First Formula
                       </Button>
