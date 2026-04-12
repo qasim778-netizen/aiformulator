@@ -51,8 +51,6 @@ export default function FormulationCard({ formulation }: FormulationCardProps) {
         </div>
         <a
           href={`/formulation/${formulation.slug || formulation.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
         >
           <Button className="w-full bg-primary text-white hover:bg-blue-700">
             View Details

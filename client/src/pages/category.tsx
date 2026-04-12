@@ -233,8 +233,6 @@ export default function CategoryPage() {
                   {/* View Details Button */}
                   <a
                     href={`/formulation/${formulation.slug || formulation.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     data-testid={`view-details-${formulation.id}`}
                   >
                     <Button

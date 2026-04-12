@@ -269,8 +269,6 @@ export default function Collection() {
 
                       <a
                         href={`/formulation/${formulation.slug || formulation.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
                       >
                         <Button
                           className="w-full text-white h-9 text-sm font-semibold rounded-full transition-all hover:opacity-90"
