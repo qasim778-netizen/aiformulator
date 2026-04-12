@@ -52,8 +52,8 @@ export default function FormulationConfirmation() {
           <CardContent className="pt-6">
             <div className="text-center">
               <p className="text-red-600 font-semibold mb-4">Failed to load formulation</p>
-              <Link href="/admin">
-                <Button>Go to AI Wizard</Button>
+              <Link href="/#ai-formulator">
+                <Button>Start New Formulation</Button>
               </Link>
             </div>
           </CardContent>
@@ -218,7 +218,7 @@ export default function FormulationConfirmation() {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {/* Generate New Formula */}
-                  <Link href="/admin">
+                  <Link href="/#ai-formulator">
                     <Button 
                       className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-5 sm:py-6 text-base sm:text-lg shadow-lg"
                       data-testid="button-generate-new"
