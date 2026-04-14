@@ -142,7 +142,7 @@ export default function MyAccountPage() {
         </Card>
 
         {/* Generate Formula CTA */}
-        <Link href="/#ai-formulator">
+        <a href="/#ai-formulator" style={{ textDecoration: "none" }}>
           <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-5 rounded-2xl cursor-pointer group" style={{ background: "linear-gradient(135deg, #0D9488 0%, #059669 100%)" }}>
             <div className="flex items-center gap-3">
               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
@@ -157,7 +157,7 @@ export default function MyAccountPage() {
               Start Now <Zap className="w-4 h-4 ml-1" />
             </div>
           </div>
-        </Link>
+        </a>
 
         <Tabs defaultValue="downloads" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
@@ -390,11 +390,11 @@ export default function MyAccountPage() {
                   <div className="text-center py-8 text-muted-foreground" data-testid="text-no-generated">
                     <Wand2 className="w-12 h-12 mx-auto mb-4 opacity-20" />
                     <p>You haven't generated any formulas yet.</p>
-                    <Link href="/#ai-formulator">
+                    <a href="/#ai-formulator" style={{ textDecoration: "none" }}>
                       <Button variant="link" className="mt-2" data-testid="button-create-formula">
                         Create Your First Formula
                       </Button>
-                    </Link>
+                    </a>
                   </div>
                 )}
               </CardContent>

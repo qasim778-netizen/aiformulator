@@ -144,11 +144,11 @@ export default function Navbar() {
                   Home
                 </span>
               </Link>
-              <Link href="/#ai-formulator">
+              <a href="/#ai-formulator" style={{ textDecoration: "none" }}>
                 <span className="px-4 py-2 rounded-full text-sm font-semibold cursor-pointer text-white transition-colors" style={{ backgroundColor: "#0D9488" }}>
                   Generate Formula
                 </span>
-              </Link>
+              </a>
               <Link href="/collection">
                 <span className={`px-3 py-2 rounded-md text-sm font-medium cursor-pointer ${
                   isActive("/collection") 
@@ -292,16 +292,15 @@ export default function Navbar() {
                   Home
                 </span>
               </Link>
-              <Link href="/#ai-formulator">
+              <a href="/#ai-formulator" style={{ textDecoration: "none" }} onClick={() => setIsMobileMenuOpen(false)}>
                 <span 
-                  onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-3 py-2 rounded-md text-base font-semibold transition-colors duration-200 cursor-pointer text-white"
                   style={{ backgroundColor: "#0D9488" }}
                   data-testid="mobile-link-generate"
                 >
                   Generate Formula
                 </span>
-              </Link>
+              </a>
               <Link href="/collection">
                 <span 
                   onClick={() => setIsMobileMenuOpen(false)}

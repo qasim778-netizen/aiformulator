@@ -52,9 +52,9 @@ export default function FormulationConfirmation() {
           <CardContent className="pt-6">
             <div className="text-center">
               <p className="text-red-600 font-semibold mb-4">Failed to load formulation</p>
-              <Link href="/#ai-formulator">
+              <a href="/#ai-formulator" style={{ textDecoration: "none" }}>
                 <Button>Start New Formulation</Button>
-              </Link>
+              </a>
             </div>
           </CardContent>
         </Card>
@@ -218,7 +218,7 @@ export default function FormulationConfirmation() {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {/* Generate New Formula */}
-                  <Link href="/#ai-formulator">
+                  <a href="/#ai-formulator" style={{ textDecoration: "none" }}>
                     <Button 
                       className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-5 sm:py-6 text-base sm:text-lg shadow-lg"
                       data-testid="button-generate-new"
@@ -226,7 +226,7 @@ export default function FormulationConfirmation() {
                       <Sparkles className="h-5 w-5 mr-2" />
                       Generate New Formula
                     </Button>
-                  </Link>
+                  </a>
 
                   {/* Go to My Account */}
                   <Link href="/my-account">

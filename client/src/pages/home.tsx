@@ -22,6 +22,21 @@ export default function Home() {
   const [isWizardActive, setIsWizardActive] = useState(false)
   const wizardRef = useRef<AIFormulatorWizardHandle>(null)
 
+  // Scroll to #ai-formulator when the page loads with that hash in the URL
+  useEffect(() => {
+    if (window.location.hash === '#ai-formulator') {
+      const tryScroll = (attempts = 0) => {
+        const el = document.getElementById('ai-formulator');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (attempts < 10) {
+          setTimeout(() => tryScroll(attempts + 1), 100);
+        }
+      };
+      setTimeout(() => tryScroll(), 150);
+    }
+  }, []);
+
   useEffect(() => {
     document.title = "AI Formulation Generator | Online Chemical Formulation Software"
     
