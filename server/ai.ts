@@ -8,6 +8,38 @@ import { optimizeFormulationName } from "./name-optimizer";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /**
+ * Classifies an OpenAI API error and returns a user-facing message + logs details.
+ */
+function handleOpenAIError(error: any, context: string): never {
+  const status = error?.status ?? error?.response?.status;
+  const code = error?.code ?? error?.error?.code;
+  const message = error?.message ?? String(error);
+
+  // Log full error details server-side
+  console.error(`[OpenAI Error] ${context}`, {
+    status,
+    code,
+    message,
+    type: error?.type ?? error?.error?.type,
+  });
+
+  if (status === 401 || code === 'invalid_api_key') {
+    throw new Error('AI service unavailable, please try again');
+  }
+  if (status === 429 || code === 'rate_limit_exceeded') {
+    throw new Error('AI service unavailable, please try again');
+  }
+  if (status === 402 || code === 'insufficient_quota' || message?.includes('quota') || message?.includes('billing') || message?.includes('credit')) {
+    throw new Error('AI service unavailable, please try again');
+  }
+  if (status === 503 || status === 500) {
+    throw new Error('AI service unavailable, please try again');
+  }
+  // Generic fallback
+  throw new Error('AI service unavailable, please try again');
+}
+
+/**
  * Normalizes ingredient percentages to sum to exactly 100%
  * This is critical for industrial formulation standards
  */
@@ -976,7 +1008,7 @@ export async function generateFormulation(categoryName: string, productDescripti
       isActive: result.isActive ?? true
     };
   } catch (error) {
-    throw new Error("Failed to generate formulation: " + (error as Error).message);
+    handleOpenAIError(error, 'generateFormulation');
   }
 }
 
@@ -1210,7 +1242,7 @@ Create a production-ready formulation with realistic, industry-standard ingredie
       isActive: result.isActive ?? true
     };
   } catch (error) {
-    throw new Error("Failed to generate custom formulation: " + (error as Error).message);
+    handleOpenAIError(error, 'generateCustomFormulation');
   }
 }
 

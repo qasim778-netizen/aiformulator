@@ -2162,76 +2162,14 @@ Allow: /disclaimer`;
         
         console.log(`✅ Formulation validation score: ${validationResult.overallScore}/100 (${validationResult.isValid ? 'VALID' : 'NEEDS REVIEW'})`);
         
-      } catch (aiError) {
-        console.error("AI generation failed, using fallback:", aiError);
-        // Fallback to basic template if AI fails
-        formulation = {
-          name: optimizedName,
-          description: `Professional ${productType} formulation for ${productDescription}`,
-          ingredients: JSON.stringify([
-            {
-              "name": "Water",
-              "inci": "Aqua",
-              "percentage": "80.0%",
-              "function": "Base solvent"
-            },
-            {
-              "name": "Active Complex",
-              "inci": "Active Ingredients",
-              "percentage": "15.0%",
-              "function": "Primary active"
-            },
-            {
-              "name": "Stabilizer",
-              "inci": "Stabilizer System",
-              "percentage": "3.0%",
-              "function": "Stabilization"
-            },
-            {
-              "name": "Preservative",
-              "inci": "Preservative System",
-              "percentage": "2.0%",
-              "function": "Preservation"
-            }
-          ]),
-          instructions: JSON.stringify([
-            {
-              "phase": "Phase A",
-              "steps": [
-                "Combine base ingredients in main vessel",
-                "Mix until uniform at room temperature"
-              ]
-            },
-            {
-              "phase": "Phase B",
-              "steps": [
-                "Add active complex gradually while stirring",
-                "Ensure complete dissolution"
-              ]
-            },
-            {
-              "phase": "Phase C",
-              "steps": [
-                "Add stabilizer system and mix well",
-                "Add preservative system last",
-                "Perform final quality checks"
-              ]
-            }
-          ]),
-          usageInstructions: 'Apply as needed according to product instructions',
-          phLevel: phLevel.toString(),
-          shelfLife: "24 months when stored properly",
-          viscosity: viscosity || 'Medium',
-          storageConditions: "Store in cool, dry place away from direct sunlight",
-          batchSize: "1000ml",
-          processingTime: "2-3 hours",
-          temperature: "Room temperature (20-25°C)",
-          equipment: "Standard mixing equipment, pH meter, thermometer",
-          certification: "Meets industry standards",
-          isActive: false,
-          status: 'draft',
-        }
-      };
+      } catch (aiError: any) {
+        console.error("[AI Generation] OpenAI call failed:", {
+          message: aiError?.message,
+          status: aiError?.status,
+          code: aiError?.code,
+        });
+        throw new Error(aiError?.message || "AI service unavailable, please try again");
+      }
 
       // Always use "Custom Innovations" category for customer-generated formulations
       const categories = await storage.getCategories();
