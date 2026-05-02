@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { SiGoogle } from "react-icons/si";
+import { SiReplit } from "react-icons/si";
 import { Mail } from "lucide-react";
 import logoImage from "@assets/logo_1756133481367.png";
 
@@ -109,9 +109,9 @@ export default function LoginEmailPage() {
           </div>
 
           <button onClick={() => window.location.href = "/api/login"}
-            className="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 rounded-xl px-5 py-3 text-sm font-semibold text-gray-700 shadow-sm hover:shadow-md hover:border-gray-300 hover:bg-gray-50 transition-all">
-            <SiGoogle className="h-4 w-4 text-[#4285F4]" />
-            Continue with Google instead
+            className="w-full flex items-center justify-center gap-3 bg-[#F76C2F] hover:bg-[#E55E20] text-white rounded-xl px-5 py-3 text-sm font-semibold shadow-sm hover:shadow-md transition-all">
+            <SiReplit className="h-4 w-4 text-white" />
+            Continue with Replit instead
           </button>
 
           <div className="text-center mt-5 space-y-2">

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { SiGoogle } from "react-icons/si";
+import { SiReplit } from "react-icons/si";
 import logoImage from "@assets/logo_1756133481367.png";
 
 export default function LoginPage() {
@@ -22,7 +22,7 @@ export default function LoginPage() {
     return () => { if (metaRobots) metaRobots.content = "index, follow"; };
   }, []);
 
-  const handleGoogleSignIn = () => {
+  const handleSignIn = () => {
     setLoading(true);
     window.location.href = "/api/login";
   };
@@ -60,21 +60,21 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Google button */}
+          {/* Sign in button */}
           <button
-            onClick={handleGoogleSignIn}
+            onClick={handleSignIn}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 rounded-xl px-6 py-3.5 text-sm font-semibold text-gray-700 shadow-sm hover:shadow-md hover:border-gray-300 hover:bg-gray-50 active:scale-[0.98] transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-3 bg-[#F76C2F] hover:bg-[#E55E20] text-white rounded-xl px-6 py-3.5 text-sm font-semibold shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? (
-              <svg className="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin h-5 w-5 text-white/70" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
             ) : (
-              <SiGoogle className="h-5 w-5 text-[#4285F4]" />
+              <SiReplit className="h-5 w-5 text-white" />
             )}
-            {loading ? "Redirecting…" : "Continue with Google"}
+            {loading ? "Redirecting…" : "Continue with Replit"}
           </button>
 
           {/* No password note */}

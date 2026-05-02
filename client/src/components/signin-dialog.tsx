@@ -4,7 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { SiGoogle } from "react-icons/si";
+import { SiReplit } from "react-icons/si";
 import { FlaskConical, Download, Star, Wand2 } from "lucide-react";
 import { useState } from "react";
 
@@ -26,7 +26,7 @@ export default function SignInDialog({
   open,
   onOpenChange,
   title = "Sign In to Continue",
-  description = "Create a free account instantly using your Google account — no password needed.",
+  description = "Create a free account instantly — no password needed.",
 }: SignInDialogProps) {
   const [loading, setLoading] = useState(false);
 
@@ -69,22 +69,22 @@ export default function SignInDialog({
             ))}
           </ul>
 
-          {/* Google sign-in button */}
+          {/* Replit sign-in button */}
           <button
             onClick={handleSignIn}
             disabled={loading}
             data-testid="button-signin"
-            className="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 rounded-xl px-5 py-3 text-sm font-semibold text-gray-700 shadow-sm hover:shadow-md hover:border-gray-300 hover:bg-gray-50 active:scale-[0.98] transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-3 bg-[#F76C2F] hover:bg-[#E55E20] text-white rounded-xl px-5 py-3 text-sm font-semibold shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? (
-              <svg className="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin h-4 w-4 text-white/70" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
             ) : (
-              <SiGoogle className="h-4 w-4 text-[#4285F4]" />
+              <SiReplit className="h-4 w-4 text-white" />
             )}
-            {loading ? "Redirecting…" : "Continue with Google"}
+            {loading ? "Redirecting…" : "Continue with Replit"}
           </button>
 
           <p className="text-center text-xs text-gray-400 mt-3">
