@@ -46,34 +46,75 @@ interface NavItem {
   badge?: number;
   href?: string;
   action?: "open-create-formulation";
-  dividerBefore?: boolean;
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { id: "overview",              label: "Overview",               icon: LayoutDashboard },
-  { id: "categories",            label: "Category Management",    icon: FolderOpen },
-  { id: "product-types",         label: "Product Type Mgmt",      icon: Package },
-  { id: "base-types",            label: "Base Type Management",   icon: Layers },
-  { id: "feature-chips",         label: "Feature Chips",          icon: Tag },
-  { id: "formulations",          label: "Formula Management",     icon: FlaskConical },
-  { id: "_create-formulation",   label: "Create Formulation",     icon: Plus,         action: "open-create-formulation" },
-  { id: "bulk-formulations",     label: "Bulk Formulations",      icon: Zap },
-  { id: "_sample-products",      label: "Sample Products",        icon: Package,       href: "/admin/products" },
-  { id: "generated-formulas",    label: "Generated Formulas",     icon: Sparkles },
-  { id: "user-requests",         label: "User Requests",          icon: Users },
-  { id: "test-formulation",      label: "Test AI System",         icon: TestTube2,     dividerBefore: true },
-  { id: "prompt-templates",      label: "Prompt Templates",       icon: FileText },
-  { id: "blog",                  label: "Blog Management",        icon: BookOpen },
-  { id: "formulation-content",   label: "Page Content",           icon: FileEdit },
-  { id: "formulators",           label: "Expert Cards",           icon: UserCheck },
-  { id: "openai-usage",          label: "OpenAI Usage",           icon: BarChart2,     dividerBefore: true },
-  { id: "safety-validation",     label: "Safety & Validation",    icon: ShieldCheck },
-  { id: "settings",              label: "Settings",               icon: SettingsIcon },
+interface NavGroup {
+  id: string;
+  label: string;
+  icon: React.ElementType;
+  children: NavItem[];
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    id: "formulation",
+    label: "Formulation",
+    icon: FlaskConical,
+    children: [
+      { id: "_create-formulation", label: "Create Formulation",  icon: Plus,      action: "open-create-formulation" },
+      { id: "formulations",        label: "Formula Management",  icon: FileText },
+      { id: "bulk-formulations",   label: "Bulk Formulations",   icon: Zap },
+      { id: "generated-formulas",  label: "Generated Formulas",  icon: Sparkles },
+      { id: "user-requests",       label: "User Requests",       icon: Users },
+      { id: "_sample-products",    label: "Sample Products",     icon: Package,   href: "/admin/products" },
+    ],
+  },
+  {
+    id: "product-structure",
+    label: "Product Structure",
+    icon: Layers,
+    children: [
+      { id: "categories",    label: "Category Management",    icon: FolderOpen },
+      { id: "product-types", label: "Product Type Management",icon: Package },
+      { id: "base-types",    label: "Base Type Management",   icon: Layers },
+      { id: "feature-chips", label: "Feature Chips",          icon: Tag },
+    ],
+  },
+  {
+    id: "ai-system",
+    label: "AI System",
+    icon: Sparkles,
+    children: [
+      { id: "test-formulation", label: "Test AI System",      icon: TestTube2 },
+      { id: "prompt-templates", label: "Prompt Templates",    icon: FileText },
+      { id: "openai-usage",     label: "OpenAI Usage",        icon: BarChart2 },
+      { id: "safety-validation",label: "Safety & Validation", icon: ShieldCheck },
+    ],
+  },
+  {
+    id: "content",
+    label: "Content",
+    icon: BookOpen,
+    children: [
+      { id: "blog",                label: "Blog Management", icon: BookOpen },
+      { id: "formulation-content", label: "Page Content",   icon: FileEdit },
+      { id: "formulators",         label: "Expert Cards",   icon: UserCheck },
+    ],
+  },
 ];
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<NavId>("overview");
   const [collapsed, setCollapsed] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
+    new Set(["formulation", "product-structure", "ai-system", "content"])
+  );
+  const toggleGroup = (groupId: string) =>
+    setExpandedGroups(prev => {
+      const next = new Set(prev);
+      next.has(groupId) ? next.delete(groupId) : next.add(groupId);
+      return next;
+    });
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [categoriesPage, setCategoriesPage] = useState(1);
   const [formulationsPage, setFormulationsPage] = useState(1);
@@ -176,7 +217,8 @@ export default function AdminPage() {
 
   const handleLogout = () => { window.location.href = "/api/logout"; };
 
-  const activeNavItem = NAV_ITEMS.find(n => n.id === activeTab);
+  const activeNavItem = NAV_GROUPS.flatMap(g => g.children).find(n => n.id === activeTab)
+    ?? (activeTab === "overview" ? { label: "Overview" } : activeTab === "settings" ? { label: "Settings" } : null);
 
   if (isLoading) {
     return (
@@ -211,52 +253,114 @@ export default function AdminPage() {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
-          {NAV_ITEMS.map(item => {
-            const Icon = item.icon;
-            const isAction = !!item.action || !!item.href;
-            const active = !isAction && activeTab === item.id;
+        <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5">
 
-            const handleClick = () => {
-              if (item.action === "open-create-formulation") {
-                setActiveTab("formulations");
-                setFormulationDialogOpen(true);
-              } else if (item.href) {
-                window.location.href = item.href;
-              } else {
-                setActiveTab(item.id as NavId);
-              }
-            };
+          {/* Overview — standalone */}
+          <button
+            onClick={() => setActiveTab("overview")}
+            title={collapsed ? "Overview" : undefined}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group ${
+              activeTab === "overview"
+                ? "bg-emerald-50 text-emerald-700"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+            } ${collapsed ? "justify-center" : ""}`}
+          >
+            <LayoutDashboard className={`h-[18px] w-[18px] flex-shrink-0 ${activeTab === "overview" ? "text-emerald-600" : "text-gray-400 group-hover:text-gray-600"}`} />
+            {!collapsed && <span>Overview</span>}
+          </button>
+
+          {/* Grouped nav sections */}
+          {NAV_GROUPS.map(group => {
+            const GroupIcon = group.icon;
+            const isOpen = expandedGroups.has(group.id);
+            const groupHasActive = group.children.some(c => c.id === activeTab);
 
             return (
-              <div key={item.id}>
-                {item.dividerBefore && !collapsed && (
-                  <div className="my-1.5 mx-2 border-t border-gray-100" />
-                )}
+              <div key={group.id} className="mt-1">
+                {/* Group header */}
                 <button
-                  onClick={handleClick}
-                  title={collapsed ? item.label : undefined}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group ${
-                    active
-                      ? "bg-emerald-50 text-emerald-700"
-                      : isAction
-                        ? "text-gray-500 hover:bg-emerald-50 hover:text-emerald-700"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  onClick={() => collapsed ? undefined : toggleGroup(group.id)}
+                  title={collapsed ? group.label : undefined}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors group ${
+                    collapsed
+                      ? groupHasActive
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                      : "text-gray-700 hover:bg-gray-50"
                   } ${collapsed ? "justify-center" : ""}`}
                 >
-                  <Icon className={`h-[18px] w-[18px] flex-shrink-0 ${
-                    active ? "text-emerald-600" : isAction ? "text-gray-400 group-hover:text-emerald-500" : "text-gray-400 group-hover:text-gray-600"
-                  }`} />
-                  {!collapsed && <span className="truncate">{item.label}</span>}
-                  {!collapsed && item.badge ? (
-                    <span className="ml-auto bg-emerald-100 text-emerald-700 text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
-                      {item.badge}
-                    </span>
-                  ) : null}
+                  <GroupIcon className={`h-[18px] w-[18px] flex-shrink-0 ${groupHasActive ? "text-emerald-600" : "text-gray-400 group-hover:text-gray-600"}`} />
+                  {!collapsed && (
+                    <>
+                      <span className="flex-1 text-left">{group.label}</span>
+                      <ChevronDown className={`h-3.5 w-3.5 text-gray-400 transition-transform duration-200 ${isOpen ? "" : "-rotate-90"}`} />
+                    </>
+                  )}
                 </button>
+
+                {/* Children */}
+                {!collapsed && isOpen && (
+                  <div className="mt-0.5 ml-2 pl-3 border-l border-gray-100 space-y-0.5">
+                    {group.children.map(item => {
+                      const Icon = item.icon;
+                      const isActionItem = !!item.action || !!item.href;
+                      const active = !isActionItem && activeTab === item.id;
+
+                      const handleItemClick = () => {
+                        if (item.action === "open-create-formulation") {
+                          setActiveTab("formulations");
+                          setFormulationDialogOpen(true);
+                        } else if (item.href) {
+                          window.location.href = item.href;
+                        } else {
+                          setActiveTab(item.id as NavId);
+                        }
+                      };
+
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={handleItemClick}
+                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors group ${
+                            active
+                              ? "bg-emerald-50 text-emerald-700"
+                              : isActionItem
+                                ? "text-gray-500 hover:bg-emerald-50 hover:text-emerald-700"
+                                : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                          }`}
+                        >
+                          <Icon className={`h-4 w-4 flex-shrink-0 ${active ? "text-emerald-500" : "text-gray-400 group-hover:text-gray-500"}`} />
+                          <span className="truncate">{item.label}</span>
+                          {item.badge ? (
+                            <span className="ml-auto bg-emerald-100 text-emerald-700 text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                              {item.badge}
+                            </span>
+                          ) : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
           })}
+
+          {/* Settings — standalone */}
+          <div className="mt-1">
+            <button
+              onClick={() => setActiveTab("settings")}
+              title={collapsed ? "Settings" : undefined}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group ${
+                activeTab === "settings"
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              } ${collapsed ? "justify-center" : ""}`}
+            >
+              <SettingsIcon className={`h-[18px] w-[18px] flex-shrink-0 ${activeTab === "settings" ? "text-emerald-600" : "text-gray-400 group-hover:text-gray-600"}`} />
+              {!collapsed && <span>Settings</span>}
+            </button>
+          </div>
+
         </nav>
 
         {/* Collapse toggle */}
