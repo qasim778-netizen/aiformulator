@@ -253,6 +253,23 @@ export const formulaGenerationFailuresTable = pgTable("formula_generation_failur
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const apiUsageLogsTable = pgTable("api_usage_logs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: varchar("user_id"),
+  userEmail: text("user_email"),
+  userName: text("user_name"),
+  userCountry: text("user_country"),
+  model: text("model").notNull().default("gpt-4o"),
+  inputTokens: integer("input_tokens").notNull().default(0),
+  outputTokens: integer("output_tokens").notNull().default(0),
+  totalTokens: integer("total_tokens").notNull().default(0),
+  estimatedCost: text("estimated_cost").notNull().default("0.000000"),
+  cacheHit: boolean("cache_hit").notNull().default(false),
+  productName: text("product_name"),
+  productType: text("product_type"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export type DbCategory = typeof categoriesTable.$inferSelect;
 export type DbFormulation = typeof formulationsTable.$inferSelect;
 export type DbProductProperties = typeof productPropertiesTable.$inferSelect;

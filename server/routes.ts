@@ -7,7 +7,7 @@ import crypto from "crypto";
 import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema, insertFormulationContentSchema, insertUserNoteSchema, insertPageSchema, insertBlogPostSchema, insertSampleProductSchema } from "@shared/schema";
 import type { ChatMessage, InsertChatMessage } from "@shared/schema";
-import { db, categoriesTable, wizardCategoriesTable, wizardProductTypesTable, wizardBaseTypesTable, wizardCategoryBaseTypesTable, generatedFormulasTable, formulaGenerationFailuresTable } from "./db";
+import { db, categoriesTable, wizardCategoriesTable, wizardProductTypesTable, wizardBaseTypesTable, wizardCategoryBaseTypesTable, generatedFormulasTable, formulaGenerationFailuresTable, apiUsageLogsTable } from "./db";
 import { eq, and } from "drizzle-orm";
 import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateBulkFormulationsWithKeywords, generateProductTypes, generateCustomFormulation } from "./ai";
 import { generateCategorySuggestions } from "./services/openai";
@@ -482,6 +482,17 @@ Sitemap: https://aiformulator.net/sitemap.xml
     } catch (error) {
       console.error("Error fetching all favorites:", error);
       res.status(500).json({ message: "Failed to fetch favorites" });
+    }
+  });
+
+  // Get API usage logs for admin overview
+  app.get('/api/admin/api-usage', requireAdmin, async (req: any, res) => {
+    try {
+      const rows = await db.select().from(apiUsageLogsTable).orderBy(apiUsageLogsTable.createdAt);
+      res.json(rows);
+    } catch (error) {
+      console.error("Error fetching api usage logs:", error);
+      res.status(500).json({ message: "Failed to fetch API usage logs" });
     }
   });
 
@@ -2257,6 +2268,21 @@ Allow: /disclaimer`;
             .where(eq(generatedFormulasTable.id, cached[0].id))
             .catch(() => {});
           console.log(`✅ [Cache HIT] key: ${formulaKey.slice(0, 70)}`);
+          // Log cache hit — no OpenAI cost
+          db.insert(apiUsageLogsTable).values({
+            userId: (req as any).session?.userId || null,
+            userEmail: req.body.email || null,
+            userName: req.body.customerName || null,
+            userCountry: req.body.country || null,
+            model: 'cache',
+            inputTokens: 0,
+            outputTokens: 0,
+            totalTokens: 0,
+            estimatedCost: '0.000000',
+            cacheHit: true,
+            productName: req.body.productName || null,
+            productType: req.body.productType || null,
+          }).catch(e => console.error('[API Usage] Cache log failed:', e));
         }
       } catch (cacheErr) {
         console.warn('[Cache] Read failed, proceeding to AI:', cacheErr);
@@ -2285,7 +2311,8 @@ Allow: /disclaimer`;
         for (let attempt = 1; attempt <= 2; attempt++) {
           try {
             const { generateCustomFormulation } = await import('./ai');
-            const aiFormulation = await generateCustomFormulation(customRequest);
+            const { formulation: aiFormulationResult, usage: aiUsage } = await generateCustomFormulation(customRequest);
+            const aiFormulation = aiFormulationResult;
 
             const ingredientsJson = typeof aiFormulation.ingredients === 'string'
               ? aiFormulation.ingredients
@@ -2321,6 +2348,23 @@ Allow: /disclaimer`;
               source: 'openai',
               model: 'gpt-4o',
             }).onConflictDoNothing().catch(() => {});
+
+            // Log OpenAI API usage (GPT-4o pricing: $2.50/1M input, $10.00/1M output)
+            const aiCost = ((aiUsage.inputTokens * 2.5 + aiUsage.outputTokens * 10.0) / 1_000_000).toFixed(6);
+            db.insert(apiUsageLogsTable).values({
+              userId: (req as any).session?.userId || null,
+              userEmail: req.body.email || null,
+              userName: req.body.customerName || null,
+              userCountry: req.body.country || null,
+              model: 'gpt-4o',
+              inputTokens: aiUsage.inputTokens,
+              outputTokens: aiUsage.outputTokens,
+              totalTokens: aiUsage.totalTokens,
+              estimatedCost: aiCost,
+              cacheHit: false,
+              productName: productName || null,
+              productType: productType || null,
+            }).catch(e => console.error('[API Usage] Log failed:', e));
 
             aiError = null;
             break;

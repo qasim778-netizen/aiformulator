@@ -1024,7 +1024,12 @@ interface CustomFormulationRequest {
   specialRequirements?: string;
 }
 
-export async function generateCustomFormulation(request: CustomFormulationRequest): Promise<Omit<InsertFormulation, 'categoryId'>> {
+export interface GenerateCustomResult {
+  formulation: Omit<InsertFormulation, 'categoryId'>;
+  usage: { inputTokens: number; outputTokens: number; totalTokens: number };
+}
+
+export async function generateCustomFormulation(request: CustomFormulationRequest): Promise<GenerateCustomResult> {
   try {
     const costLevelMap = {
       'cost_effective': 'cost-effective with affordable ingredients',
@@ -1225,21 +1230,28 @@ Create a production-ready formulation with realistic, industry-standard ingredie
     
     const finalName = result.name || request.productName;
     return {
-      name: finalName,
-      description: result.description || request.productDescription,
-      ingredients: JSON.stringify(normalizedIngredients),
-      instructions: JSON.stringify(result.instructions || []),
-      usageInstructions: result.usageInstructions || "",
-      phLevel: result.phLevel || request.phLevel,
-      shelfLife: result.shelfLife || "24 months",
-      viscosity: result.viscosity || request.viscosity || "",
-      storageConditions: result.storageConditions || "Cool, dry place",
-      batchSize: result.batchSize || "100-500 kg",
-      processingTime: result.processingTime || "2-4 hours",
-      temperature: result.temperature || "Room temperature",
-      equipment: result.equipment || "Standard mixer",
-      certification: result.certification || "",
-      isActive: result.isActive ?? true
+      formulation: {
+        name: finalName,
+        description: result.description || request.productDescription,
+        ingredients: JSON.stringify(normalizedIngredients),
+        instructions: JSON.stringify(result.instructions || []),
+        usageInstructions: result.usageInstructions || "",
+        phLevel: result.phLevel || request.phLevel,
+        shelfLife: result.shelfLife || "24 months",
+        viscosity: result.viscosity || request.viscosity || "",
+        storageConditions: result.storageConditions || "Cool, dry place",
+        batchSize: result.batchSize || "100-500 kg",
+        processingTime: result.processingTime || "2-4 hours",
+        temperature: result.temperature || "Room temperature",
+        equipment: result.equipment || "Standard mixer",
+        certification: result.certification || "",
+        isActive: result.isActive ?? true,
+      },
+      usage: {
+        inputTokens: response.usage?.prompt_tokens ?? 0,
+        outputTokens: response.usage?.completion_tokens ?? 0,
+        totalTokens: response.usage?.total_tokens ?? 0,
+      },
     };
   } catch (error) {
     handleOpenAIError(error, 'generateCustomFormulation');

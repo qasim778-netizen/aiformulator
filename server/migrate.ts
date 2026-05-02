@@ -222,6 +222,25 @@ async function createTables() {
       )
     `);
 
+    await db.execute(/* sql */ `
+      CREATE TABLE IF NOT EXISTS api_usage_logs (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id varchar,
+        user_email text,
+        user_name text,
+        user_country text,
+        model text NOT NULL DEFAULT 'gpt-4o',
+        input_tokens integer NOT NULL DEFAULT 0,
+        output_tokens integer NOT NULL DEFAULT 0,
+        total_tokens integer NOT NULL DEFAULT 0,
+        estimated_cost text NOT NULL DEFAULT '0.000000',
+        cache_hit boolean NOT NULL DEFAULT false,
+        product_name text,
+        product_type text,
+        created_at timestamp NOT NULL DEFAULT now()
+      )
+    `);
+
     console.log("Database tables created successfully!");
   } catch (error) {
     console.log("Tables might already exist or creation failed:", error);
