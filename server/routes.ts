@@ -485,6 +485,17 @@ Sitemap: https://aiformulator.net/sitemap.xml
     }
   });
 
+  // Get ALL sample products for admin (including inactive)
+  app.get('/api/admin/sample-products', requireAdmin, async (req: any, res) => {
+    try {
+      const all = await storage.getSampleProductsAll();
+      res.json(all);
+    } catch (error) {
+      console.error("Error fetching all sample products:", error);
+      res.status(500).json({ message: "Failed to fetch sample products" });
+    }
+  });
+
   // Get API usage logs for admin overview
   app.get('/api/admin/api-usage', requireAdmin, async (req: any, res) => {
     try {

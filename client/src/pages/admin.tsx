@@ -32,13 +32,14 @@ import BlogManagementTab from "@/components/admin/blog-management-tab";
 import FormulatorManagementTab from "@/components/admin/formulator-management-tab";
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminOverviewTab from "@/components/admin/admin-overview-tab";
+import SampleProductsTab from "@/components/admin/sample-products-tab";
 import type { Category, Formulation } from "@shared/schema";
 
 type NavId =
   | "overview" | "categories" | "product-types" | "base-types" | "feature-chips"
   | "formulations" | "bulk-formulations" | "generated-formulas" | "user-requests"
-  | "test-formulation" | "prompt-templates" | "blog" | "formulation-content"
-  | "formulators" | "openai-usage" | "safety-validation" | "settings";
+  | "sample-products" | "test-formulation" | "prompt-templates" | "blog"
+  | "formulation-content" | "formulators" | "openai-usage" | "safety-validation" | "settings";
 
 interface NavItem {
   id: string;
@@ -67,7 +68,7 @@ const NAV_GROUPS: NavGroup[] = [
       { id: "bulk-formulations",   label: "Bulk Formulations",   icon: Zap },
       { id: "generated-formulas",  label: "Generated Formulas",  icon: Sparkles },
       { id: "user-requests",       label: "User Requests",       icon: Users },
-      { id: "_sample-products",    label: "Sample Products",     icon: Package,   href: "/admin/products" },
+      { id: "sample-products",      label: "Sample Products",     icon: Package },
     ],
   },
   {
@@ -474,6 +475,9 @@ export default function AdminPage() {
 
           {/* ── OVERVIEW ──────────────────────────────────────────────────── */}
           {activeTab === "overview" && <AdminOverviewTab />}
+
+          {/* ── SAMPLE PRODUCTS ──────────────────────────────────────────── */}
+          {activeTab === "sample-products" && <SampleProductsTab />}
 
           {/* ── CATEGORY MANAGEMENT ──────────────────────────────────────── */}
           {activeTab === "categories" && (

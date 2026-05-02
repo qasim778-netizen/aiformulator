@@ -116,6 +116,7 @@ export interface IStorage {
 
   // Sample Products Management
   getSampleProducts(): Promise<SampleProduct[]>;
+  getSampleProductsAll(): Promise<SampleProduct[]>;
   getSampleProduct(id: string): Promise<SampleProduct | undefined>;
   createSampleProduct(product: InsertSampleProduct): Promise<SampleProduct>;
   updateSampleProduct(id: string, product: Partial<InsertSampleProduct>): Promise<SampleProduct | undefined>;
@@ -2628,6 +2629,12 @@ export class MemStorage implements IStorage {
 
   async getSampleProducts(): Promise<SampleProduct[]> {
     return Array.from(this.sampleProducts.values()).filter(p => p.isActive);
+  }
+
+  async getSampleProductsAll(): Promise<SampleProduct[]> {
+    return Array.from(this.sampleProducts.values()).sort((a, b) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   }
 
   async getSampleProduct(id: string): Promise<SampleProduct | undefined> {
