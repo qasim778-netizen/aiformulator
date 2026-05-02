@@ -954,46 +954,46 @@ function PlaceholderTab({ title, description, icon: Icon }: { title: string; des
 }
 
 function WizardDataTab({ endpoint, label }: { endpoint: string; label: string }) {
-  const { data: wizardCategories } = useQuery<any[]>({ queryKey: ["/api/wizard/categories"] });
-  const [selectedCat, setSelectedCat] = useState<string>("");
+  const { data: mainCategories } = useQuery<any[]>({ queryKey: ["/api/categories"] });
+  const [selectedCatId, setSelectedCatId] = useState<string>("");
 
   const { data: items = [], isLoading } = useQuery<any[]>({
-    queryKey: [endpoint, selectedCat],
+    queryKey: [endpoint, selectedCatId],
     queryFn: async () => {
-      if (!selectedCat) return [];
-      const r = await fetch(`${endpoint}?categorySlug=${selectedCat}`);
+      if (!selectedCatId) return [];
+      const r = await fetch(`${endpoint}?categoryId=${selectedCatId}`);
       if (!r.ok) throw new Error("Failed to fetch");
       return r.json();
     },
-    enabled: !!selectedCat,
+    enabled: !!selectedCatId,
   });
 
   return (
     <Card className="border-gray-100 shadow-sm">
       <CardHeader className="pb-4">
         <div className="flex items-center gap-3">
-          <Select value={selectedCat} onValueChange={setSelectedCat}>
-            <SelectTrigger className="w-52 h-9 text-sm border-gray-200">
+          <Select value={selectedCatId} onValueChange={setSelectedCatId}>
+            <SelectTrigger className="w-64 h-9 text-sm border-gray-200">
               <SelectValue placeholder="Select a category…" />
             </SelectTrigger>
             <SelectContent>
-              {wizardCategories?.map((c: any) => (
-                <SelectItem key={c.slug} value={c.slug}>{c.name}</SelectItem>
+              {mainCategories?.map((c: any) => (
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-          {selectedCat && <span className="text-sm text-gray-500">{items.length} {label.toLowerCase()}</span>}
+          {selectedCatId && <span className="text-sm text-gray-500">{items.length} {label.toLowerCase()}</span>}
         </div>
       </CardHeader>
       <CardContent>
-        {!selectedCat ? (
-          <p className="text-sm text-gray-400 py-8 text-center">Select a wizard category to view its {label.toLowerCase()}</p>
+        {!selectedCatId ? (
+          <p className="text-sm text-gray-400 py-8 text-center">Select a category to view its {label.toLowerCase()}</p>
         ) : isLoading ? (
           <div className="space-y-2">
             {[1,2,3].map(i => <div key={i} className="h-10 bg-gray-100 animate-pulse rounded-lg" />)}
           </div>
         ) : items.length === 0 ? (
-          <p className="text-sm text-gray-400 py-8 text-center">No {label.toLowerCase()} found for this category</p>
+          <p className="text-sm text-gray-400 py-8 text-center">No {label.toLowerCase()} defined for this category yet</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {items.map((item: any) => (

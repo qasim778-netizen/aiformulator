@@ -7,7 +7,7 @@ import crypto from "crypto";
 import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema, insertFormulationContentSchema, insertUserNoteSchema, insertPageSchema, insertBlogPostSchema, insertSampleProductSchema } from "@shared/schema";
 import type { ChatMessage, InsertChatMessage } from "@shared/schema";
-import { db, wizardCategoriesTable, wizardProductTypesTable, wizardBaseTypesTable, wizardCategoryBaseTypesTable, generatedFormulasTable, formulaGenerationFailuresTable } from "./db";
+import { db, categoriesTable, wizardCategoriesTable, wizardProductTypesTable, wizardBaseTypesTable, wizardCategoryBaseTypesTable, generatedFormulasTable, formulaGenerationFailuresTable } from "./db";
 import { eq, and } from "drizzle-orm";
 import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateBulkFormulationsWithKeywords, generateProductTypes, generateCustomFormulation } from "./ai";
 import { generateCategorySuggestions } from "./services/openai";
@@ -1640,26 +1640,38 @@ Sitemap: https://aiformulator.net/sitemap.xml
 
   app.get("/api/wizard/product-types", async (req, res) => {
     try {
-      const { categorySlug } = req.query as { categorySlug?: string };
-      if (!categorySlug) return res.status(400).json({ message: "categorySlug is required" });
+      const { categoryId, categorySlug } = req.query as { categoryId?: string; categorySlug?: string };
 
-      const [category] = await db
-        .select()
-        .from(wizardCategoriesTable)
-        .where(eq(wizardCategoriesTable.slug, categorySlug))
-        .limit(1);
+      let wizardCategoryId: string | null = null;
 
-      if (!category) return res.json([]);
+      if (categoryId) {
+        // Look up the main category to get its slug, then fuzzy-match to a wizard category
+        const [mainCat] = await db.select().from(categoriesTable).where(eq(categoriesTable.id, categoryId)).limit(1);
+        if (!mainCat) return res.json([]);
+
+        const mainSlug = mainCat.slug.replace(/-formulations$/, ""); // strip trailing "-formulations"
+        const wizardCats = await db.select().from(wizardCategoriesTable).where(eq(wizardCategoriesTable.isActive, true));
+        // Find best match: wizard slug contained in main slug or vice versa
+        const match = wizardCats.find(wc =>
+          mainSlug.includes(wc.slug) || wc.slug.includes(mainSlug) ||
+          mainSlug.replace(/-/g, " ").includes(wc.name.toLowerCase()) ||
+          wc.name.toLowerCase().split(" ").every((w: string) => mainSlug.includes(w))
+        );
+        wizardCategoryId = match?.id ?? null;
+      } else if (categorySlug) {
+        // Legacy support: slug from wizard categories
+        const [wc] = await db.select().from(wizardCategoriesTable).where(eq(wizardCategoriesTable.slug, categorySlug)).limit(1);
+        wizardCategoryId = wc?.id ?? null;
+      } else {
+        return res.status(400).json({ message: "categoryId or categorySlug is required" });
+      }
+
+      if (!wizardCategoryId) return res.json([]);
 
       const types = await db
         .select()
         .from(wizardProductTypesTable)
-        .where(
-          and(
-            eq(wizardProductTypesTable.categoryId, category.id),
-            eq(wizardProductTypesTable.isActive, true)
-          )
-        );
+        .where(and(eq(wizardProductTypesTable.categoryId, wizardCategoryId), eq(wizardProductTypesTable.isActive, true)));
       res.json(types);
     } catch (err: any) {
       res.status(500).json({ message: err.message || "Failed to fetch product types" });
@@ -1668,16 +1680,30 @@ Sitemap: https://aiformulator.net/sitemap.xml
 
   app.get("/api/wizard/base-types", async (req, res) => {
     try {
-      const { categorySlug } = req.query as { categorySlug?: string };
-      if (!categorySlug) return res.status(400).json({ message: "categorySlug is required" });
+      const { categoryId, categorySlug } = req.query as { categoryId?: string; categorySlug?: string };
 
-      const [category] = await db
-        .select()
-        .from(wizardCategoriesTable)
-        .where(eq(wizardCategoriesTable.slug, categorySlug))
-        .limit(1);
+      let wizardCategoryId: string | null = null;
 
-      if (!category) return res.json([]);
+      if (categoryId) {
+        const [mainCat] = await db.select().from(categoriesTable).where(eq(categoriesTable.id, categoryId)).limit(1);
+        if (!mainCat) return res.json([]);
+
+        const mainSlug = mainCat.slug.replace(/-formulations$/, "");
+        const wizardCats = await db.select().from(wizardCategoriesTable).where(eq(wizardCategoriesTable.isActive, true));
+        const match = wizardCats.find(wc =>
+          mainSlug.includes(wc.slug) || wc.slug.includes(mainSlug) ||
+          mainSlug.replace(/-/g, " ").includes(wc.name.toLowerCase()) ||
+          wc.name.toLowerCase().split(" ").every((w: string) => mainSlug.includes(w))
+        );
+        wizardCategoryId = match?.id ?? null;
+      } else if (categorySlug) {
+        const [wc] = await db.select().from(wizardCategoriesTable).where(eq(wizardCategoriesTable.slug, categorySlug)).limit(1);
+        wizardCategoryId = wc?.id ?? null;
+      } else {
+        return res.status(400).json({ message: "categoryId or categorySlug is required" });
+      }
+
+      if (!wizardCategoryId) return res.json([]);
 
       const baseTypes = await db
         .select({
@@ -1687,11 +1713,8 @@ Sitemap: https://aiformulator.net/sitemap.xml
           sortOrder: wizardCategoryBaseTypesTable.sortOrder,
         })
         .from(wizardCategoryBaseTypesTable)
-        .innerJoin(
-          wizardBaseTypesTable,
-          eq(wizardCategoryBaseTypesTable.baseTypeId, wizardBaseTypesTable.id)
-        )
-        .where(eq(wizardCategoryBaseTypesTable.categoryId, category.id))
+        .innerJoin(wizardBaseTypesTable, eq(wizardCategoryBaseTypesTable.baseTypeId, wizardBaseTypesTable.id))
+        .where(eq(wizardCategoryBaseTypesTable.categoryId, wizardCategoryId))
         .orderBy(wizardCategoryBaseTypesTable.sortOrder);
 
       res.json(baseTypes);
