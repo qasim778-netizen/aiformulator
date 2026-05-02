@@ -198,6 +198,61 @@ export const formulatorsTable = pgTable("formulators", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// ─── Wizard Tables ───────────────────────────────────────────────────────────
+
+export const wizardCategoriesTable = pgTable("wizard_categories", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  icon: text("icon"),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
+export const wizardProductTypesTable = pgTable("wizard_product_types", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  categoryId: uuid("category_id").notNull(),
+  subcategoryName: text("subcategory_name"),
+  name: text("name").notNull(),
+  slug: text("slug").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
+export const wizardBaseTypesTable = pgTable("wizard_base_types", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+});
+
+export const wizardCategoryBaseTypesTable = pgTable("wizard_category_base_types", {
+  categoryId: uuid("category_id").notNull(),
+  baseTypeId: uuid("base_type_id").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+// ─── Formula Cache Tables ─────────────────────────────────────────────────────
+
+export const generatedFormulasTable = pgTable("generated_formulas", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  formulaKey: text("formula_key").notNull().unique(),
+  formulaKeyVersion: integer("formula_key_version").notNull().default(1),
+  inputJson: jsonb("input_json").notNull(),
+  outputJson: jsonb("output_json").notNull(),
+  source: text("source").notNull().default("openai"),
+  model: text("model"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  usageCount: integer("usage_count").notNull().default(1),
+  lastUsedAt: timestamp("last_used_at").notNull().defaultNow(),
+});
+
+export const formulaGenerationFailuresTable = pgTable("formula_generation_failures", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  inputJson: jsonb("input_json").notNull(),
+  formulaKey: text("formula_key"),
+  errorMessage: text("error_message").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export type DbCategory = typeof categoriesTable.$inferSelect;
 export type DbFormulation = typeof formulationsTable.$inferSelect;
 export type DbProductProperties = typeof productPropertiesTable.$inferSelect;

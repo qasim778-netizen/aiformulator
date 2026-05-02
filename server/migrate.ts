@@ -1,4 +1,4 @@
-import { db, categoriesTable, formulationsTable } from "./db";
+import { db, categoriesTable, formulationsTable, wizardCategoriesTable, wizardProductTypesTable, wizardBaseTypesTable, wizardCategoryBaseTypesTable, generatedFormulasTable, formulaGenerationFailuresTable } from "./db";
 import { count, eq } from "drizzle-orm";
 import { MemStorage } from "./storage";
 import { FORMULATION_CATEGORIES } from "../client/src/constants/categories";
@@ -41,6 +41,9 @@ export async function runMigrations() {
 
     // Skip demo formulation seeding for now - the 22 categories are ready for use
     console.log("Categories are ready! Admin can now create formulations through the interface.");
+
+    // Seed wizard data (idempotent)
+    await seedWizardData();
 
     console.log("Migrations completed successfully!");
   } catch (error) {
@@ -153,10 +156,226 @@ async function createTables() {
       )
     `);
 
+    // ── Wizard tables ────────────────────────────────────────────────────────
+    await db.execute(/* sql */ `
+      CREATE TABLE IF NOT EXISTS wizard_categories (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        name text NOT NULL,
+        slug text NOT NULL UNIQUE,
+        icon text,
+        is_active boolean NOT NULL DEFAULT true
+      )
+    `);
+
+    await db.execute(/* sql */ `
+      CREATE TABLE IF NOT EXISTS wizard_product_types (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        category_id uuid NOT NULL REFERENCES wizard_categories(id) ON DELETE CASCADE,
+        subcategory_name text,
+        name text NOT NULL,
+        slug text NOT NULL,
+        is_active boolean NOT NULL DEFAULT true
+      )
+    `);
+
+    await db.execute(/* sql */ `
+      CREATE TABLE IF NOT EXISTS wizard_base_types (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        name text NOT NULL,
+        slug text NOT NULL UNIQUE
+      )
+    `);
+
+    await db.execute(/* sql */ `
+      CREATE TABLE IF NOT EXISTS wizard_category_base_types (
+        category_id uuid NOT NULL REFERENCES wizard_categories(id) ON DELETE CASCADE,
+        base_type_id uuid NOT NULL REFERENCES wizard_base_types(id) ON DELETE CASCADE,
+        sort_order integer NOT NULL DEFAULT 0,
+        PRIMARY KEY (category_id, base_type_id)
+      )
+    `);
+
+    // ── Formula cache tables ──────────────────────────────────────────────────
+    await db.execute(/* sql */ `
+      CREATE TABLE IF NOT EXISTS generated_formulas (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        formula_key text NOT NULL UNIQUE,
+        formula_key_version integer NOT NULL DEFAULT 1,
+        input_json jsonb NOT NULL,
+        output_json jsonb NOT NULL,
+        source text NOT NULL DEFAULT 'openai',
+        model text,
+        created_at timestamp NOT NULL DEFAULT now(),
+        updated_at timestamp NOT NULL DEFAULT now(),
+        usage_count integer NOT NULL DEFAULT 1,
+        last_used_at timestamp NOT NULL DEFAULT now()
+      )
+    `);
+
+    await db.execute(/* sql */ `
+      CREATE TABLE IF NOT EXISTS formula_generation_failures (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        input_json jsonb NOT NULL,
+        formula_key text,
+        error_message text NOT NULL,
+        created_at timestamp NOT NULL DEFAULT now()
+      )
+    `);
+
     console.log("Database tables created successfully!");
   } catch (error) {
     console.log("Tables might already exist or creation failed:", error);
     // Continue anyway - tables might already exist
+  }
+}
+
+async function seedWizardData() {
+  try {
+    const existing = await db.select({ c: count() }).from(wizardCategoriesTable);
+    if (Number(existing[0].c) > 0) {
+      console.log("Wizard data already seeded, skipping.");
+      return;
+    }
+
+    console.log("Seeding wizard data...");
+
+    // ── Categories ────────────────────────────────────────────────────────────
+    const cats = await db.insert(wizardCategoriesTable).values([
+      { name: "Paint & Coatings",     slug: "paint-coatings" },
+      { name: "Cleaning Products",    slug: "cleaning-products" },
+      { name: "Personal Care",        slug: "personal-care" },
+      { name: "Industrial Chemicals", slug: "industrial-chemicals" },
+      { name: "Auto Care",            slug: "auto-care" },
+      { name: "Pet Care",             slug: "pet-care" },
+    ]).returning();
+
+    const catId = (slug: string) => cats.find(c => c.slug === slug)!.id;
+
+    // ── Product Types ─────────────────────────────────────────────────────────
+    await db.insert(wizardProductTypesTable).values([
+      // Paint & Coatings
+      { categoryId: catId("paint-coatings"), name: "Interior Wall Paint",   slug: "interior-wall-paint" },
+      { categoryId: catId("paint-coatings"), name: "Exterior Paint",        slug: "exterior-paint" },
+      { categoryId: catId("paint-coatings"), name: "Anti-Rust Metal Paint", slug: "anti-rust-metal-paint" },
+      { categoryId: catId("paint-coatings"), name: "Wood Coating",          slug: "wood-coating" },
+      { categoryId: catId("paint-coatings"), name: "Floor Paint",           slug: "floor-paint" },
+      { categoryId: catId("paint-coatings"), name: "Powder Coating",        slug: "powder-coating" },
+      { categoryId: catId("paint-coatings"), name: "Primer",                slug: "primer" },
+      { categoryId: catId("paint-coatings"), name: "Varnish",               slug: "varnish" },
+
+      // Cleaning Products
+      { categoryId: catId("cleaning-products"), name: "All Purpose Cleaner",       slug: "all-purpose-cleaner" },
+      { categoryId: catId("cleaning-products"), name: "Glass Cleaner",             slug: "glass-cleaner" },
+      { categoryId: catId("cleaning-products"), name: "Floor Cleaner",             slug: "floor-cleaner" },
+      { categoryId: catId("cleaning-products"), name: "Kitchen Cleaner",           slug: "kitchen-cleaner" },
+      { categoryId: catId("cleaning-products"), name: "Bathroom Cleaner",          slug: "bathroom-cleaner" },
+      { categoryId: catId("cleaning-products"), name: "Disinfectant",              slug: "disinfectant" },
+      { categoryId: catId("cleaning-products"), name: "Degreaser",                 slug: "degreaser" },
+      { categoryId: catId("cleaning-products"), name: "Toilet Bowl Cleaner",       slug: "toilet-bowl-cleaner" },
+      { categoryId: catId("cleaning-products"), name: "Carpet & Upholstery Cleaner", slug: "carpet-upholstery-cleaner" },
+      { categoryId: catId("cleaning-products"), name: "Custom Cleaner",            slug: "custom-cleaner" },
+
+      // Personal Care
+      { categoryId: catId("personal-care"), name: "Shampoo",         slug: "shampoo" },
+      { categoryId: catId("personal-care"), name: "Conditioner",     slug: "conditioner" },
+      { categoryId: catId("personal-care"), name: "Body Lotion",     slug: "body-lotion" },
+      { categoryId: catId("personal-care"), name: "Face Moisturizer",slug: "face-moisturizer" },
+      { categoryId: catId("personal-care"), name: "Face Wash",       slug: "face-wash" },
+      { categoryId: catId("personal-care"), name: "Sunscreen",       slug: "sunscreen" },
+      { categoryId: catId("personal-care"), name: "Body Wash",       slug: "body-wash" },
+      { categoryId: catId("personal-care"), name: "Deodorant",       slug: "deodorant" },
+      { categoryId: catId("personal-care"), name: "Hair Serum",      slug: "hair-serum" },
+      { categoryId: catId("personal-care"), name: "Lip Balm",        slug: "lip-balm" },
+
+      // Industrial Chemicals
+      { categoryId: catId("industrial-chemicals"), name: "Solvent Cleaner",  slug: "solvent-cleaner" },
+      { categoryId: catId("industrial-chemicals"), name: "Rust Inhibitor",   slug: "rust-inhibitor" },
+      { categoryId: catId("industrial-chemicals"), name: "Industrial Adhesive", slug: "industrial-adhesive" },
+      { categoryId: catId("industrial-chemicals"), name: "Lubricant",        slug: "lubricant" },
+      { categoryId: catId("industrial-chemicals"), name: "Cutting Fluid",    slug: "cutting-fluid" },
+      { categoryId: catId("industrial-chemicals"), name: "Concrete Sealer",  slug: "concrete-sealer" },
+      { categoryId: catId("industrial-chemicals"), name: "Epoxy Coating",    slug: "epoxy-coating" },
+      { categoryId: catId("industrial-chemicals"), name: "pH Adjuster",      slug: "ph-adjuster" },
+
+      // Auto Care
+      { categoryId: catId("auto-care"), name: "Car Wash Shampoo",     slug: "car-wash-shampoo" },
+      { categoryId: catId("auto-care"), name: "Wheel Cleaner",        slug: "wheel-cleaner" },
+      { categoryId: catId("auto-care"), name: "Dashboard Polish",     slug: "dashboard-polish" },
+      { categoryId: catId("auto-care"), name: "Wax & Sealant",        slug: "wax-sealant" },
+      { categoryId: catId("auto-care"), name: "Engine Degreaser",     slug: "engine-degreaser" },
+      { categoryId: catId("auto-care"), name: "Tire Dressing",        slug: "tire-dressing" },
+      { categoryId: catId("auto-care"), name: "Glass Treatment",      slug: "glass-treatment" },
+      { categoryId: catId("auto-care"), name: "Paint Scratch Remover",slug: "paint-scratch-remover" },
+
+      // Pet Care
+      { categoryId: catId("pet-care"), name: "Pet Shampoo",          slug: "pet-shampoo" },
+      { categoryId: catId("pet-care"), name: "Pet Conditioner",      slug: "pet-conditioner" },
+      { categoryId: catId("pet-care"), name: "Pet Odor Eliminator",  slug: "pet-odor-eliminator" },
+      { categoryId: catId("pet-care"), name: "Flea & Tick Treatment",slug: "flea-tick-treatment" },
+      { categoryId: catId("pet-care"), name: "Pet Skin Spray",       slug: "pet-skin-spray" },
+      { categoryId: catId("pet-care"), name: "Pet Dental Rinse",     slug: "pet-dental-rinse" },
+    ]);
+
+    // ── Base Types ────────────────────────────────────────────────────────────
+    const bts = await db.insert(wizardBaseTypesTable).values([
+      { name: "Water-Based",         slug: "water-based" },
+      { name: "Solvent-Based",       slug: "solvent-based" },
+      { name: "Solvent-Less",        slug: "solvent-less" },
+      { name: "Oil-Based",           slug: "oil-based" },
+      { name: "Alcohol-Based",       slug: "alcohol-based" },
+      { name: "Concentrate",         slug: "concentrate" },
+      { name: "Polymer-Based",       slug: "polymer-based" },
+      { name: "Hybrid / Other",      slug: "hybrid-other" },
+      { name: "Powder System",       slug: "powder-system" },
+      { name: "Wax-Based",           slug: "wax-based" },
+      { name: "Natural / Plant-Based", slug: "natural-plant-based" },
+      { name: "Alcohol-Free",        slug: "alcohol-free" },
+    ]).returning();
+
+    const btId = (slug: string) => bts.find(b => b.slug === slug)!.id;
+
+    // ── Category ↔ Base Type Mappings ─────────────────────────────────────────
+    await db.insert(wizardCategoryBaseTypesTable).values([
+      // Paint & Coatings
+      { categoryId: catId("paint-coatings"), baseTypeId: btId("water-based"),   sortOrder: 0 },
+      { categoryId: catId("paint-coatings"), baseTypeId: btId("solvent-based"), sortOrder: 1 },
+      { categoryId: catId("paint-coatings"), baseTypeId: btId("powder-system"), sortOrder: 2 },
+
+      // Cleaning Products
+      { categoryId: catId("cleaning-products"), baseTypeId: btId("water-based"),   sortOrder: 0 },
+      { categoryId: catId("cleaning-products"), baseTypeId: btId("solvent-based"), sortOrder: 1 },
+      { categoryId: catId("cleaning-products"), baseTypeId: btId("solvent-less"),  sortOrder: 2 },
+      { categoryId: catId("cleaning-products"), baseTypeId: btId("concentrate"),   sortOrder: 3 },
+      { categoryId: catId("cleaning-products"), baseTypeId: btId("hybrid-other"),  sortOrder: 4 },
+
+      // Personal Care
+      { categoryId: catId("personal-care"), baseTypeId: btId("water-based"),   sortOrder: 0 },
+      { categoryId: catId("personal-care"), baseTypeId: btId("oil-based"),     sortOrder: 1 },
+      { categoryId: catId("personal-care"), baseTypeId: btId("alcohol-based"), sortOrder: 2 },
+      { categoryId: catId("personal-care"), baseTypeId: btId("hybrid-other"),  sortOrder: 3 },
+
+      // Industrial Chemicals
+      { categoryId: catId("industrial-chemicals"), baseTypeId: btId("water-based"),   sortOrder: 0 },
+      { categoryId: catId("industrial-chemicals"), baseTypeId: btId("solvent-based"), sortOrder: 1 },
+      { categoryId: catId("industrial-chemicals"), baseTypeId: btId("oil-based"),     sortOrder: 2 },
+      { categoryId: catId("industrial-chemicals"), baseTypeId: btId("concentrate"),   sortOrder: 3 },
+
+      // Auto Care
+      { categoryId: catId("auto-care"), baseTypeId: btId("water-based"),   sortOrder: 0 },
+      { categoryId: catId("auto-care"), baseTypeId: btId("solvent-based"), sortOrder: 1 },
+      { categoryId: catId("auto-care"), baseTypeId: btId("polymer-based"), sortOrder: 2 },
+      { categoryId: catId("auto-care"), baseTypeId: btId("wax-based"),     sortOrder: 3 },
+
+      // Pet Care
+      { categoryId: catId("pet-care"), baseTypeId: btId("water-based"),        sortOrder: 0 },
+      { categoryId: catId("pet-care"), baseTypeId: btId("natural-plant-based"),sortOrder: 1 },
+      { categoryId: catId("pet-care"), baseTypeId: btId("alcohol-free"),       sortOrder: 2 },
+    ]);
+
+    console.log("✅ Wizard data seeded successfully!");
+  } catch (err) {
+    console.error("Wizard seed failed:", err);
+    // Non-fatal — don't block server startup
   }
 }
 

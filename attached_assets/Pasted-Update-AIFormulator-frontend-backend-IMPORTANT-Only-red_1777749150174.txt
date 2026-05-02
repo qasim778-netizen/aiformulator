@@ -1,0 +1,307 @@
+Update AIFormulator frontend + backend.
+
+IMPORTANT:
+Only redesign Step 1 frontend. Do not disturb Step 2, Step 3, or Step 4 UI.
+
+STEP 1 FRONTEND — PRODUCT BASICS
+
+Step 1 should contain:
+
+1. Select Category
+- Required
+- Show as cards, not plain text input
+- Options:
+  - Paint & Coatings
+  - Cleaning Products
+  - Personal Care
+  - Industrial Chemicals
+  - Auto Care
+  - Pet Care
+
+2. Select Product Type
+- Required
+- Product types should load dynamically after category selection
+- Do not show subcategory on frontend
+- Subcategory should stay hidden in backend only
+
+Example:
+If category = Cleaning Products, show:
+- All Purpose Cleaner
+- Glass Cleaner
+- Floor Cleaner
+- Kitchen Cleaner
+- Bathroom Cleaner
+- Disinfectant Cleaner
+- Degreaser
+- Toilet Bowl Cleaner
+- Carpet & Upholstery Cleaner
+- Others / Custom Cleaner
+
+If category = Paint & Coatings, show:
+- Interior Wall Paint
+- Exterior Paint
+- Anti-Rust Metal Paint
+- Wood Coating
+- Floor Paint
+- Powder Coating
+- Primer
+- Varnish
+
+3. Choose Performance Level
+- Required
+- Show cards:
+  - Standard
+  - Premium
+  - Industrial Grade
+
+4. Select Base Type
+- Required
+- Base types should load dynamically based on category/product type
+
+Example for Cleaning Products:
+- Water-Based
+- Solvent-Based
+- Solvent-Less
+- Hybrid / Other
+
+Example for Paint & Coatings:
+- Water-Based
+- Solvent-Based
+- Powder System
+
+5. Product Name
+- Required
+- Place at the end of Step 1
+- Minimum 3 characters
+- Maximum 80 characters
+- Placeholder:
+  “e.g., Premium Anti-Rust Metal Paint, Fast Drying Glass Cleaner”
+
+Validation:
+- Disable Next Step until category, productType, performanceLevel, baseType, and productName are completed
+- If product name does not match product type, show inline warning and suggestions
+- No popup errors
+- Use current soft UI style
+
+Remove from Step 1:
+- Current free “Your Desired Product” input at top
+- Texture/consistency cards
+
+Keep Step 2 unchanged:
+- Target viscosity
+- Special properties
+- pH level
+- Shelf life
+- Storage temperature
+
+BACKEND DATABASE STRUCTURE
+
+Use these tables/collections:
+
+1. categories
+- id
+- name
+- slug
+- icon
+- is_active
+
+2. subcategories
+- id
+- category_id
+- name
+- slug
+- is_hidden_frontend = true
+
+3. product_types
+- id
+- category_id
+- subcategory_id
+- name
+- slug
+- icon
+- is_active
+
+4. base_types
+- id
+- name
+- slug
+
+5. product_type_base_types
+- product_type_id
+- base_type_id
+
+6. product_type_defaults
+- product_type_id
+- default_viscosity
+- default_pH
+- default_shelf_life
+- default_storage_temperature
+- default_special_properties
+
+7. generated_formulas
+- id
+- formula_key
+- formula_key_version
+- input_json
+- output_json
+- source
+- model
+- created_at
+- updated_at
+- usage_count
+- last_used_at
+
+8. formula_generation_failures
+- id
+- input_json
+- formula_key
+- error_message
+- created_at
+
+BACKEND LOGIC
+
+1. Load active categories from database.
+
+2. When user selects category:
+- Return related active product types.
+- Use hidden subcategory only internally for organization.
+- Do not expose subcategory unless later needed as tabs.
+
+3. When user selects product type:
+- Return allowed base types.
+- Return default specs for Step 2:
+  - viscosity
+  - pH
+  - shelf life
+  - storage temperature
+  - special properties
+
+4. Step 1 should save:
+{
+  category,
+  hiddenSubcategory,
+  productType,
+  performanceLevel,
+  baseType,
+  productName
+}
+
+5. Step 2, Step 3, and Step 4 should continue using existing data, but final OpenAI input should be structured.
+
+FORMULA CACHE LOGIC
+
+Before calling OpenAI, create formula_key from normalized values:
+
+category
+productType
+baseType
+performanceLevel
+viscosity
+pH
+shelfLife
+storageTemperature
+selectedFeatures
+budgetCost
+productVolume
+
+Important:
+- Lowercase all values
+- Trim spaces
+- Convert spaces to hyphens or underscores
+- Sort selectedFeatures alphabetically before key creation
+- Exclude additionalNotes from formula_key unless user selects “custom requirements”
+- Exclude productName from formula_key so same formula can be reused even with different names
+
+Example formula_key:
+cleaning_products|glass_cleaner|water_based|premium|low_viscosity|ph_7|12_months|room_temp|fast_drying,streak_free|budget_1_2|volume_1l
+
+6. Check generated_formulas table first.
+
+7. If formula_key exists:
+- Return saved output_json silently
+- Increment usage_count
+- Update last_used_at
+- Do not call OpenAI
+- Show formula on congratulation/result page
+
+8. If formula_key does not exist:
+- Call OpenAI API
+- Validate JSON response
+- Save output_json with formula_key
+- Return formula on result page
+
+BACKUP / FALLBACK LOGIC
+
+Add strong backup logic:
+
+1. Database cache fallback:
+If exact formula_key not found, try similar match:
+- Same category
+- Same productType
+- Same baseType
+- Same performanceLevel
+- Ignore budget/volume first
+- If found, return saved formula and adjust displayed productName
+
+2. OpenAI failure fallback:
+If OpenAI API fails, times out, or returns invalid JSON:
+- Retry once with same structured input
+- If still fails, save failure in formula_generation_failures
+- Show friendly message:
+  “Formula generation is temporarily unavailable. Please try again in a few minutes.”
+- Do not charge user credits twice
+
+3. JSON validation fallback:
+If OpenAI response is not valid JSON:
+- Attempt to repair/parse JSON
+- If repair fails, retry once
+- If still invalid, store failure log
+
+4. Required ingredient/formula validation:
+Before saving output:
+- Ensure formulation percentages total 100%
+- Ensure formulationTable exists
+- Ensure manufacturingProcess exists
+- Ensure safetyNotes exists
+- If total is not 100%, ask OpenAI once to correct percentages
+- Save only corrected version
+
+5. Existing formula backup:
+If OpenAI fails but a similar formula exists:
+- Return similar saved formula
+- Add internal flag:
+  source = "cache_fallback"
+- Do not show this technical detail to user
+
+6. Admin log:
+Log every API failure, invalid JSON, and fallback use for admin review.
+
+OPENAI INPUT STRUCTURE
+
+Send only structured data to OpenAI, not raw vague text.
+
+Example:
+{
+  "category": "Cleaning Products",
+  "productType": "Glass Cleaner",
+  "performanceLevel": "Premium",
+  "baseType": "Water-Based",
+  "productName": "Fast Drying Glass Cleaner",
+  "viscosity": "Low Viscosity",
+  "specialProperties": ["Streak-free", "Fast drying"],
+  "pH": 7,
+  "shelfLife": "12 months",
+  "storageTemperature": "Room Temperature",
+  "budgetCost": "$1-$2 per unit",
+  "productVolume": "1 L",
+  "additionalNotes": ""
+}
+
+GOAL:
+- Better Step 1 UX
+- No vague user input
+- Better formula quality
+- Lower OpenAI cost
+- Reuse saved formulas
+- Backup logic if OpenAI fails
+- Keep Step 2 unchanged

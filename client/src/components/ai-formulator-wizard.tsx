@@ -15,10 +15,14 @@ import RequirementsStep from "./wizard-steps/requirements-step";
 import GenerateStep from "./wizard-steps/generate-step";
 
 interface FormData {
-  // Product Type
+  // Step 1 — structured product identity
+  category: string;
+  productType: string;
+  performanceLevel: string;
+  baseType: string;
   productName: string;
-  consistencyType: string;
-  
+  consistencyType: string; // derived from baseType for backward-compat
+
   // Specifications
   volume: string;
   viscosity: string;
@@ -26,7 +30,7 @@ interface FormData {
   phLevel: number;
   shelfLife: number;
   storageTemperature: string;
-  
+
   // Requirements
   budgetCategory: string;
   productionVolume: string;
@@ -43,19 +47,26 @@ interface DynamicPropertiesProps {
   availableProperties: PropertyWithMeta[];
 }
 
-// Smart initial defaults - will be calculated dynamically
+// Smart initial defaults
 const getInitialFormData = (): FormData => {
   return {
+    // Step 1
+    category: "",
+    productType: "",
+    performanceLevel: "",
+    baseType: "",
     productName: "",
-    consistencyType: "cream", // Will be updated by smart defaults
-    viscosity: "High", // Will be updated by smart defaults 
-    volume: "50ml", // Will be updated by smart defaults
+    consistencyType: "cream",
+    // Specifications
+    viscosity: "High",
+    volume: "50ml",
     specialProperties: [],
     phLevel: 7,
     shelfLife: 12,
     storageTemperature: "Room Temperature (15-25°C)",
+    // Requirements
     budgetCategory: "Medium Quality",
-    productionVolume: "Small Batch (1-100 units)", // Default to Small Batch
+    productionVolume: "Small Batch (1-100 units)",
     regulatoryRequirements: [],
     additionalNotes: "",
   };
@@ -366,23 +377,35 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
   }, [formData.productName, availableProperties, propertiesLoading]);
 
   const nextStep = () => {
-    // Validate required fields for current step
-    if (currentStep === 0) { // Product Type Step
-      if (!formData.productName || !formData.consistencyType) {
-        toast({
-          title: "Required Fields Missing",
-          description: "Please fill in Product Name and Consistency Type before proceeding",
-          variant: "destructive"
-        });
+    if (currentStep === 0) {
+      // All 5 fields required in Step 1
+      if (!formData.category) {
+        toast({ title: "Select a Category", description: "Please choose a product category to continue.", variant: "destructive" });
+        return;
+      }
+      if (!formData.productType) {
+        toast({ title: "Select a Product Type", description: "Please choose a product type to continue.", variant: "destructive" });
+        return;
+      }
+      if (!formData.performanceLevel) {
+        toast({ title: "Choose Performance Level", description: "Please select a performance level to continue.", variant: "destructive" });
+        return;
+      }
+      if (!formData.baseType) {
+        toast({ title: "Select Base Type", description: "Please choose a base type to continue.", variant: "destructive" });
+        return;
+      }
+      if (!formData.productName || formData.productName.trim().length < 3) {
+        toast({ title: "Product Name Required", description: "Please enter a product name (minimum 3 characters).", variant: "destructive" });
+        return;
+      }
+      if (formData.productName.length > 80) {
+        toast({ title: "Product Name Too Long", description: "Product name must be 80 characters or fewer.", variant: "destructive" });
         return;
       }
       const nameCheck = validateProductName(formData.productName);
       if (!nameCheck.valid) {
-        toast({
-          title: "Invalid Product Name",
-          description: nameCheck.error,
-          variant: "destructive"
-        });
+        toast({ title: "Invalid Product Name", description: nameCheck.error, variant: "destructive" });
         return;
       }
     }

@@ -8,14 +8,21 @@ import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { Captcha } from '@/components/ui/captcha';
 interface FormData {
+  // Step 1
+  category: string;
+  productType: string;
+  performanceLevel: string;
+  baseType: string;
   productName: string;
   consistencyType: string;
   volume: string;
+  // Specifications
   viscosity: string;
   specialProperties: string[];
   phLevel: number;
   shelfLife: number;
   storageTemperature: string;
+  // Requirements
   budgetCategory: string;
   productionVolume: string;
   regulatoryRequirements: string[];
@@ -42,11 +49,18 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
       // Map our FormData to the expected API format
       const requestData = {
         productName: data.productName || 'Custom Product',
-        productDescription: `${data.consistencyType} formulation with ${data.specialProperties.join(', ')} properties`,
-        productType: data.consistencyType || 'cream',
+        productDescription: `${data.productType || data.consistencyType} ${data.baseType ? `(${data.baseType})` : ''} formulation with ${data.specialProperties.join(', ') || 'standard'} properties`,
+        productType: data.productType || data.consistencyType || 'cream',
+        category: data.category || '',
+        performanceLevel: data.performanceLevel || 'Standard',
+        baseType: data.baseType || '',
         phLevel: data.phLevel || 7,
         costLevel: data.budgetCategory || 'Medium Quality',
+        budgetCategory: data.budgetCategory || 'Medium Quality',
         viscosity: data.viscosity || 'Medium',
+        shelfLife: data.shelfLife || 12,
+        storageTemperature: data.storageTemperature || 'Room Temperature',
+        productionVolume: data.productionVolume || '',
         color: 'Default',
         fragrance: 'Default',
         specialRequirements: [

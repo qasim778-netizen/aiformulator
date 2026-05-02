@@ -7,6 +7,8 @@ import crypto from "crypto";
 import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema, insertFormulationContentSchema, insertUserNoteSchema, insertPageSchema, insertBlogPostSchema, insertSampleProductSchema } from "@shared/schema";
 import type { ChatMessage, InsertChatMessage } from "@shared/schema";
+import { db, wizardCategoriesTable, wizardProductTypesTable, wizardBaseTypesTable, wizardCategoryBaseTypesTable, generatedFormulasTable, formulaGenerationFailuresTable } from "./db";
+import { eq, and } from "drizzle-orm";
 import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateBulkFormulationsWithKeywords, generateProductTypes, generateCustomFormulation } from "./ai";
 import { generateCategorySuggestions } from "./services/openai";
 import { generateFormulationPDF } from "./pdf-generator";
@@ -1623,6 +1625,81 @@ Sitemap: https://aiformulator.net/sitemap.xml
     }
   });
 
+  // ── Wizard Data Routes ─────────────────────────────────────────────────────
+  app.get("/api/wizard/categories", async (_req, res) => {
+    try {
+      const categories = await db
+        .select()
+        .from(wizardCategoriesTable)
+        .where(eq(wizardCategoriesTable.isActive, true));
+      res.json(categories);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message || "Failed to fetch wizard categories" });
+    }
+  });
+
+  app.get("/api/wizard/product-types", async (req, res) => {
+    try {
+      const { categorySlug } = req.query as { categorySlug?: string };
+      if (!categorySlug) return res.status(400).json({ message: "categorySlug is required" });
+
+      const [category] = await db
+        .select()
+        .from(wizardCategoriesTable)
+        .where(eq(wizardCategoriesTable.slug, categorySlug))
+        .limit(1);
+
+      if (!category) return res.json([]);
+
+      const types = await db
+        .select()
+        .from(wizardProductTypesTable)
+        .where(
+          and(
+            eq(wizardProductTypesTable.categoryId, category.id),
+            eq(wizardProductTypesTable.isActive, true)
+          )
+        );
+      res.json(types);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message || "Failed to fetch product types" });
+    }
+  });
+
+  app.get("/api/wizard/base-types", async (req, res) => {
+    try {
+      const { categorySlug } = req.query as { categorySlug?: string };
+      if (!categorySlug) return res.status(400).json({ message: "categorySlug is required" });
+
+      const [category] = await db
+        .select()
+        .from(wizardCategoriesTable)
+        .where(eq(wizardCategoriesTable.slug, categorySlug))
+        .limit(1);
+
+      if (!category) return res.json([]);
+
+      const baseTypes = await db
+        .select({
+          id: wizardBaseTypesTable.id,
+          name: wizardBaseTypesTable.name,
+          slug: wizardBaseTypesTable.slug,
+          sortOrder: wizardCategoryBaseTypesTable.sortOrder,
+        })
+        .from(wizardCategoryBaseTypesTable)
+        .innerJoin(
+          wizardBaseTypesTable,
+          eq(wizardCategoryBaseTypesTable.baseTypeId, wizardBaseTypesTable.id)
+        )
+        .where(eq(wizardCategoryBaseTypesTable.categoryId, category.id))
+        .orderBy(wizardCategoryBaseTypesTable.sortOrder);
+
+      res.json(baseTypes);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message || "Failed to fetch base types" });
+    }
+  });
+
   app.post("/api/ai/generate-formulation", async (req, res) => {
     try {
       const { categoryId, productDescription } = req.body;
@@ -2049,6 +2126,29 @@ Allow: /disclaimer`;
     return 'construction material';
   }
 
+  // ── Formula Key Builder ────────────────────────────────────────────────────
+  function buildFormulaKey(data: {
+    category: string; productType: string; baseType: string; performanceLevel: string;
+    viscosity: string; phLevel: string | number; shelfLife: string | number;
+    storageTemperature: string; specialRequirements: string; costLevel: string; productionVolume: string;
+  }): string {
+    const n = (s: any) => String(s || '').toLowerCase().trim().replace(/[\s&\/\\,]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    const features = (data.specialRequirements || '').split(',').map(s => n(s.trim())).filter(Boolean).sort().join(',') || 'none';
+    return [
+      n(data.category) || 'unknown',
+      n(data.productType) || 'unknown',
+      n(data.baseType) || 'unknown',
+      n(data.performanceLevel) || 'standard',
+      n(data.viscosity) || 'medium',
+      `ph${String(data.phLevel || '7').replace(/\./g, '')}`,
+      `${data.shelfLife || '12'}m`,
+      n(data.storageTemperature) || 'room-temperature',
+      features,
+      n(data.costLevel) || 'medium',
+      n(data.productionVolume) || 'small-batch',
+    ].join('|');
+  }
+
   // Custom AI Formulation with PDF Generation - Public Access with Captcha Security
   app.post("/api/ai/custom-formulation", async (req, res) => {
     console.log('🔥 Custom formulation endpoint hit!');
@@ -2068,6 +2168,12 @@ Allow: /disclaimer`;
         productCategory,
         productDescription,
         productType,
+        // Wizard Step 1 structured fields
+        category,
+        performanceLevel,
+        baseType,
+        budgetCategory,
+        storageTemperature,
         phLevel,
         costLevel,
         viscosity,
@@ -2099,76 +2205,118 @@ Allow: /disclaimer`;
       const optimizedName = nameOptimizationResult.optimizedName;
       console.log(`📝 Name optimized: "${productName}" → "${optimizedName}"`);
       
-      let formulation;
+      // ── Formula caching: generate key ────────────────────────────────────────
+      const formulaKey = buildFormulaKey({
+        category: category || '',
+        productType: productType || '',
+        baseType: baseType || '',
+        performanceLevel: performanceLevel || 'Standard',
+        viscosity: viscosity || 'Medium',
+        phLevel: phLevel || '7',
+        shelfLife: shelfLife || '12',
+        storageTemperature: storageTemperature || 'Room Temperature',
+        specialRequirements: specialRequirements || '',
+        costLevel: costLevel || 'medium',
+        productionVolume: productionVolume || '',
+      });
+
+      let formulation: any = null;
+
+      // ── Check formula cache ───────────────────────────────────────────────
       try {
-        // Import the flexible custom formulation generator
-        const { generateCustomFormulation } = await import('./ai');
-        
-        // Create comprehensive request for AI
+        const cached = await db.select().from(generatedFormulasTable)
+          .where(eq(generatedFormulasTable.formulaKey, formulaKey))
+          .limit(1);
+        if (cached.length > 0) {
+          formulation = cached[0].outputJson;
+          db.update(generatedFormulasTable)
+            .set({ usageCount: cached[0].usageCount + 1, lastUsedAt: new Date() })
+            .where(eq(generatedFormulasTable.id, cached[0].id))
+            .catch(() => {});
+          console.log(`✅ [Cache HIT] key: ${formulaKey.slice(0, 70)}`);
+        }
+      } catch (cacheErr) {
+        console.warn('[Cache] Read failed, proceeding to AI:', cacheErr);
+      }
+
+      // ── AI generation (on cache miss) ────────────────────────────────────
+      if (!formulation) {
         const customRequest = {
           productName: optimizedName,
           productDescription: productDescription,
           productType: productType,
+          category: category,
+          performanceLevel: performanceLevel,
+          baseType: baseType,
           phLevel: phLevel,
           costLevel: costLevel,
           viscosity: viscosity,
           color: color,
           fragrance: fragrance,
-          specialRequirements: specialRequirements
+          specialRequirements: specialRequirements,
         };
-        
+
         console.log(`🔍 AI Request:`, customRequest);
-        
-        // Generate using flexible AI that works with any product type
-        const aiFormulation = await generateCustomFormulation(customRequest);
-        
-        console.log(`🔍 AI Formulation Response:`, {
-          hasIngredients: !!aiFormulation.ingredients,
-          ingredientsType: typeof aiFormulation.ingredients,
-          hasInstructions: !!aiFormulation.instructions,
-          instructionsType: typeof aiFormulation.instructions
-        });
-        
-        const ingredientsJson = typeof aiFormulation.ingredients === 'string' 
-          ? aiFormulation.ingredients 
-          : JSON.stringify(aiFormulation.ingredients || []);
-        
-        const validationResult = validateFormulation(ingredientsJson, productType, phLevel.toString());
-        console.log(`🔬 Formulation Validation:`, {
-          isValid: validationResult.isValid,
-          score: validationResult.overallScore,
-          issues: validationResult.issues.length,
-          warnings: validationResult.warnings.length
-        });
-        
-        formulation = {
-          name: optimizedName,
-          description: aiFormulation.description || `Professional ${productType} formulation for ${productDescription}`,
-          ingredients: ingredientsJson,
-          instructions: typeof aiFormulation.instructions === 'string' ? aiFormulation.instructions : JSON.stringify(aiFormulation.instructions || []),
-          usageInstructions: aiFormulation.usageInstructions || 'Apply as needed according to product instructions',
-          phLevel: aiFormulation.phLevel || phLevel.toString(),
-          shelfLife: aiFormulation.shelfLife || "24 months when stored properly",
-          viscosity: aiFormulation.viscosity || viscosity || 'Medium',
-          storageConditions: aiFormulation.storageConditions || "Store in cool, dry place away from direct sunlight",
-          batchSize: aiFormulation.batchSize || "1000ml",
-          processingTime: aiFormulation.processingTime || "2-3 hours",
-          temperature: aiFormulation.temperature || "Room temperature (20-25°C)",
-          equipment: aiFormulation.equipment || "Standard mixing equipment, pH meter, thermometer",
-          certification: aiFormulation.certification || "Meets industry standards",
-          isActive: false,
-          status: 'draft',
-        };
-        
-        console.log(`✅ Formulation validation score: ${validationResult.overallScore}/100 (${validationResult.isValid ? 'VALID' : 'NEEDS REVIEW'})`);
-        
-      } catch (aiError: any) {
-        console.error("[AI Generation] OpenAI call failed:", {
-          message: aiError?.message,
-          status: aiError?.status,
-          code: aiError?.code,
-        });
-        throw new Error(aiError?.message || "AI service unavailable, please try again");
+
+        let aiError: any = null;
+        for (let attempt = 1; attempt <= 2; attempt++) {
+          try {
+            const { generateCustomFormulation } = await import('./ai');
+            const aiFormulation = await generateCustomFormulation(customRequest);
+
+            const ingredientsJson = typeof aiFormulation.ingredients === 'string'
+              ? aiFormulation.ingredients
+              : JSON.stringify(aiFormulation.ingredients || []);
+
+            const validationResult = validateFormulation(ingredientsJson, productType, phLevel.toString());
+            console.log(`🔬 Validation: ${validationResult.overallScore}/100 (${validationResult.isValid ? 'VALID' : 'NEEDS REVIEW'})`);
+
+            formulation = {
+              name: optimizedName,
+              description: aiFormulation.description || `Professional ${productType} formulation for ${productDescription}`,
+              ingredients: ingredientsJson,
+              instructions: typeof aiFormulation.instructions === 'string' ? aiFormulation.instructions : JSON.stringify(aiFormulation.instructions || []),
+              usageInstructions: aiFormulation.usageInstructions || 'Apply as needed according to product instructions',
+              phLevel: aiFormulation.phLevel || phLevel.toString(),
+              shelfLife: aiFormulation.shelfLife || "24 months when stored properly",
+              viscosity: aiFormulation.viscosity || viscosity || 'Medium',
+              storageConditions: aiFormulation.storageConditions || "Store in cool, dry place away from direct sunlight",
+              batchSize: aiFormulation.batchSize || "1000ml",
+              processingTime: aiFormulation.processingTime || "2-3 hours",
+              temperature: aiFormulation.temperature || "Room temperature (20-25°C)",
+              equipment: aiFormulation.equipment || "Standard mixing equipment, pH meter, thermometer",
+              certification: aiFormulation.certification || "Meets industry standards",
+              isActive: false,
+              status: 'draft',
+            };
+
+            // Save to cache (best-effort, non-blocking)
+            db.insert(generatedFormulasTable).values({
+              formulaKey,
+              inputJson: customRequest as any,
+              outputJson: formulation as any,
+              source: 'openai',
+              model: 'gpt-4o',
+            }).onConflictDoNothing().catch(() => {});
+
+            aiError = null;
+            break;
+          } catch (err: any) {
+            aiError = err;
+            console.error(`[AI] Attempt ${attempt} failed:`, err?.message);
+            if (attempt < 2) await new Promise(r => setTimeout(r, 1500));
+          }
+        }
+
+        if (aiError) {
+          db.insert(formulaGenerationFailuresTable).values({
+            inputJson: { productName, productType, category } as any,
+            formulaKey,
+            errorMessage: aiError?.message || 'Unknown error',
+          }).catch(() => {});
+          console.error("[AI Generation] All attempts failed:", { message: aiError?.message, status: aiError?.status });
+          throw new Error(aiError?.message || "AI service unavailable, please try again");
+        }
       }
 
       // Always use "Custom Innovations" category for customer-generated formulations

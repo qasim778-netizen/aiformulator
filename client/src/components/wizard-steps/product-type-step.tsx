@@ -1,15 +1,37 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Hand, Droplets, Waves, Circle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import type { Formulation } from "@shared/schema";
+import { AlertCircle, CheckCircle } from "lucide-react";
+
+interface WizardCategory {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string | null;
+}
+
+interface WizardProductType {
+  id: string;
+  name: string;
+  slug: string;
+  categoryId: string;
+}
+
+interface WizardBaseType {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 interface FormData {
+  category: string;
+  productType: string;
+  performanceLevel: string;
+  baseType: string;
   productName: string;
   consistencyType: string;
+  [key: string]: any;
 }
 
 interface Props {
@@ -17,388 +39,321 @@ interface Props {
   updateFormData: (data: Partial<FormData>) => void;
 }
 
-const consistencyTypes = [
+const CATEGORY_EMOJIS: Record<string, string> = {
+  "paint-coatings": "🎨",
+  "cleaning-products": "🧹",
+  "personal-care": "💆",
+  "industrial-chemicals": "🏭",
+  "auto-care": "🚗",
+  "pet-care": "🐾",
+};
+
+const PERFORMANCE_LEVELS = [
   {
-    id: "cream",
-    title: "Cream",
-    description: "Thick, spreadable",
-    icon: Hand,
-    examples: ["Face cream", "Night cream", "Eye cream", "Body lotion"],
-    colors: {
-      bg: "bg-gradient-to-br from-orange-50 to-yellow-50",
-      border: "border-orange-200",
-      selectedBg: "bg-gradient-to-br from-orange-100 to-yellow-100",
-      selectedBorder: "border-orange-500",
-      icon: "text-orange-600",
-      selectedIcon: "text-orange-700",
-      title: "text-orange-900",
-      desc: "text-orange-700",
-      selectedTitle: "text-orange-900",
-      selectedDesc: "text-orange-800"
-    }
+    id: "Standard",
+    label: "Standard",
+    desc: "Reliable everyday quality",
+    emoji: "⚙️",
+    colors: { border: "border-gray-300", selected: "border-green-600 bg-green-600 text-white", hover: "hover:border-green-400" },
   },
   {
-    id: "liquid",
-    title: "Liquid/Serum",
-    description: "Flowing consistency",
-    icon: Droplets,
-    examples: ["Toner", "Serum", "Oil", "Cleanser"],
-    colors: {
-      bg: "bg-gradient-to-br from-blue-50 to-cyan-50",
-      border: "border-blue-200",
-      selectedBg: "bg-gradient-to-br from-blue-100 to-cyan-100",
-      selectedBorder: "border-blue-500",
-      icon: "text-blue-600",
-      selectedIcon: "text-blue-700",
-      title: "text-blue-900",
-      desc: "text-blue-700",
-      selectedTitle: "text-blue-900",
-      selectedDesc: "text-blue-800"
-    }
+    id: "Premium",
+    label: "Premium",
+    desc: "High performance grade",
+    emoji: "⭐",
+    colors: { border: "border-gray-300", selected: "border-blue-600 bg-blue-600 text-white", hover: "hover:border-blue-400" },
   },
   {
-    id: "gel",
-    title: "Gel",
-    description: "Semi-solid texture",
-    icon: Waves,
-    examples: ["Aloe gel", "Hair gel", "Face mask", "Body gel"],
-    colors: {
-      bg: "bg-gradient-to-br from-emerald-50 to-green-50",
-      border: "border-emerald-200",
-      selectedBg: "bg-gradient-to-br from-emerald-100 to-green-100",
-      selectedBorder: "border-emerald-500",
-      icon: "text-emerald-600",
-      selectedIcon: "text-emerald-700",
-      title: "text-emerald-900",
-      desc: "text-emerald-700",
-      selectedTitle: "text-emerald-900",
-      selectedDesc: "text-emerald-800"
-    }
+    id: "Industrial Grade",
+    label: "Industrial Grade",
+    desc: "Maximum strength & durability",
+    emoji: "🏗️",
+    colors: { border: "border-gray-300", selected: "border-orange-600 bg-orange-600 text-white", hover: "hover:border-orange-400" },
   },
-  {
-    id: "powder",
-    title: "Powder/Foundation",
-    description: "Dry, granular",
-    icon: Circle,
-    examples: ["Face powder", "Foundation", "Dry shampoo", "Setting powder"],
-    colors: {
-      bg: "bg-gradient-to-br from-purple-50 to-pink-50",
-      border: "border-purple-200",
-      selectedBg: "bg-gradient-to-br from-purple-100 to-pink-100",
-      selectedBorder: "border-purple-500",
-      icon: "text-purple-600",
-      selectedIcon: "text-purple-700",
-      title: "text-purple-900",
-      desc: "text-purple-700",
-      selectedTitle: "text-purple-900",
-      selectedDesc: "text-purple-800"
-    }
-  }
 ];
 
+const BASE_TYPE_CONSISTENCY: Record<string, string> = {
+  "water-based": "liquid",
+  "solvent-based": "liquid",
+  "solvent-less": "liquid",
+  "oil-based": "liquid",
+  "alcohol-based": "liquid",
+  "concentrate": "liquid",
+  "polymer-based": "liquid",
+  "hybrid-other": "liquid",
+  "powder-system": "powder",
+  "wax-based": "cream",
+  "natural-plant-based": "liquid",
+  "alcohol-free": "liquid",
+};
+
+function getNameWarning(productName: string, productType: string): string | null {
+  if (!productName || !productType || productName.length < 3) return null;
+  const nameLower = productName.toLowerCase();
+  const typeKeywords = productType.toLowerCase().split(/[\s&\/]+/).filter(kw => kw.length > 3);
+  const hasMatch = typeKeywords.some(kw => nameLower.includes(kw));
+  if (!hasMatch && typeKeywords.length > 0) {
+    return `Consider a name that reflects "${productType}" — e.g., "Premium ${productType}" or "Advanced ${productType}"`;
+  }
+  return null;
+}
+
 export default function ProductTypeStep({ formData, updateFormData }: Props) {
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  
-  const selectedConsistency = consistencyTypes.find(type => type.id === formData.consistencyType);
-  
-  // Fetch formulations for autocomplete suggestions
-  const { data: formulations = [] } = useQuery<Formulation[]>({
-    queryKey: ["/api/formulations"],
+  const [categorySlug, setCategorySlug] = useState("");
+
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery<WizardCategory[]>({
+    queryKey: ["/api/wizard/categories"],
   });
-  
-  // Auto-detect product type from product name
-  const detectProductType = (name: string): string | null => {
-    const lowerName = name.toLowerCase();
-    
-    // Liquid keywords - check first for explicit liquid mentions
-    const liquidKeywords = [
-      'liquid', 'serum', 'toner', 'oil', 'spray', 'mist', 'essence',
-      'lotion', 'cleanser', 'wash', 'rinse', 'solution', 'drops',
-      'shampoo', 'conditioner', 'bodywash', 'handwash', 'dishwash',
-      'floor cleaner', 'glass cleaner', 'all-purpose cleaner',
-      'fabric softener', 'bleach', 'disinfectant'
-    ];
-    
-    // Gel keywords
-    const gelKeywords = [
-      'gel', 'jelly', 'mask', 'pack', 'aloe', 'styling gel',
-      'shower gel', 'hair gel', 'sanitizer', 'hand sanitizer'
-    ];
-    
-    // Cream keywords
-    const creamKeywords = [
-      'cream', 'butter', 'balm', 'ointment', 'paste', 'pomade',
-      'moisturizer', 'emulsion', 'thick', 'rich', 'night cream',
-      'day cream', 'eye cream', 'hand cream', 'foot cream',
-      'body butter', 'lip balm', 'salve'
-    ];
-    
-    // Powder keywords (check these last as default for detergents)
-    const powderKeywords = [
-      'powder', 'dust', 'talc', 'foundation', 'compact', 'dry',
-      'granule', 'granular', 'setting powder', 'face powder',
-      'baby powder', 'talcum'
-    ];
-    
-    // Products that default to powder form if no modifier specified
-    const defaultPowderProducts = [
-      'detergent', 'washing powder', 'laundry', 'dishwasher'
-    ];
-    
-    // Check for explicit liquid mention first (highest priority)
-    for (const keyword of liquidKeywords) {
-      if (lowerName.includes(keyword)) {
-        return 'liquid';
-      }
-    }
-    
-    // Check for gel keywords
-    for (const keyword of gelKeywords) {
-      if (lowerName.includes(keyword)) {
-        return 'gel';
-      }
-    }
-    
-    // Check for cream keywords
-    for (const keyword of creamKeywords) {
-      if (lowerName.includes(keyword)) {
-        return 'cream';
-      }
-    }
-    
-    // Check for explicit powder keywords
-    for (const keyword of powderKeywords) {
-      if (lowerName.includes(keyword)) {
-        return 'powder';
-      }
-    }
-    
-    // Default powder products (like detergent without liquid modifier)
-    for (const keyword of defaultPowderProducts) {
-      if (lowerName.includes(keyword)) {
-        return 'powder';
-      }
-    }
-    
-    return null;
-  };
-  
-  // Auto-select product type when product name changes
+
   useEffect(() => {
-    if (!formData.productName.trim()) return;
-    
-    const detectedType = detectProductType(formData.productName);
-    if (detectedType && detectedType !== formData.consistencyType) {
-      updateFormData({ consistencyType: detectedType });
+    if (formData.category && categories.length > 0) {
+      const cat = categories.find(c => c.name === formData.category);
+      if (cat && cat.slug !== categorySlug) setCategorySlug(cat.slug);
     }
-  }, [formData.productName]);
-  
-  // Update suggestions when product name changes
-  useEffect(() => {
-    if (!formData.productName.trim()) {
-      setSuggestions([]);
-      setShowSuggestions(false);
-      setSelectedIndex(-1);
-      return;
-    }
-    
-    const query = formData.productName.toLowerCase();
-    const matchingSuggestions = formulations
-      .filter(f => f.name.toLowerCase().includes(query))
-      .map(f => f.name)
-      .filter(name => name.toLowerCase() !== query) // Don't suggest exact matches
-      .slice(0, 6); // Limit to 6 suggestions
-    
-    setSuggestions(matchingSuggestions);
-    setShowSuggestions(matchingSuggestions.length > 0);
-    setSelectedIndex(-1);
-  }, [formData.productName, formulations]);
-  
-  // Handle keyboard navigation
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!showSuggestions) return;
-    
-    switch (e.key) {
-      case "ArrowDown":
-        e.preventDefault();
-        setSelectedIndex(prev => 
-          prev < suggestions.length - 1 ? prev + 1 : 0
-        );
-        break;
-      case "ArrowUp":
-        e.preventDefault();
-        setSelectedIndex(prev => 
-          prev > 0 ? prev - 1 : suggestions.length - 1
-        );
-        break;
-      case "Enter":
-        e.preventDefault();
-        if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
-          updateFormData({ productName: suggestions[selectedIndex] });
-          setShowSuggestions(false);
-        }
-        break;
-      case "Escape":
-        setShowSuggestions(false);
-        setSelectedIndex(-1);
-        inputRef.current?.blur();
-        break;
-    }
-  };
-  
-  // Handle suggestion selection
-  const handleSelectSuggestion = (suggestion: string) => {
-    updateFormData({ productName: suggestion });
-    setShowSuggestions(false);
-    setSelectedIndex(-1);
-  };
-  
-  // Handle input blur (with delay to allow clicking suggestions)
-  const handleBlur = () => {
-    setTimeout(() => setShowSuggestions(false), 150);
-  };
-  
-  // Handle input focus
-  const handleFocus = () => {
-    if (formData.productName.trim() && suggestions.length > 0) {
-      setShowSuggestions(true);
-    }
+  }, [formData.category, categories]);
+
+  const { data: productTypes = [], isLoading: typesLoading } = useQuery<WizardProductType[]>({
+    queryKey: ["/api/wizard/product-types", categorySlug],
+    queryFn: async () => {
+      if (!categorySlug) return [];
+      const res = await fetch(`/api/wizard/product-types?categorySlug=${categorySlug}`);
+      if (!res.ok) return [];
+      return res.json();
+    },
+    enabled: !!categorySlug,
+  });
+
+  const { data: baseTypes = [], isLoading: baseTypesLoading } = useQuery<WizardBaseType[]>({
+    queryKey: ["/api/wizard/base-types", categorySlug],
+    queryFn: async () => {
+      if (!categorySlug) return [];
+      const res = await fetch(`/api/wizard/base-types?categorySlug=${categorySlug}`);
+      if (!res.ok) return [];
+      return res.json();
+    },
+    enabled: !!categorySlug,
+  });
+
+  const handleCategorySelect = (cat: WizardCategory) => {
+    setCategorySlug(cat.slug);
+    updateFormData({ category: cat.name, productType: "", performanceLevel: "", baseType: "" });
   };
 
+  const handleProductTypeSelect = (type: WizardProductType) => {
+    updateFormData({ productType: type.name, baseType: "" });
+  };
+
+  const handlePerformanceSelect = (level: string) => {
+    updateFormData({ performanceLevel: level });
+  };
+
+  const handleBaseTypeSelect = (type: WizardBaseType) => {
+    updateFormData({
+      baseType: type.name,
+      consistencyType: BASE_TYPE_CONSISTENCY[type.slug] || "liquid",
+    });
+  };
+
+  const nameWarning = getNameWarning(formData.productName, formData.productType);
+  const isComplete =
+    formData.category &&
+    formData.productType &&
+    formData.performanceLevel &&
+    formData.baseType &&
+    formData.productName.length >= 3;
+
   return (
-    <div className="space-y-8">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-[#1A2B4B] mb-2">What do you want to make?</h2>
-        <p className="text-[#6B7280] text-lg">Tell us your desired product name and its type</p>
+    <div className="space-y-6">
+      <div className="text-center mb-4">
+        <h2 className="text-2xl font-bold text-[#1A2B4B] mb-1">Build Your Formulation</h2>
+        <p className="text-[#6B7280] text-sm">Define your product step by step</p>
       </div>
-      
-      <div className="w-full max-w-2xl mx-auto">
-        <div className="w-full min-w-0 relative bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-xl border-3 border-[#4A90E2] shadow-lg">
-          <Label htmlFor="productName" className="text-xl font-bold text-[#1A2B4B] mb-4 block flex items-center">
-            <span className="bg-[#4A90E2] text-white px-4 py-2 rounded-full text-base font-bold mr-4 w-10 h-10 flex items-center justify-center">1</span>
-            Your Desired Product
-          </Label>
-          <Input
-            ref={inputRef}
-            id="productName"
-            type="text"
-            placeholder="e.g., Anti-Aging Face Cream, Moisturizing Shampoo, Car Detergent..."
-            value={formData.productName}
-            onChange={(e) => updateFormData({ productName: e.target.value })}
-            onKeyDown={handleKeyDown}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            className="w-full h-16 border-2 border-[#4A90E2] text-lg font-medium focus:border-[#2563eb] focus:ring-2 focus:ring-blue-300 bg-white rounded-lg"
-            data-testid="input-product-name"
-          />
-          <p className="text-sm text-[#6B7280] mt-2">Be specific! This helps us generate accurate formulas (e.g., "Coconut Moisturizing Shampoo")</p>
-          
-          {/* Autocomplete Suggestions */}
-          {showSuggestions && suggestions.length > 0 && (
-            <div
-              ref={dropdownRef}
-              className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto"
-              data-testid="dropdown-product-suggestions"
-            >
-              {suggestions.map((suggestion, index) => (
-                <div
-                  key={suggestion}
-                  className={`px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors duration-150 ${
-                    index === selectedIndex
-                      ? "bg-blue-600 text-white"
-                      : "hover:bg-gray-50"
+
+      {/* ── 1. Category ─────────────────────────────────────────────────── */}
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border-2 border-blue-200">
+        <Label className="text-base font-bold text-[#1A2B4B] mb-4 flex items-center">
+          <span className="bg-blue-600 text-white w-7 h-7 rounded-full text-xs font-bold mr-3 flex items-center justify-center flex-shrink-0">1</span>
+          Select Category <span className="text-red-500 ml-1">*</span>
+        </Label>
+        {categoriesLoading ? (
+          <div className="flex items-center py-3 text-blue-600 text-sm">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2" />
+            Loading categories...
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {categories.map(cat => {
+              const isSelected = formData.category === cat.name;
+              const emoji = CATEGORY_EMOJIS[cat.slug] || "🔬";
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCategorySelect(cat)}
+                  className={`p-4 rounded-xl border-2 text-left transition-all duration-200 hover:shadow-md hover:scale-[1.02] ${
+                    isSelected
+                      ? "border-blue-600 bg-blue-600 text-white shadow-lg scale-[1.02]"
+                      : "border-gray-200 bg-white hover:border-blue-400"
                   }`}
-                  onClick={() => handleSelectSuggestion(suggestion)}
-                  data-testid={`suggestion-product-${index}`}
+                  data-testid={`category-${cat.slug}`}
                 >
-                  <span className="font-medium text-sm">
-                    {suggestion}
-                  </span>
-                </div>
-              ))}
+                  <div className={`text-2xl mb-2`}>{emoji}</div>
+                  <p className={`text-sm font-semibold leading-tight ${isSelected ? "text-white" : "text-gray-800"}`}>
+                    {cat.name}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ── 2. Product Type ──────────────────────────────────────────────── */}
+      {formData.category && (
+        <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-xl border-2 border-purple-200">
+          <Label className="text-base font-bold text-[#1A2B4B] mb-4 flex items-center">
+            <span className="bg-purple-600 text-white w-7 h-7 rounded-full text-xs font-bold mr-3 flex items-center justify-center flex-shrink-0">2</span>
+            Select Product Type <span className="text-red-500 ml-1">*</span>
+          </Label>
+          {typesLoading ? (
+            <div className="flex items-center py-3 text-purple-600 text-sm">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600 mr-2" />
+              Loading product types...
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {productTypes.map(type => {
+                const isSelected = formData.productType === type.name;
+                return (
+                  <button
+                    key={type.id}
+                    onClick={() => handleProductTypeSelect(type)}
+                    className={`p-3 rounded-lg border-2 text-sm text-left transition-all duration-200 hover:shadow-sm ${
+                      isSelected
+                        ? "border-purple-600 bg-purple-600 text-white shadow-md"
+                        : "border-gray-200 bg-white hover:border-purple-400 text-gray-700"
+                    }`}
+                    data-testid={`product-type-${type.slug}`}
+                  >
+                    <span className="font-medium">{type.name}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
-      </div>
+      )}
 
-      {/* Consistency Type Selection */}
-      <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-8 rounded-xl border-3 border-orange-200">
-        <Label className="text-xl font-bold text-[#1A2B4B] mb-6 block flex items-center">
-          <span className="bg-orange-500 text-white px-4 py-2 rounded-full text-base font-bold mr-4 w-10 h-10 flex items-center justify-center">2</span>
-          What's the texture/consistency?
-        </Label>
-        <p className="text-[#6B7280] mb-6">Choose the product type that best matches your formula</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
-          {consistencyTypes.map((type) => {
-            const IconComponent = type.icon;
-            const isSelected = formData.consistencyType === type.id;
-            const colors = type.colors;
-            
-            return (
-              <button
-                key={type.id}
-                onClick={() => updateFormData({ consistencyType: type.id })}
-                className={`p-5 rounded-xl border-2 transition-all duration-300 text-center hover:shadow-lg hover:scale-105 transform ${
-                  isSelected 
-                    ? `${colors.selectedBg} ${colors.selectedBorder} shadow-lg scale-105` 
-                    : `${colors.bg} ${colors.border} hover:${colors.selectedBorder}`
-                }`}
-                data-testid={`consistency-${type.id}`}
-              >
-                <div className={`mx-auto mb-3 w-14 h-14 flex items-center justify-center rounded-full ${
-                  isSelected 
-                    ? `${colors.selectedIcon} bg-white/50` 
-                    : `${colors.icon} bg-white/30`
-                } transition-all duration-300`}>
-                  <IconComponent className="h-8 w-8" />
-                </div>
-                <h4 className={`font-bold mb-2 text-sm ${
-                  isSelected ? colors.selectedTitle : colors.title
-                } transition-colors duration-300`}>
-                  {type.title}
-                </h4>
-                <p className={`text-xs ${
-                  isSelected ? colors.selectedDesc : colors.desc
-                } transition-colors duration-300`}>
-                  {type.description}
-                </p>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Examples Section */}
-      {selectedConsistency && (
-        <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-6 border-2 border-emerald-200">
-          <h4 className="font-bold text-[#1A2B4B] mb-4 text-base">
-            ✓ Common {selectedConsistency.title.toLowerCase()} products:
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {selectedConsistency.examples.map((example, index) => (
-              <Badge 
-                key={index} 
-                variant="secondary" 
-                className="bg-emerald-200 text-emerald-900 hover:bg-emerald-300 text-sm px-3 py-1.5 font-medium"
-              >
-                {example}
-              </Badge>
-            ))}
+      {/* ── 3. Performance Level ────────────────────────────────────────── */}
+      {formData.productType && (
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-xl border-2 border-green-200">
+          <Label className="text-base font-bold text-[#1A2B4B] mb-4 flex items-center">
+            <span className="bg-green-600 text-white w-7 h-7 rounded-full text-xs font-bold mr-3 flex items-center justify-center flex-shrink-0">3</span>
+            Choose Performance Level <span className="text-red-500 ml-1">*</span>
+          </Label>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {PERFORMANCE_LEVELS.map(level => {
+              const isSelected = formData.performanceLevel === level.id;
+              return (
+                <button
+                  key={level.id}
+                  onClick={() => handlePerformanceSelect(level.id)}
+                  className={`p-4 rounded-xl border-2 text-left transition-all duration-200 hover:shadow-md ${
+                    isSelected
+                      ? level.colors.selected
+                      : `border-gray-200 bg-white ${level.colors.hover}`
+                  }`}
+                  data-testid={`performance-${level.id.toLowerCase().replace(/\s+/g, "-")}`}
+                >
+                  <div className="text-xl mb-1">{level.emoji}</div>
+                  <p className={`font-bold text-sm ${isSelected ? "" : "text-gray-900"}`}>{level.label}</p>
+                  <p className={`text-xs mt-0.5 ${isSelected ? "opacity-80" : "text-gray-500"}`}>{level.desc}</p>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
-      
-      {/* Summary Section */}
-      {formData.productName && selectedConsistency && (
-        <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl p-6 shadow-lg">
-          <h4 className="font-bold text-lg mb-2">✓ Ready to continue!</h4>
-          <p className="text-sm opacity-90">
-            We'll create a formula for: <span className="font-bold">{formData.productName}</span> ({selectedConsistency.title})
+
+      {/* ── 4. Base Type ─────────────────────────────────────────────────── */}
+      {formData.performanceLevel && (
+        <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-5 rounded-xl border-2 border-orange-200">
+          <Label className="text-base font-bold text-[#1A2B4B] mb-4 flex items-center">
+            <span className="bg-orange-500 text-white w-7 h-7 rounded-full text-xs font-bold mr-3 flex items-center justify-center flex-shrink-0">4</span>
+            Select Base Type <span className="text-red-500 ml-1">*</span>
+          </Label>
+          {baseTypesLoading ? (
+            <div className="flex items-center py-3 text-orange-600 text-sm">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500 mr-2" />
+              Loading base types...
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {baseTypes.map(type => {
+                const isSelected = formData.baseType === type.name;
+                return (
+                  <button
+                    key={type.id}
+                    onClick={() => handleBaseTypeSelect(type)}
+                    className={`p-3 rounded-lg border-2 text-sm text-left transition-all duration-200 hover:shadow-sm ${
+                      isSelected
+                        ? "border-orange-500 bg-orange-500 text-white shadow-md"
+                        : "border-gray-200 bg-white hover:border-orange-400 text-gray-700"
+                    }`}
+                    data-testid={`base-type-${type.slug}`}
+                  >
+                    <span className="font-medium">{type.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── 5. Product Name ──────────────────────────────────────────────── */}
+      <div className="bg-gradient-to-br from-teal-50 to-cyan-50 p-5 rounded-xl border-2 border-teal-200">
+        <Label htmlFor="productName" className="text-base font-bold text-[#1A2B4B] mb-3 flex items-center">
+          <span className="bg-teal-600 text-white w-7 h-7 rounded-full text-xs font-bold mr-3 flex items-center justify-center flex-shrink-0">5</span>
+          Product Name <span className="text-red-500 ml-1">*</span>
+        </Label>
+        <Input
+          id="productName"
+          type="text"
+          placeholder='e.g., Premium Anti-Rust Metal Paint, Fast Drying Glass Cleaner'
+          value={formData.productName}
+          onChange={e => updateFormData({ productName: e.target.value })}
+          maxLength={80}
+          className="w-full h-12 border-2 border-teal-300 text-sm font-medium focus:border-teal-600 focus:ring-2 focus:ring-teal-200 bg-white rounded-lg"
+          data-testid="input-product-name"
+        />
+        <div className="flex justify-between items-center mt-2">
+          <p className="text-xs text-gray-500">Min 3 — Max 80 characters</p>
+          <p className={`text-xs font-medium ${formData.productName.length > 70 ? "text-orange-600" : "text-gray-400"}`}>
+            {formData.productName.length}/80
           </p>
+        </div>
+        {nameWarning && formData.productName.length >= 3 && (
+          <div className="mt-2 flex items-start space-x-2 bg-amber-50 border border-amber-200 rounded-lg p-2.5">
+            <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-amber-700">{nameWarning}</p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Ready Summary ────────────────────────────────────────────────── */}
+      {isComplete && (
+        <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl p-5 shadow-lg">
+          <div className="flex items-center mb-3">
+            <CheckCircle className="h-5 w-5 mr-2" />
+            <h4 className="font-bold text-base">Ready to continue!</h4>
+          </div>
+          <div className="grid grid-cols-2 gap-y-1.5 text-sm opacity-90">
+            <span>Category: <strong>{formData.category}</strong></span>
+            <span>Type: <strong>{formData.productType}</strong></span>
+            <span>Level: <strong>{formData.performanceLevel}</strong></span>
+            <span>Base: <strong>{formData.baseType}</strong></span>
+          </div>
+          <p className="mt-2 text-sm opacity-90">Product: <strong>{formData.productName}</strong></p>
         </div>
       )}
     </div>
