@@ -65,7 +65,9 @@ async function upsertUser(
     firstName: claims["first_name"],
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
-  });
+    loginProvider: "google",
+    lastLoginAt: new Date(),
+  } as any);
 }
 
 export async function setupAuth(app: Express) {

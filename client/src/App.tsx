@@ -28,6 +28,7 @@ import GeneratePage from "@/pages/generate";
 import ContactPage from "@/pages/contact";
 import SignupPage from "@/pages/signup";
 import LoginPage from "@/pages/login";
+import LoginEmailPage from "@/pages/login-email";
 import ForgotPasswordPage from "@/pages/forgot-password";
 import ResetPasswordPage from "@/pages/reset-password";
 import AdminDashboard from "@/pages/admin-dashboard";
@@ -50,6 +51,7 @@ function Router() {
       <Route path="/my-account" component={MyAccountPage} />
       <Route path="/signup" component={SignupPage} />
       <Route path="/login" component={LoginPage} />
+      <Route path="/login/email" component={LoginEmailPage} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
       <Route path="/reset-password" component={ResetPasswordPage} />
       <Route path="/about" component={About} />

@@ -222,6 +222,12 @@ async function createTables() {
       )
     `);
 
+    // Add new columns to users table if they don't exist yet
+    await db.execute(/* sql */ `
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS login_provider text DEFAULT 'email';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_at timestamp;
+    `);
+
     await db.execute(/* sql */ `
       CREATE TABLE IF NOT EXISTS api_usage_logs (
         id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

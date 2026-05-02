@@ -38,6 +38,8 @@ export const usersTable = pgTable("users", {
   country: text("country"),
   profileImageUrl: text("profile_image_url"),
   isAdmin: boolean("is_admin").notNull().default(false),
+  loginProvider: text("login_provider").default("email"),
+  lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

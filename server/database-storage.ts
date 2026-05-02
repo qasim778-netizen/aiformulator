@@ -488,11 +488,15 @@ export class DatabaseStorage implements IStorage {
           country: userData.country || null,
           profileImageUrl: userData.profileImageUrl || null,
           isAdmin: userData.isAdmin || false,
+          loginProvider: (userData as any).loginProvider || 'email',
+          lastLoginAt: (userData as any).lastLoginAt || null,
         })
         .onConflictDoUpdate({
           target: usersTable.id,
           set: {
             ...updateData,
+            loginProvider: (userData as any).loginProvider || 'email',
+            lastLoginAt: (userData as any).lastLoginAt || new Date(),
             updatedAt: new Date(),
           },
         })
@@ -1146,6 +1150,19 @@ export class DatabaseStorage implements IStorage {
       return products;
     } catch (error) {
       console.error("Failed to fetch sample products:", error);
+      return [];
+    }
+  }
+
+  async getSampleProductsAll(): Promise<SampleProduct[]> {
+    try {
+      const products = await db
+        .select()
+        .from(sampleProductsTable)
+        .orderBy(desc(sampleProductsTable.createdAt));
+      return products;
+    } catch (error) {
+      console.error("Failed to fetch all sample products:", error);
       return [];
     }
   }

@@ -1,12 +1,12 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { LogIn, UserPlus, Download } from "lucide-react";
+import { SiGoogle } from "react-icons/si";
+import { FlaskConical, Download, Star, Wand2 } from "lucide-react";
+import { useState } from "react";
 
 interface SignInDialogProps {
   open: boolean;
@@ -15,74 +15,94 @@ interface SignInDialogProps {
   description?: string;
 }
 
-export default function SignInDialog({ 
-  open, 
-  onOpenChange, 
-  title = "Sign In Required",
-  description = "Please sign in to download formulations and save your work."
+const PERKS = [
+  { icon: Download, text: "Download professional PDF formulations" },
+  { icon: Wand2,    text: "Save your AI-generated formulas" },
+  { icon: Star,     text: "Build your personal formula library" },
+  { icon: FlaskConical, text: "100% free — no credit card needed" },
+];
+
+export default function SignInDialog({
+  open,
+  onOpenChange,
+  title = "Sign In to Continue",
+  description = "Create a free account instantly using your Google account — no password needed.",
 }: SignInDialogProps) {
+  const [loading, setLoading] = useState(false);
+
   const handleSignIn = () => {
+    setLoading(true);
     window.location.href = "/api/login";
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center">
-            <LogIn className="h-5 w-5 mr-2 text-primary" />
-            {title}
-          </DialogTitle>
-          <DialogDescription>
-            {description}
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="space-y-4 py-4">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-medium text-blue-900 mb-3 flex items-center">
-              <Download className="h-4 w-4 mr-2" />
-              Unlock PDF Downloads
-            </h4>
-            <ul className="text-sm text-blue-800 space-y-2">
-              <li className="flex items-center">
-                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                Download professional PDF formulations
+      <DialogContent className="sm:max-w-sm p-0 overflow-hidden rounded-2xl border-0 shadow-2xl">
+
+        {/* Top accent strip */}
+        <div className="h-1.5 w-full bg-gradient-to-r from-teal-400 via-emerald-500 to-teal-600" />
+
+        <div className="px-7 py-6">
+          <DialogHeader className="mb-5">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center border border-teal-100">
+                <FlaskConical className="h-6 w-6 text-teal-600" />
+              </div>
+            </div>
+            <DialogTitle className="text-xl font-bold text-gray-900 text-center leading-tight">
+              {title}
+            </DialogTitle>
+            <p className="text-sm text-gray-500 text-center leading-relaxed mt-1">
+              {description}
+            </p>
+          </DialogHeader>
+
+          {/* Perks */}
+          <ul className="space-y-2.5 mb-6">
+            {PERKS.map(({ icon: Icon, text }) => (
+              <li key={text} className="flex items-center gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                  <Icon className="h-3 w-3 text-emerald-600" />
+                </div>
+                <span className="text-sm text-gray-600">{text}</span>
               </li>
-              <li className="flex items-center">
-                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                Save your custom formulations
-              </li>
-              <li className="flex items-center">
-                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                Get personalized recommendations
-              </li>
-              <li className="flex items-center">
-                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                <strong>100% Free Account</strong>
-              </li>
-            </ul>
-          </div>
-          
-          <div className="flex flex-col space-y-3">
-            <Button 
-              onClick={handleSignIn}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-3 text-base shadow-lg"
-              data-testid="button-signin"
-            >
-              <LogIn className="h-5 w-5 mr-2" />
-              Continue with Replit Account
-            </Button>
-            
-            <Button 
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="w-full"
-              data-testid="button-cancel-signin"
-            >
-              Cancel
-            </Button>
-          </div>
+            ))}
+          </ul>
+
+          {/* Google sign-in button */}
+          <button
+            onClick={handleSignIn}
+            disabled={loading}
+            data-testid="button-signin"
+            className="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 rounded-xl px-5 py-3 text-sm font-semibold text-gray-700 shadow-sm hover:shadow-md hover:border-gray-300 hover:bg-gray-50 active:scale-[0.98] transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <svg className="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <SiGoogle className="h-4 w-4 text-[#4285F4]" />
+            )}
+            {loading ? "Redirecting…" : "Continue with Google"}
+          </button>
+
+          <p className="text-center text-xs text-gray-400 mt-3">
+            No password required · Instant access
+          </p>
+
+          {/* Cancel */}
+          <button
+            onClick={() => onOpenChange(false)}
+            data-testid="button-cancel-signin"
+            className="w-full mt-3 py-2 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            Maybe later
+          </button>
+
+          <p className="text-center text-[11px] text-gray-300 mt-4 leading-relaxed">
+            By continuing, you agree to our Terms and Privacy Policy
+          </p>
         </div>
       </DialogContent>
     </Dialog>
