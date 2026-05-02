@@ -81,8 +81,13 @@ async function getSendGridClient() {
 }
 
 // Session-based authentication middleware
+// Returns the userId from either Replit OAuth (req.user) or email/password session (req.session.userId)
+const getUserId = (req: any): string | undefined => {
+  return req.session?.userId || req.user?.claims?.sub || req.user?.id;
+};
+
 const requireAuth = (req: any, res: any, next: any) => {
-  if (!req.session.userId) {
+  if (!getUserId(req)) {
     return res.status(401).json({ message: "Unauthorized - Please log in" });
   }
   next();
@@ -331,7 +336,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
   // Auth routes
   app.get('/api/auth/user', async (req: any, res) => {
     try {
-      const userId = req.session?.userId;
+      const userId = getUserId(req);
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
@@ -351,7 +356,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
   // User downloads tracking
   app.post('/api/user/downloads', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.session.userId;
+      const userId = getUserId(req);
       const { formulationId, formulationName, categoryName } = req.body;
       
       if (!formulationId || !formulationName || !categoryName) {
@@ -368,7 +373,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
 
   app.get('/api/user/downloads', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.session.userId;
+      const userId = getUserId(req);
       console.log(`📥 Fetching downloads for user: ${userId}`);
       const downloads = await storage.getUserDownloads(userId);
       console.log(`📥 Found ${downloads.length} downloads for user ${userId}`);
@@ -382,7 +387,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
   // User favorites management
   app.post('/api/user/favorites', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.session.userId;
+      const userId = getUserId(req);
       const { formulationId } = req.body;
       
       if (!formulationId) {
@@ -399,7 +404,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
 
   app.delete('/api/user/favorites/:formulationId', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.session.userId;
+      const userId = getUserId(req);
       const { formulationId } = req.params;
       
       await storage.removeFavorite(userId, formulationId);
@@ -412,7 +417,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
 
   app.get('/api/user/favorites', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.session.userId;
+      const userId = getUserId(req);
       const favorites = await storage.getUserFavorites(userId);
       res.json(favorites);
     } catch (error) {
@@ -423,7 +428,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
 
   app.get('/api/user/generated', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.session.userId;
+      const userId = getUserId(req);
       const generated = await storage.getUserGeneratedFormulations(userId);
       res.json(generated);
     } catch (error) {
@@ -2697,8 +2702,8 @@ Allow: /disclaimer`;
         return res.status(404).json({ message: "Formulation not found" });
       }
 
-      // Get userId from session
-      const userId = req.session.userId;
+      // Get userId from session or OAuth
+      const userId = getUserId(req);
 
       // Get category name for tracking
       const category = formulation.categoryId ? await storage.getCategory(formulation.categoryId) : null;
