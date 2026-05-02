@@ -7,7 +7,7 @@ import {
   UserCheck, BarChart2, ShieldCheck, Settings as SettingsIcon,
   Plus, Edit, Trash2, User, CheckCircle, PauseCircle,
   LogOut, Image, Eye, ChevronDown, Bell, Search, Menu, ChevronLeft,
-  ArrowUpRight
+  ArrowUpRight, Download, Heart, Wand2
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -176,6 +176,18 @@ export default function AdminPage() {
     draftFormulations: formulationsData?.filter(f => f.isActive === false).length || 0,
   };
 
+  const { data: adminUsers } = useQuery<any[]>({ queryKey: ["/api/admin/users"], queryFn: async () => { const r = await fetch("/api/admin/users"); return r.ok ? r.json() : []; }, staleTime: 60000 });
+  const { data: adminDownloads } = useQuery<any[]>({ queryKey: ["/api/admin/downloads"], queryFn: async () => { const r = await fetch("/api/admin/downloads"); return r.ok ? r.json() : []; }, staleTime: 60000 });
+  const { data: adminFavorites } = useQuery<any[]>({ queryKey: ["/api/admin/favorites"], queryFn: async () => { const r = await fetch("/api/admin/favorites"); return r.ok ? r.json() : []; }, staleTime: 60000 });
+  const { data: adminGenerated } = useQuery<any[]>({ queryKey: ["/api/admin/user-formulations"], queryFn: async () => { const r = await fetch("/api/admin/user-formulations"); return r.ok ? r.json() : []; }, staleTime: 60000 });
+
+  const platformStats = [
+    { label: "Users",     count: adminUsers?.length     ?? 0, icon: Users,    color: "text-blue-600",   bg: "bg-blue-50" },
+    { label: "Downloads", count: adminDownloads?.length ?? 0, icon: Download,  color: "text-emerald-600", bg: "bg-emerald-50" },
+    { label: "Favourites",count: adminFavorites?.length ?? 0, icon: Heart,     color: "text-pink-600",   bg: "bg-pink-50" },
+    { label: "Generated", count: adminGenerated?.length ?? 0, icon: Wand2,     color: "text-purple-600", bg: "bg-purple-50" },
+  ];
+
   const deleteCategory = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/categories/${id}`),
     onSuccess: () => {
@@ -251,6 +263,30 @@ export default function AdminPage() {
             </div>
           )}
         </div>
+
+        {/* ── Platform stats strip ────────────────────────────────────────── */}
+        {!collapsed && (
+          <div className="px-3 py-3 border-b border-gray-100">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2 px-1">Platform Activity</p>
+            <div className="grid grid-cols-2 gap-1.5">
+              {platformStats.map(({ label, count, icon: Icon, color, bg }) => (
+                <button
+                  key={label}
+                  onClick={() => setActiveTab("user-requests")}
+                  className="flex items-center gap-2 rounded-lg p-2 hover:bg-gray-50 transition-colors text-left group"
+                >
+                  <div className={`w-7 h-7 rounded-lg ${bg} flex items-center justify-center flex-shrink-0`}>
+                    <Icon className={`h-3.5 w-3.5 ${color}`} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-gray-900 leading-tight">{count}</p>
+                    <p className="text-[10px] text-gray-500 leading-tight truncate">{label}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5">
