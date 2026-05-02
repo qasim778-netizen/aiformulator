@@ -1,24 +1,28 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, Plus, Edit, Trash2, User, Ungroup, FlaskConical, CheckCircle, PauseCircle, Package, LogOut, Image, Eye, ChevronDown } from "lucide-react";
+import {
+  LayoutDashboard, FolderOpen, Package, Layers, Tag, FlaskConical,
+  Zap, Sparkles, Users, TestTube2, FileText, BookOpen, FileEdit,
+  UserCheck, BarChart2, ShieldCheck, Settings as SettingsIcon,
+  Plus, Edit, Trash2, User, Ungroup, CheckCircle, PauseCircle,
+  LogOut, Image, Eye, ChevronDown, Bell, Search, Menu, ChevronLeft,
+  ArrowUpRight, TrendingUp, Activity
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { HelpButton } from "@/components/ui/help-button";
-import { useGuidance } from "@/hooks/use-guidance";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import CategoryForm from "@/components/admin/category-form";
 import FormulationForm from "@/components/admin/formulation-form";
 import BulkGenerationForm from "@/components/admin/bulk-generation-form";
 import BulkFormulationGenerator from "@/components/admin/bulk-formulation-generator";
-import FormulaKeywordGenerator from "@/components/admin/formula-keyword-generator";
 import LogoSettings from "@/components/admin/logo-settings";
 import ContentManagementTab from "@/components/admin/content-management-tab";
 import AICategorySuggestions from "@/components/admin/ai-category-suggestions";
@@ -27,18 +31,46 @@ import FormulationContentManagementTab from "@/components/admin/formulation-cont
 import GeneratedFormulasTab from "@/components/admin/generated-formulas-tab";
 import BlogManagementTab from "@/components/admin/blog-management-tab";
 import FormulatorManagementTab from "@/components/admin/formulator-management-tab";
+import AdminDashboard from "@/pages/admin-dashboard";
 import type { Category, Formulation } from "@shared/schema";
 
+type NavId =
+  | "overview" | "categories" | "product-types" | "base-types" | "feature-chips"
+  | "formulations" | "bulk-formulations" | "generated-formulas" | "user-requests"
+  | "test-formulation" | "prompt-templates" | "blog" | "formulation-content"
+  | "formulators" | "openai-usage" | "safety-validation" | "settings";
+
+interface NavItem {
+  id: NavId;
+  label: string;
+  icon: React.ElementType;
+  badge?: number;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { id: "overview",            label: "Overview",               icon: LayoutDashboard },
+  { id: "categories",          label: "Category Management",    icon: FolderOpen },
+  { id: "product-types",       label: "Product Type Mgmt",      icon: Package },
+  { id: "base-types",          label: "Base Type Management",   icon: Layers },
+  { id: "feature-chips",       label: "Feature Chips",          icon: Tag },
+  { id: "formulations",        label: "Formula Management",     icon: FlaskConical },
+  { id: "bulk-formulations",   label: "Bulk Formulations",      icon: Zap },
+  { id: "generated-formulas",  label: "Generated Formulas",     icon: Sparkles },
+  { id: "user-requests",       label: "User Requests",          icon: Users },
+  { id: "test-formulation",    label: "Test AI System",         icon: TestTube2 },
+  { id: "prompt-templates",    label: "Prompt Templates",       icon: FileText },
+  { id: "blog",                label: "Blog Management",        icon: BookOpen },
+  { id: "formulation-content", label: "Page Content",           icon: FileEdit },
+  { id: "formulators",         label: "Expert Cards",           icon: UserCheck },
+  { id: "openai-usage",        label: "OpenAI Usage",           icon: BarChart2 },
+  { id: "safety-validation",   label: "Safety & Validation",    icon: ShieldCheck },
+  { id: "settings",            label: "Settings",               icon: SettingsIcon },
+];
+
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState<NavId>("overview");
+  const [collapsed, setCollapsed] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  
-  // Reset page to 1 when category changes
-  const handleCategoryChange = (value: string) => {
-    setSelectedCategory(value);
-    setFormulationsPage(1);
-  };
-  const [currentPage, setCurrentPage] = useState(1);
   const [categoriesPage, setCategoriesPage] = useState(1);
   const [formulationsPage, setFormulationsPage] = useState(1);
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
@@ -49,65 +81,32 @@ export default function AdminPage() {
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const { toast } = useToast();
-  const { startGuidance, isCompleted } = useGuidance();
   const { isAuthenticated, isLoading, user } = useAuth();
 
-  // Redirect to login if not authenticated or not admin
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    setFormulationsPage(1);
+  };
+
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You need to log in to access the admin dashboard. Redirecting...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 1000);
-      return;
+      toast({ title: "Unauthorized", description: "Redirecting to login…", variant: "destructive" });
+      setTimeout(() => { window.location.href = "/api/login"; }, 1000);
     }
-    
     if (!isLoading && isAuthenticated && user && !user.isAdmin) {
-      toast({
-        title: "Access Denied",
-        description: "You don't have admin privileges to access this page.",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 1000);
-      return;
+      toast({ title: "Access Denied", description: "Admin privileges required.", variant: "destructive" });
+      setTimeout(() => { window.location.href = "/"; }, 1000);
     }
   }, [isAuthenticated, isLoading, user, toast]);
 
-  // Auto-start guidance for first-time users
-  useEffect(() => {
-    if (!isCompleted("admin-overview")) {
-      const timer = setTimeout(() => {
-        startGuidance("admin-overview");
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [startGuidance, isCompleted]);
+  const { data: categories = [] } = useQuery<Category[]>({ queryKey: ["/api/categories"] });
 
-  // Fetch categories from database
-  const { data: categories = [] } = useQuery<Category[]>({
-    queryKey: ["/api/categories"],
-  });
-
-  // Paginate the database categories locally
   const itemsPerPage = 10;
-  const totalPages = Math.ceil((categories?.length || 0) / itemsPerPage);
-  const startIndex = (categoriesPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  
+  const totalCatPages = Math.ceil((categories?.length || 0) / itemsPerPage);
+  const catStart = (categoriesPage - 1) * itemsPerPage;
   const categoriesPaginated = {
-    data: categories?.slice(startIndex, endIndex) || [],
-    pagination: {
-      currentPage: categoriesPage,
-      totalPages: totalPages,
-      totalItems: categories?.length || 0,
-      itemsPerPage: itemsPerPage
-    }
+    data: categories?.slice(catStart, catStart + itemsPerPage) || [],
+    pagination: { currentPage: categoriesPage, totalPages: totalCatPages, totalItems: categories?.length || 0, itemsPerPage },
   };
 
   const { data: formulationsPaginated } = useQuery<{
@@ -116,20 +115,15 @@ export default function AdminPage() {
   }>({
     queryKey: ["/api/admin/formulations", formulationsPage, selectedCategory],
     queryFn: async () => {
-      const categoryParam = selectedCategory !== "all" ? `&categoryId=${selectedCategory}` : "";
-      const response = await fetch(`/api/admin/formulations?page=${formulationsPage}&limit=10${categoryParam}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch formulations');
-      }
-      return response.json();
+      const cat = selectedCategory !== "all" ? `&categoryId=${selectedCategory}` : "";
+      const r = await fetch(`/api/admin/formulations?page=${formulationsPage}&limit=10${cat}`);
+      if (!r.ok) throw new Error("Failed to fetch formulations");
+      return r.json();
     },
   });
 
-  const { data: formulationsData } = useQuery<Formulation[]>({
-    queryKey: ["/api/formulations"],
-  });
+  const { data: formulationsData } = useQuery<Formulation[]>({ queryKey: ["/api/formulations"] });
 
-  // Calculate stats based on database categories
   const stats = {
     totalCategories: categories?.length || 0,
     totalFormulations: formulationsData?.length || 0,
@@ -137,996 +131,771 @@ export default function AdminPage() {
     draftFormulations: formulationsData?.filter(f => f.isActive === false).length || 0,
   };
 
-  // Check if category has formulations
-  const checkCategoryFormulations = async (categoryId: string) => {
-    try {
-      const response = await fetch(`/api/formulations?categoryId=${categoryId}&limit=1`);
-      if (!response.ok) throw new Error('Failed to check formulations');
-      const data = await response.json();
-      return data.length > 0;
-    } catch {
-      return false;
-    }
-  };
-
   const deleteCategory = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/categories/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
       setDeleteConfirmOpen(false);
       setDeletingCategory(null);
-      toast({
-        title: "Success",
-        description: "Category deleted successfully",
-      });
+      toast({ title: "Category deleted successfully" });
     },
     onError: (error: any) => {
       setDeleteConfirmOpen(false);
       setDeletingCategory(null);
-      toast({ 
-        title: "Delete failed", 
-        description: error?.message || "Failed to delete category",
-        variant: "destructive" 
-      });
+      toast({ title: "Delete failed", description: error?.message || "Failed to delete category", variant: "destructive" });
     },
   });
-
-  const handleDeleteCategory = async (category: Category) => {
-    const hasFormulations = await checkCategoryFormulations(category.id);
-    
-    if (hasFormulations) {
-      toast({
-        title: "Cannot Delete Category",
-        description: "This category contains formulations. Please remove or move all formulations before deleting the category.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setDeletingCategory(category);
-    setDeleteConfirmOpen(true);
-  };
-
-  const confirmDeleteCategory = () => {
-    if (deletingCategory) {
-      deleteCategory.mutate(deletingCategory.id);
-    }
-  };
 
   const deleteFormulation = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/formulations/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/formulations"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/formulations-paginated"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/formulations"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/formulations-all"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       toast({ title: "Formulation deleted successfully" });
     },
-    onError: () => {
-      toast({ title: "Failed to delete formulation", variant: "destructive" });
-    },
+    onError: () => toast({ title: "Failed to delete formulation", variant: "destructive" }),
   });
 
   const updateFormulationStatus = useMutation({
-    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => 
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
       apiRequest("PATCH", `/api/admin/formulations/${id}/status`, { isActive }),
     onSuccess: (_, { isActive }) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/formulations"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/formulations-all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
-      toast({ 
-        title: isActive ? "Formulation Approved" : "Formulation Deactivated", 
-        description: isActive 
-          ? "The formulation is now live and visible to users"
-          : "The formulation has been deactivated"
-      });
+      toast({ title: isActive ? "Formulation Approved" : "Formulation Deactivated" });
     },
-    onError: () => {
-      toast({ 
-        title: "Failed to update formulation status", 
-        variant: "destructive" 
-      });
-    },
+    onError: () => toast({ title: "Failed to update status", variant: "destructive" }),
   });
 
-  const getCategoryName = (categoryId: string): string => {
-    // Find category by ID (database categories now use direct ID matching)
-    const category = categories?.find(cat => cat.id === categoryId);
-    return category?.name || "Unknown Category";
-  };
+  const getCategoryName = (id: string) =>
+    categories?.find(c => c.id === id)?.name || "Unknown";
 
-  // Handle logout
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
-  };
+  const handleLogout = () => { window.location.href = "/api/logout"; };
 
-  // Loading state
+  const activeNavItem = NAV_ITEMS.find(n => n.id === activeTab);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600" />
       </div>
     );
   }
 
-  // Not authenticated
-  if (!isAuthenticated) {
-    return null; // Will be redirected by useEffect
-  }
+  if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/">
-                <Button variant="ghost" className="text-primary hover:text-blue-700 mr-4">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Site
-                </Button>
-              </Link>
-              <h1 className="text-xl font-inter font-bold text-gray-900">Admin Dashboard</h1>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center text-sm text-gray-600">
-                <User className="h-4 w-4 mr-2" />
-                {user?.email || 'Admin User'}
-              </div>
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="default" className="bg-blue-600 hover:bg-blue-700 text-white">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Quick Actions
-                    <ChevronDown className="h-4 w-4 ml-2" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem onClick={() => { setActiveTab("formulations"); setFormulationDialogOpen(true); }} data-testid="dropdown-create-formulation">
-                    <FlaskConical className="h-4 w-4 mr-2" />
-                    <span>1. Create Formulation</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => { setActiveTab("bulk-formulations"); setBulkGenerationDialogOpen(true); }} data-testid="dropdown-create-bulk">
-                    <Ungroup className="h-4 w-4 mr-2" />
-                    <span>2. Bulk Formulation</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/admin/products" data-testid="dropdown-sample-products">
-                      <Package className="h-4 w-4 mr-2" />
-                      <span>Add Sample Product</span>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
 
-              <Button variant="outline" onClick={handleLogout} className="text-gray-600 hover:text-gray-800" data-testid="button-logout">
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
+      {/* ── Sidebar ────────────────────────────────────────────────────────── */}
+      <aside
+        className={`bg-white border-r border-gray-200 flex flex-col transition-all duration-200 ${
+          collapsed ? "w-[68px]" : "w-64"
+        } flex-shrink-0`}
+      >
+        {/* Brand */}
+        <div className={`flex items-center gap-3 px-4 py-5 border-b border-gray-100 ${collapsed ? "justify-center px-0" : ""}`}>
+          <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center flex-shrink-0">
+            <FlaskConical className="h-5 w-5 text-white" />
+          </div>
+          {!collapsed && (
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-gray-900 leading-tight truncate">AIFormulator</p>
+              <p className="text-[11px] text-emerald-600 font-medium">Admin</p>
+            </div>
+          )}
+        </div>
+
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
+          {NAV_ITEMS.map(item => {
+            const Icon = item.icon;
+            const active = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                title={collapsed ? item.label : undefined}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group ${
+                  active
+                    ? "bg-emerald-50 text-emerald-700"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                } ${collapsed ? "justify-center" : ""}`}
+              >
+                <Icon className={`h-[18px] w-[18px] flex-shrink-0 ${active ? "text-emerald-600" : "text-gray-400 group-hover:text-gray-600"}`} />
+                {!collapsed && <span className="truncate">{item.label}</span>}
+                {!collapsed && item.badge ? (
+                  <span className="ml-auto bg-emerald-100 text-emerald-700 text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                    {item.badge}
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Collapse toggle */}
+        <div className="border-t border-gray-100 p-3">
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors ${collapsed ? "justify-center" : ""}`}
+          >
+            <ChevronLeft className={`h-4 w-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />
+            {!collapsed && <span>Collapse</span>}
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Main Area ──────────────────────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        {/* Top bar */}
+        <header className="bg-white border-b border-gray-200 h-16 flex items-center px-6 gap-4 flex-shrink-0">
+          <button onClick={() => setCollapsed(!collapsed)} className="text-gray-400 hover:text-gray-700 transition-colors lg:hidden">
+            <Menu className="h-5 w-5" />
+          </button>
+
+          <div className="flex items-center gap-2">
+            <Link href="/">
+              <button className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors">
+                <ArrowUpRight className="h-3.5 w-3.5" />
+                Back to Site
+              </button>
+            </Link>
+            <span className="text-gray-300">/</span>
+            <h1 className="text-sm font-semibold text-gray-900">
+              {activeNavItem?.label || "Admin Dashboard"}
+            </h1>
+          </div>
+
+          <div className="flex-1 max-w-sm ml-4 hidden md:flex">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input className="pl-9 h-9 bg-gray-50 border-gray-200 text-sm" placeholder="Search formulations..." />
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* Navigation Tabs */}
-        <div className="border-b border-gray-200 mb-8">
-          <nav className="-mb-px flex space-x-8">
-            <button
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${ 
-                activeTab === "overview" 
-                  ? "border-primary text-primary" 
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab("overview")}
-              data-testid="admin-overview-tab"
-            >
-              Overview
+          <div className="ml-auto flex items-center gap-3">
+            <button className="relative p-1.5 text-gray-400 hover:text-gray-700 transition-colors">
+              <Bell className="h-5 w-5" />
             </button>
-            <button
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === "categories"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab("categories")}
-              data-testid="admin-categories-tab"
-            >
-              Categories
-            </button>
-            <button
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === "formulations"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab("formulations")}
-              data-testid="admin-formulations-tab"
-            >
-              Formulations
-            </button>
-            <button
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === "bulk-formulations"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab("bulk-formulations")}
-              data-testid="admin-bulk-formulations-tab"
-            >
-              Bulk Formulations
-            </button>
-            <button
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === "settings"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab("settings")}
-              data-testid="admin-settings-tab"
-            >
-              Settings
-            </button>
-            <button
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === "content"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab("content")}
-              data-testid="admin-content-tab"
-            >
-              Content
-            </button>
-            <button
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === "blog"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab("blog")}
-              data-testid="admin-blog-tab"
-            >
-              Blog
-            </button>
-            <button
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === "formulation-content"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab("formulation-content")}
-              data-testid="admin-formulation-content-tab"
-            >
-              Page Content
-            </button>
-            <button
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === "test-formulation"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab("test-formulation")}
-              data-testid="admin-test-formulation-tab"
-            >
-              🧪 Test AI System
-            </button>
-            <button
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === "generated-formulas"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab("generated-formulas")}
-              data-testid="admin-generated-formulas-tab"
-            >
-              Generated Formulas
-            </button>
-            <button
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === "formulators"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab("formulators")}
-              data-testid="admin-formulators-tab"
-            >
-              Expert Cards
-            </button>
-          </nav>
-        </div>
 
-        {/* Overview Tab */}
-        {activeTab === "overview" && (
-          <div className="space-y-6">
-            {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="bg-white rounded-lg shadow-md">
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-                      <Ungroup className="text-white text-xl h-6 w-6" />
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-inter font-semibold text-gray-900">{stats?.totalCategories || 0}</h3>
-                      <p className="text-sm text-gray-600">Total Categories</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-white rounded-lg shadow-md">
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-                      <FlaskConical className="text-white text-xl h-6 w-6" />
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-inter font-semibold text-gray-900">{stats?.totalFormulations || 0}</h3>
-                      <p className="text-sm text-gray-600">Total Formulations</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-white rounded-lg shadow-md">
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                      <CheckCircle className="text-white text-xl h-6 w-6" />
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-inter font-semibold text-gray-900">{stats?.activeFormulations || 0}</h3>
-                      <p className="text-sm text-gray-600">Active Formulations</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-white rounded-lg shadow-md">
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center">
-                      <PauseCircle className="text-white text-xl h-6 w-6" />
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-inter font-semibold text-gray-900">{stats?.draftFormulations || 0}</h3>
-                      <p className="text-sm text-gray-600">Draft Formulations</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                <User className="h-4 w-4 text-emerald-700" />
+              </div>
+              <div className="hidden sm:block text-right">
+                <p className="text-xs font-semibold text-gray-800 leading-tight">{user?.email?.split("@")[0] || "Admin"}</p>
+                <p className="text-[10px] text-emerald-600 font-medium">Super Admin</p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Quick Actions */}
-              <Card className="bg-white rounded-lg shadow-md">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                  <div className="space-y-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white h-8 px-3 gap-1.5 text-xs">
+                  Quick Actions
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuItem onClick={() => { setActiveTab("formulations"); setFormulationDialogOpen(true); }}>
+                  <FlaskConical className="h-4 w-4 mr-2 text-emerald-600" />
+                  Create Formulation
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { setActiveTab("bulk-formulations"); setBulkGenerationDialogOpen(true); }}>
+                  <Zap className="h-4 w-4 mr-2 text-yellow-500" />
+                  Bulk Formulation
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/products">
+                    <Package className="h-4 w-4 mr-2 text-blue-500" />
+                    Add Sample Product
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="h-8 px-2 text-gray-500 hover:text-gray-800">
+              <LogOut className="h-4 w-4 mr-1" />
+              <span className="text-xs hidden sm:inline">Logout</span>
+            </Button>
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto p-6">
+
+          {/* ── OVERVIEW ──────────────────────────────────────────────────── */}
+          {activeTab === "overview" && (
+            <div className="space-y-6">
+              {/* Stats grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  { label: "Total Categories",     value: stats.totalCategories,    color: "bg-emerald-500", icon: FolderOpen,   trend: null },
+                  { label: "Total Formulations",   value: stats.totalFormulations,  color: "bg-green-500",   icon: FlaskConical, trend: null },
+                  { label: "Active Formulations",  value: stats.activeFormulations, color: "bg-blue-500",    icon: CheckCircle,  trend: null },
+                  { label: "Draft Formulations",   value: stats.draftFormulations,  color: "bg-amber-500",   icon: PauseCircle,  trend: null },
+                ].map(s => {
+                  const Icon = s.icon;
+                  return (
+                    <Card key={s.label} className="bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                      <CardContent className="p-5">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-2xl font-bold text-gray-900">{s.value}</p>
+                            <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
+                          </div>
+                          <div className={`w-11 h-11 ${s.color} rounded-xl flex items-center justify-center`}>
+                            <Icon className="h-5 w-5 text-white" />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Quick Actions */}
+                <Card className="bg-white border border-gray-100 shadow-sm">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-base font-semibold text-gray-900">Quick Actions</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
                     <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
                       <DialogTrigger asChild>
-                        <Button className="w-full justify-start" data-testid="button-add-category">
+                        <Button className="w-full justify-start bg-emerald-600 hover:bg-emerald-700 h-10" data-testid="button-add-category">
                           <Plus className="h-4 w-4 mr-2" />
                           Add New Category
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="max-w-2xl">
                         <DialogHeader>
-                          <DialogTitle>Create New Category</DialogTitle>
-                          <DialogDescription>
-                            Add a new category to organize your formulations
-                          </DialogDescription>
+                          <DialogTitle>{editingCategory ? "Edit Category" : "Create New Category"}</DialogTitle>
+                          <DialogDescription>Manage category details and images</DialogDescription>
                         </DialogHeader>
-                        <div className="p-6 text-center">
-                          <p className="text-gray-600 mb-4">Formulation categories are system-defined and cannot be added.</p>
-                          <p className="text-sm text-gray-500">The 22 formulation categories provide comprehensive coverage for all chemical formulation types.</p>
-                        </div>
+                        <CategoryForm category={editingCategory} onSuccess={() => { setCategoryDialogOpen(false); setEditingCategory(null); }} />
                       </DialogContent>
                     </Dialog>
 
                     <Dialog open={formulationDialogOpen} onOpenChange={setFormulationDialogOpen}>
                       <DialogTrigger asChild>
-                        <Button variant="outline" className="w-full justify-start" data-testid="button-add-formulation">
+                        <Button variant="outline" className="w-full justify-start h-10 border-gray-200" data-testid="button-add-formulation">
                           <Plus className="h-4 w-4 mr-2" />
                           Add New Formulation
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
-                          <DialogTitle>Create New Formulation</DialogTitle>
-                          <DialogDescription>
-                            Add a new formulation with ingredients and instructions
-                          </DialogDescription>
+                          <DialogTitle>{editingFormulation ? "Edit Formulation" : "Create New Formulation"}</DialogTitle>
+                          <DialogDescription>Add ingredients, instructions, and specifications</DialogDescription>
                         </DialogHeader>
-                        <FormulationForm 
-                          categories={categories || []} 
-                          onSuccess={() => setFormulationDialogOpen(false)} 
-                        />
+                        <FormulationForm categories={categories || []} onSuccess={() => setFormulationDialogOpen(false)} />
                       </DialogContent>
                     </Dialog>
 
                     <Dialog open={bulkGenerationDialogOpen} onOpenChange={setBulkGenerationDialogOpen}>
                       <DialogTrigger asChild>
-                        <Button variant="secondary" className="w-full justify-start" data-testid="button-bulk-generation">
-                          <Package className="h-4 w-4 mr-2" />
+                        <Button variant="secondary" className="w-full justify-start h-10 bg-gray-900 hover:bg-gray-800 text-white" data-testid="button-bulk-generation">
+                          <Zap className="h-4 w-4 mr-2" />
                           Bulk Category Generation
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="max-w-4xl">
                         <DialogHeader>
                           <DialogTitle>AI Bulk Category Generation</DialogTitle>
-                          <DialogDescription>
-                            Generate multiple categories at once using AI
-                          </DialogDescription>
+                          <DialogDescription>Generate multiple categories at once using AI</DialogDescription>
                         </DialogHeader>
                         <BulkGenerationForm onSuccess={() => setBulkGenerationDialogOpen(false)} />
                       </DialogContent>
                     </Dialog>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              {/* Recent Activity */}
-              <Card className="bg-white rounded-lg shadow-md">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-inter font-semibold text-gray-900 mb-4">Recent Categories</h3>
-                  {categories && categories.length > 0 ? (
-                    <div className="space-y-2">
-                      {categories.slice(0, 5).map((category) => (
-                        <div key={category.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
-                          <span className="text-sm text-gray-700">{category.name}</span>
-                          <Badge variant="outline">Active</Badge>
-                        </div>
-                      ))}
+                {/* Recent Categories */}
+                <Card className="bg-white border border-gray-100 shadow-sm">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base font-semibold text-gray-900">Recent Categories</CardTitle>
+                      <button
+                        onClick={() => setActiveTab("categories")}
+                        className="text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                      >
+                        View all
+                      </button>
                     </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500">No categories yet. Start by creating your first category!</p>
+                  </CardHeader>
+                  <CardContent>
+                    {categories?.length > 0 ? (
+                      <div className="divide-y divide-gray-50">
+                        {categories.slice(0, 5).map(cat => (
+                          <div key={cat.id} className="flex items-center justify-between py-2.5">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+                                <span className="text-xs font-semibold text-emerald-700">{cat.name.charAt(0)}</span>
+                              </div>
+                              <span className="text-sm text-gray-700 truncate max-w-[200px]">{cat.name}</span>
+                            </div>
+                            <Badge className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-100 border font-medium">
+                              Active
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-400 text-center py-6">No categories yet</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Quick nav cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {[
+                  { id: "formulations" as NavId,        label: "Manage Formulas",   icon: FlaskConical, color: "text-emerald-600 bg-emerald-50" },
+                  { id: "bulk-formulations" as NavId,   label: "Bulk Generate",     icon: Zap,          color: "text-yellow-600 bg-yellow-50" },
+                  { id: "generated-formulas" as NavId,  label: "AI Cache",          icon: Sparkles,     color: "text-purple-600 bg-purple-50" },
+                  { id: "blog" as NavId,                label: "Blog Posts",        icon: BookOpen,     color: "text-blue-600 bg-blue-50" },
+                  { id: "user-requests" as NavId,       label: "User Activity",     icon: Users,        color: "text-indigo-600 bg-indigo-50" },
+                  { id: "test-formulation" as NavId,    label: "Test AI",           icon: TestTube2,    color: "text-rose-600 bg-rose-50" },
+                  { id: "settings" as NavId,            label: "Settings",          icon: SettingsIcon, color: "text-gray-600 bg-gray-100" },
+                  { id: "safety-validation" as NavId,   label: "Safety Check",      icon: ShieldCheck,  color: "text-teal-600 bg-teal-50" },
+                ].map(item => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id)}
+                      className="bg-white border border-gray-100 rounded-xl p-4 hover:shadow-md transition-all text-left group"
+                    >
+                      <div className={`w-9 h-9 rounded-lg ${item.color} flex items-center justify-center mb-3`}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <p className="text-xs font-semibold text-gray-700 group-hover:text-gray-900">{item.label}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ── CATEGORY MANAGEMENT ──────────────────────────────────────── */}
+          {activeTab === "categories" && (
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">Category Management</h2>
+                  <p className="text-sm text-gray-500 mt-0.5">Manage product categories and their properties</p>
+                </div>
+                <div className="flex gap-2">
+                  <AICategorySuggestions />
+                  <Dialog open={categoryDialogOpen} onOpenChange={open => { setCategoryDialogOpen(open); if (!open) setEditingCategory(null); }}>
+                    <DialogTrigger asChild>
+                      <Button className="bg-emerald-600 hover:bg-emerald-700" data-testid="button-add-category-main">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Category
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>{editingCategory ? "Edit Category" : "Create Category"}</DialogTitle>
+                        <DialogDescription>{editingCategory ? "Update category details" : "Add a new formulation category"}</DialogDescription>
+                      </DialogHeader>
+                      <CategoryForm category={editingCategory} onSuccess={() => { setCategoryDialogOpen(false); setEditingCategory(null); }} />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
+
+              <Card className="border-gray-100 shadow-sm">
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-100">
+                      <thead>
+                        <tr className="bg-gray-50">
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</th>
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-50">
+                        {categoriesPaginated.data.map(cat => (
+                          <tr key={cat.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                                  <span className="text-sm font-bold text-emerald-700">{cat.name.charAt(0)}</span>
+                                </div>
+                                <span className="text-sm font-medium text-gray-900">{cat.name}</span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-500 max-w-xs">
+                              <span className="line-clamp-1">{cat.description}</span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-1">
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-blue-600"
+                                  onClick={() => { setEditingCategory(cat); setCategoryDialogOpen(true); }}
+                                  data-testid={`button-edit-category-${cat.id}`}>
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"
+                                  onClick={() => { setDeletingCategory(cat); setDeleteConfirmOpen(true); }}
+                                  data-testid={`button-delete-category-${cat.id}`}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600"
+                                  data-testid={`button-upload-image-${cat.id}`}>
+                                  <Image className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {categoriesPaginated.pagination.totalPages > 1 && (
+                    <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100">
+                      <span className="text-xs text-gray-500">
+                        Showing {catStart + 1}–{Math.min(catStart + itemsPerPage, categories.length)} of {categories.length}
+                      </span>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => setCategoriesPage(p => Math.max(p - 1, 1))} disabled={categoriesPage === 1}>Previous</Button>
+                        <Button variant="outline" size="sm" onClick={() => setCategoriesPage(p => Math.min(p + 1, totalCatPages))} disabled={categoriesPage === totalCatPages}>Next</Button>
+                      </div>
                     </div>
                   )}
                 </CardContent>
               </Card>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Delete Confirmation Dialog */}
-        <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirm Deletion</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to delete "{deletingCategory?.name}"? This action cannot be undone.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex justify-end space-x-2 mt-4">
-              <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
-                Cancel
-              </Button>
-              <Button 
-                variant="destructive" 
-                onClick={() => {
-                  // TODO: Implement category deletion
-                  toast({
-                    title: "Category Deleted",
-                    description: `${deletingCategory?.name} has been deleted successfully.`,
-                  });
-                  setDeleteConfirmOpen(false);
-                  setDeletingCategory(null);
-                }}
-              >
-                Delete
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Categories Tab */}
-        {activeTab === "categories" && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-xl font-inter font-semibold text-gray-900">Categories Management</h2>
-                <p className="text-sm text-gray-600 mt-1">Manage product categories and their properties</p>
+          {/* ── PRODUCT TYPE MANAGEMENT ──────────────────────────────────── */}
+          {activeTab === "product-types" && (
+            <div>
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-900">Product Type Management</h2>
+                <p className="text-sm text-gray-500 mt-0.5">Manage wizard product types linked to each category</p>
               </div>
-              <div className="flex gap-2">
-                <AICategorySuggestions />
-                <Dialog open={categoryDialogOpen} onOpenChange={(open) => {
-                  setCategoryDialogOpen(open);
-                  if (!open) setEditingCategory(null);
-                }}>
-                  <DialogTrigger asChild>
-                    <Button data-testid="button-add-category-main">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Category
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>
-                        {editingCategory ? "Edit Category" : "Create New Category"}
-                      </DialogTitle>
-                      <DialogDescription>
-                        {editingCategory ? "Update the category details and upload images" : "Add a new category to organize your formulations"}
-                      </DialogDescription>
-                    </DialogHeader>
-                    <CategoryForm 
-                      category={editingCategory}
-                      onSuccess={() => {
-                        setCategoryDialogOpen(false);
-                        setEditingCategory(null);
-                      }} 
-                    />
-                  </DialogContent>
-              </Dialog>
-              </div>
+              <WizardDataTab endpoint="/api/wizard/product-types" label="Product Types" />
             </div>
+          )}
 
-            <Card className="bg-white rounded-lg shadow-md">
-              <CardContent className="p-6">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Category
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Description
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {categoriesPaginated?.data?.map((category) => (
-                        <tr key={category.id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10">
-                                <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
-                                  <span className="text-white font-medium text-sm">
-                                    {category.name.charAt(0).toUpperCase()}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">{category.name}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900">{category.description}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div className="flex space-x-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setEditingCategory(category);
-                                  setCategoryDialogOpen(true);
-                                }}
-                                title="Edit category"
-                                data-testid={`button-edit-category-${category.id}`}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setDeletingCategory(category);
-                                  setDeleteConfirmOpen(true);
-                                }}
-                                title="Delete category"
-                                className="text-red-600 hover:text-red-800"
-                                data-testid={`button-delete-category-${category.id}`}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                title="Upload category image"
-                                data-testid={`button-upload-image-${category.id}`}
-                              >
-                                <Image className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+          {/* ── BASE TYPE MANAGEMENT ─────────────────────────────────────── */}
+          {activeTab === "base-types" && (
+            <div>
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-900">Base Type Management</h2>
+                <p className="text-sm text-gray-500 mt-0.5">Manage formulation base types per wizard category</p>
+              </div>
+              <WizardDataTab endpoint="/api/wizard/base-types" label="Base Types" />
+            </div>
+          )}
+
+          {/* ── FEATURE CHIPS ────────────────────────────────────────────── */}
+          {activeTab === "feature-chips" && (
+            <PlaceholderTab title="Feature Chips" description="Manage feature chips and tags displayed in wizard selections." icon={Tag} />
+          )}
+
+          {/* ── FORMULA MANAGEMENT ───────────────────────────────────────── */}
+          {activeTab === "formulations" && (
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">Formula Management</h2>
+                  <p className="text-sm text-gray-500 mt-0.5">Manage, approve, and edit chemical formulations</p>
                 </div>
-
-                {/* Pagination */}
-                {categoriesPaginated?.pagination && categoriesPaginated.pagination.totalPages > 1 && (
-                  <div className="flex items-center justify-between mt-6">
-                    <div className="text-sm text-gray-600">
-                      Showing {((categoriesPaginated.pagination.currentPage - 1) * categoriesPaginated.pagination.itemsPerPage) + 1} to{' '}
-                      {Math.min(categoriesPaginated.pagination.currentPage * categoriesPaginated.pagination.itemsPerPage, categoriesPaginated.pagination.totalItems)} of{' '}
-                      {categoriesPaginated.pagination.totalItems} results
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCategoriesPage(prev => Math.max(prev - 1, 1))}
-                        disabled={categoriesPaginated.pagination.currentPage === 1}
-                      >
-                        Previous
-                      </Button>
-                      
-                      {Array.from({ length: categoriesPaginated.pagination.totalPages }, (_, i) => i + 1).map(pageNum => {
-                        if (
-                          pageNum === 1 ||
-                          pageNum === categoriesPaginated.pagination.totalPages ||
-                          (pageNum >= categoriesPaginated.pagination.currentPage - 1 && pageNum <= categoriesPaginated.pagination.currentPage + 1)
-                        ) {
-                          return (
-                            <Button
-                              key={pageNum}
-                              variant={pageNum === categoriesPaginated.pagination.currentPage ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => setCategoriesPage(pageNum)}
-                            >
-                              {pageNum}
-                            </Button>
-                          );
-                        }
-                        return null;
-                      })}
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCategoriesPage(prev => Math.min(prev + 1, categoriesPaginated.pagination.totalPages))}
-                        disabled={categoriesPaginated.pagination.currentPage === categoriesPaginated.pagination.totalPages}
-                      >
-                        Next
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Formulations Tab */}
-        {activeTab === "formulations" && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-xl font-inter font-semibold text-gray-900">Formulations Management</h2>
-                <p className="text-sm text-gray-600 mt-1">Manage chemical formulations, approve drafts, and organize content</p>
-              </div>
-              <div className="flex space-x-4 items-center">
-                <div className="flex items-center space-x-2">
-                  <label htmlFor="category-filter" className="text-sm font-medium text-gray-700">Filter by category:</label>
+                <div className="flex items-center gap-3">
                   <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                    <SelectTrigger className="w-48" id="category-filter">
+                    <SelectTrigger className="w-44 h-9 text-sm border-gray-200">
                       <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Categories</SelectItem>
-                      {categories?.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
+                      {categories?.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
+                  <Dialog open={formulationDialogOpen} onOpenChange={setFormulationDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="bg-emerald-600 hover:bg-emerald-700 h-9" data-testid="button-add-formulation-main">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Formulation
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>{editingFormulation ? "Edit Formulation" : "Create Formulation"}</DialogTitle>
+                        <DialogDescription>Fill in all formulation details below</DialogDescription>
+                      </DialogHeader>
+                      <FormulationForm formulation={editingFormulation} categories={categories || []}
+                        onSuccess={() => { setFormulationDialogOpen(false); setEditingFormulation(null); }} />
+                    </DialogContent>
+                  </Dialog>
                 </div>
-                <Dialog open={formulationDialogOpen} onOpenChange={setFormulationDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button data-testid="button-add-formulation-main">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Formulation
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>
-                        {editingFormulation ? "Edit Formulation" : "Create New Formulation"}
-                      </DialogTitle>
-                      <DialogDescription>
-                        {editingFormulation ? "Update the formulation details" : "Add a new formulation with ingredients and instructions"}
-                      </DialogDescription>
-                    </DialogHeader>
-                    <FormulationForm 
-                      formulation={editingFormulation}
-                      categories={categories || []} 
-                      onSuccess={() => {
-                        setFormulationDialogOpen(false);
-                        setEditingFormulation(null);
-                      }} 
-                    />
-                  </DialogContent>
-                </Dialog>
               </div>
-            </div>
 
-            <Card className="bg-white rounded-lg shadow-md">
-              <CardContent className="p-6">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Image
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-64 max-w-xs">
-                          Formulation
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Category
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {formulationsPaginated?.data?.map((formulation) => {
-                        const ingredients = JSON.parse(formulation.ingredients);
-                        return (
-                          <tr key={formulation.id}>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="h-16 w-16 flex-shrink-0">
-                                {(formulation.thumbnail || formulation.image) ? (
-                                  <img
-                                    src={(formulation.thumbnail || formulation.image) ?? undefined}
-                                    alt={formulation.imageAlt || `${formulation.name} formulation`}
-                                    className="h-16 w-16 rounded-lg object-cover border border-gray-200"
-                                  />
-                                ) : (
-                                  <div className="h-16 w-16 rounded-lg bg-gray-100 flex items-center justify-center border border-gray-200">
-                                    <Image className="h-6 w-6 text-gray-400" />
-                                  </div>
-                                )}
-                              </div>
+              <Card className="border-gray-100 shadow-sm">
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-100">
+                      <thead>
+                        <tr className="bg-gray-50">
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Image</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-64">Formulation</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-50">
+                        {formulationsPaginated?.data?.map(f => (
+                          <tr key={f.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-4 py-4">
+                              {(f.thumbnail || f.image) ? (
+                                <img src={(f.thumbnail || f.image) ?? undefined} alt={f.imageAlt || f.name}
+                                  className="h-12 w-12 rounded-lg object-cover border border-gray-100" />
+                              ) : (
+                                <div className="h-12 w-12 rounded-lg bg-gray-100 flex items-center justify-center border border-gray-100">
+                                  <Image className="h-5 w-5 text-gray-300" />
+                                </div>
+                              )}
                             </td>
-                            <td className="px-6 py-4 max-w-xs w-64">
-                              <div>
-                                <div className="text-sm font-medium text-gray-900 line-clamp-2 break-words">{formulation.name}</div>
-                                <div className="text-sm text-gray-500 line-clamp-1">{formulation.description.substring(0, 60)}...</div>
-                              </div>
+                            <td className="px-4 py-4 max-w-xs">
+                              <p className="text-sm font-medium text-gray-900 line-clamp-2">{f.name}</p>
+                              <p className="text-xs text-gray-400 line-clamp-1 mt-0.5">{f.description?.substring(0, 55)}…</p>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                                {formulation.categoryId ? getCategoryName(formulation.categoryId) : 'Custom'}
+                            <td className="px-4 py-4">
+                              <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-100">
+                                {f.categoryId ? getCategoryName(f.categoryId) : "Custom"}
                               </Badge>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center space-x-2">
-                                <Badge className={formulation.isActive ? "bg-success text-white" : "bg-yellow-500 text-white"}>
-                                  {formulation.isActive ? "Active" : "Draft"}
+                            <td className="px-4 py-4">
+                              <div className="flex items-center gap-2">
+                                <Badge className={`text-xs ${f.isActive ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
+                                  {f.isActive ? "Active" : "Draft"}
                                 </Badge>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => updateFormulationStatus.mutate({ 
-                                    id: formulation.id, 
-                                    isActive: !formulation.isActive 
-                                  })}
-                                  className={formulation.isActive ? "text-yellow-600 hover:text-yellow-800" : "text-green-600 hover:text-green-800"}
-                                  title={formulation.isActive ? "Deactivate" : "Approve"}
-                                  data-testid={`button-toggle-status-${formulation.id}`}
-                                >
-                                  {formulation.isActive ? <PauseCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+                                <Button variant="ghost" size="sm" className="h-7 w-7 p-0"
+                                  onClick={() => updateFormulationStatus.mutate({ id: f.id, isActive: !f.isActive })}
+                                  data-testid={`button-toggle-status-${f.id}`}>
+                                  {f.isActive ? <PauseCircle className="h-4 w-4 text-amber-500" /> : <CheckCircle className="h-4 w-4 text-emerald-500" />}
                                 </Button>
                               </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <div className="flex space-x-2">
-                                <Link href={`/formulation/${formulation.id}`}>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-blue-600 hover:text-blue-900"
-                                    title="View formulation"
-                                    data-testid={`button-view-formulation-${formulation.id}`}
-                                  >
+                            <td className="px-4 py-4">
+                              <div className="flex items-center gap-1">
+                                <Link href={`/formulation/${f.id}`}>
+                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-blue-600" data-testid={`button-view-formulation-${f.id}`}>
                                     <Eye className="h-4 w-4" />
                                   </Button>
                                 </Link>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => {
-                                    setEditingFormulation(formulation);
-                                    setFormulationDialogOpen(true);
-                                  }}
-                                  data-testid={`button-edit-formulation-${formulation.id}`}
-                                >
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-blue-600"
+                                  onClick={() => { setEditingFormulation(f); setFormulationDialogOpen(true); }}
+                                  data-testid={`button-edit-formulation-${f.id}`}>
                                   <Edit className="h-4 w-4" />
                                 </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => deleteFormulation.mutate(formulation.id)}
-                                  className="text-red-600 hover:text-red-900"
-                                  data-testid={`button-delete-formulation-${formulation.id}`}
-                                >
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"
+                                  onClick={() => deleteFormulation.mutate(f.id)}
+                                  data-testid={`button-delete-formulation-${f.id}`}>
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
                               </div>
                             </td>
                           </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Pagination */}
-                {formulationsPaginated?.pagination && formulationsPaginated.pagination.totalPages > 1 && (
-                  <div className="flex items-center justify-between mt-6">
-                    <div className="text-sm text-gray-600">
-                      Showing {((formulationsPaginated.pagination.currentPage - 1) * formulationsPaginated.pagination.itemsPerPage) + 1} to{' '}
-                      {Math.min(formulationsPaginated.pagination.currentPage * formulationsPaginated.pagination.itemsPerPage, formulationsPaginated.pagination.totalItems)} of{' '}
-                      {formulationsPaginated.pagination.totalItems} results
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setFormulationsPage(prev => Math.max(prev - 1, 1))}
-                        disabled={formulationsPaginated.pagination.currentPage === 1}
-                      >
-                        Previous
-                      </Button>
-                      
-                      {Array.from({ length: formulationsPaginated.pagination.totalPages }, (_, i) => i + 1).map(pageNum => {
-                        if (
-                          pageNum === 1 ||
-                          pageNum === formulationsPaginated.pagination.totalPages ||
-                          (pageNum >= formulationsPaginated.pagination.currentPage - 1 && pageNum <= formulationsPaginated.pagination.currentPage + 1)
-                        ) {
-                          return (
-                            <Button
-                              key={pageNum}
-                              variant={pageNum === formulationsPaginated.pagination.currentPage ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => setFormulationsPage(pageNum)}
-                            >
-                              {pageNum}
-                            </Button>
-                          );
-                        }
-                        return null;
-                      })}
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setFormulationsPage(prev => Math.min(prev + 1, formulationsPaginated.pagination.totalPages))}
-                        disabled={formulationsPaginated.pagination.currentPage === formulationsPaginated.pagination.totalPages}
-                      >
-                        Next
-                      </Button>
-                    </div>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
 
-
-        {/* Bulk Formulations Tab */}
-        {activeTab === "bulk-formulations" && (
-          <div>
-            <div className="mb-6">
-              <h2 className="text-xl font-inter font-semibold text-gray-900">Bulk Formulations Generator</h2>
-              <p className="text-sm text-gray-600 mt-1">Select an existing category and generate multiple formulations automatically</p>
+                  {formulationsPaginated?.pagination && formulationsPaginated.pagination.totalPages > 1 && (
+                    <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100">
+                      <span className="text-xs text-gray-500">
+                        Page {formulationsPaginated.pagination.currentPage} of {formulationsPaginated.pagination.totalPages}
+                        {" "}· {formulationsPaginated.pagination.totalItems} total
+                      </span>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" disabled={formulationsPage === 1} onClick={() => setFormulationsPage(p => p - 1)}>Previous</Button>
+                        <Button variant="outline" size="sm" disabled={formulationsPage === formulationsPaginated.pagination.totalPages} onClick={() => setFormulationsPage(p => p + 1)}>Next</Button>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
-            <BulkFormulationGenerator categories={categories || []} />
-          </div>
-        )}
+          )}
 
-        
-        {/* Settings Tab */}
-        {activeTab === "settings" && (
-          <div>
-            <div className="mb-6">
-              <h2 className="text-xl font-inter font-semibold text-gray-900">Application Settings</h2>
-              <p className="text-sm text-gray-600 mt-1">Customize the appearance and branding of your application</p>
+          {/* ── BULK FORMULATIONS ────────────────────────────────────────── */}
+          {activeTab === "bulk-formulations" && (
+            <div>
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-900">Bulk Formulations Generator</h2>
+                <p className="text-sm text-gray-500 mt-0.5">Generate multiple formulations for a category automatically</p>
+              </div>
+              <BulkFormulationGenerator categories={categories || []} />
             </div>
-            <LogoSettings />
-          </div>
-        )}
-        
-        {/* Content Management Tab */}
-        {activeTab === "content" && (
-          <ContentManagementTab />
-        )}
-        
-        {/* Blog Management Tab */}
-        {activeTab === "blog" && (
-          <BlogManagementTab />
-        )}
+          )}
 
-        {/* Formulation Content Management Tab */}
-        {activeTab === "formulation-content" && (
-          <div>
-            <div className="mb-6">
-              <h2 className="text-xl font-inter font-semibold text-gray-900">Formulation Page Content</h2>
-              <p className="text-sm text-gray-600 mt-1">Customize content displayed on public formulation pages. Auto-generated content will be hidden.</p>
+          {/* ── GENERATED FORMULAS ───────────────────────────────────────── */}
+          {activeTab === "generated-formulas" && <GeneratedFormulasTab />}
+
+          {/* ── USER REQUESTS ────────────────────────────────────────────── */}
+          {activeTab === "user-requests" && <AdminDashboard />}
+
+          {/* ── TEST AI SYSTEM ───────────────────────────────────────────── */}
+          {activeTab === "test-formulation" && (
+            <div>
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-900">AI Formulation System Tester</h2>
+                <p className="text-sm text-gray-500 mt-0.5">Test the category-specific AI generation pipeline with validation</p>
+              </div>
+              <FormulationTester />
             </div>
-            <FormulationContentManagementTab />
-          </div>
-        )}
-        
-        {/* Test Formulation System Tab */}
-        {activeTab === "test-formulation" && (
-          <div>
-            <div className="mb-6">
-              <h2 className="text-xl font-inter font-semibold text-gray-900">AI Formulation System Tester</h2>
-              <p className="text-sm text-gray-600 mt-1">Test the improved category-specific AI formulation generation with validation</p>
+          )}
+
+          {/* ── PROMPT TEMPLATES ─────────────────────────────────────────── */}
+          {activeTab === "prompt-templates" && (
+            <PlaceholderTab title="Prompt Templates" description="Create and manage AI prompt templates used during formulation generation." icon={FileText} />
+          )}
+
+          {/* ── BLOG MANAGEMENT ──────────────────────────────────────────── */}
+          {activeTab === "blog" && <BlogManagementTab />}
+
+          {/* ── PAGE CONTENT ─────────────────────────────────────────────── */}
+          {activeTab === "formulation-content" && (
+            <div>
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-900">Formulation Page Content</h2>
+                <p className="text-sm text-gray-500 mt-0.5">Customize content displayed on public formulation pages</p>
+              </div>
+              <FormulationContentManagementTab />
             </div>
-            <FormulationTester />
-          </div>
-        )}
+          )}
 
-        {/* Generated Formulas Tab */}
-        {activeTab === "generated-formulas" && (
-          <GeneratedFormulasTab />
-        )}
+          {/* ── EXPERT CARDS ─────────────────────────────────────────────── */}
+          {activeTab === "formulators" && (
+            <div className="p-6">
+              <FormulatorManagementTab />
+            </div>
+          )}
 
-        {/* Expert Cards Tab */}
-        {activeTab === "formulators" && (
-          <div className="p-6">
-            <FormulatorManagementTab />
-          </div>
-        )}
+          {/* ── OPENAI USAGE ─────────────────────────────────────────────── */}
+          {activeTab === "openai-usage" && (
+            <PlaceholderTab title="OpenAI Usage" description="Monitor token usage, costs, and API call statistics across formulation generation." icon={BarChart2} />
+          )}
+
+          {/* ── SAFETY & VALIDATION ──────────────────────────────────────── */}
+          {activeTab === "safety-validation" && (
+            <PlaceholderTab title="Safety & Validation" description="Review formulation safety scores, validation results, and flagged ingredients." icon={ShieldCheck} />
+          )}
+
+          {/* ── SETTINGS ─────────────────────────────────────────────────── */}
+          {activeTab === "settings" && (
+            <div>
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-900">Application Settings</h2>
+                <p className="text-sm text-gray-500 mt-0.5">Customize appearance, branding, and configuration</p>
+              </div>
+              <LogoSettings />
+            </div>
+          )}
+
+          {/* Content management (kept for back-compat, not in sidebar) */}
+          {activeTab === "content" && <ContentManagementTab />}
+
+        </main>
       </div>
 
-      {/* Delete Category Confirmation Dialog */}
+      {/* ── Delete category dialog ─────────────────────────────────────────── */}
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="text-red-600">Delete Category</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the category "{deletingCategory?.name}"? This action cannot be undone.
+              Are you sure you want to delete "{deletingCategory?.name}"? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-end space-x-2 mt-6">
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setDeleteConfirmOpen(false);
-                setDeletingCategory(null);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button 
-              variant="destructive" 
-              onClick={confirmDeleteCategory}
-              disabled={deleteCategory.isPending}
-              data-testid="button-confirm-delete-category"
-            >
-              {deleteCategory.isPending ? "Deleting..." : "Delete Category"}
+          <div className="flex justify-end gap-2 mt-6">
+            <Button variant="outline" onClick={() => { setDeleteConfirmOpen(false); setDeletingCategory(null); }}>Cancel</Button>
+            <Button variant="destructive" onClick={() => deletingCategory && deleteCategory.mutate(deletingCategory.id)}
+              disabled={deleteCategory.isPending} data-testid="button-confirm-delete-category">
+              {deleteCategory.isPending ? "Deleting…" : "Delete Category"}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+/* ── Helpers ─────────────────────────────────────────────────────────────── */
+
+function PlaceholderTab({ title, description, icon: Icon }: { title: string; description: string; icon: React.ElementType }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-24 text-center">
+      <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
+        <Icon className="h-6 w-6 text-gray-400" />
+      </div>
+      <h3 className="text-base font-semibold text-gray-700 mb-2">{title}</h3>
+      <p className="text-sm text-gray-400 max-w-sm">{description}</p>
+      <Badge className="mt-4 bg-amber-50 text-amber-600 border-amber-100 border text-xs">Coming Soon</Badge>
+    </div>
+  );
+}
+
+function WizardDataTab({ endpoint, label }: { endpoint: string; label: string }) {
+  const { data: wizardCategories } = useQuery<any[]>({ queryKey: ["/api/wizard/categories"] });
+  const [selectedCat, setSelectedCat] = useState<string>("");
+
+  const { data: items = [], isLoading } = useQuery<any[]>({
+    queryKey: [endpoint, selectedCat],
+    queryFn: async () => {
+      if (!selectedCat) return [];
+      const r = await fetch(`${endpoint}?categorySlug=${selectedCat}`);
+      if (!r.ok) throw new Error("Failed to fetch");
+      return r.json();
+    },
+    enabled: !!selectedCat,
+  });
+
+  return (
+    <Card className="border-gray-100 shadow-sm">
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-3">
+          <Select value={selectedCat} onValueChange={setSelectedCat}>
+            <SelectTrigger className="w-52 h-9 text-sm border-gray-200">
+              <SelectValue placeholder="Select a category…" />
+            </SelectTrigger>
+            <SelectContent>
+              {wizardCategories?.map((c: any) => (
+                <SelectItem key={c.slug} value={c.slug}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {selectedCat && <span className="text-sm text-gray-500">{items.length} {label.toLowerCase()}</span>}
+        </div>
+      </CardHeader>
+      <CardContent>
+        {!selectedCat ? (
+          <p className="text-sm text-gray-400 py-8 text-center">Select a wizard category to view its {label.toLowerCase()}</p>
+        ) : isLoading ? (
+          <div className="space-y-2">
+            {[1,2,3].map(i => <div key={i} className="h-10 bg-gray-100 animate-pulse rounded-lg" />)}
+          </div>
+        ) : items.length === 0 ? (
+          <p className="text-sm text-gray-400 py-8 text-center">No {label.toLowerCase()} found for this category</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {items.map((item: any) => (
+              <div key={item.id} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <div className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
+                <span className="text-sm text-gray-700">{item.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
