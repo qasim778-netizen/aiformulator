@@ -2,14 +2,56 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Heart, Download, Trash2, User, Wand2, Zap, Eye, ChevronRight } from "lucide-react";
+import { Heart, Download, Trash2, User, Wand2, Zap, Eye, ChevronRight, ChevronLeft } from "lucide-react";
 import { format } from "date-fns";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type Section = "downloads" | "favorites" | "generated";
+
+const PAGE_SIZE = 10;
+
+function Pagination({ total, page, onPage }: { total: number; page: number; onPage: (p: number) => void }) {
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  if (totalPages <= 1) return null;
+  const from = (page - 1) * PAGE_SIZE + 1;
+  const to = Math.min(page * PAGE_SIZE, total);
+  return (
+    <div className="flex items-center justify-between px-6 py-3 border-t border-gray-100 bg-gray-50">
+      <span className="text-sm text-gray-500">Showing {from}–{to} of {total}</span>
+      <div className="flex items-center gap-1">
+        <button
+          className="h-8 w-8 flex items-center justify-center rounded border border-gray-200 bg-white text-gray-500 disabled:opacity-40 hover:bg-gray-100 transition"
+          disabled={page === 1} onClick={() => onPage(page - 1)}
+        ><ChevronLeft className="h-4 w-4" /></button>
+        {Array.from({ length: totalPages }, (_, i) => i + 1)
+          .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+          .reduce<(number | "…")[]>((acc, p, idx, arr) => {
+            if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("…");
+            acc.push(p);
+            return acc;
+          }, [])
+          .map((p, i) =>
+            p === "…" ? (
+              <span key={`e${i}`} className="px-1 text-gray-400 text-sm">…</span>
+            ) : (
+              <button
+                key={p}
+                className={`h-8 w-8 flex items-center justify-center rounded border text-xs font-medium transition ${p === page ? "bg-emerald-600 border-emerald-600 text-white" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-100"}`}
+                onClick={() => onPage(p as number)}
+              >{p}</button>
+            )
+          )}
+        <button
+          className="h-8 w-8 flex items-center justify-center rounded border border-gray-200 bg-white text-gray-500 disabled:opacity-40 hover:bg-gray-100 transition"
+          disabled={page === totalPages} onClick={() => onPage(page + 1)}
+        ><ChevronRight className="h-4 w-4" /></button>
+      </div>
+    </div>
+  );
+}
 
 export default function MyAccountPage() {
   const { user } = useAuth();
@@ -17,6 +59,13 @@ export default function MyAccountPage() {
   const [, setLocation] = useLocation();
   const [activeSection, setActiveSection] = useState<Section>("downloads");
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [dlPage, setDlPage] = useState(1);
+  const [favPage, setFavPage] = useState(1);
+  const [genPage, setGenPage] = useState(1);
+
+  useEffect(() => {
+    setDlPage(1); setFavPage(1); setGenPage(1);
+  }, [activeSection]);
 
   const { data: downloads, isLoading: loadingDownloads } = useQuery<any[]>({
     queryKey: ["/api/user/downloads"],
@@ -193,6 +242,7 @@ export default function MyAccountPage() {
                       {[1,2,3].map(i => <Skeleton key={i} className="h-12 w-full rounded-xl" />)}
                     </div>
                   ) : downloads && downloads.length > 0 ? (
+                    <>
                     <table className="w-full" data-testid="table-downloads">
                       <thead>
                         <tr className="bg-gray-50 border-b border-gray-100">
@@ -202,7 +252,7 @@ export default function MyAccountPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-50">
-                        {downloads.map((dl: any, idx: number) => (
+                        {downloads.slice((dlPage - 1) * PAGE_SIZE, dlPage * PAGE_SIZE).map((dl: any, idx: number) => (
                           <tr key={dl.id} className="hover:bg-gray-50 transition-colors" data-testid={`row-download-${idx}`}>
                             <td className="px-6 py-4 text-sm text-gray-800 font-medium" data-testid={`text-formula-name-${idx}`}>
                               {dl.formulationName}
@@ -215,6 +265,8 @@ export default function MyAccountPage() {
                         ))}
                       </tbody>
                     </table>
+                    <Pagination total={downloads.length} page={dlPage} onPage={setDlPage} />
+                    </>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-16 text-gray-400" data-testid="text-no-downloads">
                       <Download className="w-12 h-12 mb-4 opacity-20" />
@@ -233,6 +285,7 @@ export default function MyAccountPage() {
                       {[1,2,3].map(i => <Skeleton key={i} className="h-12 w-full rounded-xl" />)}
                     </div>
                   ) : favorites && favorites.length > 0 ? (
+                    <>
                     <table className="w-full" data-testid="table-favorites">
                       <thead>
                         <tr className="bg-gray-50 border-b border-gray-100">
@@ -242,7 +295,7 @@ export default function MyAccountPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-50">
-                        {favorites.map((fav: any, idx: number) => (
+                        {favorites.slice((favPage - 1) * PAGE_SIZE, favPage * PAGE_SIZE).map((fav: any, idx: number) => (
                           <tr key={fav.id} className="hover:bg-gray-50 transition-colors" data-testid={`row-favorite-${idx}`}>
                             <td className="px-6 py-4 text-sm text-gray-800 font-medium" data-testid={`text-favorite-name-${idx}`}>
                               {fav.formulation?.name || "Unknown"}
@@ -271,6 +324,8 @@ export default function MyAccountPage() {
                         ))}
                       </tbody>
                     </table>
+                    <Pagination total={favorites.length} page={favPage} onPage={setFavPage} />
+                    </>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-16 text-gray-400" data-testid="text-no-favorites">
                       <Heart className="w-12 h-12 mb-4 opacity-20" />
@@ -289,6 +344,7 @@ export default function MyAccountPage() {
                       {[1,2,3].map(i => <Skeleton key={i} className="h-12 w-full rounded-xl" />)}
                     </div>
                   ) : generated && generated.length > 0 ? (
+                    <>
                     <table className="w-full" data-testid="table-generated">
                       <thead>
                         <tr className="bg-gray-50 border-b border-gray-100">
@@ -298,7 +354,7 @@ export default function MyAccountPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-50">
-                        {generated.map((gen: any, idx: number) => (
+                        {generated.slice((genPage - 1) * PAGE_SIZE, genPage * PAGE_SIZE).map((gen: any, idx: number) => (
                           <tr key={gen.id} className="hover:bg-gray-50 transition-colors" data-testid={`row-generated-${idx}`}>
                             <td className="px-6 py-4 text-sm text-gray-800 font-medium" data-testid={`text-generated-name-${idx}`}>
                               {gen.name}
@@ -319,6 +375,8 @@ export default function MyAccountPage() {
                         ))}
                       </tbody>
                     </table>
+                    <Pagination total={generated.length} page={genPage} onPage={setGenPage} />
+                    </>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-16 text-gray-400" data-testid="text-no-generated">
                       <Wand2 className="w-12 h-12 mb-4 opacity-20" />

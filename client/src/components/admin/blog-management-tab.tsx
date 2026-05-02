@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Edit, Trash2, Plus, Save, X, Eye, EyeOff, RefreshCw, Clock, AlertCircle, Upload, Image } from "lucide-react";
+import { Edit, Trash2, Plus, Save, X, Eye, EyeOff, RefreshCw, Clock, AlertCircle, Upload, Image, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -36,10 +36,49 @@ function generateSlug(title: string): string {
     .trim();
 }
 
+const BLOG_PAGE_SIZE = 9;
+
+function BlogPagination({ total, page, onPage }: { total: number; page: number; onPage: (p: number) => void }) {
+  const totalPages = Math.ceil(total / BLOG_PAGE_SIZE);
+  if (totalPages <= 1) return null;
+  const from = (page - 1) * BLOG_PAGE_SIZE + 1;
+  const to = Math.min(page * BLOG_PAGE_SIZE, total);
+  return (
+    <div className="flex items-center justify-between py-4 border-t mt-2">
+      <span className="text-sm text-gray-500">Showing {from}–{to} of {total}</span>
+      <div className="flex items-center gap-1">
+        <Button variant="outline" size="sm" disabled={page === 1} onClick={() => onPage(page - 1)} className="h-8 w-8 p-0">
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        {Array.from({ length: totalPages }, (_, i) => i + 1)
+          .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+          .reduce<(number | "…")[]>((acc, p, idx, arr) => {
+            if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("…");
+            acc.push(p);
+            return acc;
+          }, [])
+          .map((p, i) =>
+            p === "…" ? (
+              <span key={`e${i}`} className="px-1 text-gray-400 text-sm">…</span>
+            ) : (
+              <Button key={p} variant={p === page ? "default" : "outline"} size="sm" onClick={() => onPage(p as number)} className="h-8 w-8 p-0 text-xs">
+                {p}
+              </Button>
+            )
+          )}
+        <Button variant="outline" size="sm" disabled={page === Math.ceil(total / BLOG_PAGE_SIZE)} onClick={() => onPage(page + 1)} className="h-8 w-8 p-0">
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function BlogManagementTab() {
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [blogPage, setBlogPage] = useState(1);
   const [formData, setFormData] = useState<Partial<InsertBlogPost>>({
     title: "",
     slug: "",
@@ -102,7 +141,7 @@ export default function BlogManagementTab() {
     await uploadFile(file);
   };
 
-  const { data: posts = [], isLoading, error, refetch } = useQuery<BlogPost[]>({
+  const { data: postsAll = [], isLoading, error, refetch } = useQuery<BlogPost[]>({
     queryKey: ["blog-posts"],
     queryFn: async () => {
       const response = await fetch("/api/blog", {
@@ -116,6 +155,8 @@ export default function BlogManagementTab() {
     retry: 1,
     staleTime: 0,
   });
+
+  const posts = postsAll.slice((blogPage - 1) * BLOG_PAGE_SIZE, blogPage * BLOG_PAGE_SIZE);
 
   const validateCategoryProductMatch = (category: string, productType: string | null | undefined): boolean => {
     if (!productType) return true;
@@ -351,7 +392,7 @@ export default function BlogManagementTab() {
         <div className="text-center py-8">Loading blog posts...</div>
       )}
 
-      {!isLoading && !error && posts.length === 0 && (
+      {!isLoading && !error && postsAll.length === 0 && (
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-lg font-medium">No blog posts created yet</p>
@@ -364,7 +405,7 @@ export default function BlogManagementTab() {
         </Card>
       )}
 
-      {!isLoading && !error && posts.length > 0 && (
+      {!isLoading && !error && postsAll.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {posts.map((post) => (
             <Card key={post.id} className="overflow-hidden">
@@ -417,6 +458,10 @@ export default function BlogManagementTab() {
             </Card>
           ))}
         </div>
+      )}
+
+      {postsAll.length > 0 && (
+        <BlogPagination total={postsAll.length} page={blogPage} onPage={setBlogPage} />
       )}
 
       {/* Create/Edit Dialog */}
