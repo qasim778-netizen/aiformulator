@@ -182,7 +182,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4 bg-[#F5F7FB] min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2" data-testid="text-admin-title">Admin Dashboard</h1>
@@ -211,9 +211,9 @@ export default function AdminDashboard() {
 
           {/* ── Users ── */}
           <TabsContent value="users">
-            <Card>
+            <Card className="border border-[#E6EAF0] shadow-[0_2px_6px_rgba(0,0,0,0.04)] rounded-[14px]">
               <CardHeader>
-                <CardTitle>All Users</CardTitle>
+                <CardTitle className="text-[17px] font-semibold text-gray-900 border-l-[4px] border-[#22C55E] pl-2.5">All Users</CardTitle>
                 <CardDescription>Complete list of registered users</CardDescription>
               </CardHeader>
               <CardContent>
@@ -226,20 +226,20 @@ export default function AdminDashboard() {
                     <div className="overflow-x-auto">
                       <table className="w-full border-collapse">
                         <thead>
-                          <tr className="border-b border-gray-300">
-                            <th className="text-left p-3 font-semibold">Name</th>
-                            <th className="text-left p-3 font-semibold">Email</th>
-                            <th className="text-left p-3 font-semibold">Country</th>
-                            <th className="text-left p-3 font-semibold">Joined</th>
-                            <th className="text-left p-3 font-semibold">Admin</th>
-                            <th className="text-left p-3 font-semibold">Actions</th>
+                          <tr className="bg-[#F1F5F9] border-b border-[#EEF2F7]">
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">Name</th>
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">Email</th>
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">Country</th>
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">Joined</th>
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">Admin</th>
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">Actions</th>
                           </tr>
                         </thead>
                         <tbody>
                           {pagedUsers.map((userData: any, index: number) => {
                             const todayRow = isToday(userData.createdAt);
                             return (
-                              <tr key={userData.id} className={`border-b border-gray-200 hover:bg-green-50 ${todayRow ? 'bg-green-50' : ''}`} data-testid={`row-user-${index}`}>
+                              <tr key={userData.id} className={`border-b border-[#EEF2F7] hover:bg-emerald-50/50 transition-colors ${todayRow ? 'bg-emerald-50/40' : ''}`} data-testid={`row-user-${index}`}>
                                 <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-user-name-${index}`}>
                                   {userData.firstName && userData.lastName ? `${userData.firstName} ${userData.lastName}` : userData.firstName || 'N/A'}
                                 </td>
@@ -273,9 +273,9 @@ export default function AdminDashboard() {
 
           {/* ── Downloads ── */}
           <TabsContent value="downloads">
-            <Card>
+            <Card className="border border-[#E6EAF0] shadow-[0_2px_6px_rgba(0,0,0,0.04)] rounded-[14px]">
               <CardHeader>
-                <CardTitle>All Downloads</CardTitle>
+                <CardTitle className="text-[17px] font-semibold text-gray-900 border-l-[4px] border-[#22C55E] pl-2.5">All Downloads</CardTitle>
                 <CardDescription>Complete history of formula downloads with user details</CardDescription>
               </CardHeader>
               <CardContent>
@@ -288,19 +288,19 @@ export default function AdminDashboard() {
                     <div className="overflow-x-auto">
                       <table className="w-full border-collapse">
                         <thead>
-                          <tr className="border-b border-gray-300">
-                            <th className="text-left p-3 font-semibold">User</th>
-                            <th className="text-left p-3 font-semibold">Email</th>
-                            <th className="text-left p-3 font-semibold">Country</th>
-                            <th className="text-left p-3 font-semibold">Formula</th>
-                            <th className="text-left p-3 font-semibold">Downloaded</th>
+                          <tr className="bg-[#F1F5F9] border-b border-[#EEF2F7]">
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">User</th>
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">Email</th>
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">Country</th>
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">Formula</th>
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">Downloaded</th>
                           </tr>
                         </thead>
                         <tbody>
                           {pagedDownloads.map((download: any, index: number) => {
                             const todayRow = isToday(download.downloadedAt);
                             return (
-                              <tr key={download.id} className={`border-b border-gray-200 hover:bg-green-50 ${todayRow ? 'bg-green-50' : ''}`} data-testid={`row-download-${index}`}>
+                              <tr key={download.id} className={`border-b border-[#EEF2F7] hover:bg-emerald-50/50 transition-colors ${todayRow ? 'bg-emerald-50/40' : ''}`} data-testid={`row-download-${index}`}>
                                 <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-download-user-${index}`}>
                                   {download.userFirstName && download.userLastName ? `${download.userFirstName} ${download.userLastName}` : download.userFirstName || 'N/A'}
                                 </td>
@@ -329,9 +329,9 @@ export default function AdminDashboard() {
 
           {/* ── Favorites ── */}
           <TabsContent value="favorites">
-            <Card>
+            <Card className="border border-[#E6EAF0] shadow-[0_2px_6px_rgba(0,0,0,0.04)] rounded-[14px]">
               <CardHeader>
-                <CardTitle>All Favorites</CardTitle>
+                <CardTitle className="text-[17px] font-semibold text-gray-900 border-l-[4px] border-[#22C55E] pl-2.5">All Favorites</CardTitle>
                 <CardDescription>Complete list of favorited formulas with user details</CardDescription>
               </CardHeader>
               <CardContent>
@@ -344,19 +344,19 @@ export default function AdminDashboard() {
                     <div className="overflow-x-auto">
                       <table className="w-full border-collapse">
                         <thead>
-                          <tr className="border-b border-gray-300">
-                            <th className="text-left p-3 font-semibold">User</th>
-                            <th className="text-left p-3 font-semibold">Email</th>
-                            <th className="text-left p-3 font-semibold">Country</th>
-                            <th className="text-left p-3 font-semibold">Formula</th>
-                            <th className="text-left p-3 font-semibold">Added</th>
+                          <tr className="bg-[#F1F5F9] border-b border-[#EEF2F7]">
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">User</th>
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">Email</th>
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">Country</th>
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">Formula</th>
+                            <th className="text-left p-3 font-semibold text-gray-600 text-sm">Added</th>
                           </tr>
                         </thead>
                         <tbody>
                           {pagedFavorites.map((favorite: any, index: number) => {
                             const todayRow = isToday(favorite.addedAt);
                             return (
-                              <tr key={favorite.id} className={`border-b border-gray-200 hover:bg-green-50 ${todayRow ? 'bg-green-50' : ''}`} data-testid={`row-favorite-${index}`}>
+                              <tr key={favorite.id} className={`border-b border-[#EEF2F7] hover:bg-emerald-50/50 transition-colors ${todayRow ? 'bg-emerald-50/40' : ''}`} data-testid={`row-favorite-${index}`}>
                                 <td className={`p-3 ${todayRow ? 'text-green-700 font-bold' : ''}`} data-testid={`text-favorite-user-${index}`}>
                                   {favorite.userFirstName && favorite.userLastName ? `${favorite.userFirstName} ${favorite.userLastName}` : favorite.userFirstName || 'N/A'}
                                 </td>

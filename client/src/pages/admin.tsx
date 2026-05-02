@@ -245,7 +245,7 @@ export default function AdminPage() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-[#F5F7FB] overflow-hidden">
 
       {/* ── Sidebar ────────────────────────────────────────────────────────── */}
       <aside
@@ -299,7 +299,7 @@ export default function AdminPage() {
             title={collapsed ? "Overview" : undefined}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group ${
               activeTab === "overview"
-                ? "bg-emerald-50 text-emerald-700"
+                ? "bg-[#E8F8F1] text-[#16A34A]"
                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
             } ${collapsed ? "justify-center" : ""}`}
           >
@@ -322,7 +322,7 @@ export default function AdminPage() {
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors group ${
                     collapsed
                       ? groupHasActive
-                        ? "bg-emerald-50 text-emerald-700"
+                        ? "bg-[#E8F8F1] text-[#16A34A]"
                         : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
                       : "text-gray-700 hover:bg-gray-50"
                   } ${collapsed ? "justify-center" : ""}`}
@@ -361,7 +361,7 @@ export default function AdminPage() {
                           onClick={handleItemClick}
                           className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors group ${
                             active
-                              ? "bg-emerald-50 text-emerald-700"
+                              ? "bg-[#E8F8F1] text-[#16A34A]"
                               : isActionItem
                                 ? "text-gray-500 hover:bg-emerald-50 hover:text-emerald-700"
                                 : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
@@ -390,7 +390,7 @@ export default function AdminPage() {
               title={collapsed ? "Settings" : undefined}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group ${
                 activeTab === "settings"
-                  ? "bg-emerald-50 text-emerald-700"
+                  ? "bg-[#E8F8F1] text-[#16A34A]"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               } ${collapsed ? "justify-center" : ""}`}
             >

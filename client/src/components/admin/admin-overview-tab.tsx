@@ -262,12 +262,20 @@ export default function AdminOverviewTab() {
         <p className="text-sm text-gray-500 mt-0.5">Real-time overview of users, formulas and API usage.</p>
       </div>
 
+      {/* ── KPI Section Container ────────────────────────────────────────── */}
+      <div className="bg-white rounded-[14px] border border-[#E6EAF0] shadow-[0_2px_6px_rgba(0,0,0,0.04)] p-5">
+        <h3 className="text-[17px] font-semibold text-gray-900 border-l-[4px] border-[#22C55E] pl-2.5 mb-4 leading-snug">KPI Overview</h3>
+
       {/* ── Row 1: User KPI cards (6) ───────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
         {userKPIs.map((k) => {
           const Icon = k.icon;
+          const cardBg =
+            k.label === "Active Users Now"   ? "bg-[#ECFDF5]" :
+            k.label === "New Users Today"    ? "bg-[#EFF6FF]" :
+            "bg-gradient-to-b from-white to-[#F9FAFB]";
           return (
-            <Card key={k.label} className="bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <Card key={k.label} className={`${cardBg} border border-[#E5E7EB] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150`}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className={`w-9 h-9 rounded-lg ${k.bg} flex items-center justify-center`}>
@@ -295,11 +303,15 @@ export default function AdminOverviewTab() {
       </div>
 
       {/* ── Row 2: API KPI cards (5) ─────────────────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 mt-3">
         {apiKPIs.map((k) => {
           const Icon = k.icon;
+          const cardBg =
+            k.label === "OpenAI Cost Today"     ? "bg-[#EFF6FF]" :
+            k.label === "Top Formula Generator" ? "bg-[#FFFBEB]" :
+            "bg-gradient-to-b from-white to-[#F9FAFB]";
           return (
-            <Card key={k.label} className="bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <Card key={k.label} className={`${cardBg} border border-[#E5E7EB] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150`}>
               <CardContent className="p-4">
                 <div className={`w-9 h-9 rounded-lg ${k.bg} flex items-center justify-center mb-3`}>
                   <Icon className={`h-4 w-4 ${k.clr}`} />
@@ -320,16 +332,17 @@ export default function AdminOverviewTab() {
           );
         })}
       </div>
+      </div>{/* end KPI Section Container */}
 
       {/* ── Row 3: New Users table + API Usage donut ─────────────────────── */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
 
         {/* New Users table */}
-        <Card className="bg-white border border-gray-100 shadow-sm">
-          <CardHeader className="pb-3 border-b border-gray-50">
+        <Card className="bg-white border border-[#E6EAF0] shadow-[0_2px_6px_rgba(0,0,0,0.04)] rounded-[14px]">
+          <CardHeader className="pb-3 border-b border-[#EEF2F7]">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div>
-                <CardTitle className="text-base font-semibold text-gray-900">{tableTitle}</CardTitle>
+                <CardTitle className="text-[17px] font-semibold text-gray-900 border-l-[4px] border-[#22C55E] pl-2.5">{tableTitle}</CardTitle>
                 <p className="text-xs text-gray-500 mt-0.5">Users who joined your platform today.</p>
               </div>
               <div className="flex flex-wrap gap-2 items-center">
@@ -358,7 +371,7 @@ export default function AdminOverviewTab() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-gray-50 border-b border-gray-100">
+                      <tr className="bg-[#F1F5F9] border-b border-[#EEF2F7]">
                         <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider w-8">#</th>
                         <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">User</th>
                         <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">Email</th>
@@ -368,7 +381,7 @@ export default function AdminOverviewTab() {
                         <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-[#EEF2F7]">
                       {pagedUsers.map((u: any, idx: number) => {
                         const gi = (page - 1) * TABLE_PAGE_SIZE + idx + 1;
                         const name = u.firstName ? `${u.firstName} ${u.lastName || ""}`.trim() : u.email;
@@ -412,9 +425,9 @@ export default function AdminOverviewTab() {
         </Card>
 
         {/* User API Usage */}
-        <Card className="bg-white border border-gray-100 shadow-sm">
-          <CardHeader className="pb-3 border-b border-gray-50">
-            <CardTitle className="text-base font-semibold text-gray-900">User API Usage</CardTitle>
+        <Card className="bg-white border border-[#E6EAF0] shadow-[0_2px_6px_rgba(0,0,0,0.04)] rounded-[14px]">
+          <CardHeader className="pb-3 border-b border-[#EEF2F7]">
+            <CardTitle className="text-[17px] font-semibold text-gray-900 border-l-[4px] border-[#22C55E] pl-2.5">User API Usage</CardTitle>
             <p className="text-xs text-gray-500 mt-0.5">API usage summary for today.</p>
           </CardHeader>
           <CardContent className="pt-5">
@@ -483,9 +496,9 @@ export default function AdminOverviewTab() {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
 
         {/* Top Generated Formula Users */}
-        <Card className="bg-white border border-gray-100 shadow-sm">
-          <CardHeader className="pb-3 border-b border-gray-50">
-            <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2">
+        <Card className="bg-white border border-[#E6EAF0] shadow-[0_2px_6px_rgba(0,0,0,0.04)] rounded-[14px]">
+          <CardHeader className="pb-3 border-b border-[#EEF2F7]">
+            <CardTitle className="text-[17px] font-semibold text-gray-900 flex items-center gap-2 border-l-[4px] border-[#22C55E] pl-2.5">
               <Trophy className="h-4 w-4 text-yellow-500" />
               Top Generated Formula Users
             </CardTitle>
@@ -500,7 +513,7 @@ export default function AdminOverviewTab() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-gray-50 border-b border-gray-100">
+                    <tr className="bg-[#F1F5F9] border-b border-[#EEF2F7]">
                       <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider w-8">#</th>
                       <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">User</th>
                       <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Country</th>
@@ -511,7 +524,7 @@ export default function AdminOverviewTab() {
                       <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-[#EEF2F7]">
                     {topUsers.map((u, idx) => (
                       <tr key={u.key} className="hover:bg-gray-50 transition-colors">
                         <td className="px-3 py-2.5">
@@ -552,9 +565,9 @@ export default function AdminOverviewTab() {
         </Card>
 
         {/* Recent User Activity */}
-        <Card className="bg-white border border-gray-100 shadow-sm">
-          <CardHeader className="pb-3 border-b border-gray-50">
-            <CardTitle className="text-base font-semibold text-gray-900">Recent User Activity</CardTitle>
+        <Card className="bg-white border border-[#E6EAF0] shadow-[0_2px_6px_rgba(0,0,0,0.04)] rounded-[14px]">
+          <CardHeader className="pb-3 border-b border-[#EEF2F7]">
+            <CardTitle className="text-[17px] font-semibold text-gray-900 border-l-[4px] border-[#22C55E] pl-2.5">Recent User Activity</CardTitle>
             <p className="text-xs text-gray-500 mt-0.5">Latest activities performed by users.</p>
           </CardHeader>
           <CardContent className="p-0">
