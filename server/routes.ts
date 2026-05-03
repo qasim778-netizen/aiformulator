@@ -1868,7 +1868,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
 
   // ─── Database Builder ─────────────────────────────────────────────────
   // Preview AI suggestions for a (new or existing) wizard category.
-  app.post("/api/admin/database-builder/preview", isAdmin, async (req, res) => {
+  app.post("/api/admin/database-builder/preview", requireAdmin, async (req, res) => {
     try {
       const { categoryName, categoryDescription, generate } = req.body as {
         categoryName?: string;
@@ -1897,7 +1897,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
   });
 
   // Save edited suggestions to DB. Creates the wizard category if it doesn't exist.
-  app.post("/api/admin/database-builder/save", isAdmin, async (req, res) => {
+  app.post("/api/admin/database-builder/save", requireAdmin, async (req, res) => {
     try {
       const {
         categoryId,
@@ -2037,7 +2037,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
   });
 
   // List wizard categories with counts of associated rows.
-  app.get("/api/admin/database-builder/categories", isAdmin, async (req, res) => {
+  app.get("/api/admin/database-builder/categories", requireAdmin, async (req, res) => {
     try {
       const cats = await db.select().from(wizardCategoriesTable);
       const result = await Promise.all(cats.map(async (c) => {
@@ -2070,7 +2070,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
   });
 
   // Delete a wizard category and all linked builder data (cascade FKs).
-  app.delete("/api/admin/database-builder/categories/:id", isAdmin, async (req, res) => {
+  app.delete("/api/admin/database-builder/categories/:id", requireAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const out = await db.delete(wizardCategoriesTable).where(eq(wizardCategoriesTable.id, id)).returning();
