@@ -195,6 +195,35 @@ async function createTables() {
       )
     `);
 
+    // Database Builder tables (feature chips, safety notes, prompt rules)
+    await db.execute(/* sql */ `
+      CREATE TABLE IF NOT EXISTS wizard_feature_chips (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        category_id uuid NOT NULL REFERENCES wizard_categories(id) ON DELETE CASCADE,
+        name text NOT NULL,
+        slug text NOT NULL,
+        is_active boolean NOT NULL DEFAULT true
+      )
+    `);
+
+    await db.execute(/* sql */ `
+      CREATE TABLE IF NOT EXISTS wizard_safety_notes (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        category_id uuid NOT NULL REFERENCES wizard_categories(id) ON DELETE CASCADE,
+        content text NOT NULL,
+        is_active boolean NOT NULL DEFAULT true
+      )
+    `);
+
+    await db.execute(/* sql */ `
+      CREATE TABLE IF NOT EXISTS wizard_prompt_rules (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        category_id uuid NOT NULL REFERENCES wizard_categories(id) ON DELETE CASCADE,
+        content text NOT NULL,
+        is_active boolean NOT NULL DEFAULT true
+      )
+    `);
+
     // ── Formula cache tables ──────────────────────────────────────────────────
     await db.execute(/* sql */ `
       CREATE TABLE IF NOT EXISTS generated_formulas (

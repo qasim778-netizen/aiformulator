@@ -231,6 +231,28 @@ export const wizardCategoryBaseTypesTable = pgTable("wizard_category_base_types"
   sortOrder: integer("sort_order").notNull().default(0),
 });
 
+export const wizardFeatureChipsTable = pgTable("wizard_feature_chips", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  categoryId: uuid("category_id").notNull(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
+export const wizardSafetyNotesTable = pgTable("wizard_safety_notes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  categoryId: uuid("category_id").notNull(),
+  content: text("content").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
+export const wizardPromptRulesTable = pgTable("wizard_prompt_rules", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  categoryId: uuid("category_id").notNull(),
+  content: text("content").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
 // ─── Formula Cache Tables ─────────────────────────────────────────────────────
 
 export const generatedFormulasTable = pgTable("generated_formulas", {

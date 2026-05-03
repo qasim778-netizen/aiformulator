@@ -7,9 +7,9 @@ import crypto from "crypto";
 import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema, insertFormulationContentSchema, insertUserNoteSchema, insertPageSchema, insertBlogPostSchema, insertSampleProductSchema } from "@shared/schema";
 import type { ChatMessage, InsertChatMessage } from "@shared/schema";
-import { db, categoriesTable, wizardCategoriesTable, wizardProductTypesTable, wizardBaseTypesTable, wizardCategoryBaseTypesTable, generatedFormulasTable, formulaGenerationFailuresTable, apiUsageLogsTable } from "./db";
-import { eq, and } from "drizzle-orm";
-import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateBulkFormulationsWithKeywords, generateProductTypes, generateCustomFormulation, generateWizardProductTypeNames } from "./ai";
+import { db, categoriesTable, wizardCategoriesTable, wizardProductTypesTable, wizardBaseTypesTable, wizardCategoryBaseTypesTable, wizardFeatureChipsTable, wizardSafetyNotesTable, wizardPromptRulesTable, generatedFormulasTable, formulaGenerationFailuresTable, apiUsageLogsTable } from "./db";
+import { eq, and, sql as drizzleSql } from "drizzle-orm";
+import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateBulkFormulationsWithKeywords, generateProductTypes, generateCustomFormulation, generateWizardProductTypeNames, generateBaseTypeNames, generateFeatureChips, generateSafetyNotes, generatePromptRules } from "./ai";
 import { generateCategorySuggestions } from "./services/openai";
 import { generateFormulationPDF } from "./pdf-generator";
 import { optimizeFormulationsForSEO } from "./seo-optimizer";
@@ -1863,6 +1863,221 @@ Sitemap: https://aiformulator.net/sitemap.xml
     } catch (err: any) {
       console.error("Failed to generate wizard product types:", err);
       res.status(500).json({ message: err.message || "Failed to generate product types" });
+    }
+  });
+
+  // ─── Database Builder ─────────────────────────────────────────────────
+  // Preview AI suggestions for a (new or existing) wizard category.
+  app.post("/api/admin/database-builder/preview", isAdmin, async (req, res) => {
+    try {
+      const { categoryName, categoryDescription, generate } = req.body as {
+        categoryName?: string;
+        categoryDescription?: string;
+        generate?: { productTypes?: boolean; baseTypes?: boolean; featureChips?: boolean; safetyNotes?: boolean; promptRules?: boolean };
+      };
+      if (!categoryName || categoryName.trim().length < 2) {
+        return res.status(400).json({ message: "categoryName is required" });
+      }
+      const desc = categoryDescription || "";
+      const g = generate || { productTypes: true, baseTypes: true, featureChips: true, safetyNotes: true, promptRules: true };
+
+      const [productTypes, baseTypes, featureChips, safetyNotes, promptRules] = await Promise.all([
+        g.productTypes ? generateWizardProductTypeNames(categoryName, 12) : Promise.resolve([] as string[]),
+        g.baseTypes ? generateBaseTypeNames(categoryName, desc, 5) : Promise.resolve([] as string[]),
+        g.featureChips ? generateFeatureChips(categoryName, desc, 10) : Promise.resolve([] as string[]),
+        g.safetyNotes ? generateSafetyNotes(categoryName, desc, 5) : Promise.resolve([] as string[]),
+        g.promptRules ? generatePromptRules(categoryName, desc, 4) : Promise.resolve([] as string[]),
+      ]);
+
+      res.json({ productTypes, baseTypes, featureChips, safetyNotes, promptRules });
+    } catch (err: any) {
+      console.error("database-builder/preview failed:", err);
+      res.status(500).json({ message: err.message || "Failed to generate preview" });
+    }
+  });
+
+  // Save edited suggestions to DB. Creates the wizard category if it doesn't exist.
+  app.post("/api/admin/database-builder/save", isAdmin, async (req, res) => {
+    try {
+      const {
+        categoryId,
+        categoryName,
+        categoryDescription: _categoryDescription,
+        productTypes = [],
+        baseTypes = [],
+        featureChips = [],
+        safetyNotes = [],
+        promptRules = [],
+      } = req.body as {
+        categoryId?: string;
+        categoryName?: string;
+        categoryDescription?: string;
+        productTypes?: string[];
+        baseTypes?: string[];
+        featureChips?: string[];
+        safetyNotes?: string[];
+        promptRules?: string[];
+      };
+
+      if (!categoryId && (!categoryName || categoryName.trim().length < 2)) {
+        return res.status(400).json({ message: "categoryId or categoryName is required" });
+      }
+
+      const slugify = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+      // Resolve or create the wizard category.
+      let wizardCat: any = null;
+      if (categoryId) {
+        const [found] = await db.select().from(wizardCategoriesTable).where(eq(wizardCategoriesTable.id, categoryId)).limit(1);
+        if (!found) return res.status(404).json({ message: "Category not found" });
+        wizardCat = found;
+      } else {
+        const slug = slugify(categoryName!);
+        const [existing] = await db.select().from(wizardCategoriesTable).where(eq(wizardCategoriesTable.slug, slug)).limit(1);
+        if (existing) {
+          wizardCat = existing;
+        } else {
+          const [created] = await db.insert(wizardCategoriesTable).values({
+            name: categoryName!.trim(),
+            slug,
+            isActive: true,
+          }).returning();
+          wizardCat = created;
+        }
+      }
+      const wcId = wizardCat.id as string;
+
+      // Helpers for de-duped insertion.
+      const insertProductTypes = async (names: string[]) => {
+        if (names.length === 0) return 0;
+        const existing = await db.select().from(wizardProductTypesTable).where(eq(wizardProductTypesTable.categoryId, wcId));
+        const existingSlugs = new Set(existing.map(e => e.slug));
+        const rows = names
+          .map(n => ({ name: n.trim(), slug: slugify(n) }))
+          .filter(x => x.name && x.slug && !existingSlugs.has(x.slug))
+          .filter((x, i, arr) => arr.findIndex(y => y.slug === x.slug) === i)
+          .map(x => ({ categoryId: wcId, name: x.name, slug: x.slug, isActive: true }));
+        if (rows.length === 0) return 0;
+        const out = await db.insert(wizardProductTypesTable).values(rows).returning();
+        return out.length;
+      };
+
+      const insertBaseTypes = async (names: string[]) => {
+        if (names.length === 0) return 0;
+        // Insert into global wizard_base_types if not present, then link via junction.
+        const allBase = await db.select().from(wizardBaseTypesTable);
+        const bySlug = new Map(allBase.map(b => [b.slug, b]));
+        const linkedRows = await db.select().from(wizardCategoryBaseTypesTable).where(eq(wizardCategoryBaseTypesTable.categoryId, wcId));
+        const linkedIds = new Set(linkedRows.map(r => r.baseTypeId));
+
+        let nextSort = linkedRows.length;
+        let inserted = 0;
+        for (const name of names) {
+          const slug = slugify(name);
+          if (!slug) continue;
+          let bt = bySlug.get(slug);
+          if (!bt) {
+            const [created] = await db.insert(wizardBaseTypesTable).values({ name: name.trim(), slug }).returning();
+            bt = created;
+            bySlug.set(slug, bt);
+          }
+          if (!linkedIds.has(bt.id)) {
+            await db.insert(wizardCategoryBaseTypesTable).values({ categoryId: wcId, baseTypeId: bt.id, sortOrder: nextSort++ });
+            linkedIds.add(bt.id);
+            inserted++;
+          }
+        }
+        return inserted;
+      };
+
+      const insertFeatureChips = async (names: string[]) => {
+        if (names.length === 0) return 0;
+        const existing = await db.select().from(wizardFeatureChipsTable).where(eq(wizardFeatureChipsTable.categoryId, wcId));
+        const existingSlugs = new Set(existing.map(e => e.slug));
+        const rows = names
+          .map(n => ({ name: n.trim(), slug: slugify(n) }))
+          .filter(x => x.name && x.slug && !existingSlugs.has(x.slug))
+          .filter((x, i, arr) => arr.findIndex(y => y.slug === x.slug) === i)
+          .map(x => ({ categoryId: wcId, name: x.name, slug: x.slug, isActive: true }));
+        if (rows.length === 0) return 0;
+        const out = await db.insert(wizardFeatureChipsTable).values(rows).returning();
+        return out.length;
+      };
+
+      const insertContentRows = async (
+        table: typeof wizardSafetyNotesTable | typeof wizardPromptRulesTable,
+        items: string[]
+      ) => {
+        if (items.length === 0) return 0;
+        const existing = await db.select().from(table as any).where(eq((table as any).categoryId, wcId));
+        const existingContent = new Set(existing.map((e: any) => e.content.toLowerCase()));
+        const rows = items
+          .map(t => t.trim())
+          .filter(t => t && !existingContent.has(t.toLowerCase()))
+          .filter((t, i, arr) => arr.findIndex(y => y.toLowerCase() === t.toLowerCase()) === i)
+          .map(content => ({ categoryId: wcId, content, isActive: true }));
+        if (rows.length === 0) return 0;
+        const out = await db.insert(table as any).values(rows).returning();
+        return out.length;
+      };
+
+      const counts = {
+        productTypes: await insertProductTypes(productTypes),
+        baseTypes: await insertBaseTypes(baseTypes),
+        featureChips: await insertFeatureChips(featureChips),
+        safetyNotes: await insertContentRows(wizardSafetyNotesTable, safetyNotes),
+        promptRules: await insertContentRows(wizardPromptRulesTable, promptRules),
+      };
+
+      res.json({ category: wizardCat, inserted: counts });
+    } catch (err: any) {
+      console.error("database-builder/save failed:", err);
+      res.status(500).json({ message: err.message || "Failed to save" });
+    }
+  });
+
+  // List wizard categories with counts of associated rows.
+  app.get("/api/admin/database-builder/categories", isAdmin, async (req, res) => {
+    try {
+      const cats = await db.select().from(wizardCategoriesTable);
+      const result = await Promise.all(cats.map(async (c) => {
+        const [pt, bt, fc, sn, pr] = await Promise.all([
+          db.select({ n: drizzleSql<number>`count(*)::int` }).from(wizardProductTypesTable).where(eq(wizardProductTypesTable.categoryId, c.id)),
+          db.select({ n: drizzleSql<number>`count(*)::int` }).from(wizardCategoryBaseTypesTable).where(eq(wizardCategoryBaseTypesTable.categoryId, c.id)),
+          db.select({ n: drizzleSql<number>`count(*)::int` }).from(wizardFeatureChipsTable).where(eq(wizardFeatureChipsTable.categoryId, c.id)),
+          db.select({ n: drizzleSql<number>`count(*)::int` }).from(wizardSafetyNotesTable).where(eq(wizardSafetyNotesTable.categoryId, c.id)),
+          db.select({ n: drizzleSql<number>`count(*)::int` }).from(wizardPromptRulesTable).where(eq(wizardPromptRulesTable.categoryId, c.id)),
+        ]);
+        return {
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          icon: c.icon,
+          isActive: c.isActive,
+          counts: {
+            productTypes: pt[0]?.n ?? 0,
+            baseTypes: bt[0]?.n ?? 0,
+            featureChips: fc[0]?.n ?? 0,
+            safetyNotes: sn[0]?.n ?? 0,
+            promptRules: pr[0]?.n ?? 0,
+          },
+        };
+      }));
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message || "Failed to fetch categories" });
+    }
+  });
+
+  // Delete a wizard category and all linked builder data (cascade FKs).
+  app.delete("/api/admin/database-builder/categories/:id", isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const out = await db.delete(wizardCategoriesTable).where(eq(wizardCategoriesTable.id, id)).returning();
+      if (out.length === 0) return res.status(404).json({ message: "Category not found" });
+      res.json({ success: true, id });
+    } catch (err: any) {
+      res.status(500).json({ message: err.message || "Failed to delete category" });
     }
   });
 

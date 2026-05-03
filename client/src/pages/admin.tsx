@@ -29,6 +29,7 @@ import FormulationTester from "@/components/admin/formulation-tester";
 import FormulationContentManagementTab from "@/components/admin/formulation-content-management-tab";
 import GeneratedFormulasTab from "@/components/admin/generated-formulas-tab";
 import BlogManagementTab from "@/components/admin/blog-management-tab";
+import DatabaseBuilderTab from "@/components/admin/database-builder-tab";
 import FormulatorManagementTab from "@/components/admin/formulator-management-tab";
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminOverviewTab from "@/components/admin/admin-overview-tab";
@@ -76,6 +77,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Product Structure",
     icon: Layers,
     children: [
+      { id: "database-builder", label: "Database Builder",     icon: Wand2 },
       { id: "categories",    label: "Category Management",    icon: FolderOpen },
       { id: "product-types", label: "Product Type Management",icon: Package },
       { id: "base-types",    label: "Base Type Management",   icon: Layers },
@@ -571,6 +573,9 @@ export default function AdminPage() {
               </Card>
             </div>
           )}
+
+          {/* ── DATABASE BUILDER ─────────────────────────────────────────── */}
+          {activeTab === "database-builder" && <DatabaseBuilderTab />}
 
           {/* ── PRODUCT TYPE MANAGEMENT ──────────────────────────────────── */}
           {activeTab === "product-types" && (

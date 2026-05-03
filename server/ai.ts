@@ -240,6 +240,92 @@ export async function generateWizardProductTypeNames(
   }
 }
 
+/**
+ * Database Builder — produce N short Title-Case base type labels for a category.
+ * Examples: "Liquid", "Powder", "Gel", "Cream", "Spray".
+ */
+export async function generateBaseTypeNames(categoryName: string, categoryDescription: string, count: number): Promise<string[]> {
+  try {
+    const r = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: `Return JSON {"types":[...]} with ${count} short Title-Case base/form labels (1-2 words) suitable for the given product category. Examples: "Liquid","Powder","Gel","Cream","Spray","Foam","Emulsion","Concentrate". No descriptions.` },
+        { role: "user", content: `Category: "${categoryName}". ${categoryDescription || ""}` },
+      ],
+      response_format: { type: "json_object" },
+    });
+    const p = JSON.parse(r.choices[0].message.content || '{"types":[]}');
+    return (Array.isArray(p.types) ? p.types : []).map((t: any) => String(t).trim()).filter((t: string) => t && t.length <= 40);
+  } catch (e) {
+    console.error("generateBaseTypeNames failed:", e);
+    return ["Liquid", "Powder", "Gel", "Cream", "Spray"].slice(0, count);
+  }
+}
+
+/**
+ * Database Builder — short Title-Case feature chips. Examples: "Antibacterial",
+ * "Eco-Friendly", "Fast Acting".
+ */
+export async function generateFeatureChips(categoryName: string, categoryDescription: string, count: number): Promise<string[]> {
+  try {
+    const r = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: `Return JSON {"chips":[...]} with ${count} unique short Title-Case feature/property chips (1-3 words) for the category. Examples: "Antibacterial","Eco-Friendly","Fast Acting","Stain Removal","Concentrate". No descriptions.` },
+        { role: "user", content: `Category: "${categoryName}". ${categoryDescription || ""}` },
+      ],
+      response_format: { type: "json_object" },
+    });
+    const p = JSON.parse(r.choices[0].message.content || '{"chips":[]}');
+    return (Array.isArray(p.chips) ? p.chips : []).map((t: any) => String(t).trim()).filter((t: string) => t && t.length <= 40);
+  } catch (e) {
+    console.error("generateFeatureChips failed:", e);
+    return Array.from({ length: count }, (_, i) => `Feature ${i + 1}`);
+  }
+}
+
+/**
+ * Database Builder — concise safety notes (one-liner each).
+ */
+export async function generateSafetyNotes(categoryName: string, categoryDescription: string, count: number): Promise<string[]> {
+  try {
+    const r = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: `Return JSON {"notes":[...]} with ${count} concise one-line safety/regulatory notes for the category. Examples: "Skin Safe","Non-Toxic","Biodegradable","Low Irritation","Phosphate Free". 1-3 words preferred, max 60 chars.` },
+        { role: "user", content: `Category: "${categoryName}". ${categoryDescription || ""}` },
+      ],
+      response_format: { type: "json_object" },
+    });
+    const p = JSON.parse(r.choices[0].message.content || '{"notes":[]}');
+    return (Array.isArray(p.notes) ? p.notes : []).map((t: any) => String(t).trim()).filter((t: string) => t && t.length <= 100);
+  } catch (e) {
+    console.error("generateSafetyNotes failed:", e);
+    return ["Skin Safe", "Non-Toxic", "Biodegradable"].slice(0, count);
+  }
+}
+
+/**
+ * Database Builder — short instructional prompt rules for AI formulation generation.
+ */
+export async function generatePromptRules(categoryName: string, categoryDescription: string, count: number): Promise<string[]> {
+  try {
+    const r = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: `Return JSON {"rules":[...]} with ${count} short imperative instructions an AI formulator should follow for this category. Examples: "Always suggest safe & stable ingredients","Avoid restricted chemicals","Include concentration ranges","Suggest local & global available raw materials". Max 80 chars each.` },
+        { role: "user", content: `Category: "${categoryName}". ${categoryDescription || ""}` },
+      ],
+      response_format: { type: "json_object" },
+    });
+    const p = JSON.parse(r.choices[0].message.content || '{"rules":[]}');
+    return (Array.isArray(p.rules) ? p.rules : []).map((t: any) => String(t).trim()).filter((t: string) => t && t.length <= 200);
+  } catch (e) {
+    console.error("generatePromptRules failed:", e);
+    return ["Always suggest safe & stable ingredients", "Include concentration ranges"].slice(0, count);
+  }
+}
+
 export async function generateProductTypes(categoryName: string, categoryDescription: string, count: number): Promise<string[]> {
   try {
     const response = await openai.chat.completions.create({
