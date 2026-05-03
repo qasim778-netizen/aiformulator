@@ -108,11 +108,8 @@ export default function Home() {
                 <Card
                   className="max-w-md w-full cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] touch-target ring-2 ring-primary bg-primary/5 border-primary"
                   onClick={() => {
-                    wizardRef.current?.start();
-                    setTimeout(() => {
-                      const el = document.getElementById("ai-formulator");
-                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                    }, 50);
+                    const el = document.getElementById("ai-formulator");
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
                   }}
                 >
                   <CardContent className="p-4 sm:p-5 lg:p-6 text-center">
