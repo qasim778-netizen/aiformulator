@@ -138,31 +138,6 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
     { title: "Generate", icon: "✏️" }
   ];
 
-  // Smart viscosity selection based on consistency type and product name
-  const getSmartViscosity = (consistencyType: string, productName?: string): string => {
-    const nameLower = (productName || '').toLowerCase();
-    
-    // Product name-based detection (highest priority)
-    if (nameLower.includes('serum') || nameLower.includes('essence')) return 'Low';
-    if (nameLower.includes('oil') || nameLower.includes('toner')) return 'Low';
-    if (nameLower.includes('cleaner') || nameLower.includes('spray') || nameLower.includes('glass')) return 'Low';
-    if (nameLower.includes('shampoo') || nameLower.includes('wash')) return 'Medium';
-    if (nameLower.includes('cream') || nameLower.includes('moisturizer')) return 'High';
-    if (nameLower.includes('paste') || nameLower.includes('balm') || nameLower.includes('ointment')) return 'High';
-    if (nameLower.includes('gel') && nameLower.includes('hair')) return 'High';
-    if (nameLower.includes('mask') || nameLower.includes('treatment')) return 'High';
-    if (nameLower.includes('wax') || nameLower.includes('pomade')) return 'High';
-    
-    // Consistency type-based defaults
-    if (consistencyType === 'liquid') return 'Low';
-    if (consistencyType === 'cream') return 'High';
-    if (consistencyType === 'gel') return 'Medium';
-    if (consistencyType === 'powder') return 'High';
-    
-    // Default fallback
-    return 'Medium';
-  };
-
   // Smart consistency type selection based on product name
   const getSmartConsistencyType = (productName?: string): string => {
     const nameLower = (productName || '').toLowerCase();
@@ -203,7 +178,7 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
   };
 
   // Smart viscosity selection based on consistency type and product name
-  const getSmartDefaultViscosity = (consistencyType: string, productName?: string): string => {
+  const getSmartViscosity = (consistencyType: string, productName?: string): string => {
     const nameLower = (productName || '').toLowerCase();
     
     // Product name-based detection (highest priority)
@@ -378,7 +353,6 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
 
   const nextStep = () => {
     if (currentStep === 0) {
-      // All 5 fields required in Step 1
       if (!formData.category) {
         toast({ title: "Select a Category", description: "Please choose a product category to continue.", variant: "destructive" });
         return;
@@ -409,7 +383,29 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
         return;
       }
     }
-    
+
+    if (currentStep === 1) {
+      if (!formData.viscosity) {
+        toast({ title: "Select Viscosity", description: "Please choose a target viscosity to continue.", variant: "destructive" });
+        return;
+      }
+      if (!formData.storageTemperature) {
+        toast({ title: "Select Storage Temperature", description: "Please choose a storage temperature to continue.", variant: "destructive" });
+        return;
+      }
+    }
+
+    if (currentStep === 2) {
+      if (!formData.budgetCategory) {
+        toast({ title: "Select Budget Category", description: "Please choose a budget category to continue.", variant: "destructive" });
+        return;
+      }
+      if (!formData.productionVolume) {
+        toast({ title: "Select Production Volume", description: "Please choose your production volume to continue.", variant: "destructive" });
+        return;
+      }
+    }
+
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
