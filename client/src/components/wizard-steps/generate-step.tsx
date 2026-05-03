@@ -44,10 +44,9 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
     return prop.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
   };
 
-  const GENERATION_TIMEOUT_MS = 90_000; // 90 seconds
-
   const generateFormulation = useMutation({
     mutationFn: async (data: FormData) => {
+      // Map our FormData to the expected API format
       const requestData = {
         productName: data.productName || 'Custom Product',
         productDescription: `${data.productType || data.consistencyType} ${data.baseType ? `(${data.baseType})` : ''} formulation with ${data.specialProperties.join(', ') || 'standard'} properties`,
@@ -74,40 +73,34 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
           companyName: 'AIFormulator.com'
         }
       };
+      
+      console.log('🚀 Sending request to API:', requestData);
+      
+      // Use apiRequest with proper authentication
+      const { apiRequest } = await import('@/lib/queryClient');
+      const response = await apiRequest('POST', '/api/ai/custom-formulation', requestData);
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), GENERATION_TIMEOUT_MS);
-
-      try {
-        const response = await fetch('/api/ai/custom-formulation', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestData),
-          credentials: 'include',
-          signal: controller.signal,
-        });
-
-        if (!response.ok) {
-          const error = await response.json().catch(() => ({}));
-          throw new Error(error.message || `Server error (${response.status}). Please try again.`);
-        }
-
-        const result = await response.json();
-        return result.formulation;
-      } catch (err: any) {
-        if (err.name === 'AbortError') {
-          throw new Error('Generation timed out after 90 seconds. The AI is under heavy load — please try again in a moment.');
-        }
-        throw err;
-      } finally {
-        clearTimeout(timeoutId);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to generate formulation');
       }
+      
+      // Get JSON response with formulation metadata
+      const result = await response.json();
+      console.log('✅ Formulation generated:', result);
+      
+      return result.formulation;
     },
     onSuccess: (formulation: any) => {
+      console.log('Generation success:', formulation);
+      
+      // Invalidate cache so generated formulas appear in dashboard
       queryClient.invalidateQueries({ queryKey: ['/api/user/generated'] });
+      
+      // Navigate to confirmation page with formulation ID
       setLocation(`/formulation-confirmation/${formulation.id}`);
     },
-    onError: (error: Error) => {
+    onError: (error) => {
       toast({
         title: "Generation Failed",
         description: error.message || "Failed to generate formulation. Please try again.",
