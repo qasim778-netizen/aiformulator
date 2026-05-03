@@ -155,12 +155,7 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
   };
 
   const nameWarning = getNameWarning(formData.productName, formData.productType);
-  const isComplete =
-    formData.category &&
-    formData.productType &&
-    formData.performanceLevel &&
-    formData.baseType &&
-    formData.productName.length >= 3;
+  const isComplete = formData.productName.length >= 3;
 
   return (
     <div className="space-y-6">
@@ -169,43 +164,7 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
         <p className="text-[#6B7280] text-sm">Define your product step by step</p>
       </div>
 
-      {/* ── 1. Category ─────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border-2 border-blue-200">
-        <Label className="text-base font-bold text-[#1A2B4B] mb-4 flex items-center">
-          <span className="bg-blue-600 text-white w-7 h-7 rounded-full text-xs font-bold mr-3 flex items-center justify-center flex-shrink-0">1</span>
-          Select Category <span className="text-red-500 ml-1">*</span>
-        </Label>
-        {categoriesLoading ? (
-          <div className="flex items-center py-3 text-blue-600 text-sm">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2" />
-            Loading categories...
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {categories.map(cat => {
-              const isSelected = formData.category === cat.name;
-              const emoji = CATEGORY_EMOJIS[cat.slug] || "🔬";
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => handleCategorySelect(cat)}
-                  className={`p-4 rounded-xl border-2 text-left transition-all duration-200 hover:shadow-md hover:scale-[1.02] ${
-                    isSelected
-                      ? "border-blue-600 bg-blue-600 text-white shadow-lg scale-[1.02]"
-                      : "border-gray-200 bg-white hover:border-blue-400"
-                  }`}
-                  data-testid={`category-${cat.slug}`}
-                >
-                  <div className={`text-2xl mb-2`}>{emoji}</div>
-                  <p className={`text-sm font-semibold leading-tight ${isSelected ? "text-white" : "text-gray-800"}`}>
-                    {cat.name}
-                  </p>
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      {/* ── 1. Category (hidden) ─────────────────────────────────────────── */}
 
       {/* ── 2. Product Type ──────────────────────────────────────────────── */}
       {formData.category && (
@@ -322,14 +281,14 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
           placeholder='e.g., Premium Anti-Rust Metal Paint, Fast Drying Glass Cleaner'
           value={formData.productName}
           onChange={e => updateFormData({ productName: e.target.value })}
-          maxLength={80}
+          maxLength={200}
           className="w-full h-12 border-2 border-teal-300 text-sm font-medium focus:border-teal-600 focus:ring-2 focus:ring-teal-200 bg-white rounded-lg"
           data-testid="input-product-name"
         />
         <div className="flex justify-between items-center mt-2">
-          <p className="text-xs text-gray-500">Min 3 — Max 80 characters</p>
-          <p className={`text-xs font-medium ${formData.productName.length > 70 ? "text-orange-600" : "text-gray-400"}`}>
-            {formData.productName.length}/80
+          <p className="text-xs text-gray-500">Min 3 — Max 200 characters</p>
+          <p className={`text-xs font-medium ${formData.productName.length > 180 ? "text-orange-600" : "text-gray-400"}`}>
+            {formData.productName.length}/200
           </p>
         </div>
         {nameWarning && formData.productName.length >= 3 && (
