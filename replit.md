@@ -88,16 +88,6 @@ The application is configured for both development and production environments:
 
 ## Key Features
 
-### Quick Start Generation
-The wizard landing page features a **Quick Start** hero card at the top that lets users generate a formula from just a product name, bypassing the multi-step wizard entirely:
-
-- **Single-input flow**: User types a product name (e.g., "Vitamin C Serum") and clicks "Generate Formula"
-- **Smart defaults**: Consistency type, viscosity, volume, pH, shelf life, storage temp, and budget tier are inferred automatically from the product name using keyword detection
-- **Fallback for category/product type readiness**: Works even when the structured category/product type system is incomplete or DB-empty, so users always have a path to value
-- **Same backend**: Hits `/api/ai/custom-formulation` with full smart-defaulted payload, navigates to `/formulation-confirmation/:id` on success
-- **90s timeout** with friendly error messaging
-- **Detailed wizard** remains available below the Quick Start as "Or create with more details (optional)"
-
 ### Master System File V3 (Category-Based Page Generator)
 The system uses a sophisticated Master System File V3 that generates formulation pages based on CATEGORY (not formula name). Key components include:
 

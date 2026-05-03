@@ -20,14 +20,11 @@ const whoCanUseItems = [
 
 export default function Home() {
   const [isWizardActive, setIsWizardActive] = useState(false)
-  const [showWizardSection, setShowWizardSection] = useState(false)
   const wizardRef = useRef<AIFormulatorWizardHandle>(null)
 
   // Scroll to #ai-formulator when the page loads with that hash in the URL
-  // (and reveal the wizard section so the link still works for deep-links)
   useEffect(() => {
     if (window.location.hash === '#ai-formulator') {
-      setShowWizardSection(true);
       const tryScroll = (attempts = 0) => {
         const el = document.getElementById('ai-formulator');
         if (el) {
@@ -39,14 +36,6 @@ export default function Home() {
       setTimeout(() => tryScroll(), 150);
     }
   }, []);
-
-  const revealAndScrollToWizard = () => {
-    setShowWizardSection(true);
-    setTimeout(() => {
-      const el = document.getElementById('ai-formulator');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
-  };
 
   useEffect(() => {
     document.title = "AI Formulation Generator | Online Chemical Formulation Software"
@@ -118,7 +107,13 @@ export default function Home() {
               <div className="flex justify-center mb-4 sm:mb-6">
                 <Card
                   className="max-w-md w-full cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] touch-target ring-2 ring-primary bg-primary/5 border-primary"
-                  onClick={revealAndScrollToWizard}
+                  onClick={() => {
+                    wizardRef.current?.start();
+                    setTimeout(() => {
+                      const el = document.getElementById("ai-formulator");
+                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }, 50);
+                  }}
                 >
                   <CardContent className="p-4 sm:p-5 lg:p-6 text-center">
                     <div className="bg-gradient-to-br from-purple-500 to-pink-500 text-white p-4 rounded-xl w-16 h-16 flex items-center justify-center mx-auto mb-3 shadow-lg">
@@ -131,11 +126,9 @@ export default function Home() {
               </div>
             )}
 
-            {showWizardSection && (
-              <div id="ai-formulator" className={isWizardActive ? "mt-0" : "mt-8"}>
-                <AIFormulatorWizard ref={wizardRef} onWizardStateChange={setIsWizardActive} />
-              </div>
-            )}
+            <div id="ai-formulator" className={isWizardActive ? "mt-0" : "mt-8"}>
+              <AIFormulatorWizard ref={wizardRef} onWizardStateChange={setIsWizardActive} />
+            </div>
           </div>
         </div>
       </section>

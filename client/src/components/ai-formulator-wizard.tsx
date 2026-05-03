@@ -3,9 +3,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { ArrowRight, ArrowLeft, Settings, BarChart, FileText, Beaker, Sparkles, Loader2, Zap } from "lucide-react";
+import { ArrowRight, ArrowLeft, Settings, BarChart, FileText, Beaker } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { HelpButton } from "@/components/ui/help-button";
 import { validateProductName } from "@/lib/validate-product-name";
@@ -88,94 +87,9 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [showWizard, setShowWizard] = useState(false);
-  const [quickStartName, setQuickStartName] = useState("");
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [, navigate] = useLocation();
-
-  // Quick Start mutation: generate from product name only with smart defaults
-  const quickStartMutation = useMutation({
-    mutationFn: async (productName: string) => {
-      const consistency = getSmartConsistencyType(productName);
-      const requestData = {
-        productName,
-        productDescription: `${consistency} formulation`,
-        productType: consistency,
-        category: "",
-        performanceLevel: "Standard",
-        baseType: "",
-        phLevel: 7,
-        costLevel: "Medium Quality",
-        budgetCategory: "Medium Quality",
-        viscosity: getSmartViscosity(consistency, productName),
-        shelfLife: 12,
-        storageTemperature: "Room Temperature (15-25°C)",
-        productionVolume: "Small Batch (1-100 units)",
-        color: "Default",
-        fragrance: "Default",
-        specialRequirements: "",
-        logoSettings: { showLogo: true, companyName: "AIFormulator.com" },
-      };
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 90_000);
-      try {
-        const response = await fetch("/api/ai/custom-formulation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(requestData),
-          credentials: "include",
-          signal: controller.signal,
-        });
-        if (!response.ok) {
-          const error = await response.json().catch(() => ({}));
-          throw new Error(error.message || `Server error (${response.status}). Please try again.`);
-        }
-        const result = await response.json();
-        return result.formulation;
-      } catch (err: any) {
-        if (err.name === "AbortError") {
-          throw new Error("Generation timed out after 90 seconds. The AI is under heavy load — please try again in a moment.");
-        }
-        throw err;
-      } finally {
-        clearTimeout(timeoutId);
-      }
-    },
-    onSuccess: (formulation: any) => {
-      navigate(`/formulation-confirmation/${formulation.id}`);
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Generation Failed",
-        description: error.message || "Failed to generate formulation. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleQuickStart = () => {
-    const trimmed = quickStartName.trim();
-    if (!trimmed) {
-      toast({
-        title: "Product Name Required",
-        description: "Enter a product name to generate your formula.",
-        variant: "destructive",
-      });
-      return;
-    }
-    const validation = validateProductName(trimmed);
-    if (!validation.valid) {
-      toast({
-        title: "Invalid Product Name",
-        description: validation.error || "Please enter a valid product name.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (!requireAuth()) return;
-    quickStartMutation.mutate(trimmed);
-  };
 
   const requireAuth = () => {
     if (!authLoading && !isAuthenticated) {
@@ -592,7 +506,7 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
   if (!showWizard) {
     return (
       <Card className="w-full max-w-4xl mx-auto shadow-lg bg-gradient-to-br from-teal-50 to-white overflow-hidden" data-testid="ai-formulator-landing">
-        <CardContent className="p-4 sm:p-6 text-center w-full box-border">
+        <CardContent className="p-3 text-center w-full box-border">
           {/* Header */}
           <div className="flex items-center justify-center mb-4">
             <div className="bg-primary text-white p-3 rounded-xl">
@@ -600,153 +514,72 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
             </div>
           </div>
 
-          {/* Page Title */}
-          <div className="mb-5">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">Choose Your Path</h2>
-            <p className="text-sm text-gray-600">Pick the option that fits how much detail you want to provide</p>
-          </div>
 
-          {/* Two-Option Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5 text-left">
-            {/* Option 1: Quick Start */}
-            <div className="bg-white rounded-2xl shadow-md border-2 border-teal-200 p-5 flex flex-col relative">
-              <span className="absolute -top-2.5 right-4 inline-flex items-center gap-1 bg-teal-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm">
-                <Sparkles className="h-3 w-3" />
-                Recommended
-              </span>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="bg-teal-100 text-teal-600 p-2 rounded-lg">
-                  <Zap className="h-5 w-5" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">Quick Start</h3>
+          {/* Feature Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 overflow-hidden">
+            <div className="bg-white p-4 rounded-xl shadow-md border border-gray-100">
+              <div className="bg-green-100 text-green-600 p-3 rounded-xl w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                <Settings className="h-6 w-6" />
               </div>
-              <p className="text-sm text-gray-600 mb-3">
-                Just enter a product name. AI handles category, type, pH, viscosity, and everything else.
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Technical Precision</h3>
+              <p className="text-gray-600 mb-3 text-sm">
+                Scientific accuracy with precise pH levels, viscosity parameters, and validated specifications
               </p>
-
-              <div className="bg-gradient-to-br from-teal-50/60 to-white border border-teal-100 rounded-xl p-3 mt-auto">
-                <Input
-                  type="text"
-                  value={quickStartName}
-                  onChange={(e) => setQuickStartName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !quickStartMutation.isPending) {
-                      e.preventDefault();
-                      handleQuickStart();
-                    }
-                  }}
-                  placeholder="e.g., Vitamin C Serum, Anti-Dandruff Shampoo..."
-                  className="w-full h-11 text-sm bg-white mb-2"
-                  disabled={quickStartMutation.isPending}
-                  maxLength={120}
-                  data-testid="input-quick-start-name"
-                />
-                <Button
-                  onClick={handleQuickStart}
-                  disabled={quickStartMutation.isPending || !quickStartName.trim()}
-                  className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-semibold"
-                  data-testid="button-quick-start-generate"
-                >
-                  {quickStartMutation.isPending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      Generate Formula
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </>
-                  )}
-                </Button>
-                <p className="text-xs text-gray-500 mt-2 text-center">
-                  Fastest option — skip all steps
-                </p>
+              <div className="flex items-center justify-center">
+                <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                  ✓ Lab-Grade Accuracy
+                </span>
               </div>
             </div>
 
-            {/* Option 2: Detailed Wizard */}
-            <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-5 flex flex-col">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="bg-blue-100 text-blue-600 p-2 rounded-lg">
-                  <Settings className="h-5 w-5" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">Detailed Formulation</h3>
+            <div className="bg-white p-4 rounded-xl shadow-md border border-gray-100">
+              <div className="bg-orange-100 text-orange-600 p-3 rounded-xl w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                <BarChart className="h-6 w-6" />
               </div>
-              <p className="text-sm text-gray-600 mb-3">
-                Specify exactly what you need: category, product type, base type, pH, viscosity, budget, and more.
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Cost Optimization</h3>
+              <p className="text-gray-600 mb-3 text-sm">
+                Intelligent ingredient selection to maximize quality while minimizing production costs
               </p>
+              <div className="flex items-center justify-center">
+                <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                  $ Budget-Optimized
+                </span>
+              </div>
+            </div>
 
-              <ul className="space-y-1.5 mb-4 text-sm text-gray-700">
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                  Choose <span className="font-semibold">category</span> (e.g., Personal Care)
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                  Select <span className="font-semibold">product type</span> &amp; base type
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                  Set technical specs &amp; production volume
-                </li>
-              </ul>
-
-              <Button
-                onClick={() => {
-                  if (!requireAuth()) return;
-                  setShowWizard(true);
-                  onWizardStateChange?.(true);
-                }}
-                size="lg"
-                variant="outline"
-                className="w-full h-11 border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold mt-auto"
-                data-testid="button-start-formulation"
-              >
-                Start Detailed Wizard
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
-              <p className="text-xs text-gray-500 mt-2 text-center">
-                4-step guided wizard
+            <div className="bg-white p-4 rounded-xl shadow-md border border-gray-100">
+              <div className="bg-teal-100 text-teal-600 p-3 rounded-xl w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                <FileText className="h-6 w-6" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Professional Reports</h3>
+              <p className="text-gray-600 mb-3 text-sm">
+                Comprehensive documentation with batch records, quality protocols, and specifications
               </p>
+              <div className="flex items-center justify-center">
+                <span className="bg-teal-100 text-teal-800 text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                  🏭 Industry Standard
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Feature Cards (compact info row) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3 overflow-hidden">
-            <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
-              <div className="bg-green-100 text-green-600 p-2 rounded-lg flex-shrink-0">
-                <Settings className="h-4 w-4" />
-              </div>
-              <div className="text-left">
-                <h3 className="text-sm font-semibold text-gray-900">Technical Precision</h3>
-                <p className="text-xs text-gray-500">Lab-grade accuracy</p>
-              </div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
-              <div className="bg-orange-100 text-orange-600 p-2 rounded-lg flex-shrink-0">
-                <BarChart className="h-4 w-4" />
-              </div>
-              <div className="text-left">
-                <h3 className="text-sm font-semibold text-gray-900">Cost Optimization</h3>
-                <p className="text-xs text-gray-500">Budget-optimized</p>
-              </div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
-              <div className="bg-teal-100 text-teal-600 p-2 rounded-lg flex-shrink-0">
-                <FileText className="h-4 w-4" />
-              </div>
-              <div className="text-left">
-                <h3 className="text-sm font-semibold text-gray-900">Professional Reports</h3>
-                <p className="text-xs text-gray-500">Industry standard</p>
-              </div>
-            </div>
-          </div>
+          {/* Start Button */}
+          <Button
+            onClick={() => {
+              if (!requireAuth()) return;
+              setShowWizard(true);
+              onWizardStateChange?.(true);
+            }}
+            size="lg"
+            className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+            data-testid="button-start-formulation"
+          >
+            <ArrowRight className="h-5 w-5 mr-2" />
+            Start New Formulation
+          </Button>
 
           {/* Footer Text */}
-          <p className="text-xs text-gray-500 mt-2 flex items-center justify-center">
+          <p className="text-xs text-gray-500 mt-4 flex items-center justify-center">
             <span className="mr-2">🔓</span>
             Free Account • Secure Access • Professional-Grade Results
           </p>
