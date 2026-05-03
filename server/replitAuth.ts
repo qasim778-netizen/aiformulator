@@ -128,7 +128,6 @@ export async function setupAuth(app: Express) {
     }
     
     passport.authenticate(targetStrategy, {
-      prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
