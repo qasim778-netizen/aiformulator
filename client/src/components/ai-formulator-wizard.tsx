@@ -600,27 +600,31 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
             </div>
           </div>
 
-          {/* Quick Start Hero */}
-          <div className="bg-white rounded-2xl shadow-md border border-teal-100 p-5 sm:p-6 mb-5 text-left">
-            <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Create Your Formula in Seconds</h2>
-                </div>
-                <p className="text-sm text-gray-600">Just tell us the product name and let AI handle the rest</p>
-              </div>
-              <span className="inline-flex items-center gap-1 bg-teal-50 text-teal-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-teal-200 whitespace-nowrap">
+          {/* Page Title */}
+          <div className="mb-5">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">Choose Your Path</h2>
+            <p className="text-sm text-gray-600">Pick the option that fits how much detail you want to provide</p>
+          </div>
+
+          {/* Two-Option Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5 text-left">
+            {/* Option 1: Quick Start */}
+            <div className="bg-white rounded-2xl shadow-md border-2 border-teal-200 p-5 flex flex-col relative">
+              <span className="absolute -top-2.5 right-4 inline-flex items-center gap-1 bg-teal-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm">
                 <Sparkles className="h-3 w-3" />
                 Recommended
               </span>
-            </div>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-teal-100 text-teal-600 p-2 rounded-lg">
+                  <Zap className="h-5 w-5" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Quick Start</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">
+                Just enter a product name. AI handles category, type, pH, viscosity, and everything else.
+              </p>
 
-            <div className="bg-gradient-to-br from-teal-50/60 to-white border border-teal-100 rounded-xl p-3 sm:p-4">
-              <label className="block text-xs font-semibold text-teal-700 mb-2 flex items-center gap-1.5">
-                <Zap className="h-3.5 w-3.5" />
-                Quick Start
-              </label>
-              <div className="flex flex-col sm:flex-row gap-2">
+              <div className="bg-gradient-to-br from-teal-50/60 to-white border border-teal-100 rounded-xl p-3 mt-auto">
                 <Input
                   type="text"
                   value={quickStartName}
@@ -631,8 +635,8 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
                       handleQuickStart();
                     }
                   }}
-                  placeholder="Enter your product name (e.g., Vitamin C Serum, Anti-Dandruff Shampoo...)"
-                  className="flex-1 h-11 text-sm bg-white"
+                  placeholder="e.g., Vitamin C Serum, Anti-Dandruff Shampoo..."
+                  className="w-full h-11 text-sm bg-white mb-2"
                   disabled={quickStartMutation.isPending}
                   maxLength={120}
                   data-testid="input-quick-start-name"
@@ -640,7 +644,7 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
                 <Button
                   onClick={handleQuickStart}
                   disabled={quickStartMutation.isPending || !quickStartName.trim()}
-                  className="h-11 px-5 bg-primary hover:bg-primary/90 text-white font-semibold whitespace-nowrap"
+                  className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-semibold"
                   data-testid="button-quick-start-generate"
                 >
                   {quickStartMutation.isPending ? (
@@ -655,87 +659,94 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
                     </>
                   )}
                 </Button>
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  Fastest option — skip all steps
+                </p>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
-                Skip all steps and go directly to AI formula generation
+            </div>
+
+            {/* Option 2: Detailed Wizard */}
+            <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-5 flex flex-col">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-blue-100 text-blue-600 p-2 rounded-lg">
+                  <Settings className="h-5 w-5" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Detailed Formulation</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">
+                Specify exactly what you need: category, product type, base type, pH, viscosity, budget, and more.
+              </p>
+
+              <ul className="space-y-1.5 mb-4 text-sm text-gray-700">
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  Choose <span className="font-semibold">category</span> (e.g., Personal Care)
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  Select <span className="font-semibold">product type</span> &amp; base type
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  Set technical specs &amp; production volume
+                </li>
+              </ul>
+
+              <Button
+                onClick={() => {
+                  if (!requireAuth()) return;
+                  setShowWizard(true);
+                  onWizardStateChange?.(true);
+                }}
+                size="lg"
+                variant="outline"
+                className="w-full h-11 border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold mt-auto"
+                data-testid="button-start-formulation"
+              >
+                Start Detailed Wizard
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                4-step guided wizard
               </p>
             </div>
           </div>
 
-          {/* Or with more details */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Or create with more details (optional)
-            </span>
-            <div className="flex-1 h-px bg-gray-200" />
-          </div>
-
-          {/* Feature Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 overflow-hidden">
-            <div className="bg-white p-4 rounded-xl shadow-md border border-gray-100">
-              <div className="bg-green-100 text-green-600 p-3 rounded-xl w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                <Settings className="h-6 w-6" />
+          {/* Feature Cards (compact info row) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3 overflow-hidden">
+            <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
+              <div className="bg-green-100 text-green-600 p-2 rounded-lg flex-shrink-0">
+                <Settings className="h-4 w-4" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Technical Precision</h3>
-              <p className="text-gray-600 mb-3 text-sm">
-                Scientific accuracy with precise pH levels, viscosity parameters, and validated specifications
-              </p>
-              <div className="flex items-center justify-center">
-                <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full flex items-center">
-                  ✓ Lab-Grade Accuracy
-                </span>
+              <div className="text-left">
+                <h3 className="text-sm font-semibold text-gray-900">Technical Precision</h3>
+                <p className="text-xs text-gray-500">Lab-grade accuracy</p>
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-xl shadow-md border border-gray-100">
-              <div className="bg-orange-100 text-orange-600 p-3 rounded-xl w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                <BarChart className="h-6 w-6" />
+            <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
+              <div className="bg-orange-100 text-orange-600 p-2 rounded-lg flex-shrink-0">
+                <BarChart className="h-4 w-4" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Cost Optimization</h3>
-              <p className="text-gray-600 mb-3 text-sm">
-                Intelligent ingredient selection to maximize quality while minimizing production costs
-              </p>
-              <div className="flex items-center justify-center">
-                <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full flex items-center">
-                  $ Budget-Optimized
-                </span>
+              <div className="text-left">
+                <h3 className="text-sm font-semibold text-gray-900">Cost Optimization</h3>
+                <p className="text-xs text-gray-500">Budget-optimized</p>
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-xl shadow-md border border-gray-100">
-              <div className="bg-teal-100 text-teal-600 p-3 rounded-xl w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                <FileText className="h-6 w-6" />
+            <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
+              <div className="bg-teal-100 text-teal-600 p-2 rounded-lg flex-shrink-0">
+                <FileText className="h-4 w-4" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Professional Reports</h3>
-              <p className="text-gray-600 mb-3 text-sm">
-                Comprehensive documentation with batch records, quality protocols, and specifications
-              </p>
-              <div className="flex items-center justify-center">
-                <span className="bg-teal-100 text-teal-800 text-xs font-medium px-2 py-1 rounded-full flex items-center">
-                  🏭 Industry Standard
-                </span>
+              <div className="text-left">
+                <h3 className="text-sm font-semibold text-gray-900">Professional Reports</h3>
+                <p className="text-xs text-gray-500">Industry standard</p>
               </div>
             </div>
           </div>
-
-          {/* Start Button */}
-          <Button
-            onClick={() => {
-              if (!requireAuth()) return;
-              setShowWizard(true);
-              onWizardStateChange?.(true);
-            }}
-            size="lg"
-            className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
-            data-testid="button-start-formulation"
-          >
-            <ArrowRight className="h-5 w-5 mr-2" />
-            Start New Formulation
-          </Button>
 
           {/* Footer Text */}
-          <p className="text-xs text-gray-500 mt-4 flex items-center justify-center">
+          <p className="text-xs text-gray-500 mt-2 flex items-center justify-center">
             <span className="mr-2">🔓</span>
             Free Account • Secure Access • Professional-Grade Results
           </p>
