@@ -579,7 +579,12 @@ export default function AdminPage() {
                 <h2 className="text-lg font-semibold text-gray-900">Product Type Management</h2>
                 <p className="text-sm text-gray-500 mt-0.5">Manage wizard product types linked to each category</p>
               </div>
-              <WizardDataTab endpoint="/api/wizard/product-types" label="Product Types" />
+              <WizardDataTab
+                endpoint="/api/wizard/product-types"
+                label="Product Types"
+                generateEndpoint="/api/admin/wizard/product-types/generate"
+                deleteEndpoint="/api/admin/wizard/product-types"
+              />
             </div>
           )}
 
@@ -843,9 +848,20 @@ function PlaceholderTab({ title, description, icon: Icon }: { title: string; des
   );
 }
 
-function WizardDataTab({ endpoint, label }: { endpoint: string; label: string }) {
+function WizardDataTab({
+  endpoint,
+  label,
+  generateEndpoint,
+  deleteEndpoint,
+}: {
+  endpoint: string;
+  label: string;
+  generateEndpoint?: string;
+  deleteEndpoint?: string;
+}) {
   const { data: mainCategories } = useQuery<any[]>({ queryKey: ["/api/categories"] });
   const [selectedCatId, setSelectedCatId] = useState<string>("");
+  const { toast } = useToast();
 
   const { data: items = [], isLoading } = useQuery<any[]>({
     queryKey: [endpoint, selectedCatId],
@@ -858,10 +874,43 @@ function WizardDataTab({ endpoint, label }: { endpoint: string; label: string })
     enabled: !!selectedCatId,
   });
 
+  const generateMutation = useMutation({
+    mutationFn: async () => {
+      if (!generateEndpoint || !selectedCatId) throw new Error("Missing config");
+      const r = await apiRequest("POST", generateEndpoint, { categoryId: selectedCatId, count: 8 });
+      return r.json();
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: [endpoint, selectedCatId] });
+      toast({
+        title: data.inserted > 0 ? `Generated ${data.inserted} ${label.toLowerCase()}` : "Nothing new added",
+        description: data.message || `Added ${data.inserted} new entries.`,
+      });
+    },
+    onError: (err: any) => {
+      toast({ title: "Generation failed", description: err?.message || "Try again later.", variant: "destructive" });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      if (!deleteEndpoint) throw new Error("Delete not supported");
+      const r = await apiRequest("DELETE", `${deleteEndpoint}/${id}`);
+      return r.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [endpoint, selectedCatId] });
+      toast({ title: "Deleted", description: `${label.replace(/s$/, "")} removed.` });
+    },
+    onError: (err: any) => {
+      toast({ title: "Delete failed", description: err?.message || "Try again.", variant: "destructive" });
+    },
+  });
+
   return (
     <Card className="border-gray-100 shadow-sm">
       <CardHeader className="pb-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <Select value={selectedCatId} onValueChange={setSelectedCatId}>
             <SelectTrigger className="w-64 h-9 text-sm border-gray-200">
               <SelectValue placeholder="Select a category…" />
@@ -873,6 +922,18 @@ function WizardDataTab({ endpoint, label }: { endpoint: string; label: string })
             </SelectContent>
           </Select>
           {selectedCatId && <span className="text-sm text-gray-500">{items.length} {label.toLowerCase()}</span>}
+          {generateEndpoint && selectedCatId && (
+            <Button
+              size="sm"
+              className="ml-auto bg-emerald-600 hover:bg-emerald-700 h-9"
+              onClick={() => generateMutation.mutate()}
+              disabled={generateMutation.isPending}
+              data-testid="button-generate-product-types"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              {generateMutation.isPending ? "Generating…" : `Generate ${label}`}
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent>
@@ -883,13 +944,30 @@ function WizardDataTab({ endpoint, label }: { endpoint: string; label: string })
             {[1,2,3].map(i => <div key={i} className="h-10 bg-gray-100 animate-pulse rounded-lg" />)}
           </div>
         ) : items.length === 0 ? (
-          <p className="text-sm text-gray-400 py-8 text-center">No {label.toLowerCase()} defined for this category yet</p>
+          <p className="text-sm text-gray-400 py-8 text-center">
+            No {label.toLowerCase()} defined for this category yet
+            {generateEndpoint ? ` — click "Generate ${label}" above to create some.` : ""}
+          </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {items.map((item: any) => (
-              <div key={item.id} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-100">
+              <div key={item.id} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-100 group">
                 <div className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
-                <span className="text-sm text-gray-700">{item.name}</span>
+                <span className="text-sm text-gray-700 flex-1 truncate">{item.name}</span>
+                {deleteEndpoint && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => {
+                      if (confirm(`Delete "${item.name}"?`)) deleteMutation.mutate(item.id);
+                    }}
+                    disabled={deleteMutation.isPending}
+                    data-testid={`button-delete-product-type-${item.id}`}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                )}
               </div>
             ))}
           </div>

@@ -205,6 +205,41 @@ export async function generateAltText(formulationName: string): Promise<string> 
   }
 }
 
+/**
+ * Generate concise product TYPE labels (2-4 words each) suitable for the
+ * wizard's "Product Type" picker. Different from generateProductTypes which
+ * returns long product descriptions for bulk formulation generation.
+ */
+export async function generateWizardProductTypeNames(
+  categoryName: string,
+  count: number
+): Promise<string[]> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You generate short, distinct product TYPE labels for a chemical formulation wizard. Each label is 2-4 words, Title Case, no trailing punctuation, no numbering, no descriptions. Return JSON: {"types": ["Label 1", "Label 2", ...]}`,
+        },
+        {
+          role: "user",
+          content: `Generate ${count} unique product type labels for the category "${categoryName}". Examples for "Cleaning Products": ["Glass Cleaner","Floor Cleaner","Toilet Cleaner","Degreaser"]. Return only short labels — no descriptions.`,
+        },
+      ],
+      response_format: { type: "json_object" },
+    });
+    const parsed = JSON.parse(response.choices[0].message.content || '{"types":[]}');
+    const types: string[] = Array.isArray(parsed.types) ? parsed.types : [];
+    return types
+      .map((t) => String(t).trim())
+      .filter((t) => t.length > 0 && t.length <= 60);
+  } catch (error) {
+    console.error("Failed to generate wizard product type names:", error);
+    return Array.from({ length: count }, (_, i) => `${categoryName} Type ${i + 1}`);
+  }
+}
+
 export async function generateProductTypes(categoryName: string, categoryDescription: string, count: number): Promise<string[]> {
   try {
     const response = await openai.chat.completions.create({

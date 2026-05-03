@@ -9,7 +9,7 @@ import { insertCategorySchema, insertFormulationSchema, insertFormulationContent
 import type { ChatMessage, InsertChatMessage } from "@shared/schema";
 import { db, categoriesTable, wizardCategoriesTable, wizardProductTypesTable, wizardBaseTypesTable, wizardCategoryBaseTypesTable, generatedFormulasTable, formulaGenerationFailuresTable, apiUsageLogsTable } from "./db";
 import { eq, and } from "drizzle-orm";
-import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateBulkFormulationsWithKeywords, generateProductTypes, generateCustomFormulation } from "./ai";
+import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateBulkFormulationsWithKeywords, generateProductTypes, generateCustomFormulation, generateWizardProductTypeNames } from "./ai";
 import { generateCategorySuggestions } from "./services/openai";
 import { generateFormulationPDF } from "./pdf-generator";
 import { optimizeFormulationsForSEO } from "./seo-optimizer";
@@ -1803,6 +1803,80 @@ Sitemap: https://aiformulator.net/sitemap.xml
       res.json(types);
     } catch (err: any) {
       res.status(500).json({ message: err.message || "Failed to fetch product types" });
+    }
+  });
+
+  // ─── Admin: Generate wizard product types for a main category ──────────
+  app.post("/api/admin/wizard/product-types/generate", isAdmin, async (req, res) => {
+    try {
+      const { categoryId, count } = req.body as { categoryId?: string; count?: number };
+      const n = Math.min(Math.max(Number(count) || 8, 1), 20);
+      if (!categoryId) return res.status(400).json({ message: "categoryId is required" });
+
+      const [mainCat] = await db.select().from(categoriesTable).where(eq(categoriesTable.id, categoryId)).limit(1);
+      if (!mainCat) return res.status(404).json({ message: "Category not found" });
+
+      // Resolve or create matching wizard category
+      const mainSlug = mainCat.slug.replace(/-formulations$/, "");
+      const wizardCats = await db.select().from(wizardCategoriesTable);
+      let wizardCat = wizardCats.find(wc =>
+        mainSlug.includes(wc.slug) || wc.slug.includes(mainSlug) ||
+        mainSlug.replace(/-/g, " ").includes(wc.name.toLowerCase()) ||
+        wc.name.toLowerCase().split(" ").every((w: string) => mainSlug.includes(w))
+      );
+      if (!wizardCat) {
+        const [created] = await db.insert(wizardCategoriesTable).values({
+          name: mainCat.name,
+          slug: mainSlug,
+          icon: mainCat.icon ?? null,
+          isActive: true,
+        }).returning();
+        wizardCat = created;
+      }
+
+      // Skip names that already exist (active or inactive) for this wizard category
+      const existing = await db.select().from(wizardProductTypesTable)
+        .where(eq(wizardProductTypesTable.categoryId, wizardCat.id));
+      const existingSlugs = new Set(existing.map(e => e.slug));
+
+      const names = await generateWizardProductTypeNames(mainCat.name, n);
+      const slugify = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+      const toInsert = names
+        .map(name => ({ name, slug: slugify(name) }))
+        .filter(x => x.slug && !existingSlugs.has(x.slug))
+        // de-dup within this batch
+        .filter((x, i, arr) => arr.findIndex(y => y.slug === x.slug) === i)
+        .map(x => ({
+          categoryId: wizardCat!.id,
+          name: x.name,
+          slug: x.slug,
+          isActive: true,
+        }));
+
+      if (toInsert.length === 0) {
+        return res.json({ inserted: 0, items: [], message: "No new product types to add (all suggestions already exist)." });
+      }
+
+      const inserted = await db.insert(wizardProductTypesTable).values(toInsert).returning();
+      res.json({ inserted: inserted.length, items: inserted });
+    } catch (err: any) {
+      console.error("Failed to generate wizard product types:", err);
+      res.status(500).json({ message: err.message || "Failed to generate product types" });
+    }
+  });
+
+  // ─── Admin: Delete a wizard product type ──────────────────────────────
+  app.delete("/api/admin/wizard/product-types/:id", isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await db.delete(wizardProductTypesTable)
+        .where(eq(wizardProductTypesTable.id, id))
+        .returning();
+      if (deleted.length === 0) return res.status(404).json({ message: "Product type not found" });
+      res.json({ success: true, id });
+    } catch (err: any) {
+      res.status(500).json({ message: err.message || "Failed to delete product type" });
     }
   });
 
