@@ -3,8 +3,9 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { ArrowRight, ArrowLeft, Settings, BarChart, FileText, Beaker } from "lucide-react";
+import { ArrowRight, ArrowLeft, Settings, BarChart, FileText, Beaker, Sparkles, Loader2, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { HelpButton } from "@/components/ui/help-button";
 import { validateProductName } from "@/lib/validate-product-name";
@@ -87,9 +88,94 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [showWizard, setShowWizard] = useState(false);
+  const [quickStartName, setQuickStartName] = useState("");
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [, navigate] = useLocation();
+
+  // Quick Start mutation: generate from product name only with smart defaults
+  const quickStartMutation = useMutation({
+    mutationFn: async (productName: string) => {
+      const consistency = getSmartConsistencyType(productName);
+      const requestData = {
+        productName,
+        productDescription: `${consistency} formulation`,
+        productType: consistency,
+        category: "",
+        performanceLevel: "Standard",
+        baseType: "",
+        phLevel: 7,
+        costLevel: "Medium Quality",
+        budgetCategory: "Medium Quality",
+        viscosity: getSmartViscosity(consistency, productName),
+        shelfLife: 12,
+        storageTemperature: "Room Temperature (15-25°C)",
+        productionVolume: "Small Batch (1-100 units)",
+        color: "Default",
+        fragrance: "Default",
+        specialRequirements: "",
+        logoSettings: { showLogo: true, companyName: "AIFormulator.com" },
+      };
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 90_000);
+      try {
+        const response = await fetch("/api/ai/custom-formulation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestData),
+          credentials: "include",
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          throw new Error(error.message || `Server error (${response.status}). Please try again.`);
+        }
+        const result = await response.json();
+        return result.formulation;
+      } catch (err: any) {
+        if (err.name === "AbortError") {
+          throw new Error("Generation timed out after 90 seconds. The AI is under heavy load — please try again in a moment.");
+        }
+        throw err;
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    },
+    onSuccess: (formulation: any) => {
+      navigate(`/formulation-confirmation/${formulation.id}`);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Generation Failed",
+        description: error.message || "Failed to generate formulation. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleQuickStart = () => {
+    const trimmed = quickStartName.trim();
+    if (!trimmed) {
+      toast({
+        title: "Product Name Required",
+        description: "Enter a product name to generate your formula.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const validation = validateProductName(trimmed);
+    if (!validation.valid) {
+      toast({
+        title: "Invalid Product Name",
+        description: validation.error || "Please enter a valid product name.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!requireAuth()) return;
+    quickStartMutation.mutate(trimmed);
+  };
 
   const requireAuth = () => {
     if (!authLoading && !isAuthenticated) {
@@ -506,7 +592,7 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
   if (!showWizard) {
     return (
       <Card className="w-full max-w-4xl mx-auto shadow-lg bg-gradient-to-br from-teal-50 to-white overflow-hidden" data-testid="ai-formulator-landing">
-        <CardContent className="p-3 text-center w-full box-border">
+        <CardContent className="p-4 sm:p-6 text-center w-full box-border">
           {/* Header */}
           <div className="flex items-center justify-center mb-4">
             <div className="bg-primary text-white p-3 rounded-xl">
@@ -514,6 +600,76 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
             </div>
           </div>
 
+          {/* Quick Start Hero */}
+          <div className="bg-white rounded-2xl shadow-md border border-teal-100 p-5 sm:p-6 mb-5 text-left">
+            <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Create Your Formula in Seconds</h2>
+                </div>
+                <p className="text-sm text-gray-600">Just tell us the product name and let AI handle the rest</p>
+              </div>
+              <span className="inline-flex items-center gap-1 bg-teal-50 text-teal-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-teal-200 whitespace-nowrap">
+                <Sparkles className="h-3 w-3" />
+                Recommended
+              </span>
+            </div>
+
+            <div className="bg-gradient-to-br from-teal-50/60 to-white border border-teal-100 rounded-xl p-3 sm:p-4">
+              <label className="block text-xs font-semibold text-teal-700 mb-2 flex items-center gap-1.5">
+                <Zap className="h-3.5 w-3.5" />
+                Quick Start
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Input
+                  type="text"
+                  value={quickStartName}
+                  onChange={(e) => setQuickStartName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !quickStartMutation.isPending) {
+                      e.preventDefault();
+                      handleQuickStart();
+                    }
+                  }}
+                  placeholder="Enter your product name (e.g., Vitamin C Serum, Anti-Dandruff Shampoo...)"
+                  className="flex-1 h-11 text-sm bg-white"
+                  disabled={quickStartMutation.isPending}
+                  maxLength={120}
+                  data-testid="input-quick-start-name"
+                />
+                <Button
+                  onClick={handleQuickStart}
+                  disabled={quickStartMutation.isPending || !quickStartName.trim()}
+                  className="h-11 px-5 bg-primary hover:bg-primary/90 text-white font-semibold whitespace-nowrap"
+                  data-testid="button-quick-start-generate"
+                >
+                  {quickStartMutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      Generate Formula
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Skip all steps and go directly to AI formula generation
+              </p>
+            </div>
+          </div>
+
+          {/* Or with more details */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              Or create with more details (optional)
+            </span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
 
           {/* Feature Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 overflow-hidden">
