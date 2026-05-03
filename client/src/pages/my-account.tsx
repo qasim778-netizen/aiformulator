@@ -2,14 +2,15 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Heart, Download, Trash2, User, Wand2, Zap, Eye, ChevronRight, ChevronLeft } from "lucide-react";
+import { Heart, Download, Trash2, User, Wand2, Zap, Eye, ChevronRight, ChevronLeft, BarChart2 } from "lucide-react";
 import { format } from "date-fns";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useLocation } from "wouter";
 import { useState, useEffect } from "react";
+import ApiUsageTab from "@/components/account/api-usage-tab";
 
-type Section = "downloads" | "favorites" | "generated";
+type Section = "downloads" | "favorites" | "generated" | "api-usage";
 
 const PAGE_SIZE = 10;
 
@@ -133,15 +134,17 @@ export default function MyAccountPage() {
     : user.firstName || user.email?.split("@")[0] || "User";
 
   const NAV = [
-    { id: "downloads" as Section, label: "My Downloads",      icon: Download, count: downloads?.length ?? 0 },
-    { id: "favorites" as Section, label: "My Favourites",     icon: Heart,    count: favorites?.length ?? 0 },
-    { id: "generated" as Section, label: "Generated Formulas",icon: Wand2,    count: generated?.length ?? 0 },
+    { id: "downloads" as Section,  label: "My Downloads",      icon: Download,  count: downloads?.length ?? 0 },
+    { id: "favorites" as Section,  label: "My Favourites",     icon: Heart,     count: favorites?.length ?? 0 },
+    { id: "generated" as Section,  label: "Generated Formulas",icon: Wand2,     count: generated?.length ?? 0 },
+    { id: "api-usage" as Section,  label: "API Usage",         icon: BarChart2, count: null },
   ];
 
   const sectionTitles: Record<Section, { title: string; desc: string }> = {
-    downloads: { title: "Downloaded Formulas",  desc: "Track all the formulas you've downloaded" },
-    favorites:  { title: "Favourite Formulas",  desc: "Quick access to your saved formulations" },
-    generated:  { title: "Generated Formulas",  desc: "Formulas you've created using the AI wizard" },
+    downloads:  { title: "Downloaded Formulas",  desc: "Track all the formulas you've downloaded" },
+    favorites:  { title: "Favourite Formulas",   desc: "Quick access to your saved formulations" },
+    generated:  { title: "Generated Formulas",   desc: "Formulas you've created using the AI wizard" },
+    "api-usage":{ title: "API Usage",            desc: "Your API call history, token usage, and cost breakdown" },
   };
 
   return (
@@ -195,11 +198,13 @@ export default function MyAccountPage() {
                     >
                       <Icon className={`h-4 w-4 flex-shrink-0 ${active ? "text-emerald-600" : "text-gray-400 group-hover:text-gray-600"}`} />
                       <span className="flex-1 text-left">{item.label}</span>
-                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                        active ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"
-                      }`}>
-                        {item.count}
-                      </span>
+                      {item.count !== null && (
+                        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                          active ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"
+                        }`}>
+                          {item.count}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
@@ -335,6 +340,9 @@ export default function MyAccountPage() {
                   )}
                 </div>
               )}
+
+              {/* ── API Usage ── */}
+              {activeSection === "api-usage" && <ApiUsageTab />}
 
               {/* ── Generated ── */}
               {activeSection === "generated" && (

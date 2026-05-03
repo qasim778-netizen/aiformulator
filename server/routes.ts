@@ -437,6 +437,107 @@ Sitemap: https://aiformulator.net/sitemap.xml
     }
   });
 
+  // User API usage stats
+  app.get('/api/user/api-usage', requireAuth, async (req: any, res) => {
+    try {
+      const userId = getUserId(req);
+      if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+      const user = await storage.getUser(userId);
+      const userEmail = user?.email;
+
+      // Fetch all logs for this user (by userId or email)
+      const allLogs = await db.select().from(apiUsageLogsTable)
+        .orderBy(apiUsageLogsTable.createdAt);
+
+      const userLogs = allLogs.filter(l =>
+        (l.userId && l.userId === userId) ||
+        (userEmail && l.userEmail && l.userEmail.toLowerCase() === userEmail.toLowerCase())
+      );
+
+      const now = new Date();
+      const { period = "30d" } = req.query as { period?: string };
+
+      const msMap: Record<string, number> = {
+        "1d": 1 * 24 * 60 * 60 * 1000,
+        "7d": 7 * 24 * 60 * 60 * 1000,
+        "30d": 30 * 24 * 60 * 60 * 1000,
+      };
+      const ms = msMap[period] || msMap["30d"];
+      const periodStart = new Date(now.getTime() - ms);
+      const prevStart = new Date(periodStart.getTime() - ms);
+
+      const currentLogs = userLogs.filter(l => new Date(l.createdAt) >= periodStart);
+      const prevLogs = userLogs.filter(l => new Date(l.createdAt) >= prevStart && new Date(l.createdAt) < periodStart);
+
+      const sumStats = (logs: typeof userLogs) => {
+        const real = logs.filter(l => !l.cacheHit);
+        return {
+          totalCalls: logs.length,
+          totalTokens: logs.reduce((s, l) => s + l.totalTokens, 0),
+          inputTokens: logs.reduce((s, l) => s + l.inputTokens, 0),
+          outputTokens: logs.reduce((s, l) => s + l.outputTokens, 0),
+          totalCost: real.reduce((s, l) => s + parseFloat(l.estimatedCost || "0"), 0),
+          cacheHits: logs.filter(l => l.cacheHit).length,
+        };
+      };
+
+      const current = sumStats(currentLogs);
+      const prev = sumStats(prevLogs);
+
+      // By date (group current period logs)
+      const byDateMap: Record<string, { calls: number; tokens: number }> = {};
+      const days = Math.ceil(ms / (24 * 60 * 60 * 1000));
+      for (let i = 0; i < days; i++) {
+        const d = new Date(periodStart.getTime() + i * 24 * 60 * 60 * 1000);
+        const key = d.toISOString().slice(0, 10);
+        byDateMap[key] = { calls: 0, tokens: 0 };
+      }
+      currentLogs.forEach(l => {
+        const key = new Date(l.createdAt).toISOString().slice(0, 10);
+        if (byDateMap[key]) {
+          byDateMap[key].calls++;
+          byDateMap[key].tokens += l.totalTokens;
+        }
+      });
+      const byDate = Object.entries(byDateMap).map(([date, v]) => ({ date, ...v }));
+
+      // By model
+      const modelMap: Record<string, number> = {};
+      currentLogs.forEach(l => {
+        const m = l.model === "cache" ? "Cache" : l.model || "Unknown";
+        modelMap[m] = (modelMap[m] || 0) + l.totalTokens;
+      });
+      const totalModelTokens = Object.values(modelMap).reduce((s, v) => s + v, 0);
+      const byModel = Object.entries(modelMap).map(([model, tokens]) => ({
+        model,
+        tokens,
+        percentage: totalModelTokens > 0 ? Math.round((tokens / totalModelTokens) * 100) : 0,
+      }));
+
+      // Recent (last 20, most recent first)
+      const recent = [...userLogs]
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 20)
+        .map(l => ({
+          id: l.id,
+          productName: l.productName,
+          model: l.model,
+          totalTokens: l.totalTokens,
+          inputTokens: l.inputTokens,
+          outputTokens: l.outputTokens,
+          estimatedCost: l.estimatedCost,
+          cacheHit: l.cacheHit,
+          createdAt: l.createdAt,
+        }));
+
+      res.json({ current, prev, byDate, byModel, recent });
+    } catch (error) {
+      console.error("Error fetching user API usage:", error);
+      res.status(500).json({ message: "Failed to fetch API usage" });
+    }
+  });
+
   // Admin routes - protected by requireAdmin middleware
 
   // Bulk-publish all active formulations that are still in draft status.
@@ -2286,7 +2387,7 @@ Allow: /disclaimer`;
           console.log(`✅ [Cache HIT] key: ${formulaKey.slice(0, 70)}`);
           // Log cache hit — no OpenAI cost
           db.insert(apiUsageLogsTable).values({
-            userId: (req as any).session?.userId || null,
+            userId: getUserId(req) || null,
             userEmail: req.body.email || null,
             userName: req.body.customerName || null,
             userCountry: req.body.country || null,
@@ -2368,7 +2469,7 @@ Allow: /disclaimer`;
             // Log OpenAI API usage (GPT-4o pricing: $2.50/1M input, $10.00/1M output)
             const aiCost = ((aiUsage.inputTokens * 2.5 + aiUsage.outputTokens * 10.0) / 1_000_000).toFixed(6);
             db.insert(apiUsageLogsTable).values({
-              userId: (req as any).session?.userId || null,
+              userId: getUserId(req) || null,
               userEmail: req.body.email || null,
               userName: req.body.customerName || null,
               userCountry: req.body.country || null,
