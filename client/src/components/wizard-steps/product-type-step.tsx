@@ -306,13 +306,10 @@ export default function ProductTypeStep({ formData, updateFormData }: Props) {
             <CheckCircle className="h-5 w-5 mr-2" />
             <h4 className="font-bold text-base">Ready to continue!</h4>
           </div>
-          <div className="grid grid-cols-2 gap-y-1.5 text-sm opacity-90">
-            <span>Category: <strong>{formData.category}</strong></span>
-            <span>Type: <strong>{formData.productType}</strong></span>
-            <span>Level: <strong>{formData.performanceLevel}</strong></span>
-            <span>Base: <strong>{formData.baseType}</strong></span>
+          <div className="text-sm opacity-90">
+            <p>Product: <strong>{formData.productName}</strong></p>
+            <p className="mt-1">Detected Type: <strong className="capitalize">{formData.consistencyType || "auto"}</strong></p>
           </div>
-          <p className="mt-2 text-sm opacity-90">Product: <strong>{formData.productName}</strong></p>
         </div>
       )}
     </div>

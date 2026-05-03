@@ -378,29 +378,14 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
 
   const nextStep = () => {
     if (currentStep === 0) {
-      // All 5 fields required in Step 1
-      if (!formData.category) {
-        toast({ title: "Select a Category", description: "Please choose a product category to continue.", variant: "destructive" });
-        return;
-      }
-      if (!formData.productType) {
-        toast({ title: "Select a Product Type", description: "Please choose a product type to continue.", variant: "destructive" });
-        return;
-      }
-      if (!formData.performanceLevel) {
-        toast({ title: "Choose Performance Level", description: "Please select a performance level to continue.", variant: "destructive" });
-        return;
-      }
-      if (!formData.baseType) {
-        toast({ title: "Select Base Type", description: "Please choose a base type to continue.", variant: "destructive" });
-        return;
-      }
+      // Only Product Name is required; product type (liquid/cream/gel/powder)
+      // is auto-detected from the name via getSmartConsistencyType.
       if (!formData.productName || formData.productName.trim().length < 3) {
         toast({ title: "Product Name Required", description: "Please enter a product name (minimum 3 characters).", variant: "destructive" });
         return;
       }
-      if (formData.productName.length > 80) {
-        toast({ title: "Product Name Too Long", description: "Product name must be 80 characters or fewer.", variant: "destructive" });
+      if (formData.productName.length > 200) {
+        toast({ title: "Product Name Too Long", description: "Product name must be 200 characters or fewer.", variant: "destructive" });
         return;
       }
       const nameCheck = validateProductName(formData.productName);
