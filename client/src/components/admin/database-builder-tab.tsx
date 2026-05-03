@@ -71,9 +71,10 @@ export default function DatabaseBuilderTab() {
   const [editing, setEditing] = useState<{ key: keyof Preview; idx: number } | null>(null);
   const [editValue, setEditValue] = useState("");
 
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery<CategoryRow[]>({
+  const { data: categoriesData, isLoading: categoriesLoading } = useQuery<CategoryRow[] | null>({
     queryKey: ["/api/admin/database-builder/categories"],
   });
+  const categories: CategoryRow[] = Array.isArray(categoriesData) ? categoriesData : [];
 
   const previewMutation = useMutation({
     mutationFn: async () => {
