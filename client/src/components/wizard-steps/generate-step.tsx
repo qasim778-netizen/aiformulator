@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { CheckCircle, Beaker, Settings, FileText, Download, Loader2, ArrowLeft } from 'lucide-react';
+import { CheckCircle, Beaker, Settings, FileText, Download, Loader2, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { Captcha } from '@/components/ui/captcha';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 interface FormData {
   // Step 1
   category: string;
@@ -39,6 +40,20 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
   const [, setLocation] = useLocation();
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
   const [captchaKey, setCaptchaKey] = useState(0);
+  const [aiUnavailable, setAiUnavailable] = useState(false);
+
+  const isAiUnavailableError = (message: string | undefined) => {
+    if (!message) return false;
+    const m = message.toLowerCase();
+    return (
+      m.includes('ai service unavailable') ||
+      m.includes('rate limit') ||
+      m.includes('quota') ||
+      m.includes('insufficient_quota') ||
+      m.includes('billing') ||
+      m.includes('temporarily unavailable')
+    );
+  };
 
   const formatPropertyName = (prop: string) => {
     return prop.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
@@ -93,14 +108,20 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
     },
     onSuccess: (formulation: any) => {
       console.log('Generation success:', formulation);
-      
+      setAiUnavailable(false);
+
       // Invalidate cache so generated formulas appear in dashboard
       queryClient.invalidateQueries({ queryKey: ['/api/user/generated'] });
       
       // Navigate to confirmation page with formulation ID
       setLocation(`/formulation-confirmation/${formulation.id}`);
     },
-    onError: (error) => {
+    onError: (error: Error) => {
+      if (isAiUnavailableError(error.message)) {
+        setAiUnavailable(true);
+        resetCaptcha();
+        return;
+      }
       toast({
         title: "Generation Failed",
         description: error.message || "Failed to generate formulation. Please try again.",
@@ -110,6 +131,7 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
   });
 
   const handleGenerate = () => {
+    setAiUnavailable(false);
     if (!isCaptchaVerified) {
       toast({
         title: "Verification Required",
@@ -271,6 +293,42 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
                 </div>
               </div>
             </div>
+
+            {/* AI Service Unavailable Notice - Persistent inline alert */}
+            {aiUnavailable && (
+              <Alert
+                variant="destructive"
+                className="mb-4 border-amber-300 bg-amber-50 text-amber-900 [&>svg]:text-amber-600"
+                data-testid="alert-ai-unavailable"
+              >
+                <AlertTriangle className="h-5 w-5" />
+                <AlertTitle className="text-amber-900 font-semibold">
+                  AI formulation is temporarily unavailable
+                </AlertTitle>
+                <AlertDescription className="text-amber-800">
+                  <p className="mt-1">
+                    Our AI service is currently down or at capacity, so we can't generate
+                    your formulation right now. Your inputs have been preserved.
+                  </p>
+                  <p className="mt-2">
+                    <span className="font-medium">What you can do:</span>
+                  </p>
+                  <ul className="list-disc pl-5 mt-1 space-y-1">
+                    <li>Wait a few minutes and try again — service usually returns shortly.</li>
+                    <li>
+                      If the issue persists, contact us at{' '}
+                      <a
+                        href="mailto:support@aiformulator.com"
+                        className="underline font-medium hover:text-amber-900"
+                      >
+                        support@aiformulator.com
+                      </a>
+                      .
+                    </li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
 
             {/* Security Verification - Mobile-First Responsive Layout */}
             <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-4 border border-yellow-200">
