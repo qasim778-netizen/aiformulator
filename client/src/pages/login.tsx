@@ -30,11 +30,11 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col lg:flex-row">
       {/* ─── LEFT: Branding & benefits ───────────────────────────────── */}
-      <aside className="relative lg:w-1/2 px-6 py-10 sm:px-10 lg:px-14 lg:py-12 bg-gradient-to-br from-emerald-50/70 via-white to-teal-50/60 overflow-hidden">
+      <aside className="relative lg:w-1/2 px-6 py-10 sm:px-10 lg:px-14 lg:py-12 bg-gradient-to-br from-emerald-50/70 via-white to-teal-50/60 overflow-hidden flex items-center justify-center">
         <div className="absolute -top-32 -left-32 w-96 h-96 bg-emerald-200/30 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-40 -right-20 w-[28rem] h-[28rem] bg-teal-200/30 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative max-w-xl mx-auto lg:mx-0">
+        <div className="relative w-full max-w-xl">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-12">
             <img src={logoImage} alt="AIFormulator" className="h-12 w-auto object-contain" />
