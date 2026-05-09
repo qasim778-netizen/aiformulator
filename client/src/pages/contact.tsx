@@ -40,7 +40,7 @@ export default function ContactPage() {
     onError: () => {
       toast({
         title: "Failed to send message",
-        description: "Please try again or email us directly at aiformulator@gmail.com",
+        description: "Please try again or email us directly at support@aiformulator.net",
         variant: "destructive",
       });
     },
@@ -73,8 +73,8 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">Email Us</h3>
-                  <a href="mailto:aiformulator@gmail.com" className="text-sm text-gray-600 hover:text-teal-600 transition-colors">
-                    aiformulator@gmail.com
+                  <a href="mailto:support@aiformulator.net" className="text-sm text-gray-600 hover:text-teal-600 transition-colors">
+                    support@aiformulator.net
                   </a>
                 </div>
               </CardContent>

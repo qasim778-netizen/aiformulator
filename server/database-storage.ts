@@ -451,6 +451,52 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async setPasswordResetToken(userId: string, token: string, expiry: Date): Promise<void> {
+    try {
+      await db.update(usersTable)
+        .set({ resetToken: token, resetTokenExpiry: expiry, updatedAt: new Date() })
+        .where(eq(usersTable.id, userId));
+    } catch (error) {
+      console.error("Error setting password reset token:", error);
+      throw error;
+    }
+  }
+
+  async getUserByResetToken(token: string): Promise<User | undefined> {
+    try {
+      const [user] = await db.select().from(usersTable).where(eq(usersTable.resetToken, token));
+      if (!user || !user.resetTokenExpiry) return undefined;
+      if (new Date(user.resetTokenExpiry) <= new Date()) return undefined;
+      return user;
+    } catch (error) {
+      console.error("Error fetching user by reset token:", error);
+      return undefined;
+    }
+  }
+
+  async updateUserPasswordReset(userId: string, hashedPassword: string): Promise<User | undefined> {
+    try {
+      const [user] = await db.update(usersTable)
+        .set({ password: hashedPassword, resetToken: null, resetTokenExpiry: null, updatedAt: new Date() })
+        .where(eq(usersTable.id, userId))
+        .returning();
+      return user || undefined;
+    } catch (error) {
+      console.error("Error updating password:", error);
+      throw error;
+    }
+  }
+
+  async clearPasswordResetToken(userId: string): Promise<void> {
+    try {
+      await db.update(usersTable)
+        .set({ resetToken: null, resetTokenExpiry: null, updatedAt: new Date() })
+        .where(eq(usersTable.id, userId));
+    } catch (error) {
+      console.error("Error clearing password reset token:", error);
+    }
+  }
+
   async createUser(userData: { email: string; password: string; firstName?: string; lastName?: string; country?: string }): Promise<User> {
     try {
       const [user] = await db

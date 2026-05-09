@@ -25,6 +25,7 @@ import bcrypt from "bcrypt";
 import { signupSchema, loginSchema } from "@shared/schema";
 import { validateFormulation, getValidationReport, getIngredientBreakdown, type ValidationResult } from "./formulation-validator";
 import { generateThumbnail } from "./thumbnail";
+import { sendEmail, passwordResetEmail, contactNotificationEmail, isEmailConfigured, verifyEmailTransport } from "./email";
 
 // SendGrid email helper function
 async function getSendGridClient() {
@@ -870,31 +871,114 @@ Sitemap: https://aiformulator.net/sitemap.xml
     }
   });
 
-  // Contact form endpoint
+  // Contact form endpoint — sends to support@aiformulator.net via SMTP
   app.post("/api/contact", async (req, res) => {
     try {
       const { name, email, subject, message } = req.body;
       if (!name || !email || !subject || !message) {
         return res.status(400).json({ message: "All fields are required" });
       }
-      try {
-        const { client: sgMail, fromEmail } = await getSendGridClient();
-        await sgMail.send({
-          to: "aiformulator@gmail.com",
-          from: fromEmail,
-          replyTo: email,
-          subject: `[Contact] ${subject}`,
-          text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
-          html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p><hr/><p>${message.replace(/\n/g, "<br/>")}</p>`,
-        });
-      } catch (sgErr) {
-        console.error("[Contact] SendGrid error:", sgErr);
+      if (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ message: "Please provide a valid email address" });
       }
-      return res.json({ success: true });
+      if (!isEmailConfigured()) {
+        console.error("[Contact] SMTP not configured");
+        return res.status(503).json({ message: "Email service is temporarily unavailable. Please try again later." });
+      }
+      try {
+        const to = process.env.CONTACT_RECEIVER_EMAIL || "support@aiformulator.net";
+        const { subject: subj, html } = contactNotificationEmail({ name, email, subject, message });
+        await sendEmail({ to, subject: subj, html, replyTo: email });
+        return res.json({ success: true, message: "Your message has been sent. We'll get back to you within 24–48 hours." });
+      } catch (mailErr: any) {
+        console.error("[Contact] SMTP error:", mailErr?.message || mailErr);
+        return res.status(502).json({ message: "We couldn't deliver your message right now. Please try again or email support@aiformulator.net directly." });
+      }
     } catch (error) {
       console.error("[Contact] Error:", error);
       return res.status(500).json({ message: "Failed to send message" });
     }
+  });
+
+  // Forgot password — generates a secure reset token and emails it
+  app.post("/api/forgot-password", async (req, res) => {
+    try {
+      const { email } = req.body || {};
+      if (!email || typeof email !== "string") {
+        return res.status(400).json({ message: "Email is required" });
+      }
+      // Always respond success to avoid leaking whether an account exists
+      const genericResponse = {
+        success: true,
+        message: "If an account with that email exists, we've sent a password reset link.",
+      };
+
+      const user = await storage.getUserByEmail(email.toLowerCase().trim());
+      if (!user) return res.json(genericResponse);
+
+      if (!isEmailConfigured()) {
+        console.error("[ForgotPassword] SMTP not configured");
+        return res.status(503).json({ message: "Email service is temporarily unavailable. Please try again later." });
+      }
+
+      const expiresInMinutes = 30;
+      const token = crypto.randomBytes(32).toString("hex");
+      const expiry = new Date(Date.now() + expiresInMinutes * 60 * 1000);
+      await storage.setPasswordResetToken(user.id, token, expiry);
+
+      const baseUrl = (process.env.APP_URL || `${req.protocol}://${req.get("host")}`).replace(/\/$/, "");
+      const resetUrl = `${baseUrl}/reset-password?token=${encodeURIComponent(token)}`;
+
+      try {
+        const { subject, html } = passwordResetEmail({ resetUrl, firstName: user.firstName, expiresInMinutes });
+        await sendEmail({ to: user.email, subject, html });
+      } catch (mailErr: any) {
+        console.error("[ForgotPassword] SMTP error:", mailErr?.message || mailErr);
+        // Roll back the token so the user can try again
+        await storage.clearPasswordResetToken(user.id);
+        return res.status(502).json({ message: "We couldn't send the reset email right now. Please try again in a moment." });
+      }
+
+      return res.json(genericResponse);
+    } catch (error) {
+      console.error("[ForgotPassword] Error:", error);
+      return res.status(500).json({ message: "Failed to process request" });
+    }
+  });
+
+  // Reset password — verifies token and updates the user's password
+  app.post("/api/reset-password", async (req, res) => {
+    try {
+      const { token, password } = req.body || {};
+      if (!token || typeof token !== "string" || !password || typeof password !== "string") {
+        return res.status(400).json({ message: "Token and new password are required" });
+      }
+      if (password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      }
+      const user = await storage.getUserByResetToken(token);
+      if (!user) {
+        return res.status(400).json({ message: "This reset link is invalid or has expired. Please request a new one." });
+      }
+      const hashed = await bcrypt.hash(password, 10);
+      await storage.updateUserPasswordReset(user.id, hashed);
+      return res.json({ success: true, message: "Your password has been updated. You can now sign in." });
+    } catch (error) {
+      console.error("[ResetPassword] Error:", error);
+      return res.status(500).json({ message: "Failed to reset password" });
+    }
+  });
+
+  // Admin-only SMTP health check
+  app.get("/api/admin/email/health", requireAdmin, async (_req, res) => {
+    const result = await verifyEmailTransport();
+    res.json({
+      configured: isEmailConfigured(),
+      from: process.env.FROM_EMAIL || null,
+      contactReceiver: process.env.CONTACT_RECEIVER_EMAIL || null,
+      smtpHost: process.env.SMTP_HOST || null,
+      ...result,
+    });
   });
 
   // Categories API
