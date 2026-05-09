@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { Mail, Lock, ShieldCheck, Cloud, Eye, FlaskConical, BookOpen, Award, BarChart3 } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
 import logoImage from "@assets/logo_1756133481367.png";
 
 export default function LoginPage() {
@@ -108,11 +109,11 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Continue Securely (Replit OAuth, branding hidden) */}
+            {/* Continue with Google */}
             <button
               onClick={handleSecureSignIn}
               disabled={loading}
-              data-testid="button-continue-securely"
+              data-testid="button-continue-google"
               className="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-800 rounded-xl px-5 py-3.5 text-sm font-semibold shadow-sm hover:shadow transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? (
@@ -121,9 +122,9 @@ export default function LoginPage() {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
               ) : (
-                <ShieldCheck className="h-5 w-5 text-emerald-600" />
+                <FcGoogle className="h-5 w-5" />
               )}
-              {loading ? "Redirecting…" : "Continue Securely"}
+              {loading ? "Redirecting…" : "Continue with Google"}
             </button>
 
             {/* Divider */}
