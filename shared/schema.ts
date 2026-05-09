@@ -202,11 +202,12 @@ export const sessions = pgTable(
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: varchar("email").unique().notNull(),
-  password: varchar("password").notNull(), // Hashed password using bcrypt
+  password: varchar("password").notNull().default(""), // Hashed password (empty for OAuth-only users)
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   country: varchar("country"), // User's country
   profileImageUrl: varchar("profile_image_url"),
+  googleId: varchar("google_id").unique(), // Google OAuth profile ID
   isAdmin: boolean("is_admin").notNull().default(false),
   loginProvider: varchar("login_provider").default("email"),
   lastLoginAt: timestamp("last_login_at"),

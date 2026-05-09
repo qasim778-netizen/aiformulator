@@ -16,6 +16,7 @@ import { optimizeFormulationsForSEO } from "./seo-optimizer";
 import { generateFormulationImages, addImageFieldToFormulations } from "./image-generator";
 import { addSEOFields, generateStructuredData } from "./seo-utils";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
+import { setupGoogleAuth } from "./googleAuth";
 import { aiBlogGenerator } from "./ai-blog-generator";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
@@ -222,6 +223,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
 
   // Auth middleware
   await setupAuth(app);
+  setupGoogleAuth(app);
 
   // Custom Signup endpoint
   app.post('/api/signup', async (req, res) => {

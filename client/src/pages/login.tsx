@@ -24,7 +24,7 @@ export default function LoginPage() {
 
   const handleSecureSignIn = () => {
     setLoading(true);
-    window.location.href = "/api/login";
+    window.location.href = "/api/auth/google";
   };
 
   return (

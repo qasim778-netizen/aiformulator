@@ -31,7 +31,7 @@ export default function SignInDialog({
 
   const handleSignIn = () => {
     setLoading(true);
-    window.location.href = "/api/login";
+    window.location.href = "/api/auth/google";
   };
 
   return (

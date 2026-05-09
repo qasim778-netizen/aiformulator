@@ -245,7 +245,7 @@ export default function LoginEmailPage() {
                 {/* Continue with Google */}
                 <button
                   type="button"
-                  onClick={() => (window.location.href = "/api/login")}
+                  onClick={() => (window.location.href = "/api/auth/google")}
                   className="group w-full flex items-center justify-center gap-3 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-800 rounded-xl h-12 px-5 text-sm font-semibold shadow-sm hover:shadow transition-all"
                   data-testid="button-continue-google"
                 >

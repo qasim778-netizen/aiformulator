@@ -255,6 +255,8 @@ async function createTables() {
     await db.execute(/* sql */ `
       ALTER TABLE users ADD COLUMN IF NOT EXISTS login_provider text DEFAULT 'email';
       ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_at timestamp;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id varchar UNIQUE;
+      ALTER TABLE users ALTER COLUMN password SET DEFAULT '';
     `);
 
     await db.execute(/* sql */ `
