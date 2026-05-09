@@ -20,11 +20,30 @@ function getTransporter(): Transporter {
     host,
     port,
     secure: port === 465, // STARTTLS for 587, implicit TLS for 465
+    requireTLS: port === 587,
     auth: { user, pass },
+    tls: { minVersion: "TLSv1.2", servername: host },
+    connectionTimeout: 15_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000,
+    logger: process.env.SMTP_DEBUG === "1",
+    debug: process.env.SMTP_DEBUG === "1",
   });
 
   return transporter;
 }
+
+function describeSmtpError(e: any): string {
+  if (!e) return "unknown error";
+  const parts: string[] = [];
+  if (e.code) parts.push(`code=${e.code}`);
+  if (e.responseCode) parts.push(`responseCode=${e.responseCode}`);
+  if (e.command) parts.push(`command=${e.command}`);
+  if (e.response) parts.push(`response=${String(e.response).trim()}`);
+  if (e.message) parts.push(`message=${e.message}`);
+  return parts.join(" | ") || String(e);
+}
+export { describeSmtpError };
 
 export function isEmailConfigured(): boolean {
   return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
@@ -38,7 +57,7 @@ export async function verifyEmailTransport(): Promise<{ ok: boolean; error?: str
     await getTransporter().verify();
     return { ok: true };
   } catch (e: any) {
-    return { ok: false, error: e?.message || String(e) };
+    return { ok: false, error: describeSmtpError(e) };
   }
 }
 

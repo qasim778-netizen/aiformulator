@@ -26,7 +26,7 @@ import bcrypt from "bcrypt";
 import { signupSchema, loginSchema } from "@shared/schema";
 import { validateFormulation, getValidationReport, getIngredientBreakdown, type ValidationResult } from "./formulation-validator";
 import { generateThumbnail } from "./thumbnail";
-import { sendEmail, passwordResetEmail, contactNotificationEmail, isEmailConfigured, verifyEmailTransport } from "./email";
+import { sendEmail, passwordResetEmail, contactNotificationEmail, isEmailConfigured, verifyEmailTransport, describeSmtpError } from "./email";
 
 // SendGrid email helper function
 async function getSendGridClient() {
@@ -893,7 +893,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
         await sendEmail({ to, subject: subj, html, replyTo: email });
         return res.json({ success: true, message: "Your message has been sent. We'll get back to you within 24–48 hours." });
       } catch (mailErr: any) {
-        console.error("[Contact] SMTP error:", mailErr?.message || mailErr);
+        console.error("[Contact] SMTP error:", describeSmtpError(mailErr));
         return res.status(502).json({ message: "We couldn't deliver your message right now. Please try again or email support@aiformulator.net directly." });
       }
     } catch (error) {
@@ -935,7 +935,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
         const { subject, html } = passwordResetEmail({ resetUrl, firstName: user.firstName, expiresInMinutes });
         await sendEmail({ to: user.email, subject, html });
       } catch (mailErr: any) {
-        console.error("[ForgotPassword] SMTP error:", mailErr?.message || mailErr);
+        console.error("[ForgotPassword] SMTP error:", describeSmtpError(mailErr));
         // Roll back the token so the user can try again
         await storage.clearPasswordResetToken(user.id);
         return res.status(502).json({ message: "We couldn't send the reset email right now. Please try again in a moment." });
