@@ -256,6 +256,10 @@ async function createTables() {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS login_provider text DEFAULT 'email';
       ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_at timestamp;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id varchar UNIQUE;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS password varchar DEFAULT '';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_image_url varchar;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token varchar;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry timestamp;
       ALTER TABLE users ALTER COLUMN password SET DEFAULT '';
     `);
 
