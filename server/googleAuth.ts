@@ -5,6 +5,7 @@ import { db } from "./db";
 import { users as usersTable } from "@shared/schema";
 import { eq, or } from "drizzle-orm";
 import { randomUUID } from "crypto";
+import { detectCountryFromRequest } from "./geoip";
 
 /**
  * Real Google OAuth 2.0 setup.
@@ -35,7 +36,7 @@ function getCallbackURL(req?: Request): string {
   return "https://aiformulator.net/api/auth/google/callback";
 }
 
-async function findOrCreateGoogleUser(profile: Profile): Promise<{ id: string; isAdmin: boolean } | null> {
+async function findOrCreateGoogleUser(profile: Profile, country: string): Promise<{ id: string; isAdmin: boolean } | null> {
   const googleId = profile.id;
   const email = profile.emails?.[0]?.value?.toLowerCase().trim();
   if (!email) return null;
@@ -53,6 +54,11 @@ async function findOrCreateGoogleUser(profile: Profile): Promise<{ id: string; i
 
   if (existing.length > 0) {
     const u = existing[0];
+    // Backfill country if missing; otherwise keep existing
+    const nextCountry =
+      u.country && u.country.trim() !== "" && u.country !== "N/A"
+        ? u.country
+        : country || "N/A";
     // Link googleId / refresh profile data on every login
     const [updated] = await db
       .update(usersTable)
@@ -61,12 +67,14 @@ async function findOrCreateGoogleUser(profile: Profile): Promise<{ id: string; i
         firstName: u.firstName || firstName,
         lastName: u.lastName || lastName,
         profileImageUrl: profileImageUrl || u.profileImageUrl,
+        country: nextCountry,
         loginProvider: u.loginProvider === "email" && u.password ? u.loginProvider : "google",
         lastLoginAt: new Date(),
         updatedAt: new Date(),
       })
       .where(eq(usersTable.id, u.id))
       .returning({ id: usersTable.id, isAdmin: usersTable.isAdmin });
+    console.log(`[GoogleAuth] existing user ${u.id} country=${nextCountry}`);
     return updated;
   }
 
@@ -79,6 +87,7 @@ async function findOrCreateGoogleUser(profile: Profile): Promise<{ id: string; i
       password: "",
       firstName,
       lastName,
+      country: country || "N/A",
       googleId,
       profileImageUrl,
       loginProvider: "google",
@@ -87,6 +96,7 @@ async function findOrCreateGoogleUser(profile: Profile): Promise<{ id: string; i
     })
     .returning({ id: usersTable.id, isAdmin: usersTable.isAdmin });
 
+  console.log(`[GoogleAuth] new user ${created?.id} country=${country || "N/A"}`);
   return created;
 }
 
@@ -103,11 +113,12 @@ export function setupGoogleAuth(app: Express) {
           clientID: process.env.GOOGLE_CLIENT_ID!,
           clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
           callbackURL: getCallbackURL(),
-          passReqToCallback: false,
+          passReqToCallback: true,
         },
-        async (_accessToken, _refreshToken, profile, done) => {
+        async (req: Request, _accessToken: string, _refreshToken: string, profile: Profile, done: any) => {
           try {
-            const user = await findOrCreateGoogleUser(profile);
+            const country = await detectCountryFromRequest(req).catch(() => "N/A");
+            const user = await findOrCreateGoogleUser(profile, country);
             if (!user) return done(null, false, { message: "No email returned from Google." });
             return done(null, user);
           } catch (err) {

@@ -27,6 +27,7 @@ import { signupSchema, loginSchema } from "@shared/schema";
 import { validateFormulation, getValidationReport, getIngredientBreakdown, type ValidationResult } from "./formulation-validator";
 import { generateThumbnail } from "./thumbnail";
 import { sendEmail, passwordResetEmail, contactNotificationEmail, isEmailConfigured, verifyEmailTransport, describeSmtpError } from "./email";
+import { detectCountryFromRequest } from "./geoip";
 
 // SendGrid email helper function
 async function getSendGridClient() {
@@ -238,14 +239,21 @@ Sitemap: https://aiformulator.net/sitemap.xml
       
       // Hash password
       const hashedPassword = await bcrypt.hash(validatedData.password, 10);
-      
+
+      // Auto-detect country from IP; prefer detected, fall back to user-provided, else N/A
+      const detectedCountry = await detectCountryFromRequest(req);
+      const finalCountry =
+        detectedCountry && detectedCountry !== "N/A"
+          ? detectedCountry
+          : (validatedData.country && validatedData.country.trim()) || "N/A";
+
       // Create user
       const newUser = await storage.createUser({
         email: validatedData.email,
         password: hashedPassword,
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
-        country: validatedData.country,
+        country: finalCountry,
       });
       
       // Create session and save it
@@ -293,7 +301,25 @@ Sitemap: https://aiformulator.net/sitemap.xml
       if (!isValidPassword) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
-      
+
+      // Backfill country from IP if missing
+      if (!user.country || user.country.trim() === "" || user.country === "N/A") {
+        const detected = await detectCountryFromRequest(req);
+        if (detected && detected !== "N/A") {
+          try {
+            await storage.updateUserCountry(user.id, detected);
+            user.country = detected;
+          } catch (e) {
+            console.warn("[login] failed to backfill country:", e);
+          }
+        } else if (!user.country) {
+          try {
+            await storage.updateUserCountry(user.id, "N/A");
+            user.country = "N/A";
+          } catch {}
+        }
+      }
+
       // Create session and save it
       (req as any).session.userId = user.id;
       

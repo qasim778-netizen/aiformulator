@@ -548,6 +548,18 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async updateUserCountry(userId: string, country: string): Promise<void> {
+    try {
+      await db.execute(
+        drizzleSql`UPDATE users SET country = ${country}, updated_at = NOW() WHERE id = ${userId}`
+      );
+      console.log(`[updateUserCountry] userId=${userId} country=${country}`);
+    } catch (error: any) {
+      console.error("Error updating user country:", error?.message || error);
+      throw error;
+    }
+  }
+
   async createUser(userData: { email: string; password: string; firstName?: string; lastName?: string; country?: string }): Promise<User> {
     try {
       const [user] = await db

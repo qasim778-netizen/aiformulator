@@ -60,6 +60,7 @@ export interface IStorage {
   // User Authentication (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  updateUserCountry(userId: string, country: string): Promise<void>;
   createUser(user: { email: string; password: string; firstName?: string; lastName?: string; country?: string }): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserPasswordReset(userId: string, hashedPassword: string): Promise<User | undefined>;
@@ -1867,6 +1868,12 @@ export class MemStorage implements IStorage {
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     return Array.from(this.users.values()).find(user => user.email === email);
+  }
+
+  async updateUserCountry(userId: string, country: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (!user) return;
+    this.users.set(userId, { ...user, country, updatedAt: new Date() });
   }
 
   async createUser(userData: { email: string; password: string; firstName?: string; lastName?: string; country?: string }): Promise<User> {
