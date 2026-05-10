@@ -453,11 +453,13 @@ export class DatabaseStorage implements IStorage {
 
   async setPasswordResetToken(userId: string, token: string, expiry: Date): Promise<void> {
     try {
-      await db.update(usersTable)
-        .set({ resetToken: token, resetTokenExpiry: expiry, updatedAt: new Date() })
-        .where(eq(usersTable.id, userId));
-    } catch (error) {
-      console.error("Error setting password reset token:", error);
+      const result: any = await db.execute(
+        drizzleSql`UPDATE users SET reset_token = ${token}, reset_token_expiry = ${expiry.toISOString()}, updated_at = NOW() WHERE id = ${userId}`
+      );
+      const affected = result?.rowCount ?? result?.rows?.length ?? 0;
+      console.log("[setPasswordResetToken] userId=" + userId + " tokenLen=" + token.length + " expiry=" + expiry.toISOString() + " rowsAffected=" + affected);
+    } catch (error: any) {
+      console.error("Error setting password reset token:", error?.message || error, "code=", error?.code, "position=", error?.position);
       throw error;
     }
   }
@@ -506,24 +508,43 @@ export class DatabaseStorage implements IStorage {
 
   async updateUserPasswordReset(userId: string, hashedPassword: string): Promise<User | undefined> {
     try {
-      const [user] = await db.update(usersTable)
-        .set({ password: hashedPassword, resetToken: null, resetTokenExpiry: null, updatedAt: new Date() })
-        .where(eq(usersTable.id, userId))
-        .returning();
-      return user || undefined;
-    } catch (error) {
-      console.error("Error updating password:", error);
+      const result: any = await db.execute(
+        drizzleSql`UPDATE users SET password = ${hashedPassword}, reset_token = NULL, reset_token_expiry = NULL, updated_at = NOW() WHERE id = ${userId} RETURNING id, email, password, first_name, last_name, country, profile_image_url, google_id, is_admin, login_provider, last_login_at, reset_token, reset_token_expiry, created_at, updated_at`
+      );
+      const row: any = (result?.rows ?? result ?? [])[0];
+      console.log("[updateUserPasswordReset] userId=" + userId + " updated=" + !!row);
+      if (!row) return undefined;
+      return {
+        id: row.id,
+        email: row.email,
+        password: row.password,
+        firstName: row.first_name,
+        lastName: row.last_name,
+        country: row.country,
+        profileImageUrl: row.profile_image_url,
+        googleId: row.google_id,
+        isAdmin: row.is_admin,
+        loginProvider: row.login_provider,
+        lastLoginAt: row.last_login_at,
+        resetToken: row.reset_token,
+        resetTokenExpiry: row.reset_token_expiry,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+      } as User;
+    } catch (error: any) {
+      console.error("Error updating password:", error?.message || error, "code=", error?.code, "position=", error?.position);
       throw error;
     }
   }
 
   async clearPasswordResetToken(userId: string): Promise<void> {
     try {
-      await db.update(usersTable)
-        .set({ resetToken: null, resetTokenExpiry: null, updatedAt: new Date() })
-        .where(eq(usersTable.id, userId));
-    } catch (error) {
-      console.error("Error clearing password reset token:", error);
+      await db.execute(
+        drizzleSql`UPDATE users SET reset_token = NULL, reset_token_expiry = NULL, updated_at = NOW() WHERE id = ${userId}`
+      );
+      console.log("[clearPasswordResetToken] userId=" + userId);
+    } catch (error: any) {
+      console.error("Error clearing password reset token:", error?.message || error);
     }
   }
 
