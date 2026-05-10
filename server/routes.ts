@@ -983,6 +983,68 @@ Sitemap: https://aiformulator.net/sitemap.xml
     });
   });
 
+  // Temporary SMTP connection test endpoint — admin-only
+  // GET /api/admin/email/test  → tries 587 STARTTLS + 465 SSL with current env
+  // POST /api/admin/email/test {to:"you@gmail.com"} → also sends a real test email
+  app.all("/api/admin/email/test", requireAdmin, async (req, res) => {
+    const nm = (await import("nodemailer")).default;
+    const host = process.env.SMTP_HOST || "smtp.titan.email";
+    const user = process.env.SMTP_USER || "";
+    const pass = process.env.SMTP_PASS || "";
+    const passMeta = {
+      length: pass.length,
+      firstCharCode: pass.length ? pass.charCodeAt(0) : null,
+      lastCharCode: pass.length ? pass.charCodeAt(pass.length - 1) : null,
+      hasNonAscii: /[^\x20-\x7e]/.test(pass),
+      hasLeadingOrTrailingWhitespace: pass !== pass.trim(),
+    };
+    const results: any[] = [];
+    const transports = [
+      { label: "587-STARTTLS", port: 587, secure: false, requireTLS: true },
+      { label: "465-SSL", port: 465, secure: true },
+    ];
+    for (const t of transports) {
+      const tx = nm.createTransport({
+        host,
+        port: t.port,
+        secure: t.secure,
+        requireTLS: t.requireTLS,
+        auth: { user, pass },
+        tls: { servername: host, minVersion: "TLSv1.2" },
+        connectionTimeout: 10_000,
+        greetingTimeout: 8_000,
+        socketTimeout: 12_000,
+      });
+      try {
+        await tx.verify();
+        let sent: any = null;
+        const to = (req.body?.to || req.query?.to) as string | undefined;
+        if (to && req.method === "POST") {
+          const info = await tx.sendMail({
+            from: `"AIFormulator Test" <${process.env.FROM_EMAIL || user}>`,
+            to,
+            subject: "AIFormulator SMTP test",
+            text: "If you can read this, Titan SMTP is working from the production server.",
+          });
+          sent = { messageId: info.messageId, accepted: info.accepted, rejected: info.rejected, response: info.response };
+        }
+        results.push({ ...t, ok: true, sent });
+      } catch (e: any) {
+        results.push({
+          ...t,
+          ok: false,
+          code: e?.code,
+          responseCode: e?.responseCode,
+          command: e?.command,
+          response: e?.response,
+          message: e?.message,
+        });
+      }
+    }
+    console.log("[SMTP-Test] host=", host, "user=", user, "passMeta=", passMeta, "results=", JSON.stringify(results));
+    res.json({ host, user, passMeta, results });
+  });
+
   // Categories API
   app.get("/api/categories", async (req, res) => {
     try {
