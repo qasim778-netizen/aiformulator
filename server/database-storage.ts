@@ -464,12 +464,42 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByResetToken(token: string): Promise<User | undefined> {
     try {
-      const [user] = await db.select().from(usersTable).where(eq(usersTable.resetToken, token));
-      if (!user || !user.resetTokenExpiry) return undefined;
-      if (new Date(user.resetTokenExpiry) <= new Date()) return undefined;
+      console.log("[getUserByResetToken] looking up token (len=" + (token?.length ?? 0) + ", type=" + typeof token + ")");
+      if (!token || typeof token !== "string") {
+        console.warn("[getUserByResetToken] invalid token input");
+        return undefined;
+      }
+      const result: any = await db.execute(
+        drizzleSql`SELECT id, email, password, first_name, last_name, country, profile_image_url, google_id, is_admin, login_provider, last_login_at, reset_token, reset_token_expiry, created_at, updated_at FROM users WHERE reset_token = ${token} LIMIT 1`
+      );
+      const rows = result?.rows ?? result ?? [];
+      console.log("[getUserByResetToken] rows found:", rows.length);
+      const row: any = rows[0];
+      if (!row || !row.reset_token_expiry) return undefined;
+      if (new Date(row.reset_token_expiry) <= new Date()) {
+        console.log("[getUserByResetToken] token expired at", row.reset_token_expiry);
+        return undefined;
+      }
+      const user: User = {
+        id: row.id,
+        email: row.email,
+        password: row.password,
+        firstName: row.first_name,
+        lastName: row.last_name,
+        country: row.country,
+        profileImageUrl: row.profile_image_url,
+        googleId: row.google_id,
+        isAdmin: row.is_admin,
+        loginProvider: row.login_provider,
+        lastLoginAt: row.last_login_at,
+        resetToken: row.reset_token,
+        resetTokenExpiry: row.reset_token_expiry,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+      };
       return user;
-    } catch (error) {
-      console.error("Error fetching user by reset token:", error);
+    } catch (error: any) {
+      console.error("Error fetching user by reset token:", error?.message || error, "code=", error?.code, "position=", error?.position);
       return undefined;
     }
   }
