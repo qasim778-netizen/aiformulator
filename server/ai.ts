@@ -1148,36 +1148,42 @@ interface CustomFormulationRequest {
 export interface GenerateCustomResult {
   formulation: Omit<InsertFormulation, 'categoryId'>;
   usage: { inputTokens: number; outputTokens: number; totalTokens: number };
+  debug?: {
+    model: string;
+    temperature?: number;
+    maxOutputTokens?: number;
+    systemPrompt: string;
+    userPrompt: string;
+    messages: Array<{ role: string; content: string }>;
+  };
 }
 
+// Module-level capture so callers (and the catch path in routes) can read the
+// last constructed payload for failed calls too.
+export let lastCustomFormulationPayload: GenerateCustomResult["debug"] | null = null;
+
 export async function generateCustomFormulation(request: CustomFormulationRequest): Promise<GenerateCustomResult> {
-  try {
-    const costLevelMap = {
-      'cost_effective': 'cost-effective with affordable ingredients',
-      'medium': 'medium-range with balanced cost and quality',
-      'expensive': 'premium with high-quality expensive ingredients'
-    };
+  const costLevelMap = {
+    'cost_effective': 'cost-effective with affordable ingredients',
+    'medium': 'medium-range with balanced cost and quality',
+    'expensive': 'premium with high-quality expensive ingredients'
+  };
 
-    const costDescription = costLevelMap[request.costLevel as keyof typeof costLevelMap] || 'cost-effective';
-    
-    const specialRequirementsText = request.specialRequirements 
-      ? `\n\nSpecial Requirements: ${request.specialRequirements}`
-      : '';
+  const costDescription = costLevelMap[request.costLevel as keyof typeof costLevelMap] || 'cost-effective';
 
-    const optionalSpecs = [
-      request.viscosity && `Viscosity: ${request.viscosity}`,
-      request.color && `Color: ${request.color}`,
-      request.fragrance && `Fragrance: ${request.fragrance}`
-    ].filter(Boolean).join(', ');
+  const specialRequirementsText = request.specialRequirements
+    ? `\n\nSpecial Requirements: ${request.specialRequirements}`
+    : '';
 
-    const optionalSpecsText = optionalSpecs ? `\n\nAdditional Specifications: ${optionalSpecs}` : '';
+  const optionalSpecs = [
+    request.viscosity && `Viscosity: ${request.viscosity}`,
+    request.color && `Color: ${request.color}`,
+    request.fragrance && `Fragrance: ${request.fragrance}`
+  ].filter(Boolean).join(', ');
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: `You are a senior industrial chemist with 20+ years of experience in commercial formulation development. Generate PRODUCTION-READY formulations that meet strict industrial standards.
+  const optionalSpecsText = optionalSpecs ? `\n\nAdditional Specifications: ${optionalSpecs}` : '';
+
+  const systemPrompt = `You are a senior industrial chemist with 20+ years of experience in commercial formulation development. Generate PRODUCTION-READY formulations that meet strict industrial standards.
 
 RETURN JSON in this exact format:
 {
@@ -1327,20 +1333,35 @@ VALIDATION RULES (ALL MUST PASS):
 ✅ Consider the cost level: ${costDescription}
 ✅ Product type: ${request.productType}
 
-Generate a formulation that a real manufacturer could produce TODAY.`
-        },
-        {
-          role: "user",
-          content: `Generate an INDUSTRIAL-STANDARD ${request.productType} formulation for:
+Generate a formulation that a real manufacturer could produce TODAY.`;
+
+  const userPrompt = `Generate an INDUSTRIAL-STANDARD ${request.productType} formulation for:
 
 Product Name: ${request.productName}
 Description: ${request.productDescription}
 pH Level Required: ${request.phLevel}
 Cost Level: ${costDescription}${optionalSpecsText}${specialRequirementsText}
 
-Create a production-ready formulation with realistic, industry-standard ingredient percentages that could be validated by a professional chemist.`
-        }
-      ],
+Create a production-ready formulation with realistic, industry-standard ingredient percentages that could be validated by a professional chemist.`;
+
+  const messages = [
+    { role: "system" as const, content: systemPrompt },
+    { role: "user" as const, content: userPrompt },
+  ];
+  const debugPayload = {
+    model: "gpt-4o",
+    temperature: 1,
+    maxOutputTokens: undefined as number | undefined,
+    systemPrompt,
+    userPrompt,
+    messages,
+  };
+  lastCustomFormulationPayload = debugPayload;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages,
       response_format: { type: "json_object" }
     });
 
@@ -1373,6 +1394,7 @@ Create a production-ready formulation with realistic, industry-standard ingredie
         outputTokens: response.usage?.completion_tokens ?? 0,
         totalTokens: response.usage?.total_tokens ?? 0,
       },
+      debug: debugPayload,
     };
   } catch (error) {
     handleOpenAIError(error, 'generateCustomFormulation');

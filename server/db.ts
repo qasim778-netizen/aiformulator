@@ -293,6 +293,12 @@ export const openaiRequestLogsTable = pgTable("openai_request_logs", {
   requestStatus: text("request_status").notNull().default("success"), // success | failed | cancelled | timeout
   formulaSaved: boolean("formula_saved").notNull().default(false),
   productName: text("product_name"),
+  category: text("category"),
+  systemPrompt: text("system_prompt"),
+  userPrompt: text("user_prompt"),
+  messagesJson: jsonb("messages_json"),
+  maxOutputTokens: integer("max_output_tokens"),
+  temperature: text("temperature"),
   ipAddress: text("ip_address"),
   errorMessage: text("error_message"),
   createdAtUtc: timestamp("created_at_utc", { withTimezone: true }).notNull().defaultNow(),

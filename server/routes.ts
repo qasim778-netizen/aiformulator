@@ -647,12 +647,38 @@ Sitemap: https://aiformulator.net/sitemap.xml
     try {
       const limit = Math.min(parseInt(req.query.limit as string) || 200, 1000);
       const status = (req.query.status as string) || '';
+      const email = (req.query.email as string) || '';
+      const productName = (req.query.productName as string) || '';
+      const from = (req.query.from as string) || '';
+      const to = (req.query.to as string) || '';
+      const minCost = parseFloat(req.query.minCost as string);
+      const maxCost = parseFloat(req.query.maxCost as string);
+
+      const conds: any[] = [];
+      if (status) conds.push(drizzleSql`request_status = ${status}`);
+      if (email) conds.push(drizzleSql`email ILIKE ${'%' + email + '%'}`);
+      if (productName) conds.push(drizzleSql`product_name ILIKE ${'%' + productName + '%'}`);
+      if (from) conds.push(drizzleSql`created_at_utc >= ${from}::timestamptz`);
+      if (to) conds.push(drizzleSql`created_at_utc <= ${to}::timestamptz`);
+      if (!isNaN(minCost)) conds.push(drizzleSql`estimated_cost::numeric >= ${minCost}`);
+      if (!isNaN(maxCost)) conds.push(drizzleSql`estimated_cost::numeric <= ${maxCost}`);
+
+      let where = drizzleSql``;
+      if (conds.length) {
+        where = drizzleSql`WHERE ${conds[0]}`;
+        for (let i = 1; i < conds.length; i++) {
+          where = drizzleSql`${where} AND ${conds[i]}`;
+        }
+      }
+
       const rows = await db.execute<any>(drizzleSql`
         SELECT id, user_id, email, endpoint, model, input_tokens, output_tokens,
                total_tokens, estimated_cost, request_status, formula_saved,
-               product_name, ip_address, error_message, created_at_utc
+               product_name, category, system_prompt, user_prompt, messages_json,
+               max_output_tokens, temperature, ip_address, error_message,
+               created_at_utc
         FROM openai_request_logs
-        ${status ? drizzleSql`WHERE request_status = ${status}` : drizzleSql``}
+        ${where}
         ORDER BY created_at_utc DESC
         LIMIT ${limit}
       `);
@@ -660,6 +686,30 @@ Sitemap: https://aiformulator.net/sitemap.xml
     } catch (error) {
       console.error("Error fetching openai logs:", error);
       res.status(500).json({ message: "Failed to fetch OpenAI logs" });
+    }
+  });
+
+  // Single log detail (full payload). Used by the "View OpenAI Request" button.
+  app.get('/api/admin/openai-logs/:id', requireAdmin, async (req: any, res, next) => {
+    // Guard: don't shadow the /stats endpoint defined below.
+    if (req.params.id === 'stats') return next();
+    try {
+      const r = await db.execute<any>(drizzleSql`
+        SELECT id, user_id, email, endpoint, model, input_tokens, output_tokens,
+               total_tokens, estimated_cost, request_status, formula_saved,
+               product_name, category, system_prompt, user_prompt, messages_json,
+               max_output_tokens, temperature, ip_address, error_message,
+               created_at_utc
+        FROM openai_request_logs
+        WHERE id = ${req.params.id}
+        LIMIT 1
+      `);
+      const row = r.rows?.[0];
+      if (!row) return res.status(404).json({ message: 'Not found' });
+      res.json(row);
+    } catch (error) {
+      console.error("Error fetching openai log:", error);
+      res.status(500).json({ message: "Failed to fetch OpenAI log" });
     }
   });
 
@@ -3032,7 +3082,7 @@ Allow: /disclaimer`;
         for (let attempt = 1; attempt <= 2; attempt++) {
           try {
             const { generateCustomFormulation } = await import('./ai');
-            const { formulation: aiFormulationResult, usage: aiUsage } = await generateCustomFormulation(customRequest);
+            const { formulation: aiFormulationResult, usage: aiUsage, debug: aiDebug } = await generateCustomFormulation(customRequest);
             const aiFormulation = aiFormulationResult;
 
             const ingredientsJson = typeof aiFormulation.ingredients === 'string'
@@ -3092,7 +3142,7 @@ Allow: /disclaimer`;
                 userId: getUserId(req) || null,
                 email: req.body.email || null,
                 endpoint: 'POST /api/custom-formulation',
-                model: 'gpt-4o',
+                model: aiDebug?.model || 'gpt-4o',
                 inputTokens: aiUsage.inputTokens,
                 outputTokens: aiUsage.outputTokens,
                 totalTokens: aiUsage.totalTokens,
@@ -3100,6 +3150,12 @@ Allow: /disclaimer`;
                 requestStatus: 'success',
                 formulaSaved: true,
                 productName: productName || null,
+                category: category || null,
+                systemPrompt: aiDebug?.systemPrompt || null,
+                userPrompt: aiDebug?.userPrompt || null,
+                messages: aiDebug?.messages || null,
+                temperature: aiDebug?.temperature ?? null,
+                maxOutputTokens: aiDebug?.maxOutputTokens ?? null,
                 ipAddress: getClientIp(req),
               });
             }
@@ -3121,16 +3177,24 @@ Allow: /disclaimer`;
           }).catch(() => {});
           {
             const { logOpenAIRequest, getClientIp } = await import('./openai-logger');
+            const { lastCustomFormulationPayload } = await import('./ai');
             const isTimeout = /timeout|timed out|ETIMEDOUT/i.test(aiError?.message || '');
             const isCancelled = /cancel|abort/i.test(aiError?.message || '');
+            const dbg = lastCustomFormulationPayload;
             logOpenAIRequest({
               userId: getUserId(req) || null,
               email: req.body.email || null,
               endpoint: 'POST /api/custom-formulation',
-              model: 'gpt-4o',
+              model: dbg?.model || 'gpt-4o',
               requestStatus: isTimeout ? 'timeout' : isCancelled ? 'cancelled' : 'failed',
               formulaSaved: false,
               productName: productName || null,
+              category: category || null,
+              systemPrompt: dbg?.systemPrompt || null,
+              userPrompt: dbg?.userPrompt || null,
+              messages: dbg?.messages || null,
+              temperature: dbg?.temperature ?? null,
+              maxOutputTokens: dbg?.maxOutputTokens ?? null,
               ipAddress: getClientIp(req),
               errorMessage: aiError?.message || 'Unknown error',
             });
@@ -4079,21 +4143,22 @@ Allow: /disclaimer`;
       const OpenAI = (await import("openai")).default;
       const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+      const systemPrompt =
+        'You validate whether a user-supplied string names a real chemical/consumer/industrial product that a chemist could actually formulate (e.g., "Glass Cleaner", "Anti-Aging Face Cream", "Concrete Bonding Adhesive"). ' +
+        'Reject placeholder/filler input such as "test", "hello", "asdf", "sample", "demo", random words, single common English words that are not products, gibberish, or sentences that do not name a product. ' +
+        'Respond ONLY with JSON: {"valid": boolean, "reason": string, "detectedType": "liquid"|"cream"|"gel"|"powder"|"other"|null}. ' +
+        'If invalid, set detectedType to null and reason to a short user-facing message asking for a valid product name with examples.';
+      const userPrompt = trimmed;
+      const messages = [
+        { role: "system" as const, content: systemPrompt },
+        { role: "user" as const, content: userPrompt },
+      ];
+      const temperature = 0;
       const aiPromise = client.chat.completions.create({
         model,
-        temperature: 0,
+        temperature,
         response_format: { type: "json_object" },
-        messages: [
-          {
-            role: "system",
-            content:
-              'You validate whether a user-supplied string names a real chemical/consumer/industrial product that a chemist could actually formulate (e.g., "Glass Cleaner", "Anti-Aging Face Cream", "Concrete Bonding Adhesive"). ' +
-              'Reject placeholder/filler input such as "test", "hello", "asdf", "sample", "demo", random words, single common English words that are not products, gibberish, or sentences that do not name a product. ' +
-              'Respond ONLY with JSON: {"valid": boolean, "reason": string, "detectedType": "liquid"|"cream"|"gel"|"powder"|"other"|null}. ' +
-              'If invalid, set detectedType to null and reason to a short user-facing message asking for a valid product name with examples.',
-          },
-          { role: "user", content: trimmed },
-        ],
+        messages,
       });
 
       const timeoutPromise = new Promise<null>((resolve) =>
@@ -4108,6 +4173,7 @@ Allow: /disclaimer`;
           userId, email, endpoint, model,
           requestStatus: "timeout",
           productName: trimmed,
+          systemPrompt, userPrompt, messages, temperature,
           ipAddress,
           errorMessage: "AI validation timed out after 5s",
         });
@@ -4126,6 +4192,7 @@ Allow: /disclaimer`;
         totalTokens: usage.total_tokens || 0,
         requestStatus: "success",
         productName: trimmed,
+        systemPrompt, userPrompt, messages, temperature,
         ipAddress,
       });
 
@@ -4144,6 +4211,7 @@ Allow: /disclaimer`;
         userId, email, endpoint, model,
         requestStatus: "failed",
         productName: trimmed,
+        systemPrompt, userPrompt, messages, temperature,
         ipAddress,
         errorMessage: err?.message || String(err),
       });

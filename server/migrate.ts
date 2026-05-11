@@ -284,6 +284,14 @@ async function createTables() {
       CREATE INDEX IF NOT EXISTS openai_logs_created_idx ON openai_request_logs (created_at_utc DESC);
       CREATE INDEX IF NOT EXISTS openai_logs_user_idx ON openai_request_logs (user_id);
       CREATE INDEX IF NOT EXISTS openai_logs_status_idx ON openai_request_logs (request_status);
+      ALTER TABLE openai_request_logs ADD COLUMN IF NOT EXISTS category text;
+      ALTER TABLE openai_request_logs ADD COLUMN IF NOT EXISTS system_prompt text;
+      ALTER TABLE openai_request_logs ADD COLUMN IF NOT EXISTS user_prompt text;
+      ALTER TABLE openai_request_logs ADD COLUMN IF NOT EXISTS messages_json jsonb;
+      ALTER TABLE openai_request_logs ADD COLUMN IF NOT EXISTS max_output_tokens integer;
+      ALTER TABLE openai_request_logs ADD COLUMN IF NOT EXISTS temperature text;
+      CREATE INDEX IF NOT EXISTS openai_logs_email_idx ON openai_request_logs (email);
+      CREATE INDEX IF NOT EXISTS openai_logs_product_idx ON openai_request_logs (product_name);
     `);
 
     await db.execute(/* sql */ `

@@ -36,8 +36,31 @@ export interface LogContext {
   requestStatus: RequestStatus;
   formulaSaved?: boolean;
   productName?: string | null;
+  category?: string | null;
+  systemPrompt?: string | null;
+  userPrompt?: string | null;
+  messages?: any;
+  maxOutputTokens?: number | null;
+  temperature?: number | string | null;
   ipAddress?: string | null;
   errorMessage?: string | null;
+}
+
+// Strip any apiKey/Authorization-like fields from a payload before logging.
+function sanitizePayload(value: any): any {
+  if (!value) return value;
+  try {
+    return JSON.parse(
+      JSON.stringify(value, (k, v) => {
+        if (typeof k === "string" && /api[_-]?key|authorization|bearer|secret/i.test(k)) {
+          return "[REDACTED]";
+        }
+        return v;
+      }),
+    );
+  } catch {
+    return null;
+  }
 }
 
 // Fire-and-forget log write. Never throws.
@@ -60,6 +83,15 @@ export function logOpenAIRequest(ctx: LogContext): void {
       requestStatus: ctx.requestStatus,
       formulaSaved: ctx.formulaSaved ?? false,
       productName: ctx.productName || null,
+      category: ctx.category || null,
+      systemPrompt: ctx.systemPrompt || null,
+      userPrompt: ctx.userPrompt || null,
+      messagesJson: ctx.messages ? sanitizePayload(ctx.messages) : null,
+      maxOutputTokens: ctx.maxOutputTokens ?? null,
+      temperature:
+        ctx.temperature === null || ctx.temperature === undefined
+          ? null
+          : String(ctx.temperature),
       ipAddress: ctx.ipAddress || null,
       errorMessage: ctx.errorMessage || null,
     })
