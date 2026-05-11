@@ -264,6 +264,29 @@ async function createTables() {
     `);
 
     await db.execute(/* sql */ `
+      CREATE TABLE IF NOT EXISTS openai_request_logs (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id varchar,
+        email text,
+        endpoint text NOT NULL,
+        model text NOT NULL DEFAULT 'gpt-4o',
+        input_tokens integer NOT NULL DEFAULT 0,
+        output_tokens integer NOT NULL DEFAULT 0,
+        total_tokens integer NOT NULL DEFAULT 0,
+        estimated_cost text NOT NULL DEFAULT '0.000000',
+        request_status text NOT NULL DEFAULT 'success',
+        formula_saved boolean NOT NULL DEFAULT false,
+        product_name text,
+        ip_address text,
+        error_message text,
+        created_at_utc timestamptz NOT NULL DEFAULT (now() AT TIME ZONE 'UTC')
+      );
+      CREATE INDEX IF NOT EXISTS openai_logs_created_idx ON openai_request_logs (created_at_utc DESC);
+      CREATE INDEX IF NOT EXISTS openai_logs_user_idx ON openai_request_logs (user_id);
+      CREATE INDEX IF NOT EXISTS openai_logs_status_idx ON openai_request_logs (request_status);
+    `);
+
+    await db.execute(/* sql */ `
       CREATE TABLE IF NOT EXISTS api_usage_logs (
         id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id varchar,

@@ -34,6 +34,7 @@ import FormulatorManagementTab from "@/components/admin/formulator-management-ta
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminOverviewTab from "@/components/admin/admin-overview-tab";
 import SampleProductsTab from "@/components/admin/sample-products-tab";
+import OpenAIUsageTab from "@/components/admin/openai-usage-tab";
 import type { Category, Formulation } from "@shared/schema";
 
 type NavId =
@@ -791,7 +792,9 @@ export default function AdminPage() {
 
           {/* ── OPENAI USAGE ─────────────────────────────────────────────── */}
           {activeTab === "openai-usage" && (
-            <PlaceholderTab title="OpenAI Usage" description="Monitor token usage, costs, and API call statistics across formulation generation." icon={BarChart2} />
+            <div className="p-6">
+              <OpenAIUsageTab />
+            </div>
           )}
 
           {/* ── SAFETY & VALIDATION ──────────────────────────────────────── */}

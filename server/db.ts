@@ -277,6 +277,27 @@ export const formulaGenerationFailuresTable = pgTable("formula_generation_failur
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Comprehensive OpenAI request log — records every API call (success/failed/
+// cancelled/timeout) with token usage, cost, and whether the resulting formula
+// was saved. All timestamps stored in UTC.
+export const openaiRequestLogsTable = pgTable("openai_request_logs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: varchar("user_id"),
+  email: text("email"),
+  endpoint: text("endpoint").notNull(),
+  model: text("model").notNull().default("gpt-4o"),
+  inputTokens: integer("input_tokens").notNull().default(0),
+  outputTokens: integer("output_tokens").notNull().default(0),
+  totalTokens: integer("total_tokens").notNull().default(0),
+  estimatedCost: text("estimated_cost").notNull().default("0.000000"),
+  requestStatus: text("request_status").notNull().default("success"), // success | failed | cancelled | timeout
+  formulaSaved: boolean("formula_saved").notNull().default(false),
+  productName: text("product_name"),
+  ipAddress: text("ip_address"),
+  errorMessage: text("error_message"),
+  createdAtUtc: timestamp("created_at_utc", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const apiUsageLogsTable = pgTable("api_usage_logs", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: varchar("user_id"),

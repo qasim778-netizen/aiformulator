@@ -7,7 +7,7 @@ import crypto from "crypto";
 import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema, insertFormulationContentSchema, insertUserNoteSchema, insertPageSchema, insertBlogPostSchema, insertSampleProductSchema } from "@shared/schema";
 import type { ChatMessage, InsertChatMessage } from "@shared/schema";
-import { db, categoriesTable, wizardCategoriesTable, wizardProductTypesTable, wizardBaseTypesTable, wizardCategoryBaseTypesTable, wizardFeatureChipsTable, wizardSafetyNotesTable, wizardPromptRulesTable, generatedFormulasTable, formulaGenerationFailuresTable, apiUsageLogsTable } from "./db";
+import { db, categoriesTable, wizardCategoriesTable, wizardProductTypesTable, wizardBaseTypesTable, wizardCategoryBaseTypesTable, wizardFeatureChipsTable, wizardSafetyNotesTable, wizardPromptRulesTable, generatedFormulasTable, formulaGenerationFailuresTable, apiUsageLogsTable, openaiRequestLogsTable } from "./db";
 import { eq, and, sql as drizzleSql } from "drizzle-orm";
 import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateBulkFormulationsWithKeywords, generateProductTypes, generateCustomFormulation, generateWizardProductTypeNames, generateBaseTypeNames, generateFeatureChips, generateSafetyNotes, generatePromptRules } from "./ai";
 import { generateCategorySuggestions } from "./services/openai";
@@ -639,6 +639,134 @@ Sitemap: https://aiformulator.net/sitemap.xml
     } catch (error) {
       console.error("Error fetching api usage logs:", error);
       res.status(500).json({ message: "Failed to fetch API usage logs" });
+    }
+  });
+
+  // ── OpenAI Request Logs (comprehensive) ─────────────────────────────────
+  app.get('/api/admin/openai-logs', requireAdmin, async (req: any, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit as string) || 200, 1000);
+      const status = (req.query.status as string) || '';
+      const rows = await db.execute<any>(drizzleSql`
+        SELECT id, user_id, email, endpoint, model, input_tokens, output_tokens,
+               total_tokens, estimated_cost, request_status, formula_saved,
+               product_name, ip_address, error_message, created_at_utc
+        FROM openai_request_logs
+        ${status ? drizzleSql`WHERE request_status = ${status}` : drizzleSql``}
+        ORDER BY created_at_utc DESC
+        LIMIT ${limit}
+      `);
+      res.json(rows.rows || []);
+    } catch (error) {
+      console.error("Error fetching openai logs:", error);
+      res.status(500).json({ message: "Failed to fetch OpenAI logs" });
+    }
+  });
+
+  app.get('/api/admin/openai-logs/stats', requireAdmin, async (_req: any, res) => {
+    try {
+      const dailyR = await db.execute<any>(drizzleSql`
+        SELECT date_trunc('day', created_at_utc) AS day,
+               COUNT(*)::int AS calls,
+               COALESCE(SUM(total_tokens),0)::int AS tokens,
+               COALESCE(SUM(estimated_cost::numeric),0)::float AS cost
+        FROM openai_request_logs
+        WHERE created_at_utc >= now() - interval '30 days'
+        GROUP BY day
+        ORDER BY day DESC
+      `);
+
+      const topUsersR = await db.execute<any>(drizzleSql`
+        SELECT COALESCE(email,'(anonymous)') AS email,
+               user_id,
+               COUNT(*)::int AS calls,
+               COALESCE(SUM(estimated_cost::numeric),0)::float AS cost,
+               COALESCE(SUM(total_tokens),0)::int AS tokens
+        FROM openai_request_logs
+        WHERE created_at_utc >= now() - interval '30 days'
+        GROUP BY email, user_id
+        ORDER BY cost DESC
+        LIMIT 10
+      `);
+
+      const failedR = await db.execute<any>(drizzleSql`
+        SELECT id, email, endpoint, model, request_status, error_message,
+               product_name, created_at_utc
+        FROM openai_request_logs
+        WHERE request_status IN ('failed','timeout','cancelled')
+        ORDER BY created_at_utc DESC
+        LIMIT 50
+      `);
+
+      const unsavedR = await db.execute<any>(drizzleSql`
+        SELECT id, email, endpoint, model, estimated_cost::numeric AS cost,
+               product_name, request_status, created_at_utc
+        FROM openai_request_logs
+        WHERE formula_saved = false AND request_status = 'success'
+              AND endpoint ILIKE '%custom-formulation%'
+        ORDER BY created_at_utc DESC
+        LIMIT 50
+      `);
+
+      const overallR = await db.execute<any>(drizzleSql`
+        SELECT
+          COUNT(*) FILTER (WHERE endpoint ILIKE '%custom-formulation%')::int AS api_calls,
+          COUNT(*) FILTER (WHERE endpoint ILIKE '%custom-formulation%' AND formula_saved = true)::int AS saved_formulas,
+          COALESCE(SUM(estimated_cost::numeric) FILTER (WHERE endpoint ILIKE '%custom-formulation%'),0)::float AS formula_cost,
+          COALESCE(SUM(estimated_cost::numeric),0)::float AS total_cost,
+          COUNT(*)::int AS total_calls,
+          COUNT(*) FILTER (WHERE created_at_utc >= date_trunc('day', now()))::int AS today_calls,
+          COALESCE(SUM(estimated_cost::numeric) FILTER (WHERE created_at_utc >= date_trunc('day', now())),0)::float AS today_cost
+        FROM openai_request_logs
+      `);
+
+      // Repeat-warning: same user with >=3 requests within 10s window in last 24h.
+      const repeatR = await db.execute<any>(drizzleSql`
+        WITH recent AS (
+          SELECT id, COALESCE(user_id, ip_address, email) AS who,
+                 email, endpoint, created_at_utc,
+                 LAG(created_at_utc) OVER (PARTITION BY COALESCE(user_id, ip_address, email) ORDER BY created_at_utc) AS prev_at
+          FROM openai_request_logs
+          WHERE created_at_utc >= now() - interval '24 hours'
+        )
+        SELECT who, email,
+               COUNT(*)::int AS rapid_count,
+               MAX(created_at_utc) AS last_at
+        FROM recent
+        WHERE prev_at IS NOT NULL
+              AND EXTRACT(EPOCH FROM (created_at_utc - prev_at)) <= 10
+        GROUP BY who, email
+        HAVING COUNT(*) >= 2
+        ORDER BY last_at DESC
+        LIMIT 25
+      `);
+
+      const overall = overallR.rows?.[0] || {};
+      const apiCalls = Number(overall.api_calls || 0);
+      const saved = Number(overall.saved_formulas || 0);
+      const formulaCost = Number(overall.formula_cost || 0);
+
+      res.json({
+        daily: dailyR.rows || [],
+        topUsers: topUsersR.rows || [],
+        failed: failedR.rows || [],
+        unsaved: unsavedR.rows || [],
+        repeats: repeatR.rows || [],
+        totals: {
+          totalCost: Number(overall.total_cost || 0),
+          totalCalls: Number(overall.total_calls || 0),
+          todayCalls: Number(overall.today_calls || 0),
+          todayCost: Number(overall.today_cost || 0),
+          apiCalls,
+          savedFormulas: saved,
+          unsavedFormulas: Math.max(apiCalls - saved, 0),
+          costPerFormula: saved > 0 ? formulaCost / saved : 0,
+          saveRatio: apiCalls > 0 ? saved / apiCalls : 0,
+        },
+      });
+    } catch (error) {
+      console.error("Error computing openai stats:", error);
+      res.status(500).json({ message: "Failed to compute OpenAI stats" });
     }
   });
 
@@ -2863,6 +2991,19 @@ Allow: /disclaimer`;
             productName: req.body.productName || null,
             productType: req.body.productType || null,
           }).catch(e => console.error('[API Usage] Cache log failed:', e));
+          {
+            const { logOpenAIRequest, getClientIp } = await import('./openai-logger');
+            logOpenAIRequest({
+              userId: getUserId(req) || null,
+              email: req.body.email || null,
+              endpoint: 'POST /api/custom-formulation (cache)',
+              model: 'cache',
+              requestStatus: 'success',
+              formulaSaved: true,
+              productName: req.body.productName || null,
+              ipAddress: getClientIp(req),
+            });
+          }
         }
       } catch (cacheErr) {
         console.warn('[Cache] Read failed, proceeding to AI:', cacheErr);
@@ -2945,6 +3086,23 @@ Allow: /disclaimer`;
               productName: productName || null,
               productType: productType || null,
             }).catch(e => console.error('[API Usage] Log failed:', e));
+            {
+              const { logOpenAIRequest, getClientIp } = await import('./openai-logger');
+              logOpenAIRequest({
+                userId: getUserId(req) || null,
+                email: req.body.email || null,
+                endpoint: 'POST /api/custom-formulation',
+                model: 'gpt-4o',
+                inputTokens: aiUsage.inputTokens,
+                outputTokens: aiUsage.outputTokens,
+                totalTokens: aiUsage.totalTokens,
+                estimatedCost: aiCost,
+                requestStatus: 'success',
+                formulaSaved: true,
+                productName: productName || null,
+                ipAddress: getClientIp(req),
+              });
+            }
 
             aiError = null;
             break;
@@ -2961,6 +3119,22 @@ Allow: /disclaimer`;
             formulaKey,
             errorMessage: aiError?.message || 'Unknown error',
           }).catch(() => {});
+          {
+            const { logOpenAIRequest, getClientIp } = await import('./openai-logger');
+            const isTimeout = /timeout|timed out|ETIMEDOUT/i.test(aiError?.message || '');
+            const isCancelled = /cancel|abort/i.test(aiError?.message || '');
+            logOpenAIRequest({
+              userId: getUserId(req) || null,
+              email: req.body.email || null,
+              endpoint: 'POST /api/custom-formulation',
+              model: 'gpt-4o',
+              requestStatus: isTimeout ? 'timeout' : isCancelled ? 'cancelled' : 'failed',
+              formulaSaved: false,
+              productName: productName || null,
+              ipAddress: getClientIp(req),
+              errorMessage: aiError?.message || 'Unknown error',
+            });
+          }
           console.error("[AI Generation] All attempts failed:", { message: aiError?.message, status: aiError?.status });
           throw new Error(aiError?.message || "AI service unavailable, please try again");
         }
@@ -3878,9 +4052,16 @@ Allow: /disclaimer`;
   // AI-backed product-name validation. Decides in <=5s whether the input is a
   // real chemical/consumer product (vs. "test", "hello", random words, etc.).
   // Returns { valid: boolean, reason?: string, detectedType?: string }.
-  app.post("/api/validate-product-name", async (req, res) => {
+  app.post("/api/validate-product-name", async (req: any, res) => {
+    const { logOpenAIRequest, getClientIp } = await import("./openai-logger");
     const { name } = req.body || {};
     const trimmed = typeof name === "string" ? name.trim() : "";
+    const userId = (req as any).session?.userId || null;
+    const email = (req as any).session?.userEmail || null;
+    const ipAddress = getClientIp(req);
+    const endpoint = "POST /api/validate-product-name";
+    const model = "gpt-4o-mini";
+
     if (!trimmed || trimmed.length < 3) {
       return res.json({
         valid: false,
@@ -3899,7 +4080,7 @@ Allow: /disclaimer`;
       const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
       const aiPromise = client.chat.completions.create({
-        model: "gpt-4o-mini",
+        model,
         temperature: 0,
         response_format: { type: "json_object" },
         messages: [
@@ -3923,12 +4104,30 @@ Allow: /disclaimer`;
 
       // On timeout, fail open so users aren't blocked by a slow AI.
       if (!result) {
+        logOpenAIRequest({
+          userId, email, endpoint, model,
+          requestStatus: "timeout",
+          productName: trimmed,
+          ipAddress,
+          errorMessage: "AI validation timed out after 5s",
+        });
         return res.json({ valid: true, reason: "timeout-fallback" });
       }
 
       const raw = (result as any).choices?.[0]?.message?.content || "{}";
+      const usage = (result as any).usage || {};
       let parsed: any = {};
       try { parsed = JSON.parse(raw); } catch { parsed = {}; }
+
+      logOpenAIRequest({
+        userId, email, endpoint, model,
+        inputTokens: usage.prompt_tokens || 0,
+        outputTokens: usage.completion_tokens || 0,
+        totalTokens: usage.total_tokens || 0,
+        requestStatus: "success",
+        productName: trimmed,
+        ipAddress,
+      });
 
       return res.json({
         valid: Boolean(parsed.valid),
@@ -3939,8 +4138,15 @@ Allow: /disclaimer`;
         detectedType:
           typeof parsed.detectedType === "string" ? parsed.detectedType : null,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error("[validate-product-name] AI check failed:", err);
+      logOpenAIRequest({
+        userId, email, endpoint, model,
+        requestStatus: "failed",
+        productName: trimmed,
+        ipAddress,
+        errorMessage: err?.message || String(err),
+      });
       // Fail open on any error so the form stays usable.
       return res.json({ valid: true, reason: "ai-error-fallback" });
     }
