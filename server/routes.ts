@@ -3874,7 +3874,78 @@ Allow: /disclaimer`;
   app.use('/images/generated', express.static(path.join(process.cwd(), 'client/public/images/generated')));
 
   const httpServer = createServer(app);
-  
+
+  // AI-backed product-name validation. Decides in <=5s whether the input is a
+  // real chemical/consumer product (vs. "test", "hello", random words, etc.).
+  // Returns { valid: boolean, reason?: string, detectedType?: string }.
+  app.post("/api/validate-product-name", async (req, res) => {
+    const { name } = req.body || {};
+    const trimmed = typeof name === "string" ? name.trim() : "";
+    if (!trimmed || trimmed.length < 3) {
+      return res.json({
+        valid: false,
+        reason: "Please enter a product name (minimum 3 characters).",
+      });
+    }
+    if (trimmed.length > 200) {
+      return res.json({
+        valid: false,
+        reason: "Product name must be 200 characters or fewer.",
+      });
+    }
+
+    try {
+      const OpenAI = (await import("openai")).default;
+      const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const aiPromise = client.chat.completions.create({
+        model: "gpt-4o-mini",
+        temperature: 0,
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content:
+              'You validate whether a user-supplied string names a real chemical/consumer/industrial product that a chemist could actually formulate (e.g., "Glass Cleaner", "Anti-Aging Face Cream", "Concrete Bonding Adhesive"). ' +
+              'Reject placeholder/filler input such as "test", "hello", "asdf", "sample", "demo", random words, single common English words that are not products, gibberish, or sentences that do not name a product. ' +
+              'Respond ONLY with JSON: {"valid": boolean, "reason": string, "detectedType": "liquid"|"cream"|"gel"|"powder"|"other"|null}. ' +
+              'If invalid, set detectedType to null and reason to a short user-facing message asking for a valid product name with examples.',
+          },
+          { role: "user", content: trimmed },
+        ],
+      });
+
+      const timeoutPromise = new Promise<null>((resolve) =>
+        setTimeout(() => resolve(null), 5000),
+      );
+
+      const result = await Promise.race([aiPromise, timeoutPromise]);
+
+      // On timeout, fail open so users aren't blocked by a slow AI.
+      if (!result) {
+        return res.json({ valid: true, reason: "timeout-fallback" });
+      }
+
+      const raw = (result as any).choices?.[0]?.message?.content || "{}";
+      let parsed: any = {};
+      try { parsed = JSON.parse(raw); } catch { parsed = {}; }
+
+      return res.json({
+        valid: Boolean(parsed.valid),
+        reason:
+          typeof parsed.reason === "string"
+            ? parsed.reason
+            : "We could not identify this product name. Please enter a valid product such as: Face Wash, Glass Cleaner, Car Shampoo.",
+        detectedType:
+          typeof parsed.detectedType === "string" ? parsed.detectedType : null,
+      });
+    } catch (err) {
+      console.error("[validate-product-name] AI check failed:", err);
+      // Fail open on any error so the form stays usable.
+      return res.json({ valid: true, reason: "ai-error-fallback" });
+    }
+  });
+
   // Dynamic product properties endpoint
   app.get("/api/product-properties/:productName", async (req, res) => {
     try {

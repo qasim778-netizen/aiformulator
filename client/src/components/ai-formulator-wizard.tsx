@@ -376,7 +376,9 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
     }
   }, [formData.productName, availableProperties, propertiesLoading]);
 
-  const nextStep = () => {
+  const [isValidatingName, setIsValidatingName] = useState(false);
+
+  const nextStep = async () => {
     if (currentStep === 0) {
       // Only Product Name is required; product type (liquid/cream/gel/powder)
       // is auto-detected from the name via getSmartConsistencyType.
@@ -393,8 +395,38 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
         toast({ title: "Invalid Product Name", description: nameCheck.error, variant: "destructive" });
         return;
       }
+
+      // AI validation — fuzzy 5s check that the input names a real product.
+      // Falls back to allow if the API errors or times out.
+      setIsValidatingName(true);
+      try {
+        const res = await fetch("/api/validate-product-name", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: formData.productName }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.valid === false) {
+            toast({
+              title: "Invalid Product Name",
+              description:
+                data.reason ||
+                "We could not identify this product name. Please enter a valid product such as: Face Wash, Glass Cleaner, Car Shampoo.",
+              variant: "destructive",
+            });
+            setIsValidatingName(false);
+            return;
+          }
+        }
+      } catch (err) {
+        // Network error — fail open so user isn't blocked
+        console.warn("AI name validation failed; allowing through:", err);
+      } finally {
+        setIsValidatingName(false);
+      }
     }
-    
+
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -682,11 +714,21 @@ const AIFormulatorWizard = forwardRef<AIFormulatorWizardHandle, AIFormulatorWiza
 
             <Button
               onClick={nextStep}
-              className="bg-primary hover:bg-primary/90 text-white px-8 py-3"
+              disabled={isValidatingName}
+              className="bg-primary hover:bg-primary/90 text-white px-8 py-3 disabled:opacity-70"
               data-testid="button-next-step"
             >
-              Next Step
-              <ArrowRight className="h-4 w-4 ml-2" />
+              {isValidatingName ? (
+                <>
+                  <span className="inline-block h-4 w-4 mr-2 border-2 border-white border-b-transparent rounded-full animate-spin" />
+                  Validating...
+                </>
+              ) : (
+                <>
+                  Next Step
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </>
+              )}
             </Button>
           </div>
         )}

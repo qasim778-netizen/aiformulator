@@ -82,6 +82,22 @@ export interface ValidationResult {
 const ERROR_MSG =
   "We could not identify this product name. Please enter a valid product such as: Face Wash, Glass Cleaner, Car Shampoo.";
 
+// Common non-product words that pass gibberish check but aren't real products.
+// If the entire input is one of these (or only these), we reject it.
+const NON_PRODUCT_WORDS = new Set([
+  "test","testing","tested","sample","demo","example","hello","hi","hey",
+  "abc","xyz","abcd","abcde","aaa","bbb","ccc","ddd","foo","bar","baz",
+  "qwerty","asdf","asdfg","lorem","ipsum","random","check","try","trial",
+  "name","product","item","thing","stuff","data","input","please","ok",
+  "okay","yes","no","none","null","undefined","blank","empty","new","old",
+  "good","bad","nice","cool","wow","yeah","hmm","help","todo","todos",
+]);
+
+function isOnlyNonProductWords(words: string[]): boolean {
+  if (words.length === 0) return true;
+  return words.every((w) => NON_PRODUCT_WORDS.has(w.toLowerCase()));
+}
+
 export function validateProductName(name: string): ValidationResult {
   const trimmed = name.trim();
 
@@ -99,6 +115,12 @@ export function validateProductName(name: string): ValidationResult {
     .filter((w) => w.length >= 2);
 
   if (words.length === 0) {
+    return { valid: false, error: ERROR_MSG };
+  }
+
+  // Reject if input consists only of generic non-product filler words
+  // (e.g., "test", "hello", "sample", "asdf").
+  if (isOnlyNonProductWords(words)) {
     return { valid: false, error: ERROR_MSG };
   }
 
