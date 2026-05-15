@@ -4,6 +4,8 @@
  * Supports multiple product categories: cosmetics, detergents, cleaners, etc.
  */
 
+import { detectRuleGroup } from "./formulationRules";
+
 export interface ValidationResult {
   isValid: boolean;
   overallScore: number;
@@ -57,6 +59,8 @@ export type IngredientType =
   | 'other';
 
 type ProductCategory = 'cosmetic' | 'detergent' | 'cleaner' | 'haircare' | 'oral' | 'other';
+
+type ValidationProfile = 'oralCareRules' | 'leatherShoeCareRules' | 'powderRules' | 'cosmeticPersonalCareRules' | 'cleaningDetergentRules' | 'generic';
 
 const COSMETIC_LIMITS: Record<IngredientType, { min: number; max: number; label: string }> = {
   base: { min: 50, max: 85, label: 'Base Ingredients (Water/Solvents)' },
@@ -337,6 +341,21 @@ function parsePercentage(percentage: string | number): number {
   return match ? parseFloat(match[0]) : 0;
 }
 
+function getValidationProfile(ruleGroup: string, productName?: string): ValidationProfile {
+  const name = (productName || "").toLowerCase();
+  if (ruleGroup === "oralCareRules") return "oralCareRules";
+  if (ruleGroup === "leatherShoeCareRules") return "leatherShoeCareRules";
+  if (ruleGroup === "powderRules") return "powderRules";
+  if (ruleGroup === "cosmeticPersonalCareRules") return "cosmeticPersonalCareRules";
+  if (ruleGroup === "cleaningDetergentRules") return "cleaningDetergentRules";
+  if (name.includes("toothpaste") || name.includes("tooth gel") || name.includes("mouthwash")) return "oralCareRules";
+  if (name.includes("shoe polish") || name.includes("shoe cream") || name.includes("shoe shine")) return "leatherShoeCareRules";
+  if (name.includes("powder")) return "powderRules";
+  if (name.includes("cream") || name.includes("lotion") || name.includes("moisturizer") || name.includes("face")) return "cosmeticPersonalCareRules";
+  if (name.includes("dish") || name.includes("cleaner") || name.includes("detergent")) return "cleaningDetergentRules";
+  return "generic";
+}
+
 export function parseIngredients(
   ingredientsJson: string, 
   productCategory: ProductCategory = 'cosmetic'
@@ -368,6 +387,9 @@ export function validateFormulation(
   const warnings: ValidationWarning[] = [];
   const suggestions: string[] = [];
   
+  const detected = detectRuleGroup(productName || productType || '');
+  const ruleGroup = detected.ruleGroup;
+  const validationProfile = getValidationProfile(ruleGroup, productName || productType);
   const productCategory = detectProductCategory(productType, productName);
   const limits = getLimitsForCategory(productCategory);
   const ingredients = parseIngredients(ingredientsJson, productCategory);
@@ -418,7 +440,76 @@ export function validateFormulation(
     typeGroups[ing.type].push(ing);
   });
   
-  if (productCategory === 'cosmetic' || productCategory === 'haircare') {
+  if (validationProfile === 'oralCareRules') {
+    const humectantTotal = typeGroups.humectant.reduce((sum, ing) => sum + ing.percentage, 0);
+    const surfactantTotal = typeGroups.surfactant.reduce((sum, ing) => sum + ing.percentage, 0);
+    const preservativeTotal = typeGroups.preservative.reduce((sum, ing) => sum + ing.percentage, 0);
+    const waterTotal = typeGroups.base.reduce((sum, ing) => sum + ing.percentage, 0);
+    const binderTotal = typeGroups.thickener.reduce((sum, ing) => sum + ing.percentage, 0);
+    const flavorTotal = typeGroups.fragrance.reduce((sum, ing) => sum + ing.percentage, 0);
+    const sorbitolTotal = ingredients.filter(ing => `${ing.name} ${ing.inci} ${ing.function}`.toLowerCase().includes('sorbitol')).reduce((sum, ing) => sum + ing.percentage, 0);
+    const abrasiveTotal = ingredients.filter(ing => {
+      const t = `${ing.name} ${ing.inci} ${ing.function}`.toLowerCase();
+      return t.includes('silica') || t.includes('calcium carbonate') || t.includes('abrasive');
+    }).reduce((sum, ing) => sum + ing.percentage, 0);
+    if (humectantTotal < 20 || humectantTotal > 60) issues.push({ type: 'major', category: 'Humectants/Moisturizers', message: `Humectants total is ${humectantTotal.toFixed(1)}% - should be 20-60%`, actualValue: humectantTotal, expectedRange: '20-60%' });
+    if (sorbitolTotal < 20 || sorbitolTotal > 45) issues.push({ type: 'major', category: 'Humectants/Moisturizers', message: `Sorbitol total is ${sorbitolTotal.toFixed(1)}% - should be 20-45%`, actualValue: sorbitolTotal, expectedRange: '20-45%' });
+    if (abrasiveTotal < 10 || abrasiveTotal > 50) issues.push({ type: 'major', category: 'Abrasives', message: `Abrasives total is ${abrasiveTotal.toFixed(1)}% - should be 10-50%`, actualValue: abrasiveTotal, expectedRange: '10-50%' });
+    if (waterTotal < 5 || waterTotal > 35) issues.push({ type: 'major', category: 'Base Ingredients', message: `Water total is ${waterTotal.toFixed(1)}% - should be 5-35%`, actualValue: waterTotal, expectedRange: '5-35%' });
+    if (binderTotal < 0.3 || binderTotal > 2) issues.push({ type: 'major', category: 'Binder/Thickener', message: `Binder/thickener total is ${binderTotal.toFixed(1)}% - should be 0.3-2%`, actualValue: binderTotal, expectedRange: '0.3-2%' });
+    if (surfactantTotal < 0.5 || surfactantTotal > 2) issues.push({ type: 'major', category: 'Surfactants', message: `Surfactant total is ${surfactantTotal.toFixed(1)}% - should be 0.5-2%`, actualValue: surfactantTotal, expectedRange: '0.5-2%' });
+    if (flavorTotal < 0.1 || flavorTotal > 2) issues.push({ type: 'major', category: 'Flavor/Sweetener', message: `Flavor/sweetener total is ${flavorTotal.toFixed(1)}% - should be 0.1-2%`, actualValue: flavorTotal, expectedRange: '0.1-2%' });
+    if (waterTotal >= 2 && (preservativeTotal < 0 || preservativeTotal > 0.5)) issues.push({ type: 'major', category: 'Preservatives', message: `Preservative total is ${preservativeTotal.toFixed(2)}% - should be 0-0.5%`, actualValue: preservativeTotal, expectedRange: '0-0.5%' });
+  } else if (validationProfile === 'leatherShoeCareRules') {
+    const waterTotal = typeGroups.base.reduce((sum, ing) => sum + ing.percentage, 0);
+    const waxTotal = ingredients.filter(ing => `${ing.name} ${ing.inci} ${ing.function}`.toLowerCase().includes('wax')).reduce((sum, ing) => sum + ing.percentage, 0);
+    const oilSolventTotal = ingredients.filter(ing => {
+      const t = `${ing.name} ${ing.inci} ${ing.function}`.toLowerCase();
+      return t.includes('oil') || t.includes('solvent') || t.includes('mineral spirits') || t.includes('white spirit');
+    }).reduce((sum, ing) => sum + ing.percentage, 0);
+    const pigmentTotal = typeGroups.colorant.reduce((sum, ing) => sum + ing.percentage, 0);
+    const shineResinTotal = ingredients.filter(ing => {
+      const t = `${ing.name} ${ing.inci} ${ing.function}`.toLowerCase();
+      return t.includes('resin') || t.includes('silicone') || t.includes('shine') || t.includes('polish');
+    }).reduce((sum, ing) => sum + ing.percentage, 0);
+    if (waterTotal > 2) issues.push({ type: 'major', category: 'Base Ingredients', message: `Water total is ${waterTotal.toFixed(1)}% - should be 0-2%`, actualValue: waterTotal, expectedRange: '0-2%' });
+    if (waxTotal < 25 || waxTotal > 45) issues.push({ type: 'major', category: 'Waxes', message: `Waxes total is ${waxTotal.toFixed(1)}% - should be 25-45%`, actualValue: waxTotal, expectedRange: '25-45%' });
+    if (oilSolventTotal < 35 || oilSolventTotal > 65) issues.push({ type: 'major', category: 'Oil/Solvent Carrier', message: `Oil/solvent carrier total is ${oilSolventTotal.toFixed(1)}% - should be 35-65%`, actualValue: oilSolventTotal, expectedRange: '35-65%' });
+    if (pigmentTotal < 2 || pigmentTotal > 10) issues.push({ type: 'major', category: 'Pigments/Dyes', message: `Pigment/dye total is ${pigmentTotal.toFixed(1)}% - should be 2-10%`, actualValue: pigmentTotal, expectedRange: '2-10%' });
+    if (shineResinTotal < 1 || shineResinTotal > 8) issues.push({ type: 'major', category: 'Shine/Resin/Silicone', message: `Shine/resin/silicone total is ${shineResinTotal.toFixed(1)}% - should be 1-8%`, actualValue: shineResinTotal, expectedRange: '1-8%' });
+    if (waterTotal < 2 && typeGroups.preservative.reduce((sum, ing) => sum + ing.percentage, 0) > 0.5) {
+      issues.push({ type: 'major', category: 'Preservatives', message: 'Preservative is present despite low water; shoe polish generally does not require it', expectedRange: 'optional' });
+    }
+  } else if (validationProfile === 'powderRules') {
+    const waterTotal = typeGroups.base.reduce((sum, ing) => sum + ing.percentage, 0);
+    if (waterTotal > 2) {
+      issues.push({ type: 'major', category: 'Base Ingredients', message: `Water total is ${waterTotal.toFixed(1)}% - should be 0-2% for dry powders`, actualValue: waterTotal, expectedRange: '0-2%' });
+    }
+  } else if (validationProfile === 'cosmeticPersonalCareRules') {
+    const baseTotal = typeGroups.base.reduce((sum, ing) => sum + ing.percentage, 0);
+    const oilTotal = ingredients.filter(ing => `${ing.name} ${ing.inci} ${ing.function}`.toLowerCase().includes('oil')).reduce((sum, ing) => sum + ing.percentage, 0);
+    const emulsifierTotal = typeGroups.emulsifier.reduce((sum, ing) => sum + ing.percentage, 0);
+    const humectantTotal = typeGroups.humectant.reduce((sum, ing) => sum + ing.percentage, 0);
+    const preservativeTotal = typeGroups.preservative.reduce((sum, ing) => sum + ing.percentage, 0);
+    const pH = phLevel ? parsePercentage(phLevel) : 0;
+    if (baseTotal < 55 || baseTotal > 75) issues.push({ type: 'major', category: 'Base Ingredients', message: `Water phase total is ${baseTotal.toFixed(1)}% - should be 55-75%`, actualValue: baseTotal, expectedRange: '55-75%' });
+    if (oilTotal < 10 || oilTotal > 25) issues.push({ type: 'major', category: 'Oil Phase', message: `Oil phase total is ${oilTotal.toFixed(1)}% - should be 10-25%`, actualValue: oilTotal, expectedRange: '10-25%' });
+    if (emulsifierTotal < 3 || emulsifierTotal > 6) issues.push({ type: 'major', category: 'Emulsifiers', message: `Emulsifier total is ${emulsifierTotal.toFixed(1)}% - should be 3-6%`, actualValue: emulsifierTotal, expectedRange: '3-6%' });
+    if (humectantTotal < 2 || humectantTotal > 8) issues.push({ type: 'major', category: 'Humectants/Moisturizers', message: `Humectant total is ${humectantTotal.toFixed(1)}% - should be 2-8%`, actualValue: humectantTotal, expectedRange: '2-8%' });
+    if (preservativeTotal < 0.5 || preservativeTotal > 1) issues.push({ type: 'major', category: 'Preservatives', message: `Preservative total is ${preservativeTotal.toFixed(2)}% - should be 0.5-1%`, actualValue: preservativeTotal, expectedRange: '0.5-1%' });
+    if (pH && (pH < 5.0 || pH > 6.5)) issues.push({ type: 'major', category: 'pH', message: `pH ${pH} is outside 5.0-6.5`, actualValue: pH, expectedRange: '5.0-6.5' });
+  } else if (validationProfile === 'cleaningDetergentRules') {
+    const baseTotal = typeGroups.base.reduce((sum, ing) => sum + ing.percentage, 0);
+    const surfactantTotal = typeGroups.surfactant.reduce((sum, ing) => sum + ing.percentage, 0);
+    const builderChelatorTotal = typeGroups.builder.reduce((sum, ing) => sum + ing.percentage, 0) + typeGroups.chelating.reduce((sum, ing) => sum + ing.percentage, 0);
+    const preservativeTotal = typeGroups.preservative.reduce((sum, ing) => sum + ing.percentage, 0);
+    const fragranceTotal = typeGroups.fragrance.reduce((sum, ing) => sum + ing.percentage, 0);
+    if (baseTotal < 50 || baseTotal > 85) issues.push({ type: 'major', category: 'Base Ingredients', message: `Water total is ${baseTotal.toFixed(1)}% - should be 50-85%`, actualValue: baseTotal, expectedRange: '50-85%' });
+    if (surfactantTotal < 5 || surfactantTotal > 30) issues.push({ type: 'major', category: 'Surfactants', message: `Surfactant total is ${surfactantTotal.toFixed(1)}% - should be 5-30%`, actualValue: surfactantTotal, expectedRange: '5-30%' });
+    if (builderChelatorTotal < 0.5 || builderChelatorTotal > 5) issues.push({ type: 'major', category: 'Builders/Chelators', message: `Builders/chelators total is ${builderChelatorTotal.toFixed(1)}% - should be 0.5-5%`, actualValue: builderChelatorTotal, expectedRange: '0.5-5%' });
+    if (baseTotal > 0 && (preservativeTotal < 0.1 || preservativeTotal > 0.5)) issues.push({ type: 'major', category: 'Preservatives', message: `Preservative total is ${preservativeTotal.toFixed(2)}% - should be 0.1-0.5% when water-based`, actualValue: preservativeTotal, expectedRange: '0.1-0.5%' });
+    if (fragranceTotal < 0.1 || fragranceTotal > 0.5) issues.push({ type: 'major', category: 'Fragrances', message: `Fragrance total is ${fragranceTotal.toFixed(2)}% - should be 0.1-0.5%`, actualValue: fragranceTotal, expectedRange: '0.1-0.5%' });
+  } else if (productCategory === 'cosmetic' || productCategory === 'haircare') {
     const baseTotal = typeGroups.base.reduce((sum, ing) => sum + ing.percentage, 0);
     const baseLimits = limits.base;
     
