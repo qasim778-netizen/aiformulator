@@ -35,12 +35,12 @@ export function detectRuleGroup(productName: string): {
     return { ruleGroup: "leatherShoeCareRules", rules: "leatherShoeCareRules", confidence: "high" };
   }
 
-  if (matches(["dishwash", "dishwashing liquid", "detergent", "cleaner", "floor cleaner", "glass cleaner", "degreaser"])) {
-    return { ruleGroup: "cleaningDetergentRules", rules: "cleaningDetergentRules", confidence: "high" };
-  }
-
   if (matches(["powder", "powder detergent", "dry mix"])) {
     return { ruleGroup: "powderRules", rules: "powderRules", confidence: "high" };
+  }
+
+  if (matches(["dishwash", "dishwashing liquid", "detergent", "cleaner", "floor cleaner", "glass cleaner", "degreaser"])) {
+    return { ruleGroup: "cleaningDetergentRules", rules: "cleaningDetergentRules", confidence: "high" };
   }
 
   if (matches(["cream", "lotion", "serum", "toner", "moisturizer", "face wash", "sunscreen"])) {
