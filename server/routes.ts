@@ -3016,7 +3016,7 @@ Allow: /disclaimer`;
       }
       const adminPremium = req.body.premiumMode === true || req.body.premiumMode === 'true';
       if (!adminPremium && !premiumUser && _uid) {
-        const recentCount = await db.select({ count: sql<number>`count(*)::int` })
+        const recentCount = await db.select({ count: drizzleSql<number>`count(*)::int` })
           .from(apiUsageLogsTable)
           .where(and(
             eq(apiUsageLogsTable.userId, _uid),
