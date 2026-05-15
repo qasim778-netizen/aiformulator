@@ -3015,6 +3015,18 @@ Allow: /disclaimer`;
         }
       }
       const adminPremium = req.body.premiumMode === true || req.body.premiumMode === 'true';
+      if (!adminPremium && !premiumUser && _uid) {
+        const recentCount = await db.select({ count: sql<number>`count(*)::int` })
+          .from(apiUsageLogsTable)
+          .where(and(
+            eq(apiUsageLogsTable.userId, _uid),
+            eq(apiUsageLogsTable.cacheHit, false),
+            eq(apiUsageLogsTable.model, 'gpt-4o'),
+          ));
+        if ((recentCount[0]?.count || 0) >= 3) {
+          return res.status(403).json({ message: 'You have used your 3 free formula generations. Please upgrade to continue.' });
+        }
+      }
       const { selectModel } = await import('./ai');
       const { detectRuleGroup } = await import('./formulationRules');
       const detectedForRouting = detectRuleGroup(productName);
@@ -3127,49 +3139,15 @@ Allow: /disclaimer`;
               ? aiFormulation.ingredients
               : JSON.stringify(aiFormulation.ingredients || []);
 
-            let validationResult = validateFormulation(ingredientsJson, productType, phLevel.toString());
+            let validationResult = validateFormulation(ingredientsJson, productType, phLevel.toString(), productName);
             console.log(`🔬 Validation: ${validationResult.overallScore}/100 (${validationResult.isValid ? 'VALID' : 'NEEDS REVIEW'}) [model=${modelUsed} reason=${modelUsedReason}]`);
-
-            // ── Auto-upgrade: gpt-4o-mini under-performed → retry with gpt-4o ──
-            if (modelUsed === 'gpt-4o-mini' && validationResult.overallScore < 85) {
-              console.log(`⬆️ Upgrading to gpt-4o due to low validation score (${validationResult.overallScore}/100)`);
-              // Log the failed mini attempt for observability
-              {
-                const { logOpenAIRequest, getClientIp } = await import('./openai-logger');
-                logOpenAIRequest({
-                  userId: _uid || null,
-                  email: req.body.email || null,
-                  endpoint: 'POST /api/custom-formulation',
-                  model: modelUsed,
-                  inputTokens: aiUsage.inputTokens,
-                  outputTokens: aiUsage.outputTokens,
-                  totalTokens: aiUsage.totalTokens,
-                  estimatedCost: estimateCost(modelUsed, aiUsage.inputTokens, aiUsage.outputTokens),
-                  requestStatus: 'success',
-                  formulaSaved: false,
-                  productName: productName || null,
-                  category: category || null,
-                  modelUsedReason: 'mini_failed_validation',
-                  ipAddress: getClientIp(req),
-                  errorMessage: `Low validation score: ${validationResult.overallScore}/100`,
-                });
-              }
-              const upgraded = await generateCustomFormulation({
-                ...customRequest,
-                forceModel: 'gpt-4o',
-                forceReason: 'mini_failed_validation',
+            if (!validationResult.isValid) {
+              return res.status(422).json({
+                message: 'gpt-4o validation failed. Please try a clearer product name or adjust the request.',
+                validationScore: validationResult.overallScore,
+                validationSummary: validationResult.summary,
+                validationIssues: validationResult.issues,
               });
-              aiFormulationResult = upgraded.formulation;
-              aiUsage = upgraded.usage;
-              aiDebug = upgraded.debug;
-              modelUsed = upgraded.modelUsed;
-              modelUsedReason = upgraded.modelUsedReason;
-              aiFormulation = aiFormulationResult;
-              ingredientsJson = typeof aiFormulation.ingredients === 'string'
-                ? aiFormulation.ingredients
-                : JSON.stringify(aiFormulation.ingredients || []);
-              validationResult = validateFormulation(ingredientsJson, productType, phLevel.toString());
-              console.log(`🔬 Re-validation: ${validationResult.overallScore}/100 [model=${modelUsed} reason=${modelUsedReason}]`);
             }
 
             formulation = {

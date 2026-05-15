@@ -1183,7 +1183,6 @@ export type ModelReason =
   | "free_basic"
   | "premium_user"
   | "complex_product"
-  | "mini_failed_validation"
   | "admin_selected";
 
 const COMPLEX_RULE_GROUPS = new Set([
@@ -1215,7 +1214,7 @@ export function selectModel(opts: {
     COMPLEX_KEYWORDS.some((k) => blob.includes(k));
   if (isComplex) return { model: "gpt-4o", reason: "complex_product" };
 
-  return { model: "gpt-4o-mini", reason: "free_basic" };
+  return { model: "gpt-4o", reason: "free_basic" };
 }
 
 export interface GenerateCustomResult {
