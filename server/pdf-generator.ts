@@ -359,25 +359,80 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
   doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
   
-  if (instructions && instructions.length > 0) {
-    instructions.forEach((phase: any, phaseIndex: number) => {
+  // Normalize instructions: support array of strings, array of {phase, steps},
+  // or array of {step}/{description}/etc.
+  type NormalizedPhase = { phase: string; steps: string[] };
+  const normalizedPhases: NormalizedPhase[] = [];
+
+  if (Array.isArray(instructions) && instructions.length > 0) {
+    const allStrings = instructions.every((i: any) => typeof i === 'string');
+    if (allStrings) {
+      normalizedPhases.push({
+        phase: 'Manufacturing Steps',
+        steps: instructions.filter((s: string) => s && s.trim()),
+      });
+    } else {
+      instructions.forEach((entry: any, idx: number) => {
+        if (typeof entry === 'string') {
+          const last = normalizedPhases[normalizedPhases.length - 1];
+          if (last) {
+            last.steps.push(entry);
+          } else {
+            normalizedPhases.push({ phase: 'Manufacturing Steps', steps: [entry] });
+          }
+          return;
+        }
+        if (entry && typeof entry === 'object') {
+          const phaseName =
+            entry.phase || entry.name || entry.title || entry.stage || `Phase ${idx + 1}`;
+          let steps: string[] = [];
+          if (Array.isArray(entry.steps)) {
+            steps = entry.steps.map((s: any) => (typeof s === 'string' ? s : s?.description || s?.step || '')).filter(Boolean);
+          } else if (typeof entry.steps === 'string') {
+            steps = entry.steps.split(/\r?\n/).map((s: string) => s.trim()).filter(Boolean);
+          } else if (typeof entry.description === 'string') {
+            steps = [entry.description];
+          } else if (typeof entry.step === 'string') {
+            steps = [entry.step];
+          } else if (typeof entry.instruction === 'string') {
+            steps = [entry.instruction];
+          }
+          if (steps.length > 0 || phaseName) {
+            normalizedPhases.push({ phase: String(phaseName), steps });
+          }
+        }
+      });
+    }
+  }
+
+  // Drop phases that have neither a meaningful name nor any steps
+  const renderablePhases = normalizedPhases.filter(p => p.steps.length > 0 || (p.phase && p.phase.trim() && p.phase !== 'Manufacturing Phase'));
+
+  if (renderablePhases.length > 0) {
+    renderablePhases.forEach((phase, phaseIndex) => {
       yPosition = checkNewPage(30);
-      
+
       doc.setFont('helvetica', 'bold');
-      doc.text(`Phase ${phaseIndex + 1}: ${phase.phase || 'Manufacturing Phase'}`, margin, yPosition);
+      doc.setFontSize(11);
+      const phaseTitle = phase.phase.trim();
+      const startsWithPhase = /^phase\b/i.test(phaseTitle);
+      const heading = renderablePhases.length === 1 && phaseTitle === 'Manufacturing Steps'
+        ? 'Manufacturing Steps'
+        : startsWithPhase
+          ? phaseTitle
+          : `Phase ${phaseIndex + 1}: ${phaseTitle}`;
+      doc.text(heading, margin, yPosition);
       yPosition += 8;
-      
+
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(11);
-      
-      if (phase.steps && Array.isArray(phase.steps)) {
-        phase.steps.forEach((step: string, stepIndex: number) => {
-          yPosition = checkNewPage(15);
-          yPosition = addWrappedText(`${stepIndex + 1}. ${step}`, margin + 5, yPosition, contentWidth - 5, 11);
-          yPosition += 4;
-        });
-      }
-      yPosition += 10;
+
+      phase.steps.forEach((step, stepIndex) => {
+        yPosition = checkNewPage(15);
+        yPosition = addWrappedText(`${stepIndex + 1}. ${step}`, margin + 5, yPosition, contentWidth - 5, 11);
+        yPosition += 4;
+      });
+      yPosition += 6;
     });
   } else if (manufacturingProcess) {
     const processLines = manufacturingProcess.split(/\r?\n/).map(line => line.trim()).filter(Boolean);

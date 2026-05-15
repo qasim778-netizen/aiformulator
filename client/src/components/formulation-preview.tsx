@@ -234,19 +234,44 @@ export default function FormulationPreview({ formulation, category, adminContent
               <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
                 <h3 className="text-md font-semibold text-indigo-900 mb-3">Manufacturing Process</h3>
                 <div className="space-y-2 max-h-32 overflow-y-auto">
-                  {instructions.slice(0, 3).map((instruction, index) => (
-                    <div key={index} className="border-b border-indigo-200 pb-2">
-                      <div className="text-indigo-800 font-medium text-sm">{instruction.phase || `Phase ${index + 1}`}</div>
-                      <div className="text-indigo-600 text-xs">
-                        {instruction.steps ? instruction.steps[0]?.substring(0, 60) || '—' : '—'}...
-                      </div>
-                    </div>
-                  ))}
-                  {instructions.length > 3 && (
-                    <div className="text-center text-indigo-600 text-xs">
-                      +{instructions.length - 3} more phases
-                    </div>
-                  )}
+                  {(() => {
+                    const flat: { title: string; preview: string }[] = [];
+                    instructions.forEach((instruction: any, index: number) => {
+                      if (typeof instruction === 'string') {
+                        flat.push({ title: `Step ${flat.length + 1}`, preview: instruction });
+                      } else if (instruction && typeof instruction === 'object') {
+                        const title = instruction.phase || instruction.name || instruction.title || `Phase ${index + 1}`;
+                        let preview = '';
+                        if (Array.isArray(instruction.steps) && instruction.steps.length > 0) {
+                          preview = String(instruction.steps[0] ?? '');
+                        } else if (typeof instruction.steps === 'string') {
+                          preview = instruction.steps;
+                        } else if (typeof instruction.description === 'string') {
+                          preview = instruction.description;
+                        } else if (typeof instruction.step === 'string') {
+                          preview = instruction.step;
+                        }
+                        flat.push({ title, preview });
+                      }
+                    });
+                    return (
+                      <>
+                        {flat.slice(0, 3).map((item, idx) => (
+                          <div key={idx} className="border-b border-indigo-200 pb-2">
+                            <div className="text-indigo-800 font-medium text-sm">{item.title}</div>
+                            <div className="text-indigo-600 text-xs">
+                              {item.preview ? `${item.preview.substring(0, 80)}${item.preview.length > 80 ? '…' : ''}` : '—'}
+                            </div>
+                          </div>
+                        ))}
+                        {flat.length > 3 && (
+                          <div className="text-center text-indigo-600 text-xs">
+                            +{flat.length - 3} more {flat.length - 3 === 1 ? 'step' : 'steps'}
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
