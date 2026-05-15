@@ -17,6 +17,7 @@ import {
   Lightbulb,
   FileText
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ValidationIssue {
   type: 'critical' | 'major' | 'minor';
@@ -66,6 +67,7 @@ export function FormulationValidation({
   showFullReport = false 
 }: FormulationValidationProps) {
   const [isExpanded, setIsExpanded] = useState(showFullReport);
+  const { user } = useAuth();
   
   const { data, isLoading, error } = useQuery({
     queryKey: formulationId 
@@ -109,6 +111,16 @@ export function FormulationValidation({
   
   const validation: ValidationResult = data.validation;
   const breakdown: IngredientBreakdown = data.breakdown;
+  const isAdmin = !!user?.isAdmin;
+  const title = isAdmin ? "Admin Validation Diagnostics" : "Formulation Quality Review";
+  const subtitle = isAdmin
+    ? "Technical validation details for internal review only. Scores are AI-assisted and rule-based, not final regulatory or laboratory approval."
+    : "AI-assisted review based on typical formulation guidelines. Final testing and expert review are recommended before manufacturing.";
+  const scoreLabel = validation.overallScore >= 85
+    ? "Good Draft"
+    : validation.overallScore >= 70
+      ? "Needs Review"
+      : "Improvements Recommended";
   
   const getScoreColor = (score: number) => {
     if (score >= 90) return "text-green-600";
@@ -151,7 +163,7 @@ export function FormulationValidation({
               <XCircle className="h-5 w-5 text-red-600" />
             )}
             <CardTitle className="text-lg" data-testid="validation-title">
-              Industrial Standards Validation
+              {title}
             </CardTitle>
           </div>
           <Badge 
@@ -163,14 +175,14 @@ export function FormulationValidation({
           </Badge>
         </div>
         <CardDescription className="mt-1" data-testid="validation-summary">
-          {validation.summary}
+          {subtitle}
         </CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-4">
         <div className="space-y-1">
           <div className="flex justify-between text-sm">
-            <span>Quality Score</span>
+            <span>{isAdmin ? "Score" : scoreLabel}</span>
             <span className={getScoreColor(validation.overallScore)}>{validation.overallScore}%</span>
           </div>
           <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -185,7 +197,7 @@ export function FormulationValidation({
           {validation.isValid && (
             <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200" data-testid="badge-valid">
               <CheckCircle2 className="h-3 w-3 mr-1" />
-              Production Ready
+              {isAdmin ? "Technical Pass" : scoreLabel}
             </Badge>
           )}
           {validation.issues.filter(i => i.type === 'critical').length > 0 && (
@@ -213,18 +225,27 @@ export function FormulationValidation({
             <Button variant="ghost" size="sm" className="w-full justify-between" data-testid="button-toggle-details">
               <span className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                View Full Report
+                {isAdmin ? "View Full Diagnostics" : "View Review Details"}
               </span>
               {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </Button>
           </CollapsibleTrigger>
           
           <CollapsibleContent className="space-y-4 mt-4">
+            {isAdmin && (
+              <div className="space-y-2 rounded-lg border bg-white p-3 text-sm">
+                <div><span className="font-medium">Validation profile:</span> {data.validationProfile || "N/A"}</div>
+                <div><span className="font-medium">Detected rule group:</span> {data.ruleGroup || "N/A"}</div>
+                <div><span className="font-medium">Product subtype:</span> {data.productSubtype || "N/A"}</div>
+                <div><span className="font-medium">Model used:</span> {data.modelUsed || "N/A"}</div>
+                <div><span className="font-medium">Token cost:</span> {data.tokenCost ?? "N/A"}</div>
+              </div>
+            )}
             {Object.keys(breakdown).length > 0 && (
               <div className="space-y-2">
                 <h4 className="font-medium flex items-center gap-2 text-sm">
                   <Beaker className="h-4 w-4" />
-                  Ingredient Breakdown
+                  {isAdmin ? "Ingredient Breakdown" : "Ingredient Summary"}
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {Object.entries(breakdown).map(([category, data]) => (
@@ -246,7 +267,7 @@ export function FormulationValidation({
               <div className="space-y-2">
                 <h4 className="font-medium flex items-center gap-2 text-sm">
                   <Shield className="h-4 w-4" />
-                  Issues Found ({validation.issues.length})
+                  {isAdmin ? `Exact Failed Validation Rules (${validation.issues.length})` : `Issues Found (${validation.issues.length})`}
                 </h4>
                 <div className="space-y-2">
                   {validation.issues.map((issue, idx) => (

@@ -44,10 +44,6 @@ defaultBucketID = "replit-objstore-7f82aa1d-19a0-499a-a0e6-fc827cc24b2b"
 path = "scripts/post-merge.sh"
 timeoutMs = 20000
 
-[[ports]]
-localPort = 5000
-externalPort = 80
-
 [userenv]
 
 [userenv.shared]
