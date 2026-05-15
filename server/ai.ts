@@ -3,6 +3,34 @@ import type { InsertCategory, InsertFormulation } from "@shared/schema";
 import { generateCategorySpecificFormulation } from "./ai-category-specific";
 import { capitalizeFormulationName } from "./seo-utils";
 import { optimizeFormulationName } from "./name-optimizer";
+import {
+  detectRuleGroup,
+  baseRules,
+  jsonFormatRules,
+  cleaningDetergentRules,
+  powderRules,
+  leatherShoeCareRules,
+  cosmeticPersonalCareRules,
+  hairSalonRules,
+  adhesiveSealantRules,
+  coatingSurfaceRules,
+  oralCareRules,
+  agroChemicalRules,
+  generalFallbackRules,
+} from "./formulationRules";
+
+const RULE_GROUP_MAP: Record<string, readonly string[]> = {
+  cleaningDetergentRules,
+  powderRules,
+  leatherShoeCareRules,
+  cosmeticPersonalCareRules,
+  hairSalonRules,
+  adhesiveSealantRules,
+  coatingSurfaceRules,
+  oralCareRules,
+  agroChemicalRules,
+  generalFallbackRules,
+};
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -1344,15 +1372,50 @@ Cost Level: ${costDescription}${optionalSpecsText}${specialRequirementsText}
 
 Create a production-ready formulation with realistic, industry-standard ingredient percentages that could be validated by a professional chemist.`;
 
+  // ── Category-based prompt assembly (with old-master-prompt fallback) ──
+  // Rule blocks live in server/formulationRules.ts and are currently empty
+  // placeholders; once they're populated, the category-based prompt becomes
+  // the active prompt. While they're empty we automatically fall back to the
+  // legacy master prompt so formula quality does not regress.
+  const detected = detectRuleGroup(request.productName);
+  const detectedRules = RULE_GROUP_MAP[detected.ruleGroup] ?? generalFallbackRules;
+
+  const joinRules = (rules: readonly string[]) =>
+    Array.isArray(rules) ? rules.filter(Boolean).join("\n") : "";
+
+  const baseBlock = joinRules(baseRules);
+  const jsonBlock = joinRules(jsonFormatRules);
+  const categoryBlock = joinRules(detectedRules);
+
+  const categoryRulesReady =
+    baseBlock.length + jsonBlock.length + categoryBlock.length > 0;
+
+  const newSystemPrompt = [
+    baseBlock && `# BASE RULES\n${baseBlock}`,
+    jsonBlock && `# OUTPUT JSON FORMAT\n${jsonBlock}`,
+    categoryBlock && `# CATEGORY RULES (${detected.ruleGroup})\n${categoryBlock}`,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  const promptType = categoryRulesReady ? "category-based" : "legacy-master";
+  const activeSystemPrompt = categoryRulesReady ? newSystemPrompt : systemPrompt;
+
+  console.log(
+    `[generateCustomFormulation] productName="${request.productName}" ` +
+      `ruleGroup=${detected.ruleGroup} confidence=${detected.confidence} ` +
+      `model=gpt-4o promptType=${promptType}`,
+  );
+
   const messages = [
-    { role: "system" as const, content: systemPrompt },
+    { role: "system" as const, content: activeSystemPrompt },
     { role: "user" as const, content: userPrompt },
   ];
   const debugPayload = {
     model: "gpt-4o",
     temperature: 1,
     maxOutputTokens: undefined as number | undefined,
-    systemPrompt,
+    systemPrompt: activeSystemPrompt,
     userPrompt,
     messages,
   };
