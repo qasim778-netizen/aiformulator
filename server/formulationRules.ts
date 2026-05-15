@@ -9,6 +9,10 @@ export const baseRules = [
 export const jsonFormatRules = [
   "Return valid JSON only.",
   "Do not wrap the response in markdown or code fences.",
+  "Every ingredient object must include exactly these fields: name, inci, percentage, function.",
+  "Do not use alternative keys such as ingredient, ingredientName, chemical, INCI, role, or purpose.",
+  "Use this exact ingredient object shape: { \"name\": \"Commercial ingredient name\", \"inci\": \"INCI or standard chemical name\", \"percentage\": \"X.X%\", \"function\": \"Function in formulation\" }.",
+  "If the product is non-cosmetic, inci must still be filled with the standard chemical name and must never be empty.",
   "Include all required output fields exactly as requested by the master schema.",
   "Use arrays for ingredients and instructions.",
   "Keep strings concise, clear, and production-oriented."
@@ -43,6 +47,16 @@ export const cosmeticPersonalCareRules = [
   "Optimize for hydration, texture, emolliency, and consumer appeal.",
   "Keep actives and preservatives within conservative, realistic use levels.",
   "Make the formula suitable for creams, lotions, serums, and other leave-on personal care products.",
+  "For face cream, lotion, moisturizer, and emulsion products, use an oil-in-water or water-in-oil emulsion structure.",
+  "For face cream, lotion, moisturizer, and emulsion products, water phase should usually be 55-75%.",
+  "For face cream, lotion, moisturizer, and emulsion products, oil phase should usually be 10-25%.",
+  "For face cream, lotion, moisturizer, and emulsion products, emulsifier system should usually be 3-6%.",
+  "For face cream, lotion, moisturizer, and emulsion products, humectants should usually be 2-8%.",
+  "For face cream, lotion, moisturizer, and emulsion products, thickener or rheology modifier should usually be 0.2-1.5%.",
+  "For face cream, lotion, moisturizer, and emulsion products, preservative should usually be 0.5-1%.",
+  "For face cream, lotion, moisturizer, and emulsion products, fragrance should usually be 0.1-0.3% for leave-on products.",
+  "For face cream, lotion, moisturizer, and emulsion products, pH should usually be 5.0-6.5.",
+  "Normal face cream should not be anhydrous unless the product name includes balm, salve, butter, oil-based, or anhydrous.",
   "Use modern cosmetic formulation language and commercially common raw materials."
 ] as const;
 
