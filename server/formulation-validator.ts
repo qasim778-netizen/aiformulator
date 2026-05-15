@@ -61,6 +61,7 @@ export type IngredientType =
 type ProductCategory = 'cosmetic' | 'detergent' | 'cleaner' | 'haircare' | 'oral' | 'other';
 
 type ValidationProfile = 'oralCareRules' | 'leatherShoeCareRules' | 'powderRules' | 'cosmeticPersonalCareRules' | 'cleaningDetergentRules' | 'generic';
+type ValidationSeverity = 'critical' | 'major' | 'minor';
 
 const COSMETIC_LIMITS: Record<IngredientType, { min: number; max: number; label: string }> = {
   base: { min: 50, max: 85, label: 'Base Ingredients (Water/Solvents)' },
@@ -349,6 +350,13 @@ export type CleaningSubtype =
   | 'toiletCleaner'
   | 'generalCleaner';
 
+type ValidationLayer = {
+  label: string;
+  min: number;
+  max: number;
+  severity: ValidationSeverity;
+};
+
 export function detectCleaningSubtype(productName: string): CleaningSubtype {
   const name = (productName || '').toLowerCase();
   if (/\b(dish\s*wash|dishwashing|dish\s*soap|dish\s*liquid|dish\s*detergent)\b/.test(name) || name.includes('dishwash')) {
@@ -367,6 +375,44 @@ export function detectCleaningSubtype(productName: string): CleaningSubtype {
     return 'toiletCleaner';
   }
   return 'generalCleaner';
+}
+
+function getValidationScorePenalty(severity: ValidationSeverity) {
+  if (severity === 'critical') return 18;
+  if (severity === 'major') return 7;
+  return 2;
+}
+
+function pushRangeIssue(
+  issues: ValidationIssue[],
+  label: string,
+  value: number,
+  min: number,
+  max: number,
+  category: string,
+  severity: ValidationSeverity
+) {
+  if (value < min || value > max) {
+    issues.push({
+      type: severity,
+      category,
+      message: `${label} is ${value.toFixed(2)}% - should be ${min}-${max}%`,
+      actualValue: value,
+      expectedRange: `${min}-${max}%`,
+    });
+  }
+}
+
+function applyLayeredValidation(
+  issues: ValidationIssue[],
+  layers: ValidationLayer[],
+  category: string,
+  valueResolver: (layer: ValidationLayer) => number
+) {
+  layers.forEach(layer => {
+    const value = valueResolver(layer);
+    pushRangeIssue(issues, layer.label, value, layer.min, layer.max, category, layer.severity);
+  });
 }
 
 function getValidationProfile(ruleGroup: string, productName?: string): ValidationProfile {
@@ -421,6 +467,7 @@ export function validateFormulation(
   const productCategory = detectProductCategory(productType, productName);
   const limits = getLimitsForCategory(productCategory);
   const ingredients = parseIngredients(ingredientsJson, productCategory);
+  const cleaningSubtype = detectCleaningSubtype(productName || productType || '');
   
   console.log(`Validating formulation for category: ${productCategory}`);
   
@@ -527,7 +574,6 @@ export function validateFormulation(
     if (preservativeTotal < 0.5 || preservativeTotal > 1) issues.push({ type: 'major', category: 'Preservatives', message: `Preservative total is ${preservativeTotal.toFixed(2)}% - should be 0.5-1%`, actualValue: preservativeTotal, expectedRange: '0.5-1%' });
     if (pH && (pH < 5.0 || pH > 6.5)) issues.push({ type: 'major', category: 'pH', message: `pH ${pH} is outside 5.0-6.5`, actualValue: pH, expectedRange: '5.0-6.5' });
   } else if (validationProfile === 'cleaningDetergentRules') {
-    const subtype = detectCleaningSubtype(productName || productType || '');
     const baseTotal = typeGroups.base.reduce((sum, ing) => sum + ing.percentage, 0);
     const surfactantTotal = typeGroups.surfactant.reduce((sum, ing) => sum + ing.percentage, 0);
     const builderChelatorTotal = typeGroups.builder.reduce((sum, ing) => sum + ing.percentage, 0) + typeGroups.chelating.reduce((sum, ing) => sum + ing.percentage, 0);
@@ -546,73 +592,117 @@ export function validateFormulation(
              t.includes('glycolic acid') || t.includes('acid descaler');
     }).reduce((sum, ing) => sum + ing.percentage, 0);
     const thickenerTotal = typeGroups.thickener.reduce((sum, ing) => sum + ing.percentage, 0);
+    const categoryLayers: ValidationLayer[] = [
+      { label: 'Water total', min: 50, max: 95, severity: 'major' },
+      { label: 'Surfactant total', min: 2, max: 30, severity: 'major' },
+      { label: 'Builders/Chelators total', min: 0, max: 8, severity: 'minor' },
+      { label: 'Preservative total', min: 0, max: 1, severity: 'minor' },
+      { label: 'Fragrance total', min: 0, max: 1, severity: 'minor' },
+    ];
 
-    const range = (label: string, value: number, min: number, max: number, category: string, severity: 'major' | 'minor' = 'major') => {
-      if (value < min || value > max) {
-        issues.push({
-          type: severity,
-          category,
-          message: `${label} is ${value.toFixed(2)}% - should be ${min}-${max}%`,
-          actualValue: value,
-          expectedRange: `${min}-${max}%`,
-        });
-      }
+    const subtypeLayers: Record<CleaningSubtype, ValidationLayer[]> = {
+      dishwashingLiquid: [
+        { label: 'Water total', min: 50, max: 75, severity: 'major' },
+        { label: 'Surfactant total', min: 15, max: 30, severity: 'major' },
+        { label: 'Builders/chelators total', min: 0.5, max: 3, severity: 'minor' },
+        { label: 'Preservative total', min: 0.1, max: 0.5, severity: 'minor' },
+        { label: 'Fragrance total', min: 0.1, max: 0.5, severity: 'minor' },
+      ],
+      glassCleaner: [
+        { label: 'Water total', min: 85, max: 97, severity: 'major' },
+        { label: 'Surfactant total', min: 0.1, max: 3, severity: 'minor' },
+        { label: 'Solvent total (alcohols/glycol ethers)', min: 3, max: 15, severity: 'major' },
+        { label: 'Builders/chelators total', min: 0, max: 1, severity: 'minor' },
+        { label: 'Preservative total', min: 0.05, max: 0.3, severity: 'minor' },
+      ],
+      floorCleaner: [
+        { label: 'Water total', min: 80, max: 95, severity: 'major' },
+        { label: 'Surfactant total', min: 2, max: 8, severity: 'major' },
+        { label: 'Builders/chelators total', min: 1, max: 5, severity: 'minor' },
+        { label: 'Solvent total', min: 0, max: 5, severity: 'minor' },
+        { label: 'Fragrance total', min: 0.1, max: 0.5, severity: 'minor' },
+      ],
+      degreaser: [
+        { label: 'Water total', min: 60, max: 85, severity: 'major' },
+        { label: 'Surfactant total', min: 5, max: 20, severity: 'major' },
+        { label: 'Solvent total', min: 5, max: 25, severity: 'major' },
+        { label: 'Builders/chelators total', min: 1, max: 8, severity: 'minor' },
+        { label: 'Fragrance total', min: 0, max: 0.3, severity: 'minor' },
+      ],
+      toiletCleaner: [
+        { label: 'Water total', min: 70, max: 90, severity: 'major' },
+        { label: 'Surfactant total', min: 2, max: 10, severity: 'major' },
+        { label: 'Acid total (descalers)', min: 5, max: 15, severity: 'major' },
+        { label: 'Thickener total', min: 0.5, max: 3, severity: 'minor' },
+        { label: 'Fragrance total', min: 0.1, max: 0.5, severity: 'minor' },
+      ],
+      generalCleaner: [
+        { label: 'Water total', min: 70, max: 90, severity: 'major' },
+        { label: 'Surfactant total', min: 3, max: 10, severity: 'major' },
+        { label: 'Builders/chelators total', min: 0.5, max: 3, severity: 'minor' },
+        { label: 'Preservative total', min: 0.1, max: 0.5, severity: 'minor' },
+        { label: 'Fragrance total', min: 0.1, max: 0.5, severity: 'minor' },
+      ],
     };
 
-    if (subtype === 'dishwashingLiquid') {
-      // dishwashingLiquidValidation
-      range('Water total', baseTotal, 50, 75, 'Base Ingredients');
-      range('Surfactant total', surfactantTotal, 15, 30, 'Surfactants');
-      range('Builders/chelators total', builderChelatorTotal, 0.5, 3, 'Builders/Chelators');
-      if (baseTotal > 0) range('Preservative total', preservativeTotal, 0.1, 0.5, 'Preservatives');
-      range('Fragrance total', fragranceTotal, 0.1, 0.5, 'Fragrances');
-      suggestions.push('Dishwashing liquid: balance SLES/CAPB surfactants for foam and degreasing');
-    } else if (subtype === 'glassCleaner') {
-      // glassCleanerValidation
-      range('Water total', baseTotal, 85, 97, 'Base Ingredients');
-      range('Surfactant total', surfactantTotal, 0.1, 3, 'Surfactants');
-      range('Solvent total (alcohols/glycol ethers)', solventTotal, 3, 15, 'Solvents');
-      if (builderChelatorTotal > 1) range('Builders/chelators total', builderChelatorTotal, 0, 1, 'Builders/Chelators');
-      if (baseTotal > 0) range('Preservative total', preservativeTotal, 0.05, 0.3, 'Preservatives');
-      if (fragranceTotal > 0.3) range('Fragrance total', fragranceTotal, 0, 0.3, 'Fragrances');
-      suggestions.push('Glass cleaner: use isopropanol or butyl glycol for streak-free drying');
-    } else if (subtype === 'floorCleaner') {
-      // floorCleanerValidation
-      range('Water total', baseTotal, 80, 95, 'Base Ingredients');
-      range('Surfactant total', surfactantTotal, 2, 8, 'Surfactants');
-      range('Builders/chelators total', builderChelatorTotal, 1, 5, 'Builders/Chelators');
-      if (solventTotal > 5) range('Solvent total', solventTotal, 0, 5, 'Solvents');
-      if (baseTotal > 0) range('Preservative total', preservativeTotal, 0.1, 0.5, 'Preservatives');
-      range('Fragrance total', fragranceTotal, 0.1, 0.5, 'Fragrances');
-      suggestions.push('Floor cleaner: keep surfactant low to avoid residue; add mild builders for soil lift');
-    } else if (subtype === 'degreaser') {
-      // degreaserValidation
-      range('Water total', baseTotal, 60, 85, 'Base Ingredients');
-      range('Surfactant total', surfactantTotal, 5, 20, 'Surfactants');
-      range('Solvent total', solventTotal, 5, 25, 'Solvents');
-      range('Builders/chelators total', builderChelatorTotal, 1, 8, 'Builders/Chelators');
-      if (baseTotal > 0) range('Preservative total', preservativeTotal, 0.1, 0.5, 'Preservatives');
-      if (fragranceTotal > 0.3) range('Fragrance total', fragranceTotal, 0, 0.3, 'Fragrances');
-      suggestions.push('Degreaser: combine alkaline builders with glycol ether solvents for heavy soil');
-    } else if (subtype === 'toiletCleaner') {
-      // toiletCleanerValidation
-      range('Water total', baseTotal, 70, 90, 'Base Ingredients');
-      range('Surfactant total', surfactantTotal, 2, 10, 'Surfactants');
-      range('Acid total (descalers)', acidTotal, 5, 15, 'Acids');
-      range('Thickener total', thickenerTotal, 0.5, 3, 'Thickeners');
-      if (baseTotal > 0) range('Preservative total', preservativeTotal, 0.1, 0.5, 'Preservatives');
-      range('Fragrance total', fragranceTotal, 0.1, 0.5, 'Fragrances');
-      suggestions.push('Toilet cleaner: use thickener for cling and a descaling acid for limescale');
+    applyLayeredValidation(issues, categoryLayers, 'Cleaning Formula', () => baseTotal);
+
+    if (cleaningSubtype === 'dishwashingLiquid') {
+      applyLayeredValidation(issues, subtypeLayers.dishwashingLiquid, 'Dishwashing Liquid', layer => {
+        if (layer.label.startsWith('Water')) return baseTotal;
+        if (layer.label.startsWith('Surfactant')) return surfactantTotal;
+        if (layer.label.startsWith('Builders')) return builderChelatorTotal;
+        if (layer.label.startsWith('Preservative')) return preservativeTotal;
+        return fragranceTotal;
+      });
+      suggestions.push('Dishwashing liquid: balance surfactants for foam and grease removal');
+    } else if (cleaningSubtype === 'glassCleaner') {
+      applyLayeredValidation(issues, subtypeLayers.glassCleaner, 'Glass Cleaner', layer => {
+        if (layer.label.startsWith('Water')) return baseTotal;
+        if (layer.label.startsWith('Surfactant')) return surfactantTotal;
+        if (layer.label.startsWith('Solvent')) return solventTotal;
+        if (layer.label.startsWith('Builders')) return builderChelatorTotal;
+        return preservativeTotal;
+      });
+      suggestions.push('Glass cleaner: prioritize fast-drying solvents for streak-free results');
+    } else if (cleaningSubtype === 'floorCleaner') {
+      applyLayeredValidation(issues, subtypeLayers.floorCleaner, 'Floor Cleaner', layer => {
+        if (layer.label.startsWith('Water')) return baseTotal;
+        if (layer.label.startsWith('Surfactant')) return surfactantTotal;
+        if (layer.label.startsWith('Builders')) return builderChelatorTotal;
+        if (layer.label.startsWith('Solvent')) return solventTotal;
+        return fragranceTotal;
+      });
+      suggestions.push('Floor cleaner: keep residue low and avoid overpowering surfactant load');
+    } else if (cleaningSubtype === 'degreaser') {
+      applyLayeredValidation(issues, subtypeLayers.degreaser, 'Degreaser', layer => {
+        if (layer.label.startsWith('Water')) return baseTotal;
+        if (layer.label.startsWith('Surfactant')) return surfactantTotal;
+        if (layer.label.startsWith('Solvent')) return solventTotal;
+        if (layer.label.startsWith('Builders')) return builderChelatorTotal;
+        return fragranceTotal;
+      });
+      suggestions.push('Degreaser: use higher solvent and builder activity for heavy soil');
+    } else if (cleaningSubtype === 'toiletCleaner') {
+      applyLayeredValidation(issues, subtypeLayers.toiletCleaner, 'Toilet Cleaner', layer => {
+        if (layer.label.startsWith('Water')) return baseTotal;
+        if (layer.label.startsWith('Surfactant')) return surfactantTotal;
+        if (layer.label.startsWith('Acid')) return acidTotal;
+        if (layer.label.startsWith('Thickener')) return thickenerTotal;
+        return fragranceTotal;
+      });
+      suggestions.push('Toilet cleaner: use acid and thickener for cling and descaling');
     } else {
-      // generalCleanerValidation (fallback)
-      range('Water total', baseTotal, 70, 90, 'Base Ingredients');
-      range('Surfactant total', surfactantTotal, 3, 10, 'Surfactants');
-      range('Builders/chelators total', builderChelatorTotal, 0.5, 3, 'Builders/Chelators');
-      if (baseTotal > 0) range('Preservative total', preservativeTotal, 0.1, 0.5, 'Preservatives');
-      range('Fragrance total', fragranceTotal, 0.1, 0.5, 'Fragrances');
-      suggestions.push('General-purpose cleaner: balanced surfactant and builder system for everyday soils');
+      applyLayeredValidation(issues, subtypeLayers.generalCleaner, 'General Cleaner', layer => {
+        if (layer.label.startsWith('Water')) return baseTotal;
+        if (layer.label.startsWith('Surfactant')) return surfactantTotal;
+        if (layer.label.startsWith('Builders')) return builderChelatorTotal;
+        if (layer.label.startsWith('Preservative')) return preservativeTotal;
+        return fragranceTotal;
+      });
+      suggestions.push('General-purpose cleaner: balanced surfactant and builder system');
     }
-    console.log(`Cleaning subtype detected: ${subtype}`);
+    console.log(`Cleaning subtype detected: ${cleaningSubtype}`);
   } else if (productCategory === 'cosmetic' || productCategory === 'haircare') {
     const baseTotal = typeGroups.base.reduce((sum, ing) => sum + ing.percentage, 0);
     const baseLimits = limits.base;
@@ -748,14 +838,13 @@ export function validateFormulation(
   
   let score = 100;
   issues.forEach(issue => {
-    if (issue.type === 'critical') score -= 25;
-    else if (issue.type === 'major') score -= 10;
-    else score -= 3;
+    score -= getValidationScorePenalty(issue.type);
   });
   warnings.forEach(() => score -= 1);
   score = Math.max(0, Math.min(100, score));
   
-  const isValid = issues.filter(i => i.type === 'critical').length === 0 && score >= 60;
+  const hasCritical = issues.filter(i => i.type === 'critical').length > 0;
+  const isValid = !hasCritical && score >= 45;
   
   let summary: string;
   if (score >= 90) {
