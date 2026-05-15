@@ -12,6 +12,7 @@ interface LogoSettings {
 interface FormulationPDFData extends Omit<InsertFormulation, 'categoryId' | 'slug' | 'metaDescription' | 'keywords'> {
   ingredients: string;
   instructions: string;
+  manufacturingProcess?: string;
   slug?: string;
   metaDescription?: string;
   keywords?: string;
@@ -45,6 +46,8 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
     console.error('❌ PDF Generator: Failed to parse instructions JSON:', error);
     instructions = [];
   }
+
+  const manufacturingProcess = formulation.manufacturingProcess?.trim() || '';
   
   let yPosition = 20;
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -375,6 +378,19 @@ export function generateFormulationPDF(formulation: FormulationPDFData, logoSett
         });
       }
       yPosition += 10;
+    });
+  } else if (manufacturingProcess) {
+    const processLines = manufacturingProcess.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+    processLines.forEach((line) => {
+      yPosition = checkNewPage(15);
+      if (/^phase\s+\d+/i.test(line) || /^step\s+\d+/i.test(line)) {
+        doc.setFont('helvetica', 'bold');
+        yPosition = addWrappedText(line, margin, yPosition, contentWidth, 11);
+      } else {
+        doc.setFont('helvetica', 'normal');
+        yPosition = addWrappedText(line, margin + 5, yPosition, contentWidth - 5, 11);
+      }
+      yPosition += 4;
     });
   } else {
     // Fallback if no instructions provided

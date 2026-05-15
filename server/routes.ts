@@ -3281,7 +3281,8 @@ Allow: /disclaimer`;
         ...formulation,
         slug,
         metaDescription: undefined,
-        keywords: undefined
+        keywords: undefined,
+        manufacturingProcess: typeof formulation.instructions === 'string' ? formulation.instructions : undefined
       }, logoSettings);
       
       // Generate text content
