@@ -3137,7 +3137,7 @@ Allow: /disclaimer`;
               {
                 const { logOpenAIRequest, getClientIp } = await import('./openai-logger');
                 logOpenAIRequest({
-                  userId: uid || null,
+                  userId: _uid || null,
                   email: req.body.email || null,
                   endpoint: 'POST /api/custom-formulation',
                   model: modelUsed,
