@@ -341,6 +341,34 @@ function parsePercentage(percentage: string | number): number {
   return match ? parseFloat(match[0]) : 0;
 }
 
+export type CleaningSubtype =
+  | 'dishwashingLiquid'
+  | 'glassCleaner'
+  | 'floorCleaner'
+  | 'degreaser'
+  | 'toiletCleaner'
+  | 'generalCleaner';
+
+export function detectCleaningSubtype(productName: string): CleaningSubtype {
+  const name = (productName || '').toLowerCase();
+  if (/\b(dish\s*wash|dishwashing|dish\s*soap|dish\s*liquid|dish\s*detergent)\b/.test(name) || name.includes('dishwash')) {
+    return 'dishwashingLiquid';
+  }
+  if (/\b(glass|window|mirror)\b.*\b(clean|spray|wash)\b/.test(name) || name.includes('glass cleaner') || name.includes('window cleaner')) {
+    return 'glassCleaner';
+  }
+  if (name.includes('floor cleaner') || name.includes('floor wash') || name.includes('mop solution') || /\bfloor\b/.test(name)) {
+    return 'floorCleaner';
+  }
+  if (name.includes('degreaser') || name.includes('grease remover') || name.includes('oven cleaner') || name.includes('engine cleaner')) {
+    return 'degreaser';
+  }
+  if (name.includes('toilet') || name.includes('bowl cleaner') || name.includes('bathroom acid') || name.includes('limescale') || name.includes('descaler')) {
+    return 'toiletCleaner';
+  }
+  return 'generalCleaner';
+}
+
 function getValidationProfile(ruleGroup: string, productName?: string): ValidationProfile {
   const name = (productName || "").toLowerCase();
   if (ruleGroup === "oralCareRules") return "oralCareRules";
@@ -499,16 +527,92 @@ export function validateFormulation(
     if (preservativeTotal < 0.5 || preservativeTotal > 1) issues.push({ type: 'major', category: 'Preservatives', message: `Preservative total is ${preservativeTotal.toFixed(2)}% - should be 0.5-1%`, actualValue: preservativeTotal, expectedRange: '0.5-1%' });
     if (pH && (pH < 5.0 || pH > 6.5)) issues.push({ type: 'major', category: 'pH', message: `pH ${pH} is outside 5.0-6.5`, actualValue: pH, expectedRange: '5.0-6.5' });
   } else if (validationProfile === 'cleaningDetergentRules') {
+    const subtype = detectCleaningSubtype(productName || productType || '');
     const baseTotal = typeGroups.base.reduce((sum, ing) => sum + ing.percentage, 0);
     const surfactantTotal = typeGroups.surfactant.reduce((sum, ing) => sum + ing.percentage, 0);
     const builderChelatorTotal = typeGroups.builder.reduce((sum, ing) => sum + ing.percentage, 0) + typeGroups.chelating.reduce((sum, ing) => sum + ing.percentage, 0);
     const preservativeTotal = typeGroups.preservative.reduce((sum, ing) => sum + ing.percentage, 0);
     const fragranceTotal = typeGroups.fragrance.reduce((sum, ing) => sum + ing.percentage, 0);
-    if (baseTotal < 50 || baseTotal > 85) issues.push({ type: 'major', category: 'Base Ingredients', message: `Water total is ${baseTotal.toFixed(1)}% - should be 50-85%`, actualValue: baseTotal, expectedRange: '50-85%' });
-    if (surfactantTotal < 5 || surfactantTotal > 30) issues.push({ type: 'major', category: 'Surfactants', message: `Surfactant total is ${surfactantTotal.toFixed(1)}% - should be 5-30%`, actualValue: surfactantTotal, expectedRange: '5-30%' });
-    if (builderChelatorTotal < 0.5 || builderChelatorTotal > 5) issues.push({ type: 'major', category: 'Builders/Chelators', message: `Builders/chelators total is ${builderChelatorTotal.toFixed(1)}% - should be 0.5-5%`, actualValue: builderChelatorTotal, expectedRange: '0.5-5%' });
-    if (baseTotal > 0 && (preservativeTotal < 0.1 || preservativeTotal > 0.5)) issues.push({ type: 'major', category: 'Preservatives', message: `Preservative total is ${preservativeTotal.toFixed(2)}% - should be 0.1-0.5% when water-based`, actualValue: preservativeTotal, expectedRange: '0.1-0.5%' });
-    if (fragranceTotal < 0.1 || fragranceTotal > 0.5) issues.push({ type: 'major', category: 'Fragrances', message: `Fragrance total is ${fragranceTotal.toFixed(2)}% - should be 0.1-0.5%`, actualValue: fragranceTotal, expectedRange: '0.1-0.5%' });
+    const solventTotal = ingredients.filter(ing => {
+      const t = `${ing.name} ${ing.inci} ${ing.function}`.toLowerCase();
+      return t.includes('alcohol') || t.includes('ethanol') || t.includes('isopropanol') || t.includes('propylene glycol') ||
+             t.includes('glycol ether') || t.includes('butyl glycol') || t.includes('butoxyethanol') || t.includes('d-limonene') ||
+             t.includes('solvent') || t.includes('mineral spirits');
+    }).reduce((sum, ing) => sum + ing.percentage, 0);
+    const acidTotal = ingredients.filter(ing => {
+      const t = `${ing.name} ${ing.inci} ${ing.function}`.toLowerCase();
+      return t.includes('hydrochloric') || t.includes('phosphoric') || t.includes('sulfamic') ||
+             t.includes('formic acid') || t.includes('citric acid') || t.includes('lactic acid') ||
+             t.includes('glycolic acid') || t.includes('acid descaler');
+    }).reduce((sum, ing) => sum + ing.percentage, 0);
+    const thickenerTotal = typeGroups.thickener.reduce((sum, ing) => sum + ing.percentage, 0);
+
+    const range = (label: string, value: number, min: number, max: number, category: string, severity: 'major' | 'minor' = 'major') => {
+      if (value < min || value > max) {
+        issues.push({
+          type: severity,
+          category,
+          message: `${label} is ${value.toFixed(2)}% - should be ${min}-${max}%`,
+          actualValue: value,
+          expectedRange: `${min}-${max}%`,
+        });
+      }
+    };
+
+    if (subtype === 'dishwashingLiquid') {
+      // dishwashingLiquidValidation
+      range('Water total', baseTotal, 50, 75, 'Base Ingredients');
+      range('Surfactant total', surfactantTotal, 15, 30, 'Surfactants');
+      range('Builders/chelators total', builderChelatorTotal, 0.5, 3, 'Builders/Chelators');
+      if (baseTotal > 0) range('Preservative total', preservativeTotal, 0.1, 0.5, 'Preservatives');
+      range('Fragrance total', fragranceTotal, 0.1, 0.5, 'Fragrances');
+      suggestions.push('Dishwashing liquid: balance SLES/CAPB surfactants for foam and degreasing');
+    } else if (subtype === 'glassCleaner') {
+      // glassCleanerValidation
+      range('Water total', baseTotal, 85, 97, 'Base Ingredients');
+      range('Surfactant total', surfactantTotal, 0.1, 3, 'Surfactants');
+      range('Solvent total (alcohols/glycol ethers)', solventTotal, 3, 15, 'Solvents');
+      if (builderChelatorTotal > 1) range('Builders/chelators total', builderChelatorTotal, 0, 1, 'Builders/Chelators');
+      if (baseTotal > 0) range('Preservative total', preservativeTotal, 0.05, 0.3, 'Preservatives');
+      if (fragranceTotal > 0.3) range('Fragrance total', fragranceTotal, 0, 0.3, 'Fragrances');
+      suggestions.push('Glass cleaner: use isopropanol or butyl glycol for streak-free drying');
+    } else if (subtype === 'floorCleaner') {
+      // floorCleanerValidation
+      range('Water total', baseTotal, 80, 95, 'Base Ingredients');
+      range('Surfactant total', surfactantTotal, 2, 8, 'Surfactants');
+      range('Builders/chelators total', builderChelatorTotal, 1, 5, 'Builders/Chelators');
+      if (solventTotal > 5) range('Solvent total', solventTotal, 0, 5, 'Solvents');
+      if (baseTotal > 0) range('Preservative total', preservativeTotal, 0.1, 0.5, 'Preservatives');
+      range('Fragrance total', fragranceTotal, 0.1, 0.5, 'Fragrances');
+      suggestions.push('Floor cleaner: keep surfactant low to avoid residue; add mild builders for soil lift');
+    } else if (subtype === 'degreaser') {
+      // degreaserValidation
+      range('Water total', baseTotal, 60, 85, 'Base Ingredients');
+      range('Surfactant total', surfactantTotal, 5, 20, 'Surfactants');
+      range('Solvent total', solventTotal, 5, 25, 'Solvents');
+      range('Builders/chelators total', builderChelatorTotal, 1, 8, 'Builders/Chelators');
+      if (baseTotal > 0) range('Preservative total', preservativeTotal, 0.1, 0.5, 'Preservatives');
+      if (fragranceTotal > 0.3) range('Fragrance total', fragranceTotal, 0, 0.3, 'Fragrances');
+      suggestions.push('Degreaser: combine alkaline builders with glycol ether solvents for heavy soil');
+    } else if (subtype === 'toiletCleaner') {
+      // toiletCleanerValidation
+      range('Water total', baseTotal, 70, 90, 'Base Ingredients');
+      range('Surfactant total', surfactantTotal, 2, 10, 'Surfactants');
+      range('Acid total (descalers)', acidTotal, 5, 15, 'Acids');
+      range('Thickener total', thickenerTotal, 0.5, 3, 'Thickeners');
+      if (baseTotal > 0) range('Preservative total', preservativeTotal, 0.1, 0.5, 'Preservatives');
+      range('Fragrance total', fragranceTotal, 0.1, 0.5, 'Fragrances');
+      suggestions.push('Toilet cleaner: use thickener for cling and a descaling acid for limescale');
+    } else {
+      // generalCleanerValidation (fallback)
+      range('Water total', baseTotal, 70, 90, 'Base Ingredients');
+      range('Surfactant total', surfactantTotal, 3, 10, 'Surfactants');
+      range('Builders/chelators total', builderChelatorTotal, 0.5, 3, 'Builders/Chelators');
+      if (baseTotal > 0) range('Preservative total', preservativeTotal, 0.1, 0.5, 'Preservatives');
+      range('Fragrance total', fragranceTotal, 0.1, 0.5, 'Fragrances');
+      suggestions.push('General-purpose cleaner: balanced surfactant and builder system for everyday soils');
+    }
+    console.log(`Cleaning subtype detected: ${subtype}`);
   } else if (productCategory === 'cosmetic' || productCategory === 'haircare') {
     const baseTotal = typeGroups.base.reduce((sum, ing) => sum + ing.percentage, 0);
     const baseLimits = limits.base;
