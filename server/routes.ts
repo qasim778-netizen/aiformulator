@@ -8,6 +8,8 @@ import { storage } from "./storage";
 import { insertCategorySchema, insertFormulationSchema, insertFormulationContentSchema, insertUserNoteSchema, insertPageSchema, insertBlogPostSchema, insertSampleProductSchema } from "@shared/schema";
 import type { ChatMessage, InsertChatMessage } from "@shared/schema";
 import { db, categoriesTable, wizardCategoriesTable, wizardProductTypesTable, wizardBaseTypesTable, wizardCategoryBaseTypesTable, wizardFeatureChipsTable, wizardSafetyNotesTable, wizardPromptRulesTable, generatedFormulasTable, formulaGenerationFailuresTable, apiUsageLogsTable, openaiRequestLogsTable } from "./db";
+import { users as usersTable } from "@shared/schema";
+import { estimateCost } from "./openai-logger";
 import { eq, and, sql as drizzleSql } from "drizzle-orm";
 import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateBulkFormulationsWithKeywords, generateProductTypes, generateCustomFormulation, generateWizardProductTypeNames, generateBaseTypeNames, generateFeatureChips, generateSafetyNotes, generatePromptRules } from "./ai";
 import { generateCategorySuggestions } from "./services/openai";
@@ -2923,6 +2925,7 @@ Allow: /disclaimer`;
     category: string; productType: string; baseType: string; performanceLevel: string;
     viscosity: string; phLevel: string | number; shelfLife: string | number;
     storageTemperature: string; specialRequirements: string; costLevel: string; productionVolume: string;
+    modelTier?: string;
   }): string {
     const n = (s: any) => String(s || '').toLowerCase().trim().replace(/[\s&\/\\,]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
     const features = (data.specialRequirements || '').split(',').map(s => n(s.trim())).filter(Boolean).sort().join(',') || 'none';
@@ -2938,6 +2941,7 @@ Allow: /disclaimer`;
       features,
       n(data.costLevel) || 'medium',
       n(data.productionVolume) || 'small-batch',
+      n(data.modelTier) || 'basic',
     ].join('|');
   }
 
@@ -2997,7 +3001,36 @@ Allow: /disclaimer`;
       const optimizedName = nameOptimizationResult.optimizedName;
       console.log(`📝 Name optimized: "${productName}" → "${optimizedName}"`);
       
-      // ── Formula caching: generate key ────────────────────────────────────────
+      // ── Model routing (decided before cache lookup so the cache key can
+      //    separate basic vs premium results) ─────────────────────────────
+      let premiumUser = false;
+      const _uid = getUserId(req);
+      if (_uid) {
+        try {
+          const u = await db.select({ isPremium: usersTable.isPremium })
+            .from(usersTable).where(eq(usersTable.id, _uid)).limit(1);
+          premiumUser = !!u[0]?.isPremium;
+        } catch (e) {
+          console.warn('[Model routing] premium lookup failed:', (e as any)?.message);
+        }
+      }
+      const adminPremium = req.body.premiumMode === true || req.body.premiumMode === 'true';
+      const { selectModel } = await import('./ai');
+      const { detectRuleGroup } = await import('./formulationRules');
+      const detectedForRouting = detectRuleGroup(productName);
+      const routedModel = selectModel({
+        productName,
+        productType,
+        category,
+        ruleGroup: detectedForRouting.ruleGroup,
+        premiumUser,
+        adminPremium,
+      });
+      console.log(`🧭 Model routing: model=${routedModel.model} reason=${routedModel.reason} (ruleGroup=${detectedForRouting.ruleGroup})`);
+      const modelTier = routedModel.model === 'gpt-4o' ? 'premium' : 'basic';
+
+      // ── Formula caching: generate key (includes modelTier so basic & premium
+      //    users do not share cached output) ───────────────────────────────────
       const formulaKey = buildFormulaKey({
         category: category || '',
         productType: productType || '',
@@ -3010,6 +3043,7 @@ Allow: /disclaimer`;
         specialRequirements: specialRequirements || '',
         costLevel: costLevel || 'medium',
         productionVolume: productionVolume || '',
+        modelTier,
       });
 
       let formulation: any = null;
@@ -3061,7 +3095,7 @@ Allow: /disclaimer`;
 
       // ── AI generation (on cache miss) ────────────────────────────────────
       if (!formulation) {
-        const customRequest = {
+        const customRequest: any = {
           productName: optimizedName,
           productDescription: productDescription,
           productType: productType,
@@ -3074,6 +3108,10 @@ Allow: /disclaimer`;
           color: color,
           fragrance: fragrance,
           specialRequirements: specialRequirements,
+          premiumUser,
+          adminPremium,
+          forceModel: routedModel.model,
+          forceReason: routedModel.reason,
         };
 
         console.log(`🔍 AI Request:`, customRequest);
@@ -3082,15 +3120,57 @@ Allow: /disclaimer`;
         for (let attempt = 1; attempt <= 2; attempt++) {
           try {
             const { generateCustomFormulation } = await import('./ai');
-            const { formulation: aiFormulationResult, usage: aiUsage, debug: aiDebug } = await generateCustomFormulation(customRequest);
-            const aiFormulation = aiFormulationResult;
+            let { formulation: aiFormulationResult, usage: aiUsage, debug: aiDebug, modelUsed, modelUsedReason } = await generateCustomFormulation(customRequest);
+            let aiFormulation = aiFormulationResult;
 
-            const ingredientsJson = typeof aiFormulation.ingredients === 'string'
+            let ingredientsJson = typeof aiFormulation.ingredients === 'string'
               ? aiFormulation.ingredients
               : JSON.stringify(aiFormulation.ingredients || []);
 
-            const validationResult = validateFormulation(ingredientsJson, productType, phLevel.toString());
-            console.log(`🔬 Validation: ${validationResult.overallScore}/100 (${validationResult.isValid ? 'VALID' : 'NEEDS REVIEW'})`);
+            let validationResult = validateFormulation(ingredientsJson, productType, phLevel.toString());
+            console.log(`🔬 Validation: ${validationResult.overallScore}/100 (${validationResult.isValid ? 'VALID' : 'NEEDS REVIEW'}) [model=${modelUsed} reason=${modelUsedReason}]`);
+
+            // ── Auto-upgrade: gpt-4o-mini under-performed → retry with gpt-4o ──
+            if (modelUsed === 'gpt-4o-mini' && validationResult.overallScore < 85) {
+              console.log(`⬆️ Upgrading to gpt-4o due to low validation score (${validationResult.overallScore}/100)`);
+              // Log the failed mini attempt for observability
+              {
+                const { logOpenAIRequest, getClientIp } = await import('./openai-logger');
+                logOpenAIRequest({
+                  userId: uid || null,
+                  email: req.body.email || null,
+                  endpoint: 'POST /api/custom-formulation',
+                  model: modelUsed,
+                  inputTokens: aiUsage.inputTokens,
+                  outputTokens: aiUsage.outputTokens,
+                  totalTokens: aiUsage.totalTokens,
+                  estimatedCost: estimateCost(modelUsed, aiUsage.inputTokens, aiUsage.outputTokens),
+                  requestStatus: 'success',
+                  formulaSaved: false,
+                  productName: productName || null,
+                  category: category || null,
+                  modelUsedReason: 'mini_failed_validation',
+                  ipAddress: getClientIp(req),
+                  errorMessage: `Low validation score: ${validationResult.overallScore}/100`,
+                });
+              }
+              const upgraded = await generateCustomFormulation({
+                ...customRequest,
+                forceModel: 'gpt-4o',
+                forceReason: 'mini_failed_validation',
+              });
+              aiFormulationResult = upgraded.formulation;
+              aiUsage = upgraded.usage;
+              aiDebug = upgraded.debug;
+              modelUsed = upgraded.modelUsed;
+              modelUsedReason = upgraded.modelUsedReason;
+              aiFormulation = aiFormulationResult;
+              ingredientsJson = typeof aiFormulation.ingredients === 'string'
+                ? aiFormulation.ingredients
+                : JSON.stringify(aiFormulation.ingredients || []);
+              validationResult = validateFormulation(ingredientsJson, productType, phLevel.toString());
+              console.log(`🔬 Re-validation: ${validationResult.overallScore}/100 [model=${modelUsed} reason=${modelUsedReason}]`);
+            }
 
             formulation = {
               name: optimizedName,
@@ -3117,17 +3197,17 @@ Allow: /disclaimer`;
               inputJson: customRequest as any,
               outputJson: formulation as any,
               source: 'openai',
-              model: 'gpt-4o',
+              model: modelUsed,
             }).onConflictDoNothing().catch(() => {});
 
-            // Log OpenAI API usage (GPT-4o pricing: $2.50/1M input, $10.00/1M output)
-            const aiCost = ((aiUsage.inputTokens * 2.5 + aiUsage.outputTokens * 10.0) / 1_000_000).toFixed(6);
+            // Log OpenAI API usage (use model-aware pricing)
+            const aiCost = estimateCost(modelUsed, aiUsage.inputTokens, aiUsage.outputTokens);
             db.insert(apiUsageLogsTable).values({
               userId: getUserId(req) || null,
               userEmail: req.body.email || null,
               userName: req.body.customerName || null,
               userCountry: req.body.country || null,
-              model: 'gpt-4o',
+              model: modelUsed,
               inputTokens: aiUsage.inputTokens,
               outputTokens: aiUsage.outputTokens,
               totalTokens: aiUsage.totalTokens,
@@ -3142,7 +3222,7 @@ Allow: /disclaimer`;
                 userId: getUserId(req) || null,
                 email: req.body.email || null,
                 endpoint: 'POST /api/custom-formulation',
-                model: aiDebug?.model || 'gpt-4o',
+                model: modelUsed,
                 inputTokens: aiUsage.inputTokens,
                 outputTokens: aiUsage.outputTokens,
                 totalTokens: aiUsage.totalTokens,
@@ -3156,6 +3236,7 @@ Allow: /disclaimer`;
                 messages: aiDebug?.messages || null,
                 temperature: aiDebug?.temperature ?? null,
                 maxOutputTokens: aiDebug?.maxOutputTokens ?? null,
+                modelUsedReason,
                 ipAddress: getClientIp(req),
               });
             }

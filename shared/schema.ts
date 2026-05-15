@@ -209,6 +209,7 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   googleId: varchar("google_id").unique(), // Google OAuth profile ID
   isAdmin: boolean("is_admin").notNull().default(false),
+  isPremium: boolean("is_premium").notNull().default(false),
   loginProvider: varchar("login_provider").default("email"),
   lastLoginAt: timestamp("last_login_at"),
   resetToken: varchar("reset_token"), // Password reset token

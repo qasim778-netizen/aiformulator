@@ -44,6 +44,7 @@ export interface LogContext {
   temperature?: number | string | null;
   ipAddress?: string | null;
   errorMessage?: string | null;
+  modelUsedReason?: string | null;
 }
 
 // Strip any apiKey/Authorization-like fields from a payload before logging.
@@ -94,6 +95,7 @@ export function logOpenAIRequest(ctx: LogContext): void {
           : String(ctx.temperature),
       ipAddress: ctx.ipAddress || null,
       errorMessage: ctx.errorMessage || null,
+      modelUsedReason: ctx.modelUsedReason || null,
     })
     .catch((e) =>
       console.error("[openai-logger] insert failed:", e?.message || e),

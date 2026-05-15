@@ -290,6 +290,8 @@ async function createTables() {
       ALTER TABLE openai_request_logs ADD COLUMN IF NOT EXISTS messages_json jsonb;
       ALTER TABLE openai_request_logs ADD COLUMN IF NOT EXISTS max_output_tokens integer;
       ALTER TABLE openai_request_logs ADD COLUMN IF NOT EXISTS temperature text;
+      ALTER TABLE openai_request_logs ADD COLUMN IF NOT EXISTS model_used_reason text;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS is_premium boolean NOT NULL DEFAULT false;
       CREATE INDEX IF NOT EXISTS openai_logs_email_idx ON openai_request_logs (email);
       CREATE INDEX IF NOT EXISTS openai_logs_product_idx ON openai_request_logs (product_name);
     `);

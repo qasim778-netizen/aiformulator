@@ -301,6 +301,7 @@ export const openaiRequestLogsTable = pgTable("openai_request_logs", {
   temperature: text("temperature"),
   ipAddress: text("ip_address"),
   errorMessage: text("error_message"),
+  modelUsedReason: text("model_used_reason"),
   createdAtUtc: timestamp("created_at_utc", { withTimezone: true }).notNull().defaultNow(),
 });
 

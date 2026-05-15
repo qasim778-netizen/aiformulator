@@ -1171,11 +1171,58 @@ interface CustomFormulationRequest {
   color?: string;
   fragrance?: string;
   specialRequirements?: string;
+  category?: string;
+  // Model routing inputs
+  premiumUser?: boolean;       // session user.isPremium
+  adminPremium?: boolean;      // admin selected premium mode in request
+  forceModel?: string;         // explicit override (e.g., retry with gpt-4o)
+  forceReason?: ModelReason;   // matching reason when forceModel is set
+}
+
+export type ModelReason =
+  | "free_basic"
+  | "premium_user"
+  | "complex_product"
+  | "mini_failed_validation"
+  | "admin_selected";
+
+const COMPLEX_RULE_GROUPS = new Set([
+  "adhesiveSealantRules",
+  "coatingSurfaceRules",
+  "agroChemicalRules",
+]);
+
+const COMPLEX_KEYWORDS = [
+  "industrial", "construction", "adhesive", "sealant", "coating",
+  "epoxy", "polyurethane", "agricultural", "agro", "concrete",
+  "automotive", "lubricant",
+];
+
+export function selectModel(opts: {
+  productName?: string;
+  productType?: string;
+  category?: string;
+  ruleGroup?: string;
+  premiumUser?: boolean;
+  adminPremium?: boolean;
+}): { model: string; reason: ModelReason } {
+  if (opts.adminPremium) return { model: "gpt-4o", reason: "admin_selected" };
+  if (opts.premiumUser) return { model: "gpt-4o", reason: "premium_user" };
+
+  const blob = `${opts.productName || ""} ${opts.productType || ""} ${opts.category || ""}`.toLowerCase();
+  const isComplex =
+    (opts.ruleGroup && COMPLEX_RULE_GROUPS.has(opts.ruleGroup)) ||
+    COMPLEX_KEYWORDS.some((k) => blob.includes(k));
+  if (isComplex) return { model: "gpt-4o", reason: "complex_product" };
+
+  return { model: "gpt-4o-mini", reason: "free_basic" };
 }
 
 export interface GenerateCustomResult {
   formulation: Omit<InsertFormulation, 'categoryId'>;
   usage: { inputTokens: number; outputTokens: number; totalTokens: number };
+  modelUsed: string;
+  modelUsedReason: ModelReason;
   debug?: {
     model: string;
     temperature?: number;
@@ -1401,10 +1448,29 @@ Create a production-ready formulation with realistic, industry-standard ingredie
   const promptType = categoryRulesReady ? "category-based" : "legacy-master";
   const activeSystemPrompt = categoryRulesReady ? newSystemPrompt : systemPrompt;
 
+  // ── Model routing ────────────────────────────────────────────────────
+  let chosenModel: string;
+  let chosenReason: ModelReason;
+  if (request.forceModel) {
+    chosenModel = request.forceModel;
+    chosenReason = request.forceReason || "admin_selected";
+  } else {
+    const sel = selectModel({
+      productName: request.productName,
+      productType: request.productType,
+      category: request.category,
+      ruleGroup: detected.ruleGroup,
+      premiumUser: request.premiumUser,
+      adminPremium: request.adminPremium,
+    });
+    chosenModel = sel.model;
+    chosenReason = sel.reason;
+  }
+
   console.log(
     `[generateCustomFormulation] productName="${request.productName}" ` +
       `ruleGroup=${detected.ruleGroup} confidence=${detected.confidence} ` +
-      `model=gpt-4o promptType=${promptType}`,
+      `model=${chosenModel} reason=${chosenReason} promptType=${promptType}`,
   );
 
   const messages = [
@@ -1412,7 +1478,7 @@ Create a production-ready formulation with realistic, industry-standard ingredie
     { role: "user" as const, content: userPrompt },
   ];
   const debugPayload = {
-    model: "gpt-4o",
+    model: chosenModel,
     temperature: 1,
     maxOutputTokens: undefined as number | undefined,
     systemPrompt: activeSystemPrompt,
@@ -1423,7 +1489,7 @@ Create a production-ready formulation with realistic, industry-standard ingredie
 
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: chosenModel,
       messages,
       response_format: { type: "json_object" }
     });
@@ -1457,6 +1523,8 @@ Create a production-ready formulation with realistic, industry-standard ingredie
         outputTokens: response.usage?.completion_tokens ?? 0,
         totalTokens: response.usage?.total_tokens ?? 0,
       },
+      modelUsed: chosenModel,
+      modelUsedReason: chosenReason,
       debug: debugPayload,
     };
   } catch (error) {
