@@ -141,15 +141,6 @@ export default function AIFormulator() {
         return;
       }
 
-      if (error.message?.includes("You have used your 3 free formula generations")) {
-        toast({
-          title: "Admin Notice",
-          description: "You have used your 3 free formula generations. Please upgrade to continue.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
       toast({
         title: "Generation Failed",
         description: error.message || "Please try again",

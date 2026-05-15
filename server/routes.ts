@@ -3015,18 +3015,6 @@ Allow: /disclaimer`;
         }
       }
       const adminPremium = req.body.premiumMode === true || req.body.premiumMode === 'true';
-      if (!adminPremium && !premiumUser && _uid) {
-        const recentCount = await db.select({ count: drizzleSql<number>`count(*)::int` })
-          .from(apiUsageLogsTable)
-          .where(and(
-            eq(apiUsageLogsTable.userId, _uid),
-            eq(apiUsageLogsTable.cacheHit, false),
-            eq(apiUsageLogsTable.model, 'gpt-4o'),
-          ));
-        if ((recentCount[0]?.count || 0) >= 3) {
-          return res.status(403).json({ message: 'You have used your 3 free formula generations. Please upgrade to continue.' });
-        }
-      }
       const { selectModel } = await import('./ai');
       const { detectRuleGroup } = await import('./formulationRules');
       const detectedForRouting = detectRuleGroup(productName);
