@@ -54,3 +54,7 @@ FROM_EMAIL = "support@aiformulator.net"
 CONTACT_RECEIVER_EMAIL = "support@aiformulator.net"
 APP_URL = "https://aiformulator.net"
 SMTP_PASS = "AiFormulator#2026"
+
+[[ports]]
+localPort = 5000
+externalPort = 80

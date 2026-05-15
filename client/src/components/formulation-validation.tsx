@@ -239,6 +239,9 @@ export function FormulationValidation({
                 <div><span className="font-medium">Product subtype:</span> {data.productSubtype || "N/A"}</div>
                 <div><span className="font-medium">Model used:</span> {data.modelUsed || "N/A"}</div>
                 <div><span className="font-medium">Token cost:</span> {data.tokenCost ?? "N/A"}</div>
+                {data.categoryTotals && (
+                  <div><span className="font-medium">Category totals:</span> {JSON.stringify(data.categoryTotals)}</div>
+                )}
               </div>
             )}
             {Object.keys(breakdown).length > 0 && (
