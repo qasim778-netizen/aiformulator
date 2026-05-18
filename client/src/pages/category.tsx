@@ -106,8 +106,21 @@ export default function CategoryPage() {
       if (ogDesc) {
         ogDesc.setAttribute('content', metaDescContent);
       }
+
+      const robots = document.querySelector('meta[name="robots"]');
+      const isEmptyCategory = formulations.length === 0;
+      if (isEmptyCategory) {
+        if (robots) {
+          robots.setAttribute('content', 'noindex, follow');
+        } else {
+          const meta = document.createElement('meta');
+          meta.setAttribute('name', 'robots');
+          meta.setAttribute('content', 'noindex, follow');
+          document.head.appendChild(meta);
+        }
+      }
     }
-  }, [category]);
+  }, [category, formulations]);
 
   // Scroll to highlighted formulation when page loads
   useEffect(() => {

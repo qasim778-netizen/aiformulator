@@ -490,6 +490,18 @@ export async function generateCategoryPrerender(slug: string): Promise<string | 
   }
 }
 
+export async function hasCategoryFormulations(slug: string): Promise<boolean> {
+  try {
+    const category = await storage.getCategoryBySlug(slug);
+    if (!category) return false;
+    const formulations = await storage.getFormulationsByCategory(String(category.id));
+    return formulations.some(f => f.isActive);
+  } catch (err) {
+    console.error("Category content check failed:", err);
+    return false;
+  }
+}
+
 export async function getSeoMetaForUrl(url: string): Promise<SeoMeta | null> {
   const cleanUrl = url.split("?")[0].split("#")[0];
 
@@ -555,6 +567,9 @@ export async function getSeoMetaForUrl(url: string): Promise<SeoMeta | null> {
           category.metaDescription ||
           `Browse professional ${category.name.toLowerCase()} formulations. Complete manufacturing guides with ingredients and instructions.`;
 
+        const formulations = await storage.getFormulationsByCategory(String(category.id));
+        const hasVisibleFormulations = formulations.some(f => f.isActive);
+
         return {
           title: title.length > 60 ? title.substring(0, 57) + "..." : title,
           description:
@@ -568,6 +583,7 @@ export async function getSeoMetaForUrl(url: string): Promise<SeoMeta | null> {
               : description,
           ogType: "website",
           canonicalUrl: `${SITE_URL}/category/${category.slug}`,
+          noindex: !hasVisibleFormulations,
         };
       }
     } catch (e) {

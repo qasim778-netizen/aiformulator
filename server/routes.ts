@@ -192,7 +192,8 @@ Sitemap: https://aiformulator.net/sitemap.xml
 
       // Category pages (canonical: /category/:slug)
       for (const cat of categories) {
-        if (cat.slug) {
+        const categoryFormulations = cat.slug ? formulations.filter(form => form.categoryId === cat.id && form.isActive) : [];
+        if (cat.slug && categoryFormulations.length > 0) {
           xml += url(`${baseUrl}/category/${cat.slug}`, '0.8', 'weekly', toLastmod((cat as any).updatedAt));
         }
       }
