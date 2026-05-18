@@ -9,6 +9,30 @@ import { warmCache, db } from "./db";
 import { sql } from "drizzle-orm";
 import { getSeoMetaForUrl, injectSeoMeta, generateFormulationPrerender, generateBlogPrerender, generateStaticPrerender, generateCategoryPrerender } from "./seo-middleware";
 import { storage } from "./storage";
+import { isBot } from "./bot-detector";
+
+const BLOCKED_COUNTRIES = (process.env.BLOCKED_COUNTRIES || "")
+  .split(",")
+  .map(code => code.trim().toUpperCase())
+  .filter(Boolean);
+
+function getRequestCountry(req: Request) {
+  return (
+    req.get("cf-ipcountry") ||
+    req.get("x-vercel-ip-country") ||
+    req.get("x-country-code") ||
+    ""
+  ).trim().toUpperCase();
+}
+
+function getRequestIp(req: Request) {
+  return (
+    req.get("cf-connecting-ip") ||
+    req.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.ip ||
+    "unknown"
+  );
+}
 
 // Environment validation function
 function validateEnvironment() {
@@ -51,6 +75,24 @@ app.use(compression({
   threshold: 1024, // Only compress responses larger than 1KB
   // Enable Brotli compression when supported by client
 }));
+
+app.use((req, res, next) => {
+  if (!BLOCKED_COUNTRIES.length) return next();
+  if (isBot(req)) return next();
+
+  const country = getRequestCountry(req);
+  if (!country || !BLOCKED_COUNTRIES.includes(country)) return next();
+
+  console.warn("[Country block]", {
+    ip: getRequestIp(req),
+    country,
+    path: req.originalUrl,
+    userAgent: req.get("user-agent") || "",
+    timestamp: new Date().toISOString(),
+  });
+
+  return res.status(403).send("Access denied");
+});
 
 // WWW redirect middleware - force non-www version for consistency
 app.use((req, res, next) => {
@@ -185,7 +227,7 @@ app.use((req, res, next) => {
   // This works in both dev and production (avoids res.sendFile stream issues).
   const SITE_URL = "https://aiformulator.net";
 
-  async function serveSeoPage(req: Request, res: Response, next: NextFunction) {
+  const serveSeoPage = async (req: Request, res: Response, next: NextFunction) => {
     const url = req.originalUrl.split("?")[0].split("#")[0];
 
     // Detect dynamic routes — a missing slug here must return 404, not 200.
@@ -339,7 +381,7 @@ app.use((req, res, next) => {
     // doesn't confuse "Not Found" React renders with valid indexed pages.
     const httpStatus = (isDynamic && !resourceFound) ? 404 : 200;
     res.status(httpStatus).set({ "Content-Type": "text/html" }).send(html);
-  }
+  };
 
   // Redirect /collection/:slug → /category/:slug (old URL pattern)
   app.get("/collection/:slug", (req: Request, res: Response) => {

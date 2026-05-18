@@ -90,7 +90,7 @@ export async function generateFormulationPrerender(slug: string): Promise<string
 export async function generateBlogPrerender(slug: string): Promise<string | null> {
   try {
     const post = await storage.getBlogPostBySlug(slug);
-    if (!post || (!post.isPublished && post.status !== "published")) return null;
+    if (!post || !post.isPublished) return null;
     const e = escapeHtml;
     const dateStr = post.publishedAt ? new Date(post.publishedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "";
     const bodyHtml = post.content
@@ -99,7 +99,7 @@ export async function generateBlogPrerender(slug: string): Promise<string | null
     return `<div id="ssr-content" style="font-family:sans-serif;max-width:860px;margin:0 auto;padding:24px">
   <nav><a href="/">Home</a> &rsaquo; <a href="/blog">Blog</a> &rsaquo; ${e(post.title)}</nav>
   <h1>${e(post.title)}</h1>
-  ${dateStr ? `<p><time datetime="${e(String(post.publishedAt || ""))}">${dateStr}</time>${post.readTime ? ` &middot; ${e(String(post.readTime))} min read` : ""}${post.category ? ` &middot; ${e(post.category)}` : ""}</p>` : ""}
+  ${dateStr ? `<p><time datetime="${e(String(post.publishedAt || ""))}">${dateStr}</time>${post.category ? ` &middot; ${e(post.category)}` : ""}</p>` : ""}
   ${post.excerpt ? `<p><strong>${e(post.excerpt)}</strong></p>` : ""}
   <div>${bodyHtml}</div>
   <p><a href="${SITE_URL}/blog">More articles on the AIFormulator Knowledge Hub</a></p>
