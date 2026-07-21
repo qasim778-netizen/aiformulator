@@ -41,18 +41,23 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
   const [captchaKey, setCaptchaKey] = useState(0);
   const [aiUnavailable, setAiUnavailable] = useState(false);
+  const [dailyLimitReached, setDailyLimitReached] = useState(false);
 
   const isAiUnavailableError = (message: string | undefined) => {
     if (!message) return false;
     const m = message.toLowerCase();
     return (
       m.includes('ai service unavailable') ||
-      m.includes('rate limit') ||
       m.includes('quota') ||
       m.includes('insufficient_quota') ||
       m.includes('billing') ||
       m.includes('temporarily unavailable')
     );
+  };
+
+  const isDailyLimitError = (message: string | undefined) => {
+    if (!message) return false;
+    return message.toLowerCase().includes('daily ai formulation limit');
   };
 
   const formatPropertyName = (prop: string) => {
@@ -109,6 +114,7 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
     onSuccess: (formulation: any) => {
       console.log('Generation success:', formulation);
       setAiUnavailable(false);
+      setDailyLimitReached(false);
 
       // Invalidate cache so generated formulas appear in dashboard
       queryClient.invalidateQueries({ queryKey: ['/api/user/generated'] });
@@ -117,6 +123,10 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
       setLocation(`/formulation-confirmation/${formulation.id}`);
     },
     onError: (error: Error) => {
+      if (isDailyLimitError(error.message)) {
+        setDailyLimitReached(true);
+        return;
+      }
       if (isAiUnavailableError(error.message)) {
         setAiUnavailable(true);
         resetCaptcha();
@@ -132,6 +142,7 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
 
   const handleGenerate = () => {
     setAiUnavailable(false);
+    setDailyLimitReached(false);
     if (!isCaptchaVerified) {
       toast({
         title: "Verification Required",
@@ -325,6 +336,32 @@ export default function GenerateStep({ formData, onBack }: GenerateStepProps) {
                       </a>
                       .
                     </li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Daily Limit Reached Notice */}
+            {dailyLimitReached && (
+              <Alert
+                variant="destructive"
+                className="mb-4 border-red-300 bg-red-50 text-red-900 [&>svg]:text-red-600"
+                data-testid="alert-daily-limit"
+              >
+                <AlertTriangle className="h-5 w-5" />
+                <AlertTitle className="text-red-900 font-semibold">
+                  Daily AI formulation limit reached
+                </AlertTitle>
+                <AlertDescription className="text-red-800">
+                  <p className="mt-1">
+                    You have used all 5 AI formulation generations for today. This limit resets at midnight UTC.
+                  </p>
+                  <p className="mt-2">
+                    <span className="font-medium">What you can do:</span>
+                  </p>
+                  <ul className="list-disc pl-5 mt-1 space-y-1">
+                    <li>Come back tomorrow when your limit resets.</li>
+                    <li>Upgrade your account for unlimited formulations.</li>
                   </ul>
                 </AlertDescription>
               </Alert>

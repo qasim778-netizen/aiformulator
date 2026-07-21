@@ -10,7 +10,7 @@ import type { ChatMessage, InsertChatMessage } from "@shared/schema";
 import { db, categoriesTable, wizardCategoriesTable, wizardProductTypesTable, wizardBaseTypesTable, wizardCategoryBaseTypesTable, wizardFeatureChipsTable, wizardSafetyNotesTable, wizardPromptRulesTable, generatedFormulasTable, formulaGenerationFailuresTable, apiUsageLogsTable, openaiRequestLogsTable } from "./db";
 import { users as usersTable } from "@shared/schema";
 import { estimateCost } from "./openai-logger";
-import { eq, and, sql as drizzleSql } from "drizzle-orm";
+import { eq, and, gte, sql as drizzleSql } from "drizzle-orm";
 import { generateCategory, generateFormulation, generateFormulationWithKeywords, generateBulkFormulations, generateBulkFormulationsWithKeywords, generateProductTypes, generateCustomFormulation, generateWizardProductTypeNames, generateBaseTypeNames, generateFeatureChips, generateSafetyNotes, generatePromptRules } from "./ai";
 import { generateCategorySuggestions } from "./services/openai";
 import { generateFormulationPDF } from "./pdf-generator";
@@ -96,6 +96,44 @@ const requireAuth = (req: any, res: any, next: any) => {
     return res.status(401).json({ message: "Unauthorized - Please log in" });
   }
   next();
+};
+
+// Daily AI formulation rate limit: 5 per registered user per calendar day (UTC)
+const DAILY_FORMULATION_LIMIT = 5;
+
+const checkDailyFormulationLimit = async (req: any, res: any): Promise<boolean> => {
+  const userId = getUserId(req);
+  if (!userId) return true; // anonymous users bypass the limit
+
+  const todayStart = new Date();
+  todayStart.setUTCHours(0, 0, 0, 0);
+
+  try {
+    const rows = await db
+      .select({ n: drizzleSql<number>`count(*)::int` })
+      .from(apiUsageLogsTable)
+      .where(
+        and(
+          eq(apiUsageLogsTable.userId, userId),
+          gte(apiUsageLogsTable.createdAt, todayStart)
+        )
+      );
+
+    const count = rows[0]?.n || 0;
+    if (count >= DAILY_FORMULATION_LIMIT) {
+      res.status(429).json({
+        message: `Daily AI formulation limit reached (${DAILY_FORMULATION_LIMIT} per day). Please try again tomorrow.`,
+        dailyLimit: DAILY_FORMULATION_LIMIT,
+        usedToday: count,
+        resetAt: new Date(todayStart.getTime() + 24 * 60 * 60 * 1000).toISOString(),
+      });
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error('[RateLimit] Failed to check daily limit:', err);
+    return true; // fail-open on DB error
+  }
 };
 
 // Admin-only authentication middleware
@@ -2496,6 +2534,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
   });
 
   app.post("/api/ai/generate-formulation", async (req, res) => {
+    if (!(await checkDailyFormulationLimit(req, res))) return;
     try {
       const { categoryId, productDescription } = req.body;
       if (!categoryId || !productDescription) {
@@ -2572,7 +2611,20 @@ Sitemap: https://aiformulator.net/sitemap.xml
         categoryId: finalCategoryId,
         userId: (req as any).session?.userId
       });
-      
+
+      // Log API usage for rate limiting
+      db.insert(apiUsageLogsTable).values({
+        userId: getUserId(req) || null,
+        model: 'gpt-4o',
+        inputTokens: 0,
+        outputTokens: 0,
+        totalTokens: 0,
+        estimatedCost: '0.000000',
+        cacheHit: false,
+        productName: formulationData.name || null,
+        productType: categoryName || null,
+      }).catch(e => console.error('[API Usage] Log failed:', e));
+
       res.status(201).json(formulation);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to generate formulation" });
@@ -2581,6 +2633,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
 
   // Generate formulation with formula keywords and image
   app.post("/api/ai/generate-formulation-with-keywords", async (req, res) => {
+    if (!(await checkDailyFormulationLimit(req, res))) return;
     try {
       const { categoryId, productDescription, includeImage = false } = req.body;
       if (!categoryId || !productDescription) {
@@ -2598,7 +2651,20 @@ Sitemap: https://aiformulator.net/sitemap.xml
         categoryId,
         userId: (req as any).session?.userId
       });
-      
+
+      // Log API usage for rate limiting
+      db.insert(apiUsageLogsTable).values({
+        userId: getUserId(req) || null,
+        model: 'gpt-4o',
+        inputTokens: 0,
+        outputTokens: 0,
+        totalTokens: 0,
+        estimatedCost: '0.000000',
+        cacheHit: false,
+        productName: formulationData.name || null,
+        productType: category.name || null,
+      }).catch(e => console.error('[API Usage] Log failed:', e));
+
       res.status(201).json(formulation);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to generate formulation with keywords" });
@@ -2607,6 +2673,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
 
   // Bulk AI Generation endpoint (protected admin route)
   app.post("/api/ai/generate-bulk-formulations", async (req, res) => {
+    if (!(await checkDailyFormulationLimit(req, res))) return;
     try {
       const { categoryId, count } = req.body;
       if (!categoryId || !count) {
@@ -2651,9 +2718,22 @@ Sitemap: https://aiformulator.net/sitemap.xml
           console.error('Failed to save formulation:', error);
         }
       }
+      // Log one API usage entry for the bulk request (counts as 1 toward daily limit)
+      db.insert(apiUsageLogsTable).values({
+        userId: getUserId(req) || null,
+        model: 'gpt-4o',
+        inputTokens: 0,
+        outputTokens: 0,
+        totalTokens: 0,
+        estimatedCost: '0.000000',
+        cacheHit: false,
+        productName: `${createdFormulations.length} bulk formulations` || null,
+        productType: category.name || null,
+      }).catch(e => console.error('[API Usage] Log failed:', e));
+
       console.log(`📊 Tracked ${createdFormulations.length} AI generations for analytics`);
-      
-      res.status(201).json({ 
+
+      res.status(201).json({
         message: `Successfully generated ${createdFormulations.length} formulations`,
         count: createdFormulations.length,
         formulations: createdFormulations
@@ -2665,6 +2745,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
 
   // Bulk AI Generation with Keywords & Images endpoint (protected admin route)
   app.post("/api/ai/generate-bulk-formulations-with-keywords", async (req, res) => {
+    if (!(await checkDailyFormulationLimit(req, res))) return;
     try {
       const { categoryId, categorySlug, count, includeImages = false } = req.body;
       console.log(`=== BULK API ENDPOINT ===`);
@@ -2731,9 +2812,22 @@ Sitemap: https://aiformulator.net/sitemap.xml
           console.error('Failed to save formulation:', error);
         }
       }
+      // Log one API usage entry for the bulk request (counts as 1 toward daily limit)
+      db.insert(apiUsageLogsTable).values({
+        userId: getUserId(req) || null,
+        model: 'gpt-4o',
+        inputTokens: 0,
+        outputTokens: 0,
+        totalTokens: 0,
+        estimatedCost: '0.000000',
+        cacheHit: false,
+        productName: `${createdFormulations.length} bulk formulations` || null,
+        productType: categoryName || null,
+      }).catch(e => console.error('[API Usage] Log failed:', e));
+
       console.log(`📊 Tracked ${createdFormulations.length} AI generations for analytics`);
-      
-      res.status(201).json({ 
+
+      res.status(201).json({
         message: `Successfully generated ${createdFormulations.length} formula formulations${includeImages ? ' with images' : ''}`,
         count: createdFormulations.length,
         formulations: createdFormulations
@@ -2948,6 +3042,7 @@ Allow: /disclaimer`;
 
   // Custom AI Formulation with PDF Generation - Public Access with Captcha Security
   app.post("/api/ai/custom-formulation", async (req, res) => {
+    if (!(await checkDailyFormulationLimit(req, res))) return;
     console.log('🔥 Custom formulation endpoint hit!');
     console.log('Full request body:', JSON.stringify(req.body, null, 2));
     const startTime = Date.now();

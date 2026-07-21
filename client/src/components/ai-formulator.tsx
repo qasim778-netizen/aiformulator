@@ -93,6 +93,10 @@ export default function AIFormulator() {
           setShowSignInDialog(true);
           return null;
         }
+        if (response.status === 429) {
+          const error = await response.json();
+          throw new Error(error.message || "Daily AI formulation limit reached. Please try again tomorrow.");
+        }
         const error = await response.json();
         throw new Error(error.message || "Failed to generate formulation");
       }
