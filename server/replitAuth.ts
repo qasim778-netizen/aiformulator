@@ -8,10 +8,6 @@ import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
 
-if (!process.env.REPLIT_DOMAINS) {
-  throw new Error("Environment variable REPLIT_DOMAINS not provided");
-}
-
 const getOidcConfig = memoize(
   async () => {
     return await client.discovery(
@@ -75,6 +71,13 @@ export async function setupAuth(app: Express) {
   app.use(getSession());
   app.use(passport.initialize());
   app.use(passport.session());
+
+  if (!process.env.REPLIT_DOMAINS) {
+    console.warn(
+      "[ReplitAuth] REPLIT_DOMAINS not set — Replit OIDC authentication disabled."
+    );
+    return;
+  }
 
   const config = await getOidcConfig();
 

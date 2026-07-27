@@ -3605,8 +3605,8 @@ Allow: /disclaimer`;
       
       // Track the download
       try {
-        const category = await storage.getCategory(formulation.categoryId);
-        await storage.trackDownload(userId, formulationId, formulation.name, category?.name || 'Unknown');
+        const category = formulation.categoryId ? await storage.getCategory(formulation.categoryId) : null;
+        await storage.trackDownload(userId || 'anonymous', formulationId, formulation.name, category?.name || 'Unknown');
       } catch (trackError) {
         console.error("Failed to track download:", trackError);
         // Continue - download tracking is not critical
@@ -3657,7 +3657,7 @@ Allow: /disclaimer`;
       // Track download BEFORE generating PDF
       try {
         await storage.trackDownload(
-          userId,
+          userId || 'anonymous',
           formulation.id,
           formulation.name,
           category?.name || 'Unknown'
@@ -4283,21 +4283,22 @@ Allow: /disclaimer`;
       });
     }
 
+    const systemPrompt =
+      'You validate whether a user-supplied string names a real chemical/consumer/industrial product that a chemist could actually formulate (e.g., "Glass Cleaner", "Anti-Aging Face Cream", "Concrete Bonding Adhesive"). ' +
+      'Reject placeholder/filler input such as "test", "hello", "asdf", "sample", "demo", random words, single common English words that are not products, gibberish, or sentences that do not name a product. ' +
+      'Respond ONLY with JSON: {"valid": boolean, "reason": string, "detectedType": "liquid"|"cream"|"gel"|"powder"|"other"|null}. ' +
+      'If invalid, set detectedType to null and reason to a short user-facing message asking for a valid product name with examples.';
+    const userPrompt = trimmed;
+    const messages = [
+      { role: "system" as const, content: systemPrompt },
+      { role: "user" as const, content: userPrompt },
+    ];
+    const temperature = 0;
+
     try {
       const OpenAI = (await import("openai")).default;
       const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-      const systemPrompt =
-        'You validate whether a user-supplied string names a real chemical/consumer/industrial product that a chemist could actually formulate (e.g., "Glass Cleaner", "Anti-Aging Face Cream", "Concrete Bonding Adhesive"). ' +
-        'Reject placeholder/filler input such as "test", "hello", "asdf", "sample", "demo", random words, single common English words that are not products, gibberish, or sentences that do not name a product. ' +
-        'Respond ONLY with JSON: {"valid": boolean, "reason": string, "detectedType": "liquid"|"cream"|"gel"|"powder"|"other"|null}. ' +
-        'If invalid, set detectedType to null and reason to a short user-facing message asking for a valid product name with examples.';
-      const userPrompt = trimmed;
-      const messages = [
-        { role: "system" as const, content: systemPrompt },
-        { role: "user" as const, content: userPrompt },
-      ];
-      const temperature = 0;
       const aiPromise = client.chat.completions.create({
         model,
         temperature,

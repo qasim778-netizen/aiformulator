@@ -1,0 +1,2 @@
+- [Replit Auth module-level crash](replit-auth-deployment.md) — importing `replitAuth.ts` outside Replit throws if `REPLIT_DOMAINS` is missing; guard setup, not just the OIDC strategy.
+- [Keep Vite dev server out of production bundle](vite-production-bundle.md) — statically importing the dev Vite setup in the production entry point bundles Vite/nanoid and can fail on hosts that prune dev dependencies; externalize or dynamically import the dev-only module.

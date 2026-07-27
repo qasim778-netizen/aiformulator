@@ -528,7 +528,7 @@ export default function FormulationForm({ formulation, categories, onSuccess }: 
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Category</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} defaultValue={field.value ?? undefined}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a category" />

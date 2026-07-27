@@ -223,7 +223,6 @@ export class AIBlogGenerator {
       content: generatedContent.content,
       featuredImage: null, // Could be enhanced with AI image generation
       metaDescription: generatedContent.metaDescription,
-      keywords: generatedContent.keywords,
       authorName: "AI Formulator Team",
       isPublished: shouldPublish,
       publishedAt: shouldPublish ? new Date() : null,

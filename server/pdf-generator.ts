@@ -16,6 +16,8 @@ interface FormulationPDFData extends Omit<InsertFormulation, 'categoryId' | 'slu
   slug?: string;
   metaDescription?: string;
   keywords?: string;
+  image?: string | null;
+  thumbnail?: string | null;
 }
 
 export function generateFormulationPDF(formulation: FormulationPDFData, logoSettings?: LogoSettings): Buffer {

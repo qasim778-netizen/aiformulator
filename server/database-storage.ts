@@ -62,7 +62,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCategory(id: string): Promise<boolean> {
     const result = await db.delete(categoriesTable).where(eq(categoriesTable.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Formulations
@@ -149,7 +149,7 @@ export class DatabaseStorage implements IStorage {
     // Use custom slug if provided, otherwise generate from name
     const slug = formulation.slug?.trim() 
       ? this.generateSlugFromName(formulation.slug.trim())
-      : this.generateSlugFromNameWithCategory(formulation.name, formulation.categoryId);
+      : this.generateSlugFromNameWithCategory(formulation.name, formulation.categoryId || '');
     const [created] = await db.insert(formulationsTable).values({
       categoryId: formulation.categoryId,
       name: formulation.name,
@@ -584,12 +584,12 @@ export class DatabaseStorage implements IStorage {
 
   async upsertUser(userData: UpsertUser): Promise<User> {
     try {
-      const { isAdmin, ...updateData } = userData;
-      
+      const { isAdmin, id, createdAt, ...updateData } = userData;
+
       const [user] = await db
         .insert(usersTable)
         .values({
-          id: userData.id,
+          id: id || randomUUID(),
           email: userData.email || '',
           password: userData.password || '',
           firstName: userData.firstName || null,
@@ -931,7 +931,7 @@ export class DatabaseStorage implements IStorage {
     try {
       const { pages } = await import("@shared/schema");
       const result = await db.delete(pages).where(eq(pages.id, id));
-      return result.rowCount > 0;
+      return (result.rowCount ?? 0) > 0;
     } catch (error) {
       console.error("Failed to delete page:", error);
       return false;
@@ -1028,7 +1028,7 @@ export class DatabaseStorage implements IStorage {
     try {
       const { blogPosts } = await import("@shared/schema");
       const result = await db.delete(blogPosts).where(eq(blogPosts.id, id));
-      return result.rowCount > 0;
+      return (result.rowCount ?? 0) > 0;
     } catch (error) {
       console.error("Failed to delete blog post:", error);
       return false;
@@ -1185,7 +1185,7 @@ export class DatabaseStorage implements IStorage {
   async deleteUserFormulationRequest(id: string): Promise<boolean> {
     try {
       const result = await db.delete(userFormulationRequestsTable).where(eq(userFormulationRequestsTable.id, id));
-      return result.rowCount > 0;
+      return (result.rowCount ?? 0) > 0;
     } catch (error) {
       console.error("Failed to delete user formulation request:", error);
       return false;
@@ -1241,7 +1241,7 @@ export class DatabaseStorage implements IStorage {
       const result = await db
         .delete(formulationContentTable)
         .where(eq(formulationContentTable.formulationId, formulationId));
-      return result.rowCount > 0;
+      return (result.rowCount ?? 0) > 0;
     } catch (error) {
       console.error("Failed to delete formulation content:", error);
       return false;
@@ -1331,7 +1331,7 @@ export class DatabaseStorage implements IStorage {
       const result = await db
         .delete(sampleProductsTable)
         .where(eq(sampleProductsTable.id, id));
-      return result.rowCount > 0;
+      return (result.rowCount ?? 0) > 0;
     } catch (error) {
       console.error("Failed to delete sample product:", error);
       return false;

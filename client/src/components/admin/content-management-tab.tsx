@@ -42,7 +42,7 @@ export default function ContentManagementTab() {
     },
     retry: 1,
     staleTime: 0,
-    cacheTime: 0,
+    gcTime: 0,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
   });

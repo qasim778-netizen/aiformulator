@@ -170,7 +170,7 @@ export default function UserFormulationRequests() {
                       </div>
                     </div>
 
-                    {request.specialProperties && (
+                    {Array.isArray(request.specialProperties) && (
                       <div className="mb-4">
                         <Label className="text-sm text-gray-600">Special Properties</Label>
                         <div className="flex flex-wrap gap-2 mt-1">

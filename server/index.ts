@@ -3,7 +3,8 @@ import compression from "compression";
 import fs from "fs";
 import path from "path";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { serveStatic } from "./static";
+import { log } from "./logger";
 import { runMigrations } from "./migrate";
 import { warmCache, db } from "./db";
 import { sql } from "drizzle-orm";
@@ -418,6 +419,7 @@ app.use((req, res, next) => {
   // Setup Vite/static serving AFTER API routes are registered
   // This ensures API routes are handled first before the catch-all
   if (app.get("env") === "development") {
+    const { setupVite } = await import("./vite");
     await setupVite(app, server);
   } else {
     serveStatic(app);

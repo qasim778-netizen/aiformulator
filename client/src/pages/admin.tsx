@@ -576,7 +576,7 @@ export default function AdminPage() {
           )}
 
           {/* ── DATABASE BUILDER ─────────────────────────────────────────── */}
-          {activeTab === "database-builder" && <DatabaseBuilderTab />}
+          {(activeTab as string) === "database-builder" && <DatabaseBuilderTab />}
 
           {/* ── PRODUCT TYPE MANAGEMENT ──────────────────────────────────── */}
           {activeTab === "product-types" && (
@@ -814,7 +814,7 @@ export default function AdminPage() {
           )}
 
           {/* Content management (kept for back-compat, not in sidebar) */}
-          {activeTab === "content" && <ContentManagementTab />}
+          {(activeTab as string) === "content" && <ContentManagementTab />}
 
         </main>
       </div>

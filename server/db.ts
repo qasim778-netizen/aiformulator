@@ -37,9 +37,13 @@ export const usersTable = pgTable("users", {
   lastName: text("last_name"),
   country: text("country"),
   profileImageUrl: text("profile_image_url"),
+  googleId: text("google_id"),
   isAdmin: boolean("is_admin").notNull().default(false),
+  isPremium: boolean("is_premium").notNull().default(false),
   loginProvider: text("login_provider").default("email"),
   lastLoginAt: timestamp("last_login_at"),
+  resetToken: text("reset_token"),
+  resetTokenExpiry: timestamp("reset_token_expiry"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -136,7 +140,11 @@ export const blogPostsTable = pgTable("blog_posts", {
 
 export const userFormulationRequestsTable = pgTable("user_formulation_requests", {
   id: uuid("id").primaryKey().defaultRandom(),
+  userId: varchar("user_id", { length: 255 }).references(() => usersTable.id),
   sessionId: varchar("session_id", { length: 255 }).notNull(),
+  customerName: text("customer_name"),
+  email: text("email"),
+  country: text("country"),
   productName: text("product_name").notNull(),
   productCategory: text("product_category").notNull(),
   consistencyType: text("consistency_type"),
