@@ -31,60 +31,6 @@ import { generateThumbnail } from "./thumbnail";
 import { sendEmail, passwordResetEmail, contactNotificationEmail, isEmailConfigured, verifyEmailTransport, describeSmtpError } from "./email";
 import { detectCountryFromRequest } from "./geoip";
 
-// SendGrid email helper function
-async function getSendGridClient() {
-  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
-  const xReplitToken = process.env.REPL_IDENTITY 
-    ? 'repl ' + process.env.REPL_IDENTITY 
-    : process.env.WEB_REPL_RENEWAL 
-    ? 'depl ' + process.env.WEB_REPL_RENEWAL 
-    : null;
-
-  console.log('[SendGrid] Getting client, hostname:', hostname, 'token exists:', !!xReplitToken);
-
-  if (!xReplitToken) {
-    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
-  }
-
-  const url = 'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=sendgrid';
-  console.log('[SendGrid] Fetching connection from:', url);
-
-  const response = await fetch(url, {
-    headers: {
-      'Accept': 'application/json',
-      'X_REPLIT_TOKEN': xReplitToken
-    }
-  });
-  
-  const responseData = await response.json();
-  console.log('[SendGrid] Response status:', response.status, 'data:', JSON.stringify(responseData).substring(0, 200));
-  
-  const connectionSettings = responseData.items?.[0];
-
-  if (!connectionSettings) {
-    console.error('[SendGrid] No connection settings found');
-    throw new Error('SendGrid not connected - no connection settings');
-  }
-
-  const apiKey = connectionSettings.settings?.api_key;
-  const fromEmail = connectionSettings.settings?.from_email;
-  
-  console.log('[SendGrid] API Key present:', !!apiKey, 'From Email:', fromEmail);
-
-  if (!apiKey || !fromEmail) {
-    throw new Error('SendGrid not connected - missing api_key or from_email');
-  }
-
-  const sgMail = (await import('@sendgrid/mail')).default;
-  sgMail.setApiKey(apiKey);
-  console.log('[SendGrid] Client initialized successfully');
-  
-  return {
-    client: sgMail,
-    fromEmail: fromEmail
-  };
-}
-
 // Session-based authentication middleware
 // Returns the userId from either Replit OAuth (req.user) or email/password session (req.session.userId)
 const getUserId = (req: any): string | undefined => {

@@ -49,7 +49,6 @@ function validateEnvironment() {
   const optionalVars = [
     { name: 'OPENAI_API_KEY', description: 'OpenAI API functionality will be disabled' },
     { name: 'SESSION_SECRET', description: 'Session management may be insecure' },
-    { name: 'REPLIT_DOMAINS', description: 'Replit authentication will be disabled' }
   ];
   
   optionalVars.forEach(({ name, description }) => {
