@@ -54,7 +54,6 @@ FROM_EMAIL = "support@aiformulator.net"
 CONTACT_RECEIVER_EMAIL = "support@aiformulator.net"
 APP_URL = "https://aiformulator.net"
 SMTP_PASS = "AiFormulator#2026"
-SUPABASE_DATABASE_URL = "postgresql://neondb_owner:npg_fPRW9AQuvkm3@ep-odd-pond-ad2ckoax.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
 
 [[ports]]
 localPort = 5000
