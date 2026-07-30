@@ -54,7 +54,7 @@ FROM_EMAIL = "support@aiformulator.net"
 CONTACT_RECEIVER_EMAIL = "support@aiformulator.net"
 APP_URL = "https://aiformulator.net"
 SMTP_PASS = "AiFormulator#2026"
-SUPABASE_DATABASE_URL = "postgresql://postgres:hV7ihAPDezbl56ei@db.jkpblxygvurfvdsumtpb.supabase.co:5432/postgres"
+SUPABASE_DATABASE_URL = "postgresql://postgres.jkpblxygvurfvdsumtpb:hV7ihAPDezbl56ei@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
 
 [[ports]]
 localPort = 5000
