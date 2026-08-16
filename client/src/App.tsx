@@ -64,9 +64,7 @@ function Router() {
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/disclaimer" component={Disclaimer} />
-      <Route>
-        <Home />
-      </Route>
+      <Route component={NotFound} />
     </Switch>
   );
 }

@@ -29,15 +29,16 @@ async function uploadImageToStorage(file: File): Promise<string> {
   const ext = file.name.split(".").pop() || "jpg";
   const filename = `sample-product-${Date.now()}.${ext}`;
 
-  const { uploadURL } = await apiRequest("POST", "/api/objects/upload", { filename }).then(r => r.json());
-
-  await fetch(uploadURL, {
-    method: "PUT",
-    headers: { "Content-Type": file.type },
-    body: file,
+  const formData = new FormData();
+  formData.append("file", new File([file], filename, { type: file.type }));
+  formData.append("folder", "sample-products");
+  const response = await fetch("/api/uploads/local", {
+    method: "POST",
+    credentials: "include",
+    body: formData,
   });
-
-  const { objectPath } = await apiRequest("PUT", "/api/formulation-images", { imageURL: uploadURL }).then(r => r.json());
+  if (!response.ok) throw new Error("Failed to upload image");
+  const { objectPath } = await response.json();
   return objectPath as string;
 }
 

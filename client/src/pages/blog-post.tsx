@@ -57,11 +57,37 @@ export default function BlogPostPage() {
 
   useEffect(() => {
     if (post) {
-      document.title = post.metaTitle || `${post.title} | AI Formulator Blog`;
+      const pageTitle = post.metaTitle || `${post.title} | AI Formulator Blog`;
+      document.title = pageTitle;
+
+      const pageDesc = post.metaDescription || post.excerpt || '';
       const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc && post.metaDescription) {
-        metaDesc.setAttribute('content', post.metaDescription);
+      if (metaDesc && pageDesc) metaDesc.setAttribute('content', pageDesc);
+
+      const pageUrl = `https://aiformulator.net/blog/${post.slug}`;
+
+      function setMeta(selector: string, attr: string, value: string) {
+        let el = document.querySelector(selector);
+        if (!el) {
+          el = document.createElement('meta');
+          const match = selector.match(/\[([^=]+)="([^"]+)"\]/);
+          if (match) el.setAttribute(match[1], match[2]);
+          document.head.appendChild(el);
+        }
+        el.setAttribute(attr, value);
       }
+
+      setMeta('meta[property="og:title"]', 'content', pageTitle);
+      setMeta('meta[property="og:description"]', 'content', pageDesc);
+      setMeta('meta[property="og:type"]', 'content', 'article');
+      setMeta('meta[property="og:url"]', 'content', pageUrl);
+      if (post.featuredImage) {
+        setMeta('meta[property="og:image"]', 'content', post.featuredImage);
+        setMeta('meta[name="twitter:image"]', 'content', post.featuredImage);
+      }
+      setMeta('meta[name="twitter:card"]', 'content', 'summary_large_image');
+      setMeta('meta[name="twitter:title"]', 'content', pageTitle);
+      setMeta('meta[name="twitter:description"]', 'content', pageDesc);
 
       const existingSchemas = document.querySelectorAll('script[data-schema^="blog-post"]');
       existingSchemas.forEach(s => s.remove());

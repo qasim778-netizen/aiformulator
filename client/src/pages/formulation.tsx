@@ -109,109 +109,120 @@ export default function FormulationPage() {
 
   // Update SEO metadata when formulation loads
   useEffect(() => {
-    if (formulation && category) {
-      // Create optimized page title (under 60 characters, keyword-rich)
-      const shortName = formulation.name.length > 35 ? 
-        formulation.name.substring(0, 32) + '...' : 
-        formulation.name;
-      let seoTitle = formulation.seoTitle || shortName;
-      
-      // Enforce 60 character limit even for stored seoTitle
-      if (seoTitle.length > 60) {
-        seoTitle = seoTitle.substring(0, 57) + '...';
-      }
-      
-      document.title = seoTitle;
+    if (!formulation) return;
 
-      // Create optimized meta description (under 160 characters, compelling)
-      let metaDescription = formulation.metaDescription || 
-        `Download the complete ${formulation.name} formulation with ingredients, manufacturing process, applications, and scale-up guidance.`;
-      
-      // Enforce 160 character limit even for stored metaDescription
-      if (metaDescription.length > 160) {
-        metaDescription = metaDescription.substring(0, 157) + '...';
-      }
-      
-      let metaDescElement = document.querySelector('meta[name="description"]');
-      if (!metaDescElement) {
-        metaDescElement = document.createElement('meta');
-        metaDescElement.setAttribute('name', 'description');
-        document.head.appendChild(metaDescElement);
-      }
-      metaDescElement.setAttribute('content', metaDescription);
+    // Title: prefer manually stored seoTitle, otherwise use pattern "{Name} Formula | AIFormulator".
+    // If the name already ends with "formula/formulation", skip the redundant word.
+    const nameEndsWithFormula = /\bformula(?:tion)?s?\b$/i.test(formulation.name.trim());
+    const patternTitle = nameEndsWithFormula
+      ? `${formulation.name} | AIFormulator`
+      : `${formulation.name} Formula | AIFormulator`;
+    const rawTitle = formulation.seoTitle || patternTitle;
+    const seoTitle = rawTitle.length > 60 ? rawTitle.substring(0, 57) + '...' : rawTitle;
+    document.title = seoTitle;
 
-      // Update or create meta keywords
-      if (formulation.keywords) {
-        let metaKeywordsElement = document.querySelector('meta[name="keywords"]');
-        if (!metaKeywordsElement) {
-          metaKeywordsElement = document.createElement('meta');
-          metaKeywordsElement.setAttribute('name', 'keywords');
-          document.head.appendChild(metaKeywordsElement);
-        }
-        metaKeywordsElement.setAttribute('content', formulation.keywords);
-      }
+    // Meta description
+    const nameHasFormulation = /\bformula(?:tion)?s?\b/i.test(formulation.name);
+    const rawDesc = formulation.metaDescription ||
+      (nameHasFormulation
+        ? `Professional ${formulation.name} with complete manufacturing guide, ingredient list, and technical specifications.`
+        : `Professional ${formulation.name} formulation with complete manufacturing guide, ingredient list, and technical specifications.`);
+    const metaDescription = rawDesc.length > 160 ? rawDesc.substring(0, 157) + '...' : rawDesc;
 
-      // Update Open Graph tags for social sharing
-      const ogTitle = seoTitle; // Use the already-trimmed seoTitle
-      const ogDescription = metaDescription; // Use the already-trimmed metaDescription
-      
-      // Update or create og:title
-      let ogTitleElement = document.querySelector('meta[property="og:title"]');
-      if (!ogTitleElement) {
-        ogTitleElement = document.createElement('meta');
-        ogTitleElement.setAttribute('property', 'og:title');
-        document.head.appendChild(ogTitleElement);
+    function setMeta(selector: string, attr: string, value: string) {
+      let el = document.querySelector(selector);
+      if (!el) {
+        el = document.createElement('meta');
+        const [attrName, attrVal] = selector.replace('meta[', '').replace(']', '').split('="');
+        el.setAttribute(attrName.replace(/"/g, ''), (attrVal || '').replace(/"/g, ''));
+        document.head.appendChild(el);
       }
-      ogTitleElement.setAttribute('content', ogTitle);
+      el.setAttribute(attr, value);
+    }
 
-      // Update or create og:description
-      let ogDescElement = document.querySelector('meta[property="og:description"]');
-      if (!ogDescElement) {
-        ogDescElement = document.createElement('meta');
-        ogDescElement.setAttribute('property', 'og:description');
-        document.head.appendChild(ogDescElement);
-      }
-      ogDescElement.setAttribute('content', ogDescription);
+    setMeta('meta[name="description"]', 'content', metaDescription);
+    if (formulation.keywords) setMeta('meta[name="keywords"]', 'content', formulation.keywords);
 
-      // Update or create og:type
-      let ogTypeElement = document.querySelector('meta[property="og:type"]');
-      if (!ogTypeElement) {
-        ogTypeElement = document.createElement('meta');
-        ogTypeElement.setAttribute('property', 'og:type');
-        document.head.appendChild(ogTypeElement);
-      }
-      ogTypeElement.setAttribute('content', 'article');
+    // Open Graph
+    const pageUrl = `https://aiformulator.net/formulation/${formulation.slug || formulationId}`;
+    setMeta('meta[property="og:title"]', 'content', seoTitle);
+    setMeta('meta[property="og:description"]', 'content', metaDescription);
+    setMeta('meta[property="og:type"]', 'content', 'article');
+    setMeta('meta[property="og:url"]', 'content', pageUrl);
+    if (formulation.image) {
+      const imgUrl = formulation.image.startsWith('http')
+        ? formulation.image
+        : `https://aiformulator.net${formulation.image}`;
+      setMeta('meta[property="og:image"]', 'content', imgUrl);
+      setMeta('meta[name="twitter:image"]', 'content', imgUrl);
+    }
 
-      // Update or create og:url
-      const pageUrl = `https://aiformulator.net${window.location.pathname}`;
-      let ogUrlElement = document.querySelector('meta[property="og:url"]');
-      if (!ogUrlElement) {
-        ogUrlElement = document.createElement('meta');
-        ogUrlElement.setAttribute('property', 'og:url');
-        document.head.appendChild(ogUrlElement);
-      }
-      ogUrlElement.setAttribute('content', pageUrl);
+    // Twitter card
+    setMeta('meta[name="twitter:card"]', 'content', 'summary_large_image');
+    setMeta('meta[name="twitter:title"]', 'content', seoTitle);
+    setMeta('meta[name="twitter:description"]', 'content', metaDescription);
 
-      let robotsElement = document.querySelector('meta[name="robots"]');
-      if (!formulation.isActive) {
-        if (!robotsElement) {
-          robotsElement = document.createElement('meta');
-          robotsElement.setAttribute('name', 'robots');
-          document.head.appendChild(robotsElement);
-        }
-        robotsElement.setAttribute('content', 'noindex, nofollow');
-      } else {
-        if (robotsElement) {
-          robotsElement.remove();
-        }
+    // Robots
+    let robotsElement = document.querySelector('meta[name="robots"]');
+    if (!formulation.isActive) {
+      if (!robotsElement) {
+        robotsElement = document.createElement('meta');
+        robotsElement.setAttribute('name', 'robots');
+        document.head.appendChild(robotsElement);
       }
+      robotsElement.setAttribute('content', 'noindex, nofollow');
+    } else if (robotsElement) {
+      robotsElement.remove();
     }
 
     return () => {
       const robotsEl = document.querySelector('meta[name="robots"]');
       if (robotsEl) robotsEl.remove();
     };
-  }, [formulation, category, formulationId]);
+  }, [formulation, formulationId]);
+
+  // JSON-LD structured data for formulation pages
+  useEffect(() => {
+    if (!formulation) return;
+    const SITE_URL = 'https://aiformulator.net';
+    const pageUrl = `${SITE_URL}/formulation/${formulation.slug || formulationId}`;
+
+    const schemaId = 'formulation-schema';
+    const existing = document.getElementById(schemaId);
+    if (existing) existing.remove();
+
+    const schema: Record<string, any> = {
+      '@context': 'https://schema.org',
+      '@type': 'TechArticle',
+      'headline': formulation.name,
+      'description': formulation.metaDescription || formulation.description || '',
+      'url': pageUrl,
+      'mainEntityOfPage': { '@type': 'WebPage', '@id': pageUrl },
+      'publisher': {
+        '@type': 'Organization',
+        'name': 'AIFormulator',
+        'url': SITE_URL,
+      },
+    };
+    if (formulation.image) {
+      schema['image'] = formulation.image.startsWith('http')
+        ? formulation.image
+        : `${SITE_URL}${formulation.image}`;
+    }
+    if (formulation.createdAt) schema['datePublished'] = formulation.createdAt;
+    if (formulation.updatedAt) schema['dateModified'] = formulation.updatedAt;
+
+    const script = document.createElement('script');
+    script.id = schemaId;
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+
+    return () => {
+      const s = document.getElementById(schemaId);
+      if (s) s.remove();
+    };
+  }, [formulation, formulationId]);
 
   // PDF Generation function
   const generatePDF = useCallback(async () => {

@@ -77,7 +77,7 @@ function FormulatorForm({
 
   const { uploadFile, isUploading } = useUpload({
     onSuccess: (res) => {
-      const url = `/objects/uploads/${res.objectPath.split("/").pop()}`;
+      const url = res.objectPath;
       setForm((f) => ({ ...f, photoUrl: url }));
       setPreview(url);
     },
@@ -103,7 +103,7 @@ function FormulatorForm({
     }
     // Optimistic preview
     setPreview(URL.createObjectURL(file));
-    await uploadFile(file);
+    await uploadFile(file, "formulators");
   };
 
   const set = (field: keyof FormState, value: string | number | boolean) =>

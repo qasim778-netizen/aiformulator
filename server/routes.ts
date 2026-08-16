@@ -20,16 +20,15 @@ import { addSEOFields, generateStructuredData } from "./seo-utils";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { setupGoogleAuth } from "./googleAuth";
 import { aiBlogGenerator } from "./ai-blog-generator";
-import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
-import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { optimizeFormulationName } from "./name-optimizer";
 import { savePDFFile, saveTextFile, generateTextContent } from "./file-storage";
 import bcrypt from "bcrypt";
 import { signupSchema, loginSchema } from "@shared/schema";
 import { validateFormulation, getValidationReport, getIngredientBreakdown, type ValidationResult } from "./formulation-validator";
-import { generateThumbnail } from "./thumbnail";
+import { generateLocalThumbnail } from "./local-upload";
 import { sendEmail, passwordResetEmail, contactNotificationEmail, isEmailConfigured, verifyEmailTransport, describeSmtpError } from "./email";
 import { detectCountryFromRequest } from "./geoip";
+import { localImageUpload, saveLocalImage } from "./local-upload";
 
 // Session-based authentication middleware
 // Returns the userId from either Replit OAuth (req.user) or email/password session (req.session.userId)
@@ -106,9 +105,6 @@ const requireAdmin = async (req: any, res: any, next: any) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Register object storage routes for file uploads
-  registerObjectStorageRoutes(app);
-
   // Add X-Robots-Tag noindex header to all API routes
   app.use('/api', (req, res, next) => {
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
@@ -121,18 +117,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.type('text/plain');
     res.send(`User-agent: *
 Allow: /
-Allow: /objects/uploads/
+Allow: /uploads/
 
 Disallow: /api/
 Disallow: /admin/
+Disallow: /admin-dashboard
 Disallow: /login
+Disallow: /login/
 Disallow: /signup
 Disallow: /forgot-password
 Disallow: /reset-password
+Disallow: /my-account
+Disallow: /formulation-confirmation/
 Disallow: /dashboard/
-Disallow: /admin-dashboard
 Disallow: /demo
-Disallow: /objects/.private/
+Disallow: /objects/
 
 Sitemap: https://aiformulator.net/sitemap.xml
 `);
@@ -170,9 +169,10 @@ Sitemap: https://aiformulator.net/sitemap.xml
       xml += url(`${baseUrl}/blog`,                '0.9', 'daily',   today);
       xml += url(`${baseUrl}/about`,               '0.5', 'monthly', today);
       xml += url(`${baseUrl}/faq`,                 '0.5', 'monthly', today);
-      xml += url(`${baseUrl}/terms-of-service`,    '0.5', 'monthly', today);
-      xml += url(`${baseUrl}/privacy-policy`,      '0.5', 'monthly', today);
-      xml += url(`${baseUrl}/disclaimer`,          '0.5', 'monthly', today);
+      xml += url(`${baseUrl}/contact`,             '0.4', 'monthly', today);
+      xml += url(`${baseUrl}/terms-of-service`,    '0.3', 'monthly', today);
+      xml += url(`${baseUrl}/privacy-policy`,      '0.3', 'monthly', today);
+      xml += url(`${baseUrl}/disclaimer`,          '0.3', 'monthly', today);
 
       // Category pages (canonical: /category/:slug)
       for (const cat of categories) {
@@ -336,15 +336,22 @@ Sitemap: https://aiformulator.net/sitemap.xml
     }
   });
 
-  // Logout endpoint
-  app.post('/api/logout', (req, res) => {
-    (req as any).session.destroy((err: any) => {
+  // Logout endpoint — POST (called by fetch) or GET (direct link fallback)
+  const destroySessionAndRedirect = (req: any, res: any, isGet: boolean) => {
+    req.session.destroy((err: any) => {
       if (err) {
-        return res.status(500).json({ message: "Failed to logout" });
+        return isGet
+          ? res.redirect("/?logout=error")
+          : res.status(500).json({ message: "Failed to logout" });
       }
-      res.json({ success: true });
+      res.clearCookie("connect.sid");
+      return isGet
+        ? res.redirect("/")
+        : res.json({ success: true });
     });
-  });
+  };
+  app.post('/api/logout', (req, res) => destroySessionAndRedirect(req, res, false));
+  app.get('/api/logout',  (req, res) => destroySessionAndRedirect(req, res, true));
 
   // Password reset endpoints disabled - requires implementation in storage layer
   // TODO: Implement setPasswordResetToken, getUserByResetToken, updateUserPasswordReset in storage
@@ -907,50 +914,19 @@ Sitemap: https://aiformulator.net/sitemap.xml
     }
   });
 
-  // Object Storage routes for image uploads
-  app.post("/api/objects/upload", async (req, res) => {
+  // Hostinger-compatible local image uploads. The database stores only the
+  // public relative path; the binary and thumbnail live under UPLOADS_DIR.
+  app.post("/api/uploads/local", requireAdmin, localImageUpload.single("file"), async (req, res) => {
     try {
-      const objectStorageService = new ObjectStorageService();
-      // Accept optional filename parameter for SEO-friendly image names
-      const customFilename = req.body?.filename as string | undefined;
-      const uploadURL = await objectStorageService.getObjectEntityUploadURL(customFilename);
-      res.json({ uploadURL });
-    } catch (error) {
-      console.error("Error getting upload URL:", error);
-      res.status(500).json({ error: "Failed to get upload URL" });
-    }
-  });
-
-  // Endpoint for setting ACL policy on formulation images
-  app.put("/api/formulation-images", async (req, res) => {
-    if (!req.body.imageURL) {
-      return res.status(400).json({ error: "imageURL is required" });
-    }
-
-    try {
-      const objectStorageService = new ObjectStorageService();
-      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
-        req.body.imageURL,
-        {
-          owner: (req.user as any)?.claims?.sub || "system",
-          visibility: "public",
-        }
-      );
-
-      let thumbnailPath: string | null = null;
-      try {
-        thumbnailPath = await generateThumbnail(objectPath);
-      } catch (thumbError) {
-        console.error("Thumbnail generation failed (non-blocking):", thumbError);
+      if (!req.file) {
+        return res.status(400).json({ error: "An image file is required" });
       }
 
-      res.status(200).json({
-        objectPath: objectPath,
-        thumbnailPath: thumbnailPath,
-      });
+      const saved = await saveLocalImage(req.file, req.body?.folder);
+      return res.status(201).json(saved);
     } catch (error) {
-      console.error("Error setting formulation image ACL:", error);
-      res.status(500).json({ error: "Internal server error" });
+      console.error("[LocalUpload] Failed to save image:", error);
+      return res.status(500).json({ error: "Failed to save image" });
     }
   });
 
@@ -961,54 +937,26 @@ Sitemap: https://aiformulator.net/sitemap.xml
       }
 
       const categoryId = req.params.id;
-      const objectStorageService = new ObjectStorageService();
-      
-      // Set ACL policy for public access (category images should be public)
-      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
-        req.body.imageURL,
-        {
-          owner: (req.user as any)?.claims?.sub || "admin",
-          visibility: "public",
-        }
-      );
 
-      // Update category with the new image path
-      const category = await storage.getCategory(categoryId);
-      if (!category) {
-        return res.status(404).json({ error: "Category not found" });
+      if (req.body.imageURL.startsWith("/uploads/")) {
+        const category = await storage.getCategory(categoryId);
+        if (!category) {
+          return res.status(404).json({ error: "Category not found" });
+        }
+        const updatedCategory = await storage.updateCategory(categoryId, {
+          image: req.body.imageURL,
+        });
+        return res.json({
+          success: true,
+          objectPath: req.body.imageURL,
+          category: updatedCategory,
+        });
       }
 
-      const updatedCategory = await storage.updateCategory(categoryId, {
-        image: objectPath
-      });
-
-      res.json({ 
-        success: true, 
-        objectPath,
-        category: updatedCategory 
-      });
+      return res.status(400).json({ error: "Only local upload paths are supported" });
     } catch (error) {
       console.error("Error updating category image:", error);
       res.status(500).json({ error: "Failed to update category image" });
-    }
-  });
-
-  app.put("/api/formulation-images", async (req, res) => {
-    try {
-      const { imageURL } = req.body;
-      if (!imageURL) {
-        return res.status(400).json({ error: "imageURL is required" });
-      }
-
-      const objectStorageService = new ObjectStorageService();
-      const objectPath = objectStorageService.normalizeObjectEntityPath(imageURL);
-
-      res.status(200).json({
-        objectPath: objectPath,
-      });
-    } catch (error) {
-      console.error("Error setting formulation image:", error);
-      res.status(500).json({ error: "Internal server error" });
     }
   });
 
@@ -1021,7 +969,7 @@ Sitemap: https://aiformulator.net/sitemap.xml
 
       for (const formulation of needsThumbnail) {
         try {
-          const thumbnailPath = await generateThumbnail(formulation.image!);
+          const thumbnailPath = await generateLocalThumbnail(formulation.image!);
           if (thumbnailPath) {
             await storage.updateFormulation(formulation.id, { thumbnail: thumbnailPath });
             generated++;
@@ -1042,25 +990,6 @@ Sitemap: https://aiformulator.net/sitemap.xml
     } catch (error) {
       console.error("Error generating thumbnails:", error);
       res.status(500).json({ error: "Failed to generate thumbnails" });
-    }
-  });
-
-  // Serve uploaded objects
-  app.get("/objects/:objectPath(*)", async (req, res) => {
-    try {
-      const objectStorageService = new ObjectStorageService();
-      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
-      // Formulation images live under /objects/uploads/ and are always public.
-      // Force public cache headers so Google can index them for Image Search.
-      const isUpload = req.path.startsWith('/objects/uploads/');
-      const cacheTtl = isUpload ? 60 * 60 * 24 * 7 : 3600; // 7 days for images
-      objectStorageService.downloadObject(objectFile, res, cacheTtl, isUpload);
-    } catch (error) {
-      console.error("Error serving object:", error);
-      if (error instanceof ObjectNotFoundError) {
-        return res.sendStatus(404);
-      }
-      return res.sendStatus(500);
     }
   });
 

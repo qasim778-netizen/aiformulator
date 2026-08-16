@@ -34,35 +34,21 @@ export function SimpleImageUploader({
     }
 
     try {
-      // Get upload URL from server
-      const response = await fetch('/api/objects/upload', {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "categories");
+      const response = await fetch('/api/uploads/local', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include'
+        credentials: 'include',
+        body: formData,
       });
       
       if (!response.ok) {
         throw new Error('Failed to get upload URL');
       }
       
-      const { uploadURL } = await response.json();
-
-      // Upload file directly to storage
-      const uploadResponse = await fetch(uploadURL, {
-        method: 'PUT',
-        body: file,
-        headers: {
-          'Content-Type': file.type,
-        },
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload file');
-      }
-
-      // Get the uploaded file URL
-      const imageUrl = uploadURL.split('?')[0]; // Remove query parameters
-      onChange(imageUrl);
+      const { objectPath } = await response.json();
+      onChange(objectPath);
     } catch (error) {
       console.error('Upload error:', error);
       alert('Failed to upload image. Please try again.');
@@ -97,7 +83,7 @@ export function SimpleImageUploader({
               <X className="h-3 w-3" />
             </Button>
           </div>
-          {(value.startsWith('/objects/') || value.startsWith('http')) && (
+          {(value.startsWith('/uploads/') || value.startsWith('/objects/') || value.startsWith('http')) && (
             <img
               src={value}
               alt="Category preview"

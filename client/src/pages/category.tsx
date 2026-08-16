@@ -72,55 +72,108 @@ export default function CategoryPage() {
 
   // Update SEO meta tags when category loads
   useEffect(() => {
-    if (category) {
-      // Update page title with custom SEO title or category name
-      const pageTitle = category.seoTitle || `${category.name} Formulations - AIFormulator`;
-      document.title = pageTitle;
-      
-      // Update meta description with custom SEO description or default
-      const metaDescContent = category.metaDescription || 
-        `Explore professional ${category.name} formulations with ingredients, manufacturing process, and industrial-use guidance by AIFormulator.`;
-      const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) {
-        metaDesc.setAttribute('content', metaDescContent);
-      }
-      
-      // Update keywords if available
-      if (category.keywords) {
-        let metaKeywords = document.querySelector('meta[name="keywords"]');
-        if (!metaKeywords) {
-          metaKeywords = document.createElement('meta');
-          metaKeywords.setAttribute('name', 'keywords');
-          document.head.appendChild(metaKeywords);
-        }
-        metaKeywords.setAttribute('content', category.keywords);
-      }
-      
-      // Update Open Graph tags
-      const ogTitle = document.querySelector('meta[property="og:title"]');
-      if (ogTitle) {
-        ogTitle.setAttribute('content', pageTitle);
-      }
-      
-      const ogDesc = document.querySelector('meta[property="og:description"]');
-      if (ogDesc) {
-        ogDesc.setAttribute('content', metaDescContent);
-      }
+    if (!category) return;
 
-      const robots = document.querySelector('meta[name="robots"]');
-      const isEmptyCategory = formulations.length === 0;
-      if (isEmptyCategory) {
-        if (robots) {
-          robots.setAttribute('content', 'noindex, follow');
-        } else {
-          const meta = document.createElement('meta');
-          meta.setAttribute('name', 'robots');
-          meta.setAttribute('content', 'noindex, follow');
-          document.head.appendChild(meta);
-        }
+    const pageTitle = category.seoTitle || `${category.name} Formulations | AIFormulator`;
+    document.title = pageTitle;
+
+    // Avoid "Formulations formulations" duplication when the category name already ends with that word.
+    const catNameHasFormulations = /\bformula(?:tion)?s?\b$/i.test(category.name.trim());
+    const metaDescContent = category.metaDescription ||
+      (catNameHasFormulations
+        ? `Browse professional ${category.name} — complete ingredient lists, manufacturing processes, and technical specifications for each formula.`
+        : `Browse professional ${category.name} formulations with complete ingredient lists, manufacturing processes, and technical specifications.`);
+
+    function setMeta(selector: string, attr: string, value: string) {
+      let el = document.querySelector(selector);
+      if (!el) {
+        el = document.createElement('meta');
+        // Parse the selector to set identifying attribute
+        const match = selector.match(/\[([^=]+)="([^"]+)"\]/);
+        if (match) el.setAttribute(match[1], match[2]);
+        document.head.appendChild(el);
       }
+      el.setAttribute(attr, value);
     }
-  }, [category, formulations]);
+
+    setMeta('meta[name="description"]', 'content', metaDescContent);
+    if (category.keywords) setMeta('meta[name="keywords"]', 'content', category.keywords);
+
+    // Full Open Graph suite
+    const pageUrl = `https://aiformulator.net/category/${category.slug || categoryId}`;
+    setMeta('meta[property="og:title"]', 'content', pageTitle);
+    setMeta('meta[property="og:description"]', 'content', metaDescContent);
+    setMeta('meta[property="og:type"]', 'content', 'website');
+    setMeta('meta[property="og:url"]', 'content', pageUrl);
+    if ((category as any).image) {
+      const imgUrl = (category as any).image.startsWith('http')
+        ? (category as any).image
+        : `https://aiformulator.net${(category as any).image}`;
+      setMeta('meta[property="og:image"]', 'content', imgUrl);
+      setMeta('meta[name="twitter:image"]', 'content', imgUrl);
+    }
+    setMeta('meta[name="twitter:card"]', 'content', 'summary_large_image');
+    setMeta('meta[name="twitter:title"]', 'content', pageTitle);
+    setMeta('meta[name="twitter:description"]', 'content', metaDescContent);
+
+    // noindex empty categories
+    const isEmptyCategory = formulations.length === 0;
+    let robotsMeta = document.querySelector('meta[name="robots"]');
+    if (isEmptyCategory) {
+      if (!robotsMeta) {
+        robotsMeta = document.createElement('meta');
+        robotsMeta.setAttribute('name', 'robots');
+        document.head.appendChild(robotsMeta);
+      }
+      robotsMeta.setAttribute('content', 'noindex, follow');
+    } else if (robotsMeta) {
+      robotsMeta.remove();
+    }
+
+    return () => {
+      const robotsEl = document.querySelector('meta[name="robots"]');
+      if (robotsEl) robotsEl.remove();
+    };
+  }, [category, formulations, categoryId]);
+
+  // JSON-LD CollectionPage structured data
+  useEffect(() => {
+    if (!category) return;
+    const SITE_URL = 'https://aiformulator.net';
+    const schemaId = 'category-schema';
+    const existing = document.getElementById(schemaId);
+    if (existing) existing.remove();
+
+    const visibleFormulations = formulations.filter(f => f.isActive);
+    const schema: Record<string, any> = {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      'name': `${category.name} Formulations`,
+      'description': category.metaDescription || category.description ||
+        `Professional ${category.name} formulations with manufacturing guides.`,
+      'url': `${SITE_URL}/category/${category.slug || categoryId}`,
+      'publisher': { '@type': 'Organization', 'name': 'AIFormulator', 'url': SITE_URL },
+    };
+
+    if (visibleFormulations.length > 0) {
+      schema['hasPart'] = visibleFormulations.slice(0, 20).map(f => ({
+        '@type': 'TechArticle',
+        'name': f.name,
+        'url': `${SITE_URL}/formulation/${f.slug || f.id}`,
+      }));
+    }
+
+    const script = document.createElement('script');
+    script.id = schemaId;
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+
+    return () => {
+      const s = document.getElementById(schemaId);
+      if (s) s.remove();
+    };
+  }, [category, formulations, categoryId]);
 
   // Scroll to highlighted formulation when page loads
   useEffect(() => {

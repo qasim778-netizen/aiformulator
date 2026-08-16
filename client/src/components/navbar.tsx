@@ -237,15 +237,17 @@ export default function Navbar() {
                         </DropdownMenuItem>
                       </Link>
                       <DropdownMenuSeparator />
-                      <a href="/api/logout" className="w-full">
-                        <DropdownMenuItem 
-                          className="cursor-pointer flex items-center space-x-2"
-                          data-testid="dropdown-logout"
-                        >
-                          <LogOut className="h-4 w-4" />
-                          <span>Logout</span>
-                        </DropdownMenuItem>
-                      </a>
+                      <DropdownMenuItem
+                        className="cursor-pointer flex items-center space-x-2"
+                        data-testid="dropdown-logout"
+                        onClick={async () => {
+                          await fetch("/api/logout", { method: "POST" });
+                          window.location.href = "/";
+                        }}
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Logout</span>
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
@@ -379,13 +381,16 @@ export default function Navbar() {
                           <span>{getUserDisplayName()}</span>
                         </span>
                       </Link>
-                      <a 
-                        href="/api/logout"
-                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                      <button
+                        className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                         data-testid="mobile-button-logout"
+                        onClick={async () => {
+                          await fetch("/api/logout", { method: "POST" });
+                          window.location.href = "/";
+                        }}
                       >
                         Logout
-                      </a>
+                      </button>
                     </>
                   ) : (
                     // Show login and sign up buttons when not authenticated

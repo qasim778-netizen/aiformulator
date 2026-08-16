@@ -232,7 +232,10 @@ export default function AdminPage() {
   const getCategoryName = (id: string) =>
     categories?.find(c => c.id === id)?.name || "Unknown";
 
-  const handleLogout = () => { window.location.href = "/api/logout"; };
+  const handleLogout = async () => {
+    await fetch("/api/logout", { method: "POST" });
+    window.location.href = "/";
+  };
 
   const activeNavItem = NAV_GROUPS.flatMap(g => g.children).find(n => n.id === activeTab)
     ?? (activeTab === "overview" ? { label: "Overview" } : activeTab === "settings" ? { label: "Settings" } : null);

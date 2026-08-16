@@ -138,7 +138,7 @@ export default function BlogManagementTab() {
       return;
     }
     
-    await uploadFile(file);
+    await uploadFile(file, "blog");
   };
 
   const { data: postsAll = [], isLoading, error, refetch } = useQuery<BlogPost[]>({

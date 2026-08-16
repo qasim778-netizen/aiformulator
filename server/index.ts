@@ -11,6 +11,7 @@ import { sql } from "drizzle-orm";
 import { getSeoMetaForUrl, injectSeoMeta, generateFormulationPrerender, generateBlogPrerender, generateStaticPrerender, generateCategoryPrerender } from "./seo-middleware";
 import { storage } from "./storage";
 import { isBot } from "./bot-detector";
+import { LOCAL_UPLOAD_ROOT } from "./local-upload";
 
 const BLOCKED_COUNTRIES = (process.env.BLOCKED_COUNTRIES || "")
   .split(",")
@@ -61,6 +62,14 @@ function validateEnvironment() {
 }
 
 const app = express();
+
+// Keep uploads outside the client build directory so deployments and Vite
+// builds do not delete user files. Set UPLOADS_DIR to an absolute persistent
+// Hostinger path when the host provides one.
+app.use("/uploads", express.static(LOCAL_UPLOAD_ROOT, {
+  maxAge: "7d",
+  immutable: false,
+}));
 
 // Enable HTML/CSS/JS compression for better performance (gzip/Brotli)
 app.use(compression({

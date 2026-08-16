@@ -7,6 +7,8 @@ interface SeoMeta {
   ogDescription: string;
   ogType: string;
   canonicalUrl?: string;
+  ogImage?: string;
+  ogUrl?: string;
   noindex?: boolean;
 }
 
@@ -523,27 +525,38 @@ export async function getSeoMetaForUrl(url: string): Promise<SeoMeta | null> {
         const title = (formulation.seoTitle && seoTitleIsRelated)
           ? formulation.seoTitle
           : formulation.name;
+        // Build fallback description — avoid repeating "formulation" if name already has it.
+        const nameHasFormulation = /\bformula(?:tion)?s?\b/i.test(formulation.name);
         const description =
           formulation.metaDescription ||
-          `Professional ${formulation.name} formulation with complete manufacturing guide, ingredients list, and technical specifications.`;
+          (nameHasFormulation
+            ? `Professional ${formulation.name} with complete manufacturing guide, ingredient list, and technical specifications.`
+            : `Professional ${formulation.name} formulation with complete manufacturing guide, ingredient list, and technical specifications.`);
+
+        // Apply preferred title pattern: "{Name} Formula | AIFormulator"
+        // If the name already ends with "formula" or "formulation" (case-insensitive),
+        // skip the redundant word and just append the brand.
+        const rawName = formulation.name;
+        const nameEndsWithFormula = /\bformula(?:tion)?s?\b$/i.test(rawName.trim());
+        const patternTitle = nameEndsWithFormula
+          ? `${rawName} | ${SITE_NAME}`
+          : `${rawName} Formula | ${SITE_NAME}`;
+        const baseTitle = (formulation.seoTitle && seoTitleIsRelated)
+          ? formulation.seoTitle
+          : patternTitle;
+        const clampedTitle = baseTitle.length > 60 ? baseTitle.substring(0, 57) + "..." : baseTitle;
+        const clampedDesc = description.length > 160 ? description.substring(0, 157) + "..." : description;
 
         return {
-          title: title.length > 60 ? title.substring(0, 57) + "..." : title,
-          description:
-            description.length > 160
-              ? description.substring(0, 157) + "..."
-              : description,
-          ogTitle: title.length > 60 ? title.substring(0, 57) + "..." : title,
-          ogDescription:
-            description.length > 160
-              ? description.substring(0, 157) + "..."
-              : description,
+          title: clampedTitle,
+          description: clampedDesc,
+          ogTitle: clampedTitle,
+          ogDescription: clampedDesc,
           ogType: "article",
           canonicalUrl: `${SITE_URL}/formulation/${formulation.slug}`,
+          ogImage: formulation.image || undefined,
+          ogUrl: `${SITE_URL}/formulation/${formulation.slug}`,
           // Only mark inactive (hidden) formulations as noindex.
-          // Active formulations are publicly accessible regardless of draft/published
-          // status — all 337 production formulations are currently draft, so treating
-          // "draft + active" as noindex would prevent Google from ever indexing them.
           noindex: !formulation.isActive,
         };
       }
@@ -563,26 +576,28 @@ export async function getSeoMetaForUrl(url: string): Promise<SeoMeta | null> {
       if (category) {
         const title =
           category.seoTitle || `${category.name} | ${SITE_NAME}`;
+        // Avoid "Formulations formulations" when category name already ends with the word.
+        const catNameHasFormulations = /\bformula(?:tion)?s?\b$/i.test(category.name.trim());
         const description =
           category.metaDescription ||
-          `Browse professional ${category.name.toLowerCase()} formulations. Complete manufacturing guides with ingredients and instructions.`;
+          (catNameHasFormulations
+            ? `Browse professional ${category.name} — complete ingredient lists, manufacturing processes, and technical specifications for each formula.`
+            : `Browse professional ${category.name.toLowerCase()} formulations. Complete manufacturing guides with ingredients and instructions.`);
 
         const formulations = await storage.getFormulationsByCategory(String(category.id));
         const hasVisibleFormulations = formulations.some(f => f.isActive);
 
+        const catTitle = title.length > 60 ? title.substring(0, 57) + "..." : title;
+        const catDesc = description.length > 160 ? description.substring(0, 157) + "..." : description;
         return {
-          title: title.length > 60 ? title.substring(0, 57) + "..." : title,
-          description:
-            description.length > 160
-              ? description.substring(0, 157) + "..."
-              : description,
-          ogTitle: title.length > 60 ? title.substring(0, 57) + "..." : title,
-          ogDescription:
-            description.length > 160
-              ? description.substring(0, 157) + "..."
-              : description,
+          title: catTitle,
+          description: catDesc,
+          ogTitle: catTitle,
+          ogDescription: catDesc,
           ogType: "website",
           canonicalUrl: `${SITE_URL}/category/${category.slug}`,
+          ogImage: (category as any).image || undefined,
+          ogUrl: `${SITE_URL}/category/${category.slug}`,
           noindex: !hasVisibleFormulations,
         };
       }
@@ -603,19 +618,17 @@ export async function getSeoMetaForUrl(url: string): Promise<SeoMeta | null> {
           post.excerpt ||
           `Read ${post.title} on ${SITE_NAME}`;
 
+        const blogTitle = title.length > 60 ? title.substring(0, 57) + "..." : title;
+        const blogDesc = description.length > 160 ? description.substring(0, 157) + "..." : description;
         return {
-          title: title.length > 60 ? title.substring(0, 57) + "..." : title,
-          description:
-            description.length > 160
-              ? description.substring(0, 157) + "..."
-              : description,
-          ogTitle: title.length > 60 ? title.substring(0, 57) + "..." : title,
-          ogDescription:
-            description.length > 160
-              ? description.substring(0, 157) + "..."
-              : description,
+          title: blogTitle,
+          description: blogDesc,
+          ogTitle: blogTitle,
+          ogDescription: blogDesc,
           ogType: "article",
           canonicalUrl: `${SITE_URL}/blog/${post.slug}`,
+          ogImage: post.featuredImage || undefined,
+          ogUrl: `${SITE_URL}/blog/${post.slug}`,
         };
       }
     } catch (e) {
@@ -809,6 +822,41 @@ export function injectSeoMeta(html: string, meta: SeoMeta): string {
       );
     } else {
       html = html.replace("</head>", `  ${canonicalTag}\n  </head>`);
+    }
+  }
+
+  // og:url
+  const ogUrlValue = meta.ogUrl || meta.canonicalUrl;
+  if (ogUrlValue) {
+    if (html.includes('property="og:url"')) {
+      html = html.replace(
+        /<meta property="og:url" content="[^"]*"\s*\/?>/,
+        `<meta property="og:url" content="${escapeHtml(ogUrlValue)}" />`
+      );
+    } else {
+      html = html.replace("</head>", `  <meta property="og:url" content="${escapeHtml(ogUrlValue)}" />\n  </head>`);
+    }
+  }
+
+  // og:image + twitter:image — ensure absolute URL for social crawlers
+  if (meta.ogImage) {
+    const absImg = meta.ogImage.startsWith('http') ? meta.ogImage : `${SITE_URL}${meta.ogImage}`;
+    const escapedImg = escapeHtml(absImg);
+    if (html.includes('property="og:image"')) {
+      html = html.replace(
+        /<meta property="og:image" content="[^"]*"\s*\/?>/,
+        `<meta property="og:image" content="${escapedImg}" />`
+      );
+    } else {
+      html = html.replace("</head>", `  <meta property="og:image" content="${escapedImg}" />\n  </head>`);
+    }
+    if (html.includes('name="twitter:image"')) {
+      html = html.replace(
+        /<meta name="twitter:image" content="[^"]*"\s*\/?>/,
+        `<meta name="twitter:image" content="${escapedImg}" />`
+      );
+    } else {
+      html = html.replace("</head>", `  <meta name="twitter:image" content="${escapedImg}" />\n  </head>`);
     }
   }
 

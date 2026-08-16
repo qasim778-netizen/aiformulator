@@ -111,52 +111,33 @@ function ImageUploadSection({ form, formulationName }: { form: any, formulationN
         ? `${formulationName.trim()}.${fileExtension}`
         : file.name;
       
-      // Get upload parameters with SEO-friendly filename
-      const response = await apiRequest("POST", "/api/objects/upload", { filename: seoFilename });
-      const data = await response.json();
-      
-      // Upload file directly
-      const uploadResponse = await fetch(data.uploadURL, {
-        method: 'PUT',
-        body: file,
-        headers: {
-          'Content-Type': file.type,
-        },
+      const uploadForm = new FormData();
+      uploadForm.append("file", new File([file], seoFilename, { type: file.type }));
+      uploadForm.append("folder", "formulations");
+      const uploadResponse = await fetch("/api/uploads/local", {
+        method: "POST",
+        credentials: "include",
+        body: uploadForm,
       });
 
+      if (!uploadResponse.ok) {
+        throw new Error("Upload failed");
+      }
+      const data = await uploadResponse.json();
+
       if (uploadResponse.ok) {
-        // Convert GCS upload URL to our object path format
-        // Extract just the filename part, removing query parameters from the signed URL
-        const urlPath = data.uploadURL.split('/uploads/')[1];
-        const filenameWithoutQuery = urlPath.split('?')[0]; // Remove query parameters
-        const objectPath = `/objects/uploads/${filenameWithoutQuery}`;
-        
-        try {
-          const aclResponse = await apiRequest("PUT", "/api/formulation-images", {
-            imageURL: data.uploadURL
-          });
-          const aclData = await aclResponse.json();
-          
-          const finalObjectPath = aclData.objectPath || objectPath;
-          setPreviewUrl(finalObjectPath);
-          form.setValue("image", finalObjectPath);
-          form.setValue("imageFilename", seoFilename);
-          if (aclData.thumbnailPath) {
-            form.setValue("thumbnail", aclData.thumbnailPath);
-          }
-        } catch (aclError) {
-          console.error("Error setting image ACL:", aclError);
-          setPreviewUrl(objectPath);
-          form.setValue("image", objectPath);
-          form.setValue("imageFilename", seoFilename);
-        }
+        const objectPath = data.objectPath as string;
+        setPreviewUrl(objectPath);
+        form.setValue("image", objectPath);
+        form.setValue("imageFilename", seoFilename);
+        form.setValue("thumbnail", data.thumbnailPath || "");
 
         toast({
           title: "Image uploaded successfully!",
-          description: "Your formulation image has been uploaded to cloud storage.",
+          description: "Your image has been saved to local server storage.",
         });
       } else {
-        throw new Error('Upload failed');
+        throw new Error("Upload failed");
       }
     } catch (error) {
       console.error("Error uploading file:", error);
