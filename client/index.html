@@ -1,6 +1,68 @@
 <!doctype html>
 <html lang="en">
   <head>
+<!-- app-loading-shell:start -->
+    <style id="app-loading-styles">
+      #app-loading-status,#app-load-error{display:none}
+      html[data-app-state="loading"] #root{visibility:hidden}
+      html[data-app-state="loading"] #app-loading-status{display:flex;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;gap:12px;background:#fff;color:#4338ca;font:500 16px/1.5 system-ui,sans-serif}
+      #app-loading-status::before{content:"";width:22px;height:22px;border:3px solid #e0e7ff;border-top-color:#4338ca;border-radius:50%;animation:app-loading-spin 1s linear infinite}
+      html[data-app-state="error"] #app-load-error{display:block;margin:16px auto;padding:16px;max-width:1000px;border:1px solid #c7d2fe;border-radius:8px;background:#eef2ff;color:#1e1b4b;font:16px/1.5 system-ui,sans-serif}
+      #app-load-error a{color:#4338ca;text-decoration:underline}
+      /* Readable progressive fallback if JavaScript is unavailable or fails. */
+      #ssr-content{color:#172033;font:16px/1.6 system-ui,sans-serif}
+      #ssr-content h1{font-size:2rem;font-weight:700;line-height:1.2;margin:0 0 20px}
+      #ssr-content h2{font-size:1.35rem;font-weight:600;margin:24px 0 12px}
+      #ssr-content h3{font-size:1.1rem;font-weight:600;margin:18px 0 8px}
+      #ssr-content p{margin:12px 0}
+      #ssr-content ul,#ssr-content ol{padding-left:24px;margin:12px 0}
+      #ssr-content ul{list-style:disc}#ssr-content ol{list-style:decimal}
+      #ssr-content a{color:#4338ca;text-decoration:underline}
+      @keyframes app-loading-spin{to{transform:rotate(360deg)}}
+      @media(prefers-reduced-motion:reduce){#app-loading-status::before{animation:none}}
+    </style>
+    <script id="app-loading-bootstrap">
+      (function () {
+        var html = document.documentElement;
+        html.dataset.appState = "loading";
+        var finished = false;
+        var timer;
+        var observer = new MutationObserver(check);
+        function finish(state) {
+          if (finished) return;
+          finished = state === "ready";
+          html.dataset.appState = state;
+          clearTimeout(timer);
+          document.removeEventListener("error", failedAsset, true);
+          if (finished) {
+            observer.disconnect();
+            document.removeEventListener("load", check, true);
+          }
+        }
+        function check() {
+          var root = document.getElementById("root");
+          if (!root || !root.firstElementChild || document.getElementById("ssr-content")) return;
+          var css = document.querySelector('link[rel="stylesheet"][href^="/assets/"]');
+          if (css && !css.sheet) return;
+          finish("ready");
+        }
+        function failedAsset(event) {
+          var node = event.target;
+          if (!node || !node.tagName) return;
+          var url = node.src || node.href || "";
+          if ((node.tagName === "SCRIPT" || node.tagName === "LINK") &&
+              (url.indexOf(location.origin + "/assets/") === 0 ||
+               url.indexOf(location.origin + "/src/main.tsx") === 0)) finish("error");
+        }
+        observer.observe(html, { childList: true, subtree: true });
+        document.addEventListener("load", check, true);
+        document.addEventListener("error", failedAsset, true);
+        // Never conceal useful server content indefinitely on a failed connection.
+        timer = setTimeout(function () { finish("error"); }, 30000);
+      })();
+    </script>
+    <!-- app-loading-shell:end -->
+
     <meta charset="UTF-8" />
     <meta
       name="viewport"
@@ -41,6 +103,11 @@
     />
   </head>
   <body>
+<!-- app-loading-status:start -->
+    <div id="app-loading-status" role="status" aria-live="polite">Loading AIFormulator…</div>
+    <div id="app-load-error" role="alert">The interactive page could not finish loading. Check your connection and <a href="">reload this page</a>. Available page content is shown below.</div>
+    <!-- app-loading-status:end -->
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 
